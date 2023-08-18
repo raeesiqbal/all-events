@@ -1,0 +1,53 @@
+/* .chip {
+  padding: 10px 24px 10px 16px;
+  border-radius: 100px;
+  border: 1px solid #79747E;
+} */
+
+/* .icon {
+  margin-right: 8px;
+}
+
+.label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+} */
+
+/* .chip-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+} */
+
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 24px 10px 16px;
+  border: 1px solid #79747E;
+  /*  border-radius: 16px; */
+  cursor: pointer;
+  margin-bottom: 16px;
+  color: #797979;
+  border-radius: 100px;
+  /* Adjust the margin as needed */
+}
+
+.chip-active {
+  border: 1px solid #A0C49D;
+  background: rgba(160, 196, 157, 0.20);
+  color: #A0C49D !important;
+  /* color: #FFF; */
+}
+
+.chip-active span {
+  font-weight: 600;
+  color: #A0C49D !important;
+}
+
+.label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

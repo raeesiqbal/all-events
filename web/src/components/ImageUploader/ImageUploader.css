@@ -1,0 +1,7 @@
+.upload-img-close-btn {
+  width: 40px;
+  height: 40px;
+  background-color: #386C34;
+  clip-path: polygon(0 0, 100% 0, 100% 100%);
+  z-index: 5;
+}

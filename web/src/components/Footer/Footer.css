@@ -1,0 +1,44 @@
+.col-heading {
+    /* font-size: 2rem;
+    text-transform: uppercase;
+    font-weight: 500; */
+    color: #ffffff;
+    display: block;
+    /* margin: 1rem 0; */
+    /* padding: .4rem 0px; */
+    border-bottom: 1px solid #ffffff52;
+    /* letter-spacing: 3px; */
+    margin-bottom: 1.7rem;
+}
+
+.links-container li {
+    margin-top: 1rem;
+}
+
+.links-container li a {
+    text-decoration: none;
+    transition: all 0.3s;
+
+}
+
+.btn-footer-top {
+    background-color: transparent;
+    border: none;
+}
+
+.btn-up:hover path,
+.btn-up:focus path {
+    stroke-width: 15;
+}
+
+.btn-up:hover rect,
+.btn-up:focus rect {
+    /* stroke-width: 15; */
+
+    fill: #71966d;
+}
+
+.btn-up:active path {
+    stroke-width: 15;
+    transition: all 100ms ease-in-out;
+}

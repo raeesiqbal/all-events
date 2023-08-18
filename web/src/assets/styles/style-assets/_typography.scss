@@ -1,0 +1,45 @@
+// Kindly press Ctrl+A and then press Ctrl+/ to use the code
+
+// here the typography is defined
+
+@import "../mixins/typographyMixin";
+
+.roboto-light-12px-information {
+    @include typography(#797979, Roboto, 12px, 300, 28px, normal);
+}
+
+.roboto-regular-14px-information {
+    @include typography(rgba(26, 26, 26, 0.75), Roboto, 14px, 400, 24px, normal);
+}
+
+.roboto-light-16px-information {
+    @include typography(rgba(26, 26, 26, 0.75), Roboto, 16px, 300, 28px, normal);
+}
+
+.roboto-regular-16px-information {
+    @include typography(#797979, Roboto, 16px, 400, 24px, normal);
+}
+
+.roboto-regular-18px-body3 {
+    @include typography(#1A1A1A, Roboto, 18px, 400, 150%, normal);
+}
+
+.roboto-semi-bold-18px-body2 {
+    @include typography(#1A1A1A, Roboto, 18px, 600, 28px, normal);
+}
+
+.roboto-medium-20px-body1 {
+    @include typography(#1A1A1A, Roboto, 20px, 500, normal, normal);
+}
+
+.roboto-semi-bold-24px-h3 {
+    @include typography(#1A1A1A, Roboto, 24px, 600, normal, normal);
+}
+
+.roboto-semi-bold-28px-h2 {
+    @include typography(#1A1A1A, Roboto, 28px, 600, normal, normal);
+}
+
+.roboto-bold-36px-h1 {
+    @include typography(#1A1A1A, Roboto, 36px, 700, normal, normal);
+}

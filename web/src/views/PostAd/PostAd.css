@@ -1,0 +1,42 @@
+.ad-banner {
+  /* width: 100%; */
+  position: relative;
+  background-image: url("../../assets//images//banner-bg.svg");
+  height: 165px;
+  margin: 0 52px;
+  margin-top: 36px;
+  object-fit: cover;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.form-select option {
+  border: 3px solid red !important;
+}
+
+.country-field .select__control {
+  min-height: 56px;
+}
+.border-custom .select__control {
+  border-color: #797979;
+}
+
+.postAdBanner1:hover {
+  transition: cubic-bezier(0.785, 0.135, 0.15, 0.86);
+  opacity: 0.9;
+  margin-top: 40px !important;
+}
+
+.postAdBanner3:hover {
+  transition: cubic-bezier(0.785, 0.135, 0.15, 0.86);
+  opacity: 0.9;
+  margin-top: 1px !important;
+}
+
+.postAdBanner2:hover {
+  transition: cubic-bezier(0.785, 0.135, 0.15, 0.86);
+  opacity: 0.9;
+  transform: translateX(12px);
+  /* margin-right: -10px; */
+  /* margin-top: 40px !important; */
+}

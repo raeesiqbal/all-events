@@ -1,0 +1,11 @@
+.tab-active {
+  color: #386c34;
+  border-bottom: 2px solid #386c34;
+  height: 50px;
+}
+
+@media only screen and (max-width: 850px) {
+  .tab-label {
+    display: none;
+  }
+}

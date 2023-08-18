@@ -1,0 +1,95 @@
+*:focus {
+  outline: none;
+}
+
+.btn-success:hover,
+.btn-success:active,
+.btn-success:visited,
+.btn-success:focus {
+  background-color: #76af71 !important;
+  color: white !important;
+}
+
+.btn-success {
+  color: white !important;
+  background-color: #a0c49d !important;
+  border: none !important;
+  /* border-radius: 0 5px 5px 0 !important; */
+  height: 44px;
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  padding-left: 32px;
+  padding-right: 32px;
+  /* width: 100%; */
+}
+
+.btn-outline-success:hover,
+.btn-outline-success:active,
+.btn-outline-success:visited,
+.btn-outline-success:focus {
+  background-color: #a0c49d !important;
+  color: white !important;
+}
+
+.btn-outline-success {
+  color: #a0c49d !important;
+  background-color: #fff !important;
+  border: 2px solid #a0c49d !important;
+  /* border-radius: 0 5px 5px 0 !important; */
+  height: 46px !important;
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  padding-left: 30px;
+  padding-right: 30px;
+  /* width: 100%; */
+}
+
+.btn-no-border {
+  color: #a0c49d;
+  background-color: transparent !important;
+  border: none !important;
+  /* border-radius: 0 5px 5px 0 !important; */
+  height: 46px !important;
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  padding-left: 30px;
+  padding-right: 30px;
+}
+
+.btn-no-border:hover,
+.btn-no-border:active,
+.btn-no-border:visited,
+.btn-no-border:focus {
+  /* background-color: #A0C49D !important; */
+  color: #76af71 !important;
+}
+
+.btn-danger-custom {
+  color: #dc3545;
+  background-color: transparent !important;
+  border: none !important;
+  outline: 0 !important;
+  /* border-radius: 0 5px 5px 0 !important; */
+  height: 46px !important;
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  padding-left: 30px;
+  padding-right: 30px;
+}
+
+.btn-danger-custom:hover,
+.btn-danger-custom:active,
+.btn-danger-custom:visited,
+.btn-danger-custom:focus {
+  /* background-color: #A0C49D !important; */
+  color: #ff0019 !important;
+}
+
+.form-control {
+  border: 1px solid #797979;
+}
+
+.card {
+  border: none;
+  box-shadow: 0px 0px 3px 0px rgba(0, 0, 0, 0.1);
+}
