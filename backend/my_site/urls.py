@@ -57,6 +57,7 @@ urlpatterns = [
     path("api/companies/", include("apps.companies.urls", namespace="companies")),
     path("api/ads/", include("apps.ads.urls", namespace="ads")),
     path("api/analytics/", include("apps.analytics.urls", namespace="analytics")),
+    path("api/clients/", include("apps.clients.urls", namespace="clients")),
 
 
 

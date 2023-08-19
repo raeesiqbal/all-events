@@ -1,23 +1,24 @@
 
 from rest_framework.permissions import IsAuthenticated
-from apps.analytics.models import AdSaved
+from apps.analytics.models import FavouriteAd
 
-from apps.analytics.serializers.create_serializer import AdSavedCreateSerializer
+from apps.analytics.serializers.create_serializer import FavouriteAdCreateSerializer
 from rest_framework.response import Response
 from rest_framework import status
+from apps.users.constants import USER_ROLE_TYPES
 from apps.users.models import User
 from apps.users.permissions import IsSuperAdmin, IsVendorUser
 from apps.utils.views.base import BaseViewset, ResponseInfo
 
 
-class AdSavedViewSet(BaseViewset):
+class FavouriteAdViewSet(BaseViewset):
     """
     API endpoints that manages Ad Saved.
     """
 
-    queryset = AdSaved.objects.all()
+    queryset = FavouriteAd.objects.all()
     action_serializers = {
-        "create": AdSavedCreateSerializer,
+        "create": FavouriteAdCreateSerializer,
     }
     action_permissions = {
         "create": [IsAuthenticated]
@@ -28,16 +29,16 @@ class AdSavedViewSet(BaseViewset):
         
         # TODO
         # check for role_type is due 
-        user=User.objects.filter(id=request.user.id).first()
+        user=User.objects.filter(id=request.user.id,role_type=USER_ROLE_TYPES["CLIENT"]).first()
         
         resp_status=status.HTTP_400_BAD_REQUEST
         if user:
             resp_status=status.HTTP_200_OK
-            saved_ad=AdSaved.objects.filter(user=user)
+            saved_ad=FavouriteAd.objects.filter(user=user)
             if saved_ad.exists():
                 saved_ad.delete()
             else:
-                AdSaved.objects.create(**serializer.validated_data,user=user)
+                FavouriteAd.objects.create(**serializer.validated_data,user=user)
 
         return Response(
             status=resp_status,

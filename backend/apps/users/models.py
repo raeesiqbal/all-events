@@ -56,10 +56,12 @@ class User(AbstractUser):
     User model.
     """
 
-    # tr
+
     ROLE_TYPES = (
         (USER_ROLE_TYPES["SUPER_ADMIN"], "super_admin"),
         (USER_ROLE_TYPES["VENDOR"], "vendor"),
+        (USER_ROLE_TYPES["CLIENT"], "client"),
+
     )
 
     username = None

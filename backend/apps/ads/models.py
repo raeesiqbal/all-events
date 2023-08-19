@@ -3,6 +3,7 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.postgres.fields import ArrayField
 from apps.ads.constants import FAQ_TYPE
 from apps.utils.models.base import AbstractBaseModel, NewAbstractModel
+from apps.utils.utils import unique_slugify
 
 
 class Country(models.Model):
@@ -45,6 +46,7 @@ class SubCategory(models.Model):
 
 
 class Ad(NewAbstractModel):
+    slug = models.SlugField(null=True, blank=True)
     name = models.CharField(default="Ad", verbose_name=_("Commercial Name"))
     description = models.TextField(_("Description"), null=True, blank=True)
     company = models.ForeignKey(
@@ -91,9 +93,16 @@ class Ad(NewAbstractModel):
     others = models.TextField(_("Others"), null=True, blank=True)
 
     offered_services = ArrayField(base_field=models.TextField(), null=True, blank=True)
-
+    
+    total_views=models.IntegerField(_("Total Views"), default=0)
+    
     def __str__(self):
         return f"{self.name}"
+    
+    def save(self, *args, **kwargs):
+        self.slug = unique_slugify(Ad, self.name, self.id)
+        super(Ad, self).save(*args, **kwargs)
+
 
     class Meta:
         verbose_name = "Ad"
