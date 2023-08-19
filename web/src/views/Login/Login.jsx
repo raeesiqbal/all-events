@@ -19,6 +19,7 @@ import { useDispatch, useSelector } from "react-redux";
 import * as formik from "formik";
 import * as Yup from "yup";
 import { Alert } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import Featured from "../../assets/images/Featured.svg";
 import arrowBack from "../../assets/images/arrow-back.svg";
 import visibility from "../../assets/images/visibility.svg";
@@ -39,12 +40,14 @@ import {
   handleLoginStatusFalse,
   handleRegister,
   handleResgisterationStatus,
+  handleWelcomeUserAlert,
 } from "../redux/Auth/authSlice";
 import { instance } from "../../axios/axios-config";
 import DynamicRegisterationView from "./ViewHelper";
 
 function Login() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { Formik } = formik;
 
   const step1InitialValues = {
@@ -80,40 +83,87 @@ function Login() {
     email: Yup.string().email("Invalid email").required("Email is Required"),
     password: Yup.string()
       .required("Password is required")
-      .min(5, "Your password is too short."),
+      .min(6, "Must be at least 6 characters")
+      .matches(/[a-z]/, "Must contain at least one lowercase letter")
+      .matches(/[A-Z]/, "Must contain at least one uppercase letter")
+      .matches(/\d/, "Must contain at least one digit"),
+    // .required("Password is required")
+    // .min(5, "Your password is too short."),
+    phone_number: Yup.string()
+      .min(8, "Must be at least 8 digits")
+      .max(15, "Must be less than 15 digits")
+      .matches(/^\+?[0-9]{1,15}$/, "Must be a valid phone number"),
+    // .matches(/^\+?\d/, "Must include digits only"),
     password_check: Yup.string()
       .required("Passwords must match")
       .oneOf([Yup.ref("password")], "Passwords must match"),
-    contact_person_first_name: Yup.string().required("First name is Required"),
-    contact_person_last_name: Yup.string().required("Last name is Required"),
+    contact_person_first_name: Yup.string()
+      .required("First name is required")
+      .min(2, "Must be at least 2 characters")
+      .max(20, "Must be at most 20 characters")
+      .matches(
+        /^[a-zA-Z\s-]*$/,
+        "Must only contain letters, spaces, and hyphens"
+      ),
+    contact_person_last_name: Yup.string()
+      .required("Last name is required")
+      .min(2, "Must be at least 2 characters")
+      .max(20, "Must be at most 20 characters")
+      .matches(
+        /^[a-zA-Z\s-]*$/,
+        "Must only contain letters, spaces, and hyphens"
+      ),
   });
 
   const step2Schema = Yup.object().shape({
     company_name: Yup.string()
-      .required()
-      .max(25, "Company name must be up to 25 characters"),
+      .required("Company Name is required")
+      .min(6, "Must be at least 6 characters")
+      .max(25, "Must be at most 25 characters")
+      .matches(
+        /^[a-zA-Z, .&\s]*$/,
+        'Must only contain letters, spaces ", . &" signs'
+      ),
     county: Yup.string().required(),
+    city: Yup.string()
+      .required("City is required")
+      .min(3, "Must be at least 3 characters")
+      .max(25, "Must be at most 25 characters")
+      .matches(/^[a-zA-Z\s-]*$/, 'Must only contain letters, spaces, and "-"'),
     address: Yup.string()
       .required("Address is required")
+      .min(5, "Must be at least 5 characters")
+      .max(80, "Must be at most 80 characters")
       .matches(
-        /^[A-Za-z0-9\s,-./]+$/,
-        "Address can only contain letters, digits, spaces, and , - . / characters"
-      )
-      .max(70, "Address must be be up 70 characters"),
-    postal_code: Yup.string().max(7, "Postal code must be up to 7 characters"),
-    fiscal_code: Yup.string()
-      .max(11, "Fiscal code must be up to 11 characters")
-      .matches(/^[A-Za-z0-9]+$/, "Must contain letters and digits only"),
-    firm_number: Yup.string()
-      .max(11, "Firm Name must be up to 11 characters")
-      .matches(
-        /^[A-Za-z0-9/.]+$/,
-        "Firm number can contain up to 11 letters, digits, /, and . signs"
+        /^[a-zA-Z0-9, .\-/]*$/,
+        'Can only contain letters, digits, spaces, ",", ".", "-", and "/" signs'
       ),
-    bank_name: Yup.string().max(30, "Bank name must be up to 30 characters"),
+    postal_code: Yup.string()
+      .min(5, "Must be at least 5 digits")
+      .max(7, "Must be at most 7 digits")
+      .matches(/^\d{5,7}$/, "Must only contain digits"),
+    fiscal_code: Yup.string()
+      .required("Fiscal code is required")
+      .min(4, "Must be at least 4 characters")
+      .max(20, "Must be at most 20 characters")
+      .matches(
+        /^[a-zA-Z0-9\s]*$/,
+        "Can only contain letters, digits, and spaces"
+      ),
+    firm_number: Yup.string()
+      .required("Firm number is required")
+      .min(4, "Must be at least 4 characters")
+      .max(20, "Must be at most 20 characters")
+      .matches(
+        /^[a-zA-Z0-9/.]*$/,
+        'Can only contain letters, digits, "/", and "." signs'
+      ),
+    bank_name: Yup.string()
+      .max(30, "Must be at most 30 characters")
+      .matches(/^[a-zA-Z0-9]*$/, "Can only contain letters and digits"),
     bank_iban: Yup.string()
-      .max(30, "Bank name must be up to 30 characters")
-      .matches(/^[A-Za-z0-9]+$/, "Bank IBAN can contain letters and digits"),
+      .max(30, "Bank IBAN must be at most 30 characters")
+      .matches(/^[a-zA-Z0-9]*$/, "Can only contain letters and digits"),
     terms_acceptance: Yup.bool()
       .required()
       .oneOf([true], "Terms must be accepted"),
@@ -272,6 +322,9 @@ function Login() {
         })
       );
       dispatch(handleResgisterationStatus());
+      setTimeout(() => {
+        dispatch(handleWelcomeUserAlert(true));
+      }, 1000);
     }
   }, [isRegistered]);
 
@@ -279,6 +332,7 @@ function Login() {
     if (isLoggedInState) {
       handleClose();
       dispatch(handleLoginStatusFalse());
+      navigate("/post-ad");
     }
   }, [isLoggedInState]);
 

@@ -50,7 +50,10 @@ function ChangePassword() {
       .min(5, "Your password is too short."),
     new_password: Yup.string()
       .required("Password is required")
-      .min(5, "Your password is too short."),
+      .min(6, "Must be at least 6 characters")
+      .matches(/[a-z]/, "Must contain at least one lowercase letter")
+      .matches(/[A-Z]/, "Must contain at least one uppercase letter")
+      .matches(/\d/, "Must contain at least one digit"),
     confirm_password: Yup.string()
       .required("Passwords must match")
       .oneOf([Yup.ref("new_password")], "Passwords must match"),

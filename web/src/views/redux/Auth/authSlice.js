@@ -11,9 +11,12 @@ const initialState = {
     role: null,
     userCompanyId: null,
     userImage: null,
+    first_name: null,
+    last_name: null,
   },
   isRegistered: false,
   isLoggedInState: false,
+  isWelcomeUserAlert: false,
   loading: false,
   error: null,
 };
@@ -93,6 +96,9 @@ export const authSlice = createSlice({
     handleLoginStatusFalse: (state) => {
       state.isLoggedInState = false;
     },
+    handleWelcomeUserAlert: (state, action) => {
+      state.isWelcomeUserAlert = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -105,6 +111,8 @@ export const authSlice = createSlice({
         const { access, user } = action.payload;
         state.user.accessToken = access;
         state.user.userId = user.id;
+        state.user.first_name = user.first_name;
+        state.user.last_name = user.last_name;
         state.user.role = user.role_type;
         state.isLoggedInState = true;
       })
@@ -140,6 +148,8 @@ export const authSlice = createSlice({
         const { data } = action.payload;
         state.user.userId = data.id;
         state.user.role = data.role_type;
+        state.user.first_name = data.first_name;
+        state.user.last_name = data.last_name;
         state.user.userCompanyId = data.user_company.id;
         state.user.userImage = data.user_company.image;
         // state.loading = false;
@@ -152,8 +162,11 @@ export const authSlice = createSlice({
   },
 });
 
-export const { handleResgisterationStatus, handleLoginStatusFalse } =
-  authSlice.actions;
+export const {
+  handleResgisterationStatus,
+  handleLoginStatusFalse,
+  handleWelcomeUserAlert,
+} = authSlice.actions;
 
 // Export the reducer and actions
 export default authSlice.reducer;
