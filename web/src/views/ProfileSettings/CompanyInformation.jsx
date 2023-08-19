@@ -53,11 +53,22 @@ function CompanyInformationSettings() {
   const initialValues = {
     name: companyInformation.name,
     country: companyInformation.country,
-    postal_code: companyInformation.postal_code,
-    fiscal_code: companyInformation.fiscal_code,
-    firm_number: companyInformation.firm_number,
-    bank_name: companyInformation.bank_name,
-    bank_iban: companyInformation.bank_iban,
+    postal_code:
+      companyInformation.postal_code === null
+        ? ""
+        : companyInformation.postal_code,
+    fiscal_code:
+      companyInformation.fiscal_code === null
+        ? ""
+        : companyInformation.fiscal_code,
+    firm_number:
+      companyInformation.firm_number === null
+        ? ""
+        : companyInformation.firm_number,
+    bank_name:
+      companyInformation.bank_name === null ? "" : companyInformation.bank_name,
+    bank_iban:
+      companyInformation.bank_iban === null ? "" : companyInformation.bank_iban,
     municipality: companyInformation.municipality,
     city: companyInformation.city,
     address: companyInformation.address,

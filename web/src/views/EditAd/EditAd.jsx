@@ -202,8 +202,7 @@ function EditAd() {
         .matches(
           /^[a-zA-Z0-9",\-./\s]+$/,
           'Only letters, ",-./" signs, spaces, and digits are allowed'
-        )
-        .required("Full Address is required"),
+        ),
     }),
     SocialMedia: Yup.object().shape({
       facebookURL: Yup.string()

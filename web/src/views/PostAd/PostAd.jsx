@@ -218,8 +218,7 @@ function PostAd() {
         .matches(
           /^[A-Za-z0-9\s,.\-\/]+$/,
           'Only letters, digits, spaces, ", .", "-", and "/" characters are allowed'
-        )
-        .required("Full Address is required"),
+        ),
     }),
     SocialMedia: Yup.object().shape({
       facebookURL: Yup.string().matches(

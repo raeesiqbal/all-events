@@ -89,7 +89,7 @@ const ProfilePic = () => {
         top: "0",
       }}
     >
-      <label htmlFor="file-input">
+      <label htmlFor="file-input" style={{ cursor: "pointer" }}>
         {loadingImage && (
           <>
             <div

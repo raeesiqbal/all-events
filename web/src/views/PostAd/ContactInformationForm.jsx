@@ -46,7 +46,7 @@ function ContactInformationForm({ values, errors, touched, handleChange }) {
                 alt="commercialName"
                 style={{ marginRight: "16px" }}
               />
-              Contact Person Number
+              Number
             </Form.Label>
             <Form.Control
               style={{ height: "56px" }}

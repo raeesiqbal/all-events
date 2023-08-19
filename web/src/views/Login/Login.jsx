@@ -1,3 +1,5 @@
+/* eslint-disable jsx-a11y/click-events-have-key-events */
+/* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable react/no-unstable-nested-components */
 /* eslint-disable react/jsx-wrap-multilines */
 /* eslint-disable no-confusing-arrow */
@@ -90,6 +92,7 @@ function Login() {
     company_name: Yup.string()
       .required()
       .max(25, "Company name must be up to 25 characters"),
+    county: Yup.string().required(),
     address: Yup.string()
       .required("Address is required")
       .matches(
@@ -435,13 +438,16 @@ function Login() {
                       </Form.Check>
                       <div className="row" style={{ textAlign: "center" }}>
                         <p className="roboto-regular-16px-information mt-2 mb-0 ">
-                          <a
-                            href="#!"
-                            style={{ color: "#0558FF", textDecoration: "none" }}
+                          <span
+                            style={{
+                              color: "#0558FF",
+                              textDecoration: "none",
+                              cursor: "pointer",
+                            }}
                             onClick={handleClickForgotPassword}
                           >
                             Forgot password?
-                          </a>
+                          </span>
                         </p>
                       </div>
                     </div>
@@ -479,13 +485,16 @@ function Login() {
                       <div className="row" style={{ textAlign: "center" }}>
                         <p className="roboto-regular-16px-information mt-2 mb-0 ">
                           {" Don't have an account?"}{" "}
-                          <a
-                            href="#!"
-                            style={{ color: "#0558FF", textDecoration: "none" }}
+                          <span
+                            style={{
+                              color: "#0558FF",
+                              textDecoration: "none",
+                              cursor: "pointer",
+                            }}
                             onClick={handleRegisterClick}
                           >
                             Register
-                          </a>
+                          </span>
                         </p>
                       </div>
                     </div>
