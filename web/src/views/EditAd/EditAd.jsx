@@ -351,11 +351,30 @@ function EditAd() {
   };
 
   const handleAddFAQsFields = (values, setValues) => {
+    // setValues({
+    //   ...values,
+    //   FAQ: {
+    //     faqs: [
+    //       ...values.FAQ.faqs,
+    //       {
+    //         question: "",
+    //         answer_input: "",
+    //         type: "text_field",
+    //         added: false,
+    //       },
+    //     ],
+    //   },
+    // });
+    const updatedFAQs = values.FAQ.faqs.map((faq) => ({
+      ...faq,
+      added: true,
+    }));
+
     setValues({
       ...values,
       FAQ: {
         faqs: [
-          ...values.FAQ.faqs,
+          ...updatedFAQs,
           {
             question: "",
             answer_input: "",
@@ -377,6 +396,10 @@ function EditAd() {
       setSelectedCountries(
         request.data.data.activation_countries.map((country) => country.id)
       );
+      const faqsWithAddedProperty = request.data.data?.ad_faqs.map((item) => ({
+        ...item,
+        added: true,
+      }));
       setLocalInitialValues({
         companyInformation: {
           commercial_name: request.data.data?.name,
@@ -410,7 +433,7 @@ function EditAd() {
         },
         // request.data.data?.
         FAQ: {
-          faqs: request.data.data?.ad_faqs,
+          faqs: faqsWithAddedProperty,
         },
         servicesOffered: {
           services: request.data.data?.offered_services,

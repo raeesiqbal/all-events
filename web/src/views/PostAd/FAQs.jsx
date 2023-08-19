@@ -63,16 +63,38 @@ function FAQs({
                   </div>
                 </Form.Label>
                 {faq.added === false && (
-                  <Form.Control
-                    style={{ height: "56px" }}
-                    className="lg-input-small-text"
-                    type="text"
-                    name={`FAQ.faqs[${index}].question`}
-                    size="sm"
-                    placeholder="Type your question"
-                    value={faq.question}
-                    onChange={handleChange}
-                  />
+                  <>
+                    {/* {console.log(
+                      "errors.faqs[index].question",
+                      errors?.faqs?.length > 0 && errors?.faqs[index]?.question
+                    )} */}
+                    {console.log(
+                      "errors",
+                      errors.faqs?.length > 0 && errors.faqs[index].question
+                    )}
+                    {console.log(
+                      "touched",
+                      errors.faqs?.length > 0 && !!errors?.faqs[index]?.question
+                    )}
+
+                    <Form.Control
+                      style={{ height: "56px" }}
+                      className="lg-input-small-text"
+                      type="text"
+                      name={`FAQ.faqs[${index}].question`}
+                      size="sm"
+                      placeholder="Type your question"
+                      value={faq.question}
+                      onChange={handleChange}
+                      isInvalid={
+                        errors.faqs?.length > 0 &&
+                        !!errors?.faqs[index]?.question
+                      }
+                    />
+                    <Form.Control.Feedback type="invalid">
+                      {errors.faqs?.length > 0 && errors.faqs[index].question}
+                    </Form.Control.Feedback>
+                  </>
                 )}
               </Form.Group>
             </Col>
@@ -90,11 +112,13 @@ function FAQs({
                   placeholder="Type your answer"
                   value={faq.answer_input}
                   onChange={handleChange}
-                  isValid={touched.FAQ && !errors.FAQ}
-                  isInvalid={touched.FAQ && !!errors.FAQ}
+                  isInvalid={
+                    errors.faqs?.length > 0 &&
+                    !!errors?.faqs[index]?.answer_input
+                  }
                 />
                 <Form.Control.Feedback type="invalid">
-                  {errors.FAQ}
+                  {errors.faqs?.length > 0 && errors.faqs[index].answer_input}
                 </Form.Control.Feedback>
               </Form.Group>
             </Col>

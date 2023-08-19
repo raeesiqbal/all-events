@@ -365,7 +365,7 @@ function CompanyInformation({
                 value={values.description || ""}
                 // onChange={setField}
                 onChange={handleChange}
-                // isValid={touched.description && !errors.description}
+                isValid={touched.description && !errors.description}
                 isInvalid={touched.description && !!errors.description}
               />
               <Form.Control.Feedback type="invalid">

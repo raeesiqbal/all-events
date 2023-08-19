@@ -254,6 +254,17 @@ function PostAd() {
         "Invalid characters"
       ),
     }),
+
+    FAQ: Yup.object().shape({
+      faqs: Yup.array().of(
+        Yup.object().shape({
+          question: Yup.string().max(150, "Must be at most 150 characters"),
+          answer_input: Yup.string().max(500, "Must be at most 500 characters"), // You can add validation for answer_input here if needed
+          type: Yup.string(), // You can add validation for type here if needed
+          added: Yup.boolean(), // You can add validation for added here if needed
+        })
+      ),
+    }),
   });
 
   const initialValues = {
@@ -567,6 +578,7 @@ function PostAd() {
               setValues,
             }) => (
               <Form noValidate onSubmit={handleSubmit}>
+                {console.log("valuesvalues", values)}
                 <ScrollToError />
                 <UnsavedChangesPrompt
                   hasUnsavedChanges={() => hasUnsavedChanges(values)}
