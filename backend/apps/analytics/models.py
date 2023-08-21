@@ -42,7 +42,7 @@ class AdReview(NewAbstractModel):
 class Chat(NewAbstractModel):
     
     client = models.ForeignKey(
-        "users.User", on_delete=models.CASCADE, related_name="my_chats"
+        "clients.Client", on_delete=models.CASCADE, related_name="my_chats"
     )
     ad = models.ForeignKey(
         "ads.Ad",
@@ -53,10 +53,7 @@ class Chat(NewAbstractModel):
     event_date=models.DateField(_("Event Date"), auto_now=False, auto_now_add=False)
     is_archived=models.BooleanField(default=False)
 
-    class Meta:
-        unique_together = ["ad", "client"]
-
-
+    
 class Message(NewAbstractModel):
     
     text=models.TextField(null=True,blank=True)

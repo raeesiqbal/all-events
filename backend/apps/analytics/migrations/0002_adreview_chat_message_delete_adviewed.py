@@ -91,13 +91,10 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
                         related_name="my_chats",
-                        to=settings.AUTH_USER_MODEL,
+                        to="clients.client",
                     ),
                 ),
-            ],
-            options={
-                "unique_together": {("ad", "client")},
-            },
+            ]
         ),
         migrations.CreateModel(
             name="Message",
