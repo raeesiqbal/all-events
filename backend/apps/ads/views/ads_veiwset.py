@@ -58,9 +58,12 @@ class AdViewSet(BaseViewset):
     }
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     search_param = "search"
-    search_fields = []
-    ordering_fields = []
-    filterset_fields = {}
+    search_fields = ['name','company__name','country__name','sub_category__name','related_sub_category__name','activation_countries__name','city'
+                     'street','offered_services']
+    ordering_fields = ['name','sub_category__name','id']
+    filterset_fields = {
+        
+    }
     user_role_queryset = {
         USER_ROLE_TYPES["VENDOR"]: lambda self: Ad.objects.filter(
             company__user_id=self.request.user.id
