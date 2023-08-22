@@ -45,15 +45,25 @@ function PersonalInformation() {
 
   const Schema = Yup.object().shape({
     person_firstName: Yup.string()
-      .matches(/^[A-Za-z\s]{1,25}$/, "Invalid input")
-      .required("Required"),
+      .required("First name is required")
+      .min(2, "Must be at least 2 characters")
+      .max(20, "Must be at most 20 characters")
+      .matches(
+        /^[a-zA-Z\s-]*$/,
+        "Must only contain letters, spaces, and hyphens"
+      ),
     person_lastName: Yup.string()
-      .matches(/^[A-Za-z\s]{1,25}$/, "Invalid input")
-      .required("Required"),
-    person_number: Yup.string().matches(
-      /^\+?[0-9]{1,15}$/,
-      "Invalid phone number"
-    ),
+      .required("Last name is required")
+      .min(2, "Must be at least 2 characters")
+      .max(20, "Must be at most 20 characters")
+      .matches(
+        /^[a-zA-Z\s-]*$/,
+        "Must only contain letters, spaces, and hyphens"
+      ),
+    person_number: Yup.string()
+      .min(8, "Must be at least 8 digits")
+      .max(15, "Must be less than 15 digits")
+      .matches(/^\+?[0-9]{1,15}$/, "Must be a valid phone number"),
     // .required("Required"),
   });
 

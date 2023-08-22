@@ -53,11 +53,22 @@ function CompanyInformationSettings() {
   const initialValues = {
     name: companyInformation.name,
     country: companyInformation.country,
-    postal_code: companyInformation.postal_code,
-    fiscal_code: companyInformation.fiscal_code,
-    firm_number: companyInformation.firm_number,
-    bank_name: companyInformation.bank_name,
-    bank_iban: companyInformation.bank_iban,
+    postal_code:
+      companyInformation.postal_code === null
+        ? ""
+        : companyInformation.postal_code,
+    fiscal_code:
+      companyInformation.fiscal_code === null
+        ? ""
+        : companyInformation.fiscal_code,
+    firm_number:
+      companyInformation.firm_number === null
+        ? ""
+        : companyInformation.firm_number,
+    bank_name:
+      companyInformation.bank_name === null ? "" : companyInformation.bank_name,
+    bank_iban:
+      companyInformation.bank_iban === null ? "" : companyInformation.bank_iban,
     municipality: companyInformation.municipality,
     city: companyInformation.city,
     address: companyInformation.address,
@@ -68,32 +79,59 @@ function CompanyInformationSettings() {
   const Schema = Yup.object().shape({
     // person_name: Yup.string().matches(/^[A-Za-z\s]{1,25}$/, "Invalid input"),
     name: Yup.string()
-      .max(25, "String must be at most 25 characters")
-      .matches(/^[A-Za-z\s]*$/, "Only letters and spaces are allowed"),
-    country: "",
+      .required("Company Name is required")
+      .min(6, "Must be at least 6 characters")
+      .max(25, "Must be at most 25 characters")
+      .matches(
+        /^[a-zA-Z, .&\s]*$/,
+        'Must only contain letters, spaces ", . &" signs'
+      ),
+    country: Yup.string().required("Country is required"),
+    city: Yup.string()
+      .required("City is required")
+      .min(3, "Must be at least 3 characters")
+      .max(25, "Must be at most 25 characters")
+      .matches(/^[a-zA-Z\s-]*$/, 'Must only contain letters, spaces, and "-"'),
+    address: Yup.string()
+      .required("Address is required")
+      .min(5, "Must be at least 5 characters")
+      .max(80, "Must be at most 80 characters")
+      .matches(
+        /^[a-zA-Z0-9, .\-/]*$/,
+        'Can only contain letters, digits, spaces, ",", ".", "-", and "/" signs'
+      ),
     // municipality: Yup.string()
     //   .max(25, "String must be at most 25 characters")
     //   .matches(/^[A-Za-z\s]*$/, "Only letters and spaces are allowed"),
     // commune: Yup.string()
     //   .max(25, "String must be at most 25 characters")
     //   .matches(/^[A-Za-z\s]*$/, "Only letters and spaces are allowed"),
-    postal_code: Yup.string().matches(
-      /^\d{1,7}$/,
-      "Only up to 7 digits are allowed"
-    ),
-    fiscal_code: Yup.string().matches(
-      /^[a-zA-Z0-9]{1,11}$/,
-      "Only up to 11 letters and digits are allowed"
-    ),
-    firm_number: Yup.string().matches(
-      /^[\w/.]{1,11}$/,
-      'Only up to 11 letters, digits, and "/." signs are allowed'
-    ),
-    bank_name: Yup.string().max(30, "Only up to 30 letters are allowed"),
-    bank_iban: Yup.string().matches(
-      /^[a-zA-Z0-9]{1,30}$/,
-      "Only up to 30 letters and digits are allowed"
-    ),
+    postal_code: Yup.string()
+      .min(5, "Must be at least 5 digits")
+      .max(7, "Must be at most 7 digits")
+      .matches(/^\d{5,7}$/, "Must only contain digits"),
+    fiscal_code: Yup.string()
+      .required("Fiscal code is required")
+      .min(4, "Must be at least 4 characters")
+      .max(20, "Must be at most 20 characters")
+      .matches(
+        /^[a-zA-Z0-9\s]*$/,
+        "Can only contain letters, digits, and spaces"
+      ),
+    firm_number: Yup.string()
+      .required("Firm number is required")
+      .min(4, "Must be at least 4 characters")
+      .max(20, "Must be at most 20 characters")
+      .matches(
+        /^[a-zA-Z0-9/.]*$/,
+        'Can only contain letters, digits, "/", and "." signs'
+      ),
+    bank_name: Yup.string()
+      .max(30, "Must be at most 30 characters")
+      .matches(/^[a-zA-Z0-9]*$/, "Can only contain letters and digits"),
+    bank_iban: Yup.string()
+      .max(30, "Bank IBAN must be at most 30 characters")
+      .matches(/^[a-zA-Z0-9]*$/, "Can only contain letters and digits"),
   });
 
   const handleAlert = () => {

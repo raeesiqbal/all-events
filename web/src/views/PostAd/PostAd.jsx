@@ -4,7 +4,7 @@ import * as Yup from "yup";
 import { Button, Col, Container, Form, Row, Spinner } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { Alert } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Header from "../../components/Navbar/Navbar";
 import TopBanner from "../../components/TopBanner";
 import postAdBanner1 from "../../assets/images/post-ad-banner-1.svg";
@@ -29,9 +29,12 @@ import {
 } from "../redux/Posts/AdsSlice";
 import UnsavedChangesPrompt from "../../utilities/hooks/UnsavedChanged";
 import { ScrollToError } from "../../utilities/ScrollToError";
+import { handleWelcomeUserAlert } from "../redux/Auth/authSlice";
 
 function PostAd() {
   const { Formik } = formik;
+  // const { state } = useLocation();
+  // const { welcomeAlert } = state; // Read values passed on state
 
   const [selectedCountries, setSelectedCountries] = useState([]);
   const [
@@ -46,6 +49,7 @@ function PostAd() {
   const [uploadingData, setUploadingData] = useState(false);
   const [relatedSubCategoryId, setRelatedSubCategoryId] = useState(null);
   const [isMultipleCountries, setIsMultipleCountries] = useState(false);
+  // const [isWelcomeAlert, setIsWelcomeAlert] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -58,6 +62,8 @@ function PostAd() {
   const imagesError = useSelector((state) => state.Ads.imagesError);
   const isMediaUploading = useSelector((state) => state.Ads.isMediaUploading);
   const mediaError = useSelector((state) => state.Ads.mediaError);
+  const { first_name, last_name } = useSelector((state) => state.auth.user);
+  const { isWelcomeUserAlert } = useSelector((state) => state.auth);
 
   const handleSubmitAllForms = (values) => {
     if (imagesError) {
@@ -129,7 +135,7 @@ function PostAd() {
       sub_category: Yup.string().required("Sub-category is required"),
       description: Yup.string()
         .min(2, "Too short, minimum 5 characters")
-        .max(2000, "Must be at most 6667 characters")
+        .max(6667, "Must be at most 6667 characters")
         .matches(
           /^[a-zA-Z0-9.,;:'"/?!@&*()^+\-|\s]+$/,
           'Only letters, digits, ".,;:\'/?!@&*()^+-|" signs, and spaces are allowed'
@@ -214,12 +220,13 @@ function PostAd() {
         )
         .required("Required"),
       fullAddress: Yup.string()
-        .max(70, "Must be at most 70 characters")
+        .required("Required")
+        .min(5, "Too short, minimum 5 characters")
+        .max(80, "Must be at most 80 characters")
         .matches(
           /^[A-Za-z0-9\s,.\-\/]+$/,
           'Only letters, digits, spaces, ", .", "-", and "/" characters are allowed'
-        )
-        .required("Full Address is required"),
+        ),
     }),
     SocialMedia: Yup.object().shape({
       facebookURL: Yup.string().matches(
@@ -245,6 +252,17 @@ function PostAd() {
       otherURL: Yup.string().matches(
         /^((ftp|http|https):\/\/)?(www.)?(?!.*(ftp|http|https|www.))[a-zA-Z0-9_-]+(\.[a-zA-Z]+)+((\/)[\w#]+)*(\/\w+\?[a-zA-Z0-9_]+=\w+(&[a-zA-Z0-9_]+=\w+)*)?$/gm,
         "Invalid characters"
+      ),
+    }),
+
+    FAQ: Yup.object().shape({
+      faqs: Yup.array().of(
+        Yup.object().shape({
+          question: Yup.string().max(150, "Must be at most 150 characters"),
+          answer_input: Yup.string().max(500, "Must be at most 500 characters"), // You can add validation for answer_input here if needed
+          type: Yup.string(), // You can add validation for type here if needed
+          added: Yup.boolean(), // You can add validation for added here if needed
+        })
       ),
     }),
   });
@@ -439,11 +457,39 @@ function PostAd() {
     }
   }, [AdPostErrorAlert, mediaError]);
 
+  useEffect(() => {
+    if (isWelcomeUserAlert) {
+      // setIsWelcomeAlert(true);
+
+      setTimeout(() => {
+        dispatch(handleWelcomeUserAlert(false));
+        // setIsWelcomeAlert(false);
+      }, 6000);
+    }
+    // return () => clearTimeout(alertTimeout);
+  }, [isWelcomeUserAlert]);
+
   return (
     <div style={{ position: "relative" }}>
       <TopBanner />
       <Header />
       <TabNavigation />
+      <Alert
+        severity="info"
+        variant="filled"
+        style={{
+          position: "fixed",
+          top: isWelcomeUserAlert ? "154px" : "-80px",
+          left: "50%",
+          transform: "translateX(-50%)",
+          transition: "ease 200ms",
+          opacity: isWelcomeUserAlert ? 1 : 0,
+          zIndex: 1,
+          // width: "150px",
+        }}
+      >
+        {`Welcome ${first_name} ${last_name}!`}
+      </Alert>
       <Alert
         severity="success"
         variant="filled"
@@ -532,6 +578,7 @@ function PostAd() {
               setValues,
             }) => (
               <Form noValidate onSubmit={handleSubmit}>
+                {console.log("valuesvalues", values)}
                 <ScrollToError />
                 <UnsavedChangesPrompt
                   hasUnsavedChanges={() => hasUnsavedChanges(values)}

@@ -44,7 +44,9 @@ function DeleteAccount() {
     confirm_password: Yup.string()
       .required("Passwords must match")
       .oneOf([Yup.ref("password")], "Passwords must match"),
-    delete_reason: Yup.string().required("Reason to leave is required"),
+    delete_reason: Yup.string()
+      .required("Reason to leave is required")
+      .max(100, "Must be at most 100 characters"),
   });
 
   const handleFailedAlert = () => {

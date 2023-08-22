@@ -212,12 +212,14 @@ function MyAds() {
                                     alt="editIcon"
                                     className="me-3"
                                     onClick={() => navigate(`/edit-ad/${id}`)}
+                                    style={{ cursor: "pointer" }}
                                   />
                                   <img
                                     src={gotoIcon}
                                     alt="gotoIcon"
                                     className="me-3"
                                     onClick={() => navigate(`/view-ad/${id}`)}
+                                    style={{ cursor: "pointer" }}
                                   />
                                   <img
                                     src={deleteIcon}
@@ -227,6 +229,7 @@ function MyAds() {
                                       setModalShow(true);
                                       setCurrentAdId(id);
                                     }}
+                                    style={{ cursor: "pointer" }}
                                   />
                                 </div>
                               </div>

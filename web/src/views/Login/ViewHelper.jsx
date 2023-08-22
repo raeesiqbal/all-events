@@ -1,3 +1,5 @@
+/* eslint-disable jsx-a11y/click-events-have-key-events */
+/* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable no-confusing-arrow */
 import { Formik } from "formik";
 import React from "react";
@@ -167,13 +169,16 @@ const DynamicRegisterationView = ({
           <div className="row" style={{ textAlign: "center" }}>
             <p className="roboto-regular-16px-information mt-3 pt-1 mb-0 ">
               Already have an account?{" "}
-              <a
-                href="#!"
-                style={{ color: "#0558FF", textDecoration: "none" }}
+              <span
+                style={{
+                  color: "#0558FF",
+                  textDecoration: "none",
+                  cursor: "pointer",
+                }}
                 onClick={handleLoginClick}
               >
                 Login
-              </a>
+              </span>
             </p>
           </div>
         </Form>
@@ -414,13 +419,16 @@ const DynamicRegisterationView = ({
             <div className="row" style={{ textAlign: "center" }}>
               <p className="roboto-regular-16px-information mt-3 pt-1 mb-0 ">
                 Already have an account?{" "}
-                <a
-                  href="#!"
-                  style={{ color: "#0558FF", textDecoration: "none" }}
+                <span
+                  style={{
+                    color: "#0558FF",
+                    textDecoration: "none",
+                    cursor: "pointer",
+                  }}
                   onClick={handleLoginClick}
                 >
                   Login
-                </a>
+                </span>
               </p>
             </div>
           </div>
