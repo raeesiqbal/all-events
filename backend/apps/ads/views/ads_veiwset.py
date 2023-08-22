@@ -22,6 +22,7 @@ from apps.ads.serializers.update_serializer import AdUpdateSerializer
 from apps.companies.models import Company
 from apps.users.constants import USER_ROLE_TYPES
 from apps.users.models import User
+from django.db.models import F
 
 from apps.users.permissions import IsSuperAdmin, IsVendorUser
 from apps.utils.services.email_service import send_email_to_user
@@ -57,9 +58,12 @@ class AdViewSet(BaseViewset):
     }
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     search_param = "search"
-    search_fields = []
-    ordering_fields = []
-    filterset_fields = {}
+    search_fields = ['name','company__name','country__name','sub_category__name','related_sub_category__name','activation_countries__name','city'
+                     'street','offered_services']
+    ordering_fields = ['name','sub_category__name','id']
+    filterset_fields = {
+        
+    }
     user_role_queryset = {
         USER_ROLE_TYPES["VENDOR"]: lambda self: Ad.objects.filter(
             company__user_id=self.request.user.id
@@ -227,5 +231,19 @@ class AdViewSet(BaseViewset):
             status=status.HTTP_200_OK,
             data=ResponseInfo().format_response(
                 data={}, status_code=status.HTTP_200_OK, message="delete media on update"
+            ),
+        )
+    
+    @action(detail=False, url_path="view-effect", methods=["get"])
+    def increment_view_effect(self, request, *args, **kwargs):
+        slug=request.GET.get("slug")
+        obj = self.queryset.filter(slug=slug)
+        if len(obj):
+            obj.update(total_views=F("total_views")+1)
+
+        return Response(
+            status=status.HTTP_200_OK,
+            data=ResponseInfo().format_response(
+                data={}, status_code=status.HTTP_200_OK, message="Ads Get"
             ),
         )

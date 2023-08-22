@@ -80,7 +80,9 @@ class AdGetSerializer(BaseSerializer):
     ad_faqs = FaqsGetSerializer(many=True)
     
     ad_save_count=serializers.SerializerMethodField('get_ad_saved_count')
+    
     def get_ad_saved_count(self, obj):
+        
         return obj.ad_saved.all().count()
 
 

@@ -1,4 +1,3 @@
-from datetime import date
 
 from django.contrib.contenttypes.models import ContentType
 from rest_framework.decorators import action

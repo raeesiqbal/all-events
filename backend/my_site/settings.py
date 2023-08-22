@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     "apps.ads",
     "django_rest_passwordreset",
     "apps.analytics",
+    "apps.clients"
 ]
 
 MIDDLEWARE = [
