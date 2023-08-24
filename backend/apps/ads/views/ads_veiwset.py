@@ -2,6 +2,7 @@ from datetime import date, datetime
 import os
 from django.conf import settings
 from django.template.loader import render_to_string
+from django.db.models import Value
 
 from django.contrib.contenttypes.models import ContentType
 from rest_framework.decorators import action
@@ -10,14 +11,15 @@ from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-from apps.ads.models import FAQ, Ad, Gallery
+from apps.ads.models import FAQ, Ad, Category, Gallery, SubCategory
 from apps.ads.serializers.create_serializers import (
     AdCreateSerializer,
     DeleteUrlOnUpdateSerializer,
     DeleteUrlSerializer,
     GetUploadPresignedUrlSerializer,
+    SearchStringSerializer,
 )
-from apps.ads.serializers.get_serializers import AdGetSerializer, AdPublicGetSerializer
+from apps.ads.serializers.get_serializers import AdGetSerializer, AdPublicGetSerializer, SuggestionGetSerializer
 from apps.ads.serializers.update_serializer import AdUpdateSerializer
 from apps.companies.models import Company
 from apps.users.constants import USER_ROLE_TYPES
@@ -44,7 +46,9 @@ class AdViewSet(BaseViewset):
         "delete_url": DeleteUrlSerializer,
         "remove_url_on_update":DeleteUrlOnUpdateSerializer,
         "list":AdGetSerializer,
-        "retrieve":AdGetSerializer
+        "retrieve":AdGetSerializer,
+        "fetch_suggestion_list":SearchStringSerializer
+
     }
     action_permissions = {
         "default": [],
@@ -54,7 +58,8 @@ class AdViewSet(BaseViewset):
         "partial_update": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
         "destroy": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
         "get_upload_url": [],
-        "remove_url_on_update":[IsAuthenticated, IsSuperAdmin | IsVendorUser]
+        "remove_url_on_update":[IsAuthenticated, IsSuperAdmin | IsVendorUser],
+        "fetch_suggestion_list":[]
     }
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     search_param = "search"
@@ -62,7 +67,9 @@ class AdViewSet(BaseViewset):
                      'street','offered_services']
     ordering_fields = ['name','sub_category__name','id']
     filterset_fields = {
-        
+        "sub_category__category__name":["iexact"],
+        "sub_category__name":["iexact"],
+        "name":["iexact"]
     }
     user_role_queryset = {
         USER_ROLE_TYPES["VENDOR"]: lambda self: Ad.objects.filter(
@@ -247,3 +254,28 @@ class AdViewSet(BaseViewset):
                 data={}, status_code=status.HTTP_200_OK, message="Ads Get"
             ),
         )
+    
+    @action(detail=False, url_path="suggestion-list", methods=["post"])
+    def fetch_suggestion_list(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        search_string=serializer.validated_data.get('search_string')
+        
+        categories=Category.objects.filter(name__icontains=search_string).values('name').annotate(type=Value('category'))
+        categories_dict_list=list(categories)
+        
+        sub_categories=SubCategory.objects.filter(name__icontains=search_string).values('name').annotate(type=Value('sub_categories'))
+        sub_categories_dict_list=list(sub_categories)
+        
+        ad=Ad.objects.filter(name__icontains=search_string).values('name').annotate(type=Value('commercial_name'))
+        ad_dict_list=list(ad)
+        
+        data_list=categories_dict_list+sub_categories_dict_list+ad_dict_list
+        data=SuggestionGetSerializer(data_list,many=True).data
+        return Response(
+            status=status.HTTP_200_OK,
+            data=ResponseInfo().format_response(
+                data=data, status_code=status.HTTP_200_OK, message="Ads Get"
+            ),
+        )
+    

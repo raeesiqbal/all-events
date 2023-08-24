@@ -79,3 +79,10 @@ class DeleteUrlOnUpdateSerializer(serializers.Serializer):
     class Meta:
         model = Gallery
         fields = ["url","media_type"]
+
+class SearchStringSerializer(serializers.Serializer):
+    search_string = serializers.CharField(required=True, max_length=1000)
+   
+    class Meta:
+        model = Gallery
+        fields = ["search_string"]

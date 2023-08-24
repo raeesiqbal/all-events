@@ -120,3 +120,12 @@ class AdPublicGetSerializer(BaseSerializer):
     class Meta:
         model = Ad
         fields = "__all__"
+
+
+class SuggestionGetSerializer(BaseSerializer):
+    name=serializers.CharField(max_length=100)
+    type=serializers.CharField(max_length=100)
+
+    class Meta:
+        model = Ad
+        fields = ["name","type"]
