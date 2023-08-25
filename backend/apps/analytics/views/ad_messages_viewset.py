@@ -64,7 +64,8 @@ class MessageViewSet(BaseViewset):
 
     def list(self, request, *args, **kwargs):
         data = super().list(request, *args, **kwargs)
-        list_data = data.data["data"]
+        list_data = data.data
+        print(list_data)
         queryset = self.get_queryset()
         inbox_count = queryset.count()
         archived_count = None
@@ -74,11 +75,8 @@ class MessageViewSet(BaseViewset):
         elif request.user.role_type == USER_ROLE_TYPES["VENDOR"]:
             archived_count = queryset.filter(is_archived_vendor=True).count()
 
-        dic = {
-            "inbox_count": inbox_count,
-            "archived_count": archived_count,
-        }
-        list_data.append(dic)
+        list_data["inbox_count"] = inbox_count
+        list_data["archived_count"] = archived_count
         return data
 
     @action(detail=False, url_path="start-chat", methods=["post"])
