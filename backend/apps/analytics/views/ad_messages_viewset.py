@@ -15,6 +15,8 @@ from apps.analytics.serializers.update_serializer import (
     MessageIsReadSerializer,
 )
 
+from apps.clients.models import Client
+
 # from apps.analytics.services import message_creation
 from apps.users.constants import USER_ROLE_TYPES
 from apps.users.models import User
@@ -84,8 +86,9 @@ class MessageViewSet(BaseViewset):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         message = serializer.validated_data.pop("message", {})
-        if not Chat.objects.filter(**serializer.validated_data).exists():
-            chat = Chat.objects.create(**serializer.validated_data)
+        client = Client.objects.get(user=request.user)
+        if not Chat.objects.filter(**serializer.validated_data, client=client).exists():
+            chat = Chat.objects.create(**serializer.validated_data, client=client)
             msg = Message.objects.create(chat=chat, sender=request.user, text=message)
             chat.latest_message = msg
             chat.save()
@@ -97,12 +100,11 @@ class MessageViewSet(BaseViewset):
                     message="Chat has been created successfully",
                 ),
             )
-
         return Response(
-            status=status.HTTP_302_FOUND,
+            status=status.HTTP_200_OK,
             data=ResponseInfo().format_response(
                 data={},
-                status_code=status.HTTP_302_FOUND,
+                status_code=status.HTTP_200_OK,
                 message="Chat already exists",
             ),
         )

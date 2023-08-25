@@ -37,7 +37,6 @@ class AdChatCreateSerializer(BaseSerializer):
     class Meta:
         model = Chat
         fields = [
-            "client",
             "ad",
             "event_date",
             "message",
