@@ -191,7 +191,7 @@ class MessageViewSet(BaseViewset):
             client=request.user.client_profile, ad=kwargs.get("pk")
         ).exists():
             return Response(
-                status_code=status.HTTP_200_OK,
+                status=status.HTTP_200_OK,
                 data=ResponseInfo().format_response(
                     data={},
                     status_code=status.HTTP_200_OK,
@@ -199,7 +199,7 @@ class MessageViewSet(BaseViewset):
                 ),
             )
         return Response(
-            status_code=status.HTTP_200_OK,
+            status_code=status.HTTP_404_NOT_FOUND,
             data=ResponseInfo().format_response(
                 data={},
                 status_code=status.HTTP_404_NOT_FOUND,
