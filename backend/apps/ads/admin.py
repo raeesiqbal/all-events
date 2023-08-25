@@ -28,11 +28,13 @@ class FAQInline(admin.TabularInline):
 class AdAdmin(admin.ModelAdmin):
     list_display = (
         "id",
+        "slug",
         "name",
         "company",
     )
     search_fields = [
         "id",
+        "slug",
         "name",
     ]
     raw_id_fields = (
@@ -47,6 +49,7 @@ class AdAdmin(admin.ModelAdmin):
             None,
             {
                 "fields": (
+                    "slug",
                     "created_at",
                     "name",
                     "company",

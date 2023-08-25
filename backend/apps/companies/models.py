@@ -33,8 +33,8 @@ class Company(NewAbstractModel):
         null=True,
         blank=True,
     )
-    image=models.TextField(null=True,blank=True)
-    city=models.TextField(null=True,blank=True)
+    image = models.TextField(null=True, blank=True)
+    city = models.TextField(null=True, blank=True)
 
     class Meta:
         verbose_name = "Company"

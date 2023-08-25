@@ -1,9 +1,11 @@
-
 from rest_framework.permissions import IsAuthenticated
 from apps.analytics.models import AdReview, FavouriteAd
 from rest_framework.decorators import action
 
-from apps.analytics.serializers.create_serializer import AdReviewCreateSerializer, FavouriteAdCreateSerializer
+from apps.analytics.serializers.create_serializer import (
+    AdReviewCreateSerializer,
+    FavouriteAdCreateSerializer,
+)
 from rest_framework.response import Response
 from rest_framework import status
 from apps.analytics.serializers.get_serializer import AdReviewGetSerializer
@@ -20,21 +22,21 @@ class AdReviewViewSet(BaseViewset):
 
     queryset = AdReview.objects.all()
     action_serializers = {
+        "default": AdReviewGetSerializer,
         "create": AdReviewCreateSerializer,
-        "ad_reviews":AdReviewGetSerializer
+        "ad_reviews": AdReviewGetSerializer,
     }
     action_permissions = {
-        "create": [IsAuthenticated|IsClient],
-        "ad_reviews":[]
+        "create": [IsAuthenticated | IsClient],
+        "ad_reviews": [],
     }
 
-    
     @action(detail=False, url_path="list", methods=["get"])
     def public_ad_reviews(self, request, *args, **kwargs):
-        
-        slug=request.GET.get("slug")
-        queryset=AdReview.objects.filter(ad__slug=slug)
-        data=[]
+        slug = request.GET.get("slug")
+        queryset = AdReview.objects.filter(ad__slug=slug)
+        data = []
+
         if len(queryset):
             queryset = self.filter_queryset(queryset)
             page = self.paginate_queryset(queryset)
@@ -54,8 +56,3 @@ class AdReviewViewSet(BaseViewset):
                 data=data, status_code=status.HTTP_200_OK, message="Review List"
             ),
         )
-
-
-
-    
-

@@ -1,6 +1,5 @@
-from apps.users.constants import  USER_ROLE_TYPES
+from apps.users.constants import USER_ROLE_TYPES
 from rest_framework import permissions
-
 
 
 class IsSuperAdmin(permissions.BasePermission):
@@ -9,7 +8,8 @@ class IsSuperAdmin(permissions.BasePermission):
     """
 
     def has_permission(self, request, view):
-        return request.user.role_type == USER_ROLE_TYPES['SUPER_ADMIN']
+        return request.user.role_type == USER_ROLE_TYPES["SUPER_ADMIN"]
+
 
 class IsVendorUser(permissions.BasePermission):
     """
@@ -17,8 +17,8 @@ class IsVendorUser(permissions.BasePermission):
     """
 
     def has_permission(self, request, view):
-        
-        return request.user.role_type == USER_ROLE_TYPES['VENDOR']
+        return request.user.role_type == USER_ROLE_TYPES["VENDOR"]
+
 
 class IsClient(permissions.BasePermission):
     """
@@ -26,5 +26,4 @@ class IsClient(permissions.BasePermission):
     """
 
     def has_permission(self, request, view):
-        return request.user.role_type == USER_ROLE_TYPES['CLIENT']
-
+        return request.user.role_type == USER_ROLE_TYPES["CLIENT"]

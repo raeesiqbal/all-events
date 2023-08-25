@@ -23,10 +23,12 @@ class CategoryGetSerializer(BaseSerializer):
         model = Category
         fields = "__all__"
 
+
 class CategoryGetSerializer(BaseSerializer):
     class Meta:
         model = Category
         fields = "__all__"
+
 
 class SubCategoryGetSerializer(BaseSerializer):
     category = CategoryGetSerializer()
@@ -34,8 +36,6 @@ class SubCategoryGetSerializer(BaseSerializer):
     class Meta:
         model = SubCategory
         fields = "__all__"
-
-
 
 
 class CountryGetSerializer(BaseSerializer):
@@ -78,14 +78,11 @@ class AdGetSerializer(BaseSerializer):
     country = CountryGetSerializer()
     ad_media = GalleryChildSerializer(many=True)
     ad_faqs = FaqsGetSerializer(many=True)
-    
-    ad_save_count=serializers.SerializerMethodField('get_ad_saved_count')
-    
+
+    ad_save_count = serializers.SerializerMethodField("get_ad_saved_count")
+
     def get_ad_saved_count(self, obj):
-        
         return obj.ad_saved.all().count()
-
-
 
     class Meta:
         model = Ad
@@ -114,8 +111,6 @@ class AdPublicGetSerializer(BaseSerializer):
     country = CountryGetSerializer()
     ad_media = GalleryChildSerializer(many=True)
     ad_faqs = FaqsGetSerializer(many=True)
-    
-
 
     class Meta:
         model = Ad
