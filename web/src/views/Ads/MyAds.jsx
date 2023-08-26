@@ -184,9 +184,9 @@ function MyAds() {
                                   maxWidth: "70%",
                                 }}
                               >
-                                {/* {`${
+                                {`${
                                   description && description.slice(0, 200)
-                                }...`} */}
+                                }...`}
                               </Card.Text>
                             </div>
 

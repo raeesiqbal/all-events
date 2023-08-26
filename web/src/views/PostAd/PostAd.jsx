@@ -449,7 +449,7 @@ function PostAd() {
   }, [AdPostSuccessAlert]);
 
   useEffect(() => {
-    if ((AdPostErrorAlert, mediaError)) {
+    if (AdPostErrorAlert || mediaError) {
       setTimeout(() => {
         dispatch(handleUpdateAdPostErrorAlerting(false));
         dispatch(setMediaError(null));
