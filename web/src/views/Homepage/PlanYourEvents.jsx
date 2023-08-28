@@ -90,7 +90,11 @@ function PlanYourEvents() {
                           </Button>
                         </Card.Body>
                       </Col>
-                      <Col xs={6} sm={5} style={{ padding: "10px 0" }}>
+                      <Col
+                        xs={6}
+                        sm={5}
+                        style={{ padding: "10px 0", paddingRight: "10px" }}
+                      >
                         <Card.Img
                           src={imageByIndex(id)}
                           alt="Event"

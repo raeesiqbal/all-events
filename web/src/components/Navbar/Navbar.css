@@ -41,10 +41,10 @@
   align-items: center;
 }
 
-.mobile-btn {
+/* .mobile-btn {
   width: 188px !important;
   margin-top: 0 !important;
-}
+} */
 
 .mobile-border-nav {
   display: none;
@@ -88,6 +88,12 @@
 
   .nav-link {
     margin-right: 1rem;
+  }
+}
+
+@media (max-width: 1024px) {
+  .mobile-btn {
+    padding: 0 16px;
   }
 }
 

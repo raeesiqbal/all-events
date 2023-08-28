@@ -99,7 +99,12 @@ function Header() {
   };
 
   return (
-    <Navbar bg="body-tertiary" expand="lg" className="navbar">
+    <Navbar
+      bg="body-tertiary"
+      expand="lg"
+      className="navbar"
+      style={{ border: "1px solid rgba(0, 0, 0, 0.2)", boxShadow: "none" }}
+    >
       {window.location.pathname !== "/" && (
         <div
           className="d-flex navbar-arrow-left"
@@ -330,29 +335,30 @@ function Header() {
             </Row>
           ) : (
             <Row>
-              {/* <Col lg={3}>
+              <Col lg={3}>
                 <Button
                   type="button"
-                  className="btn-danger-custom text-danger roboto-semi-bold-16px-information"
+                  className="btn-danger-custom login-button text-danger roboto-semi-bold-16px-information"
                   style={{
                     fontSize: "16px",
                     fontWeight: "700",
                     // color: "red",
+                    marginLeft: "-20px",
                     padding: "0",
                   }}
                   onClick={handleLogout}
                 >
                   Logout
                 </Button>
-              </Col> */}
+              </Col>
 
-              <Col lg={2}>
+              <Col lg={3}>
                 <Button
                   variant="outline-success"
                   type="submit"
                   className="mb-2 mobile-btn"
                   onClick={(e) => navigate("/post-ad")}
-                  style={{ whiteSpace: "nowrap" }}
+                  // style={{ whiteSpace: "nowrap" }}
                 >
                   Dashboard
                 </Button>

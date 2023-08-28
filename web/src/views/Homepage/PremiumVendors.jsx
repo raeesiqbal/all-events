@@ -115,7 +115,7 @@ function PremiumVendors() {
             componentToRender={componentToRender}
           />
           <div className="d-flex justify-content-center mt-5 w-100">
-            <Col xs={12} md={7} lg={3}>
+            <Col xs={12} md={7} lg={2}>
               <Button
                 variant="success"
                 type="submit"

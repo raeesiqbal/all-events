@@ -27,6 +27,7 @@ import TabNavigation from "../../components/TabNavigation/TabNavigation";
 import { secure_instance } from "../../axios/axios-config";
 import "./Ads.css";
 import { handleUpdateAds, listVendorAds } from "../redux/Posts/AdsSlice";
+import useWindowDimensions from "../../utilities/hooks/useWindowDimension";
 
 function MyAds() {
   const navigate = useNavigate();
@@ -36,6 +37,7 @@ function MyAds() {
   const [currentAdId, setCurrentAdId] = React.useState(null);
 
   const vendorAds = useSelector((state) => state.Ads.vendorAds);
+  const { width } = useWindowDimensions();
 
   const handleDeleteAd = async () => {
     try {
@@ -65,6 +67,8 @@ function MyAds() {
   const sortedAdvertisements = [...vendorAds].sort(
     (a, b) => new Date(b.created_at) - new Date(a.created_at)
   );
+
+  // console.log(width);
 
   return (
     <>
@@ -115,7 +119,15 @@ function MyAds() {
         style={{ marginTop: "40px", marginBottom: "200px" }}
         className=""
       >
-        <Row className="justify-content-center">
+        <Row
+          className="justify-content-center"
+          style={{
+            flexDirection:
+              sortedAdvertisements.length === 0 &&
+              width <= 768 &&
+              "column-reverse",
+          }}
+        >
           {sortedAdvertisements.length > 0 ? (
             sortedAdvertisements.map((product) => {
               const {
@@ -246,10 +258,7 @@ function MyAds() {
           ) : (
             <>
               <Col lg={6} style={{ padding: "30px 0" }}>
-                <Col
-                  lg={10}
-                  className="d-flex justify-content-center text-center"
-                >
+                <Col lg={10} className="d-flex justify-content-center">
                   <div className="roboto-semi-bold-28px-h2">
                     Currently you have no Ads!
                   </div>
@@ -287,12 +296,14 @@ function MyAds() {
                 </Col>
               </Col>
 
-              <Col lg={6} className="d-flex">
-                <img
-                  src={noAds}
-                  alt="noAds"
-                  style={{ maxWidth: "100%", objectFit: "cover" }}
-                />
+              <Col sm={12} md={12} lg={6}>
+                <div className="d-flex justify-content-center w-100">
+                  <img
+                    src={noAds}
+                    alt="noAds"
+                    style={{ maxWidth: "100%", objectFit: "cover" }}
+                  />
+                </div>
               </Col>
             </>
           )}

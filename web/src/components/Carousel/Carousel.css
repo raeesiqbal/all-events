@@ -172,11 +172,11 @@
 }
 
 .embla__button--prev {
-  left: 0.3rem;
+  left: -1.3rem;
 }
 
 .embla__button--next {
-  right: 0.3rem;
+  right: -1.3rem;
 }
 
 .embla__button:disabled {
