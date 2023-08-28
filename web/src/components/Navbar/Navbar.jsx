@@ -102,7 +102,7 @@ function Header() {
     <Navbar bg="body-tertiary" expand="lg" className="navbar">
       {window.location.pathname !== "/" && (
         <div
-          className="d-flex"
+          className="d-flex navbar-arrow-left"
           style={{ cursor: "pointer", width: "5vw" }}
           onClick={handleBack}
         >
@@ -124,7 +124,7 @@ function Header() {
       <Navbar.Brand onClick={() => navigate("/")}>
         <img src={Allevents} alt="Allevents" style={{ minWidth: "100%" }} />
       </Navbar.Brand>
-      {user.userId === null && (
+      {user.userId === null ? (
         <Button
           type="button"
           // className="login-button"
@@ -135,6 +135,20 @@ function Header() {
           onClick={(e) => handleLoginClick(e)}
         >
           Login
+        </Button>
+      ) : (
+        <Button
+          type="button"
+          className="btn-danger-custom text-danger login-button-mobile roboto-semi-bold-16px-information me-5"
+          style={{
+            fontSize: "16px",
+            fontWeight: "700",
+            // color: "red",
+            padding: "0",
+          }}
+          onClick={handleLogout}
+        >
+          Logout
         </Button>
       )}
 
@@ -178,14 +192,18 @@ function Header() {
           <NavDropdown
             // title="For him"
             id="navbarDropdown"
+            // style={{ borderBottom: "1px solid #1A1A1A", opacity: "0.1" }}
             title={
-              <div className="d-flex align-items-center">
-                For him{" "}
-                <FontAwesomeIcon
-                  icon={faAngleDown}
-                  style={{ marginLeft: "10px" }}
-                />
-              </div>
+              <>
+                <div className="nav-mobile">
+                  <div className="d-flex align-items-center">For him </div>
+                  <FontAwesomeIcon
+                    icon={faAngleDown}
+                    style={{ marginLeft: "10px" }}
+                  />
+                </div>
+                <div className="mobile-border-nav" />
+              </>
             }
           >
             <NavDropdown.Item href="#">Action</NavDropdown.Item>
@@ -195,30 +213,16 @@ function Header() {
 
           <NavDropdown
             title={
-              <div className="d-flex align-items-center">
-                For her{" "}
-                <FontAwesomeIcon
-                  icon={faAngleDown}
-                  style={{ marginLeft: "10px" }}
-                />
-              </div>
-            }
-            id="navbarDropdown"
-          >
-            <NavDropdown.Item href="#">Action</NavDropdown.Item>
-            <NavDropdown.Divider />
-            <NavDropdown.Item href="#">Something else here</NavDropdown.Item>
-          </NavDropdown>
-
-          <NavDropdown
-            title={
-              <div className="d-flex align-items-center">
-                Vendors{" "}
-                <FontAwesomeIcon
-                  icon={faAngleDown}
-                  style={{ marginLeft: "10px" }}
-                />
-              </div>
+              <>
+                <div className="nav-mobile">
+                  <div className="d-flex align-items-center"> For her </div>
+                  <FontAwesomeIcon
+                    icon={faAngleDown}
+                    style={{ marginLeft: "10px" }}
+                  />
+                </div>
+                <div className="mobile-border-nav" />
+              </>
             }
             id="navbarDropdown"
           >
@@ -229,13 +233,16 @@ function Header() {
 
           <NavDropdown
             title={
-              <div className="d-flex align-items-center">
-                Venues{" "}
-                <FontAwesomeIcon
-                  icon={faAngleDown}
-                  style={{ marginLeft: "10px" }}
-                />
-              </div>
+              <>
+                <div className="nav-mobile">
+                  <div className="d-flex align-items-center"> Vendors </div>
+                  <FontAwesomeIcon
+                    icon={faAngleDown}
+                    style={{ marginLeft: "10px" }}
+                  />
+                </div>
+                <div className="mobile-border-nav" />
+              </>
             }
             id="navbarDropdown"
           >
@@ -246,13 +253,39 @@ function Header() {
 
           <NavDropdown
             title={
-              <div className="d-flex align-items-center">
-                Planning tools{" "}
-                <FontAwesomeIcon
-                  icon={faAngleDown}
-                  style={{ marginLeft: "10px" }}
-                />
-              </div>
+              <>
+                <div className="nav-mobile">
+                  <div className="d-flex align-items-center"> Venues </div>
+                  <FontAwesomeIcon
+                    icon={faAngleDown}
+                    style={{ marginLeft: "10px" }}
+                  />
+                </div>
+                <div className="mobile-border-nav" />
+              </>
+            }
+            id="navbarDropdown"
+          >
+            <NavDropdown.Item href="#">Action</NavDropdown.Item>
+            <NavDropdown.Divider />
+            <NavDropdown.Item href="#">Something else here</NavDropdown.Item>
+          </NavDropdown>
+
+          <NavDropdown
+            title={
+              <>
+                <div className="nav-mobile">
+                  <div className="d-flex align-items-center">
+                    {" "}
+                    Planning tools{" "}
+                  </div>
+                  <FontAwesomeIcon
+                    icon={faAngleDown}
+                    style={{ marginLeft: "10px" }}
+                  />
+                </div>
+                <div className="mobile-border-nav" />
+              </>
             }
             id="navbarDropdown"
           >
@@ -297,7 +330,7 @@ function Header() {
             </Row>
           ) : (
             <Row>
-              <Col lg={3}>
+              {/* <Col lg={3}>
                 <Button
                   type="button"
                   className="btn-danger-custom text-danger roboto-semi-bold-16px-information"
@@ -311,13 +344,13 @@ function Header() {
                 >
                   Logout
                 </Button>
-              </Col>
+              </Col> */}
 
               <Col lg={2}>
                 <Button
                   variant="outline-success"
                   type="submit"
-                  className="mb-2 ms-3"
+                  className="mb-2 mobile-btn"
                   onClick={(e) => navigate("/post-ad")}
                   style={{ whiteSpace: "nowrap" }}
                 >

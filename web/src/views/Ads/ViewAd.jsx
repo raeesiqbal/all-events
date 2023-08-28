@@ -47,6 +47,7 @@ import Footer from "../../components/Footer/Footer";
 import TabNavigation from "../../components/TabNavigation/TabNavigation";
 import { secure_instance } from "../../axios/axios-config";
 import "./Ads.css";
+import useWindowDimensions from "../../utilities/hooks/useWindowDimension";
 
 export function PrevButton(props) {
   const { enabled, onClick } = props;
@@ -91,7 +92,8 @@ function ViewAd() {
   const [currentTab, setCurrentTab] = useState(1);
   const [currentAd, setCurrentAd] = useState(null);
   const params = useParams();
-
+  const mediaQuery = useWindowDimensions();
+  console.log({ mediaQuery });
   const options = { slidesToScroll: "auto", containScroll: "trimSnaps" };
 
   const [emblaRef, emblaApi] = useEmblaCarousel(options);
@@ -183,7 +185,7 @@ function ViewAd() {
         className=""
       >
         <Row>
-          <div className="d-flex align-items-center justify-content-between mb-2 mx-3">
+          <div className="d-flex align-items-center justify-content-between">
             <div className="roboto-bold-36px-h1">{currentAd?.name}</div>
 
             <div>
@@ -198,66 +200,84 @@ function ViewAd() {
               <div className="carousel__container__view__ad">
                 <div className="embla__view__ad">
                   <div className="embla__viewport__view__ad" ref={emblaRef}>
-                    <div className="embla__container__view__ad">
-                      {slidesModified.map((slide, index) => (
-                        <div key={index} className="carousel-slide">
-                          {console.log({ slide })}
-                          <Row>
-                            <Col
-                              sm={6}
-                              md={6}
-                              lg={
-                                slide[`image${index * 3 + 2}`] ||
-                                slide[`image${index * 3 + 3}`]
-                                  ? 6
-                                  : 12
-                              }
-                              xl={
-                                slide[`image${index * 3 + 2}`] ||
-                                slide[`image${index * 3 + 3}`]
-                                  ? 6
-                                  : 12
-                              }
-                              className="main-image-container"
-                            >
-                              <img
-                                src={slide[`image${index * 3 + 1}`]}
-                                alt={`image${index * 3 + 1}`}
-                                className="main-image"
-                              />
-                            </Col>
+                    {mediaQuery.width > 441 ? (
+                      <div className="embla__container__view__ad">
+                        {slidesModified.map((slide, index) => (
+                          <div key={index} className="carousel-slide">
+                            {console.log({ slide })}
+                            <Row>
+                              <Col
+                                sm={6}
+                                md={6}
+                                lg={
+                                  slide[`image${index * 3 + 2}`] ||
+                                  slide[`image${index * 3 + 3}`]
+                                    ? 6
+                                    : 12
+                                }
+                                xl={
+                                  slide[`image${index * 3 + 2}`] ||
+                                  slide[`image${index * 3 + 3}`]
+                                    ? 6
+                                    : 12
+                                }
+                                className="main-image-container"
+                              >
+                                <img
+                                  src={slide[`image${index * 3 + 1}`]}
+                                  alt={`image${index * 3 + 1}`}
+                                  className="main-image"
+                                />
+                              </Col>
 
-                            <Col
-                              sm={6}
-                              md={6}
-                              lg={6}
-                              xl={6}
-                              className="image-stack"
-                            >
-                              {slide[`image${index * 3 + 2}`] && (
+                              <Col
+                                sm={6}
+                                md={6}
+                                lg={6}
+                                xl={6}
+                                className="image-stack"
+                              >
+                                {slide[`image${index * 3 + 2}`] && (
+                                  <img
+                                    src={slide[`image${index * 3 + 2}`]}
+                                    alt={`image${index * 3 + 2}`}
+                                    className="stacked-image"
+                                    style={{
+                                      minHeight: slide[`image${index * 3 + 3}`]
+                                        ? "100%"
+                                        : "464px",
+                                    }}
+                                  />
+                                )}
+                                {slide[`image${index * 3 + 3}`] && (
+                                  <img
+                                    src={slide[`image${index * 3 + 3}`]}
+                                    alt={`image${index * 3 + 3}`}
+                                    className="stacked-image"
+                                  />
+                                )}
+                              </Col>
+                            </Row>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="embla__container__view__ad">
+                        {imageLinks?.map((slide, index) => (
+                          <div key={index} className="carousel-slide">
+                            <Row>
+                              <Col>
                                 <img
-                                  src={slide[`image${index * 3 + 2}`]}
-                                  alt={`image${index * 3 + 2}`}
-                                  className="stacked-image"
-                                  style={{
-                                    minHeight: slide[`image${index * 3 + 3}`]
-                                      ? "100%"
-                                      : "464px",
-                                  }}
+                                  src={slide}
+                                  alt={index}
+                                  className="main-image"
                                 />
-                              )}
-                              {slide[`image${index * 3 + 3}`] && (
-                                <img
-                                  src={slide[`image${index * 3 + 3}`]}
-                                  alt={`image${index * 3 + 3}`}
-                                  className="stacked-image"
-                                />
-                              )}
-                            </Col>
-                          </Row>
-                        </div>
-                      ))}
-                    </div>
+                              </Col>
+                            </Row>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   <PrevButton onClick={scrollPrev} enabled={prevBtnEnabled} />
                   <NextButton onClick={scrollNext} enabled={nextBtnEnabled} />

@@ -470,7 +470,7 @@ function PostAd() {
   }, [isWelcomeUserAlert]);
 
   return (
-    <div style={{ position: "relative" }}>
+    <div style={{ position: "relative", overflowX: "hidden" }}>
       <TopBanner />
       <Header />
       <TabNavigation />
@@ -526,7 +526,7 @@ function PostAd() {
       </Alert>
 
       <div className="ad-banner d-flex align-items-center justify-content-between">
-        <div style={{ marginLeft: "100px" }}>
+        <div style={{ marginLeft: "2rem" }}>
           <div className="roboto-bold-36px-h1">Post an Ad</div>
           <div className="roboto-regular-18px-body3">
             Reach thousands of buyers on our platform
@@ -540,6 +540,7 @@ function PostAd() {
             top: "-32px",
             display: "flex",
           }}
+          className="banner-images"
         >
           <div style={{ marginTop: "30px" }} className="postAdBanner1">
             <img src={postAdBanner1} alt="postAdBanner1" />
@@ -560,7 +561,11 @@ function PostAd() {
           </div>
         </div>
       </div>
-      <Container fluid style={{ marginTop: "40px", paddingLeft: "150px" }}>
+      <Container
+        fluid
+        style={{ marginTop: "40px" }}
+        className="post-ad-container"
+      >
         <Row>
           <Formik
             initialValues={initialValues}
@@ -667,17 +672,17 @@ function PostAd() {
                   }
                 />
 
-                <div style={{ paddingBottom: "300px" }} />
+                <div style={{ paddingBottom: "200px" }} />
                 <Col
                   className="d-flex justify-content-end"
-                  style={{ marginRight: "150px" }}
+                  style={{ marginRight: "100px" }}
                 >
                   <Button
                     type="submit"
                     disabled={loading || isMediaUploading}
                     onClick={() => handleClickSubmit(values)}
                     className="btn btn-success roboto-semi-bold-16px-information btn-lg"
-                    style={{ padding: "0 100px" }}
+                    style={{ padding: "0 100px", whiteSpace: "nowrap" }}
                   >
                     {loading ? (
                       // "Loading…"

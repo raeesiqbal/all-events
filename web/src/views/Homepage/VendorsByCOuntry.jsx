@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Container } from "react-bootstrap";
+import { Button, Col, Container } from "react-bootstrap";
 import EmblaCarousel from "../../components/Carousel/Carousel";
 import imageByIndex from "../../components/Carousel/ImagesByCountry";
 
@@ -33,14 +33,17 @@ function VendorsByCountry() {
           options={OPTIONS}
           componentToRender={componentToRender}
         />
-        <div className="d-flex justify-content-center mt-5">
-          <Button
-            variant="success"
-            type="submit"
-            className="roboto-semi-bold-16px-information"
-          >
-            Find vendors in your county
-          </Button>
+
+        <div className="d-flex justify-content-center mt-5 w-100">
+          <Col xs={12} md={7} lg={4}>
+            <Button
+              variant="success"
+              type="submit"
+              className="roboto-semi-bold-16px-information btn-height w-100"
+            >
+              Find vendors in your county
+            </Button>
+          </Col>
         </div>
       </Container>
     </Container>

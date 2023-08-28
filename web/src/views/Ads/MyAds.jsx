@@ -102,7 +102,7 @@ function MyAds() {
       </Modal>
 
       <div className="my-ad-banner d-flex align-items-center justify-content-between">
-        <div style={{ marginLeft: "100px" }}>
+        <div style={{ marginLeft: "2rem" }}>
           <div className="roboto-bold-36px-h1">Ad Management</div>
           <div className="roboto-regular-18px-body3">
             Keep track of your posted ads with ease
@@ -131,7 +131,7 @@ function MyAds() {
                 <Col lg={10} className="mb-4">
                   <Card key={id} className="ad-card">
                     <Row className="g-0">
-                      <Col sm={3} style={{ padding: "20px" }}>
+                      <Col xs={12} sm={3} style={{ padding: "20px" }}>
                         <Card.Img
                           src={
                             ad_media[0].media_urls.images !== undefined
@@ -143,6 +143,7 @@ function MyAds() {
                         />
                       </Col>
                       <Col
+                        xs={12}
                         sm={9}
                         className="d-flex justify-content-center align-items-center"
                       >
@@ -298,19 +299,19 @@ function MyAds() {
         </Row>
 
         {vendorAds.length > 0 && (
-          <Col
-            className="d-flex justify-content-end"
-            style={{ marginRight: "100px", marginTop: "80px" }}
-          >
-            <Button
-              type="submit"
-              onClick={() => navigate("/post-ad")}
-              className="btn btn-success roboto-semi-bold-16px-information btn-lg"
-              style={{ padding: "0 100px" }}
-            >
-              Post another Ad
-            </Button>
-          </Col>
+          <div className="d-flex justify-content-end mt-5">
+            <Col xs={12} md={7} lg={6}>
+              <Button
+                variant="success"
+                type="submit"
+                className="roboto-semi-bold-16px-information btn btn-height w-100"
+                onClick={() => navigate("/post-ad")}
+              >
+                Post another Ad
+              </Button>
+            </Col>
+            <Col lg={1} sm={0} />
+          </div>
         )}
       </Container>
 
