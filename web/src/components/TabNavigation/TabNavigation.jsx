@@ -8,6 +8,7 @@ import list from "../../assets/images/list.svg";
 import pieChart from "../../assets/images/pie-chart.svg";
 import plusCircle from "../../assets/images/plus-circle.svg";
 import settings from "../../assets/images/settings.svg";
+import messages from "../../assets/images/mdi-light_message-text.svg";
 import "./TabNavigation.css";
 import {
   handleClickTab,
@@ -40,6 +41,11 @@ const tabs = [
     label: "Settings",
     icon: settings,
     path: "/profile-settings",
+  },
+  {
+    label: "Messages",
+    icon: messages,
+    path: "/messages",
   },
 ];
 
@@ -74,6 +80,7 @@ const TabNavigation = () => {
       <div className="d-flex justify-content-between" style={{ width: "50vw" }}>
         {tabs.map((tab, index) => (
           <div
+            key={index}
             className={`d-flex align-items-center ${
               isActive(tab.path) && "tab-active"
             }`}

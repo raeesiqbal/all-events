@@ -1,8 +1,7 @@
 /* eslint-disable camelcase */
 /* eslint-disable no-useless-catch */
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { instance, secure_instance } from "../../../axios/axios-config";
-import { getCookie, setCookie } from "../../../utilities/utils";
+import { secureInstance } from "../../../axios/config";
 
 // Create an initial state for the auth slice
 const initialState = {
@@ -26,7 +25,7 @@ export const handleCreateNewAd = createAsyncThunk(
   async ({ data, navigate }, { rejectWithValue }) => {
     // const dataToSubmit = objToSubmit
     try {
-      const response = await secure_instance.request({
+      const response = await secureInstance.request({
         url: "/api/ads/",
         method: "Post",
         data,
@@ -40,7 +39,7 @@ export const handleCreateNewAd = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  }
+  },
 );
 
 export const handleEditAd = createAsyncThunk(
@@ -48,7 +47,7 @@ export const handleEditAd = createAsyncThunk(
   async ({ data, navigate, adID }, { rejectWithValue }) => {
     // const dataToEdit = data;
     try {
-      const response = await secure_instance.request({
+      const response = await secureInstance.request({
         url: `/api/ads/${adID}/`,
         method: "Patch",
         data,
@@ -62,7 +61,7 @@ export const handleEditAd = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  }
+  },
 );
 
 export const uploadImagesToCloud = createAsyncThunk(
@@ -74,7 +73,7 @@ export const uploadImagesToCloud = createAsyncThunk(
     formData.append("content_type", uploadedImage.type);
 
     try {
-      const response = await secure_instance.request({
+      const response = await secureInstance.request({
         url: "/api/ads/upload-url/",
         method: "Post",
         data: formData,
@@ -89,14 +88,14 @@ export const uploadImagesToCloud = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  }
+  },
 );
 
 export const listVendorAds = createAsyncThunk(
   "Ads/list",
   async (data, { rejectWithValue }) => {
     try {
-      const response = await secure_instance.request({
+      const response = await secureInstance.request({
         url: "/api/ads/",
         method: "Get",
       });
@@ -106,7 +105,7 @@ export const listVendorAds = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  }
+  },
 );
 
 // Create the loginSlice
@@ -145,15 +144,13 @@ export const AdsSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(handleCreateNewAd.fulfilled, (state, action) => {
+      .addCase(handleCreateNewAd.fulfilled, (state) => {
         state.loading = false;
         state.AdPostSuccessAlert = true;
         state.media_urls.images = [];
         // navigate("/post-ad");
-        console.log("action.payload", action.payload);
       })
       .addCase(handleCreateNewAd.rejected, (state, action) => {
-        // console.log(action);
         state.loading = false;
         state.AdPostErrorAlert = action.payload;
         // state.error = action.payload;
@@ -162,13 +159,11 @@ export const AdsSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(handleEditAd.fulfilled, (state, action) => {
+      .addCase(handleEditAd.fulfilled, (state) => {
         state.loading = false;
         state.AdPostSuccessAlert = true;
-        console.log("action.payload", action.payload);
       })
       .addCase(handleEditAd.rejected, (state, action) => {
-        // console.log(action);
         state.loading = false;
         state.error = action.payload;
         state.AdPostErrorAlert = action.payload;
@@ -180,10 +175,8 @@ export const AdsSlice = createSlice({
       .addCase(listVendorAds.fulfilled, (state, action) => {
         state.loading = false;
         state.vendorAds = action.payload.data;
-        console.log("action.payload", action.payload);
       })
       .addCase(listVendorAds.rejected, (state, action) => {
-        // console.log(action);
         state.loading = false;
         state.error = action.payload;
       })
@@ -198,10 +191,8 @@ export const AdsSlice = createSlice({
         state.media_urls.images.push(file_url);
         state.imagesError = false;
         // state.isMediaUploading = false;
-        console.log("action.payload", action.payload);
       })
       .addCase(uploadImagesToCloud.rejected, (state, action) => {
-        // console.log(action);
         state.loading = false;
         state.error = action.payload;
         // state.isMediaUploading = false;

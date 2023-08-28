@@ -23,7 +23,7 @@ import contactIcon from "../../assets/images/post-ad/contact.svg";
 import "./ProfileSettings.css";
 import Footer from "../../components/Footer/Footer";
 import TabNavigation from "../../components/TabNavigation/TabNavigation";
-import { secure_instance } from "../../axios/axios-config";
+import { secureInstance } from "../../axios/config";
 import { handleProfileSettingsCurrentView } from "../redux/TabNavigation/TabNavigationSlice";
 import ProfilePic from "../../components/ProfilePic/ProfilePic";
 
@@ -68,9 +68,7 @@ function PersonalInformation() {
   });
 
   const getPersonalInfo = async () => {
-    // console.log(values);
-
-    const request = await secure_instance.request({
+    const request = await secureInstance.request({
       url: "/api/users/me/",
       method: "Get",
     });
@@ -93,7 +91,7 @@ function PersonalInformation() {
   const handleUpdateUserInfo = async (values) => {
     try {
       setLoading(true);
-      const request = await secure_instance.request({
+      const request = await secureInstance.request({
         url: `/api/users/${user.userId}/`,
         method: "Patch",
         data: {
@@ -113,7 +111,6 @@ function PersonalInformation() {
   };
 
   useEffect(() => {
-    // console.log("whaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
     getPersonalInfo();
   }, []);
 

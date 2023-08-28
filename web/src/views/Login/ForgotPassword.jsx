@@ -9,7 +9,7 @@ import Featured from "../../assets/images/Featured.svg";
 import GreenTick from "../../assets/images/green-tick.svg";
 import "./Login.css";
 import { toggleLoginView } from "../redux/Login/loginSlice";
-import { instance, secure_instance } from "../../axios/axios-config";
+import { instance, secureInstance } from "../../axios/config";
 
 function ForgotPassword({ setForgotPassword }) {
   const { Formik } = formik;

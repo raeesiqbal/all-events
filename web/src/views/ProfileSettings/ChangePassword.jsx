@@ -24,7 +24,7 @@ import confirmPasswordIcon from "../../assets/images/profile-settings/confirm-pa
 import "./ProfileSettings.css";
 import Footer from "../../components/Footer/Footer";
 import TabNavigation from "../../components/TabNavigation/TabNavigation";
-import { secure_instance } from "../../axios/axios-config";
+import { secureInstance } from "../../axios/config";
 import { deleteCookie } from "../../utilities/utils";
 import { handleProfileSettingsCurrentView } from "../redux/TabNavigation/TabNavigationSlice";
 import ProfilePic from "../../components/ProfilePic/ProfilePic";
@@ -75,7 +75,7 @@ function ChangePassword() {
   const handleResetPassword = async (values) => {
     try {
       setLoading(true);
-      const request = await secure_instance.request({
+      const request = await secureInstance.request({
         url: "/api/users/update-password/",
         method: "Patch",
         data: {

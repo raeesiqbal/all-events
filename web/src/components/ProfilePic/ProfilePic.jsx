@@ -8,7 +8,7 @@ import {
   editCompanyInformation,
   setSelectedImage,
 } from "../../views/redux/Settings/SettingsSlice";
-import { secure_instance } from "../../axios/axios-config";
+import { secureInstance } from "../../axios/config";
 
 const ProfilePic = () => {
   const [loadingImage, setLoadingImage] = useState(false);
@@ -64,7 +64,7 @@ const ProfilePic = () => {
     formData.append("file", e.target.files[0]);
     formData.append("content_type", e.target.files[0].type);
     try {
-      const response = await secure_instance.request({
+      const response = await secureInstance.request({
         url: "/api/companies/upload-url/",
         method: "Post",
         data: formData,

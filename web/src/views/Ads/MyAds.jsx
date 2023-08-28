@@ -5,7 +5,6 @@ import {
   Card,
   Col,
   Container,
-  Form,
   Modal,
   Row,
 } from "react-bootstrap";
@@ -24,7 +23,7 @@ import gotoIcon from "../../assets/images/post-ad/goto.svg";
 import noAds from "../../assets/images/post-ad/no-ads.svg";
 import Footer from "../../components/Footer/Footer";
 import TabNavigation from "../../components/TabNavigation/TabNavigation";
-import { secure_instance } from "../../axios/axios-config";
+import { secureInstance } from "../../axios/config";
 import "./Ads.css";
 import { handleUpdateAds, listVendorAds } from "../redux/Posts/AdsSlice";
 
@@ -40,7 +39,7 @@ function MyAds() {
   const handleDeleteAd = async () => {
     try {
       // setLoading(true);
-      await secure_instance.request({
+      await secureInstance.request({
         url: `/api/ads/${currentAdId}/`,
         method: "Delete",
       });
@@ -63,7 +62,7 @@ function MyAds() {
   }, []);
 
   const sortedAdvertisements = [...vendorAds].sort(
-    (a, b) => new Date(b.created_at) - new Date(a.created_at)
+    (a, b) => new Date(b.created_at) - new Date(a.created_at),
   );
 
   return (
@@ -120,8 +119,6 @@ function MyAds() {
             sortedAdvertisements.map((product) => {
               const {
                 id,
-                // category,
-                description,
                 sub_category,
                 created_at,
                 country,

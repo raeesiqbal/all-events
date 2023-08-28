@@ -9,7 +9,7 @@ import subCategoryIcon from "../../assets/images/post-ad/sub-category.svg";
 import descriptionIcon from "../../assets/images/post-ad/description.svg";
 import mapIcon from "../../assets/images/post-ad/map.svg";
 import "./PostAd.css";
-import { secure_instance } from "../../axios/axios-config";
+import { secureInstance } from "../../axios/config";
 
 function CompanyInformation({
   values,
@@ -70,27 +70,25 @@ function CompanyInformation({
   };
 
   const listCategories = async () => {
-    const request = await secure_instance.request({
+    const request = await secureInstance.request({
       url: "/api/ads/category/",
       method: "Get",
     });
-    // console.log(request.data);
     setCategories(request.data.data);
   };
 
   const fetchSubCategories = async (id) => {
     values.sub_category = "";
-    const request = await secure_instance.request({
+    const request = await secureInstance.request({
       url: `/api/ads/category/${id}/sub-categroy-from-category/`,
       method: "Get",
     });
-    // console.log(request.data);
     setSubCategories(request.data.data);
   };
 
   const handleSubCategorySelected = async (id) => {
     // values.sub_category = "";
-    const request = await secure_instance.request({
+    const request = await secureInstance.request({
       url: `/api/ads/sub_category/${id}/activation-countries-exists/`,
       method: "Get",
     });
@@ -102,7 +100,7 @@ function CompanyInformation({
       setIsMultipleCountries(false);
     }
     // EDIT AD DOES NOT REACH HERE---------------------------------------------------
-    const requestRelatedSub = await secure_instance.request({
+    const requestRelatedSub = await secureInstance.request({
       url: `/api/ads/sub_category/${id}/public-related/`,
       method: "Get",
     });
@@ -115,7 +113,7 @@ function CompanyInformation({
   };
 
   const listCountries = async () => {
-    const request = await secure_instance.request({
+    const request = await secureInstance.request({
       url: "/api/ads/country/",
       method: "Get",
     });

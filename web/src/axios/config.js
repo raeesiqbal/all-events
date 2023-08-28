@@ -14,15 +14,15 @@ const instance = axios.create({
   timeout: 60000,
 });
 
-const secure_instance = axios.create({
+const secureInstance = axios.create({
   baseURL,
   timeout: 60000,
 });
 
-secure_instance.interceptors.request.use(addAccessToken, handleRequestError);
-secure_instance.interceptors.response.use(
+secureInstance.interceptors.request.use(addAccessToken, handleRequestError);
+secureInstance.interceptors.response.use(
   handleResponseOK,
-  handleResponseError
+  handleResponseError,
 );
 
-export { instance, secure_instance };
+export { instance, secureInstance };

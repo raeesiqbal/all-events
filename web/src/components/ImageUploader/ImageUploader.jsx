@@ -7,7 +7,7 @@ import { PhotoProvider, PhotoView } from "react-photo-view";
 import { useDispatch, useSelector } from "react-redux";
 import InfoIcon from "../../assets/images/gg_info.svg";
 import "./ImageUploader.css";
-import { secure_instance } from "../../axios/axios-config";
+import { secureInstance } from "../../axios/config";
 import {
   setImagesToUpload,
   uploadImagesToCloud,
@@ -20,7 +20,7 @@ function ImageUploader({ imagesError }) {
 
   const dispatch = useDispatch();
 
-  const handleImageUpload = (event, index) => {
+  const handleImageUpload = (event) => {
     event.preventDefault();
     const uploadedImage = event.target.files[0];
     const updatedImages = [...images];
@@ -42,7 +42,7 @@ function ImageUploader({ imagesError }) {
     const urlToDelete = imagesToUpload[index];
 
     try {
-      const request = await secure_instance.request({
+      const request = await secureInstance.request({
         url: "/api/ads/delete-url/",
         method: "Post",
         data: {
@@ -68,7 +68,6 @@ function ImageUploader({ imagesError }) {
         if (imageToUploadIndex !== -1) {
           cloneImagesToUpload.splice(index, 1);
         }
-        console.log("cloneImagesToUpload", cloneImagesToUpload);
         dispatch(setImagesToUpload(cloneImagesToUpload));
       }
     } catch (err) {}
@@ -134,10 +133,8 @@ function ImageUploader({ imagesError }) {
         <Row className="h-100 col-12 g-0 flex-column-reverse flex-md-row">
           <PhotoProvider>
             <div className="d-flex" style={{ flexWrap: "wrap" }}>
-              {console.log("imagesToMap", imagesToMap)}
               {imagesToMap?.map((image, index) => (
                 <Col md={3} lg={3} key={index}>
-                  {/* {console.log({ index })} */}
                   <div className="mb-5">
                     {image !== null && (
                       <div

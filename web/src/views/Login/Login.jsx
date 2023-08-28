@@ -42,7 +42,7 @@ import {
   handleResgisterationStatus,
   handleWelcomeUserAlert,
 } from "../redux/Auth/authSlice";
-import { instance } from "../../axios/axios-config";
+import { instance } from "../../axios/config";
 import DynamicRegisterationView from "./ViewHelper";
 
 function Login() {

@@ -25,7 +25,7 @@ import bankIcon from "../../assets/images/profile-settings/bank.svg";
 import "./ProfileSettings.css";
 import Footer from "../../components/Footer/Footer";
 import TabNavigation from "../../components/TabNavigation/TabNavigation";
-import { secure_instance } from "../../axios/axios-config";
+import { secureInstance } from "../../axios/config";
 import { handleProfileSettingsCurrentView } from "../redux/TabNavigation/TabNavigationSlice";
 import { setCompanyInformation } from "../redux/Settings/SettingsSlice";
 import ProfilePic from "../../components/ProfilePic/ProfilePic";
@@ -73,8 +73,6 @@ function CompanyInformationSettings() {
     city: companyInformation.city,
     address: companyInformation.address,
   };
-
-  // console.log(first);
 
   const Schema = Yup.object().shape({
     // person_name: Yup.string().matches(/^[A-Za-z\s]{1,25}$/, "Invalid input"),
@@ -148,10 +146,9 @@ function CompanyInformationSettings() {
   };
 
   const handleUpdateCompanyInfo = async (values) => {
-    console.log(values);
     try {
       setLoading(true);
-      await secure_instance.request({
+      await secureInstance.request({
         url: `/api/companies/${user.userCompanyId}/`,
         method: "Patch",
         data: values,
@@ -169,11 +166,10 @@ function CompanyInformationSettings() {
   };
 
   const listCountries = async () => {
-    const request = await secure_instance.request({
+    const request = await secureInstance.request({
       url: "/api/ads/country/",
       method: "Get",
     });
-    // console.log(request.data);
     setCountries(request.data.data);
   };
 
@@ -182,7 +178,6 @@ function CompanyInformationSettings() {
   }, []);
 
   useEffect(() => {
-    console.log("whaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
     // getCompanyInfo();
   }, []);
 

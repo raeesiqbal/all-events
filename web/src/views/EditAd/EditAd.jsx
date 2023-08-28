@@ -28,7 +28,7 @@ import {
   setImagesToUpload,
   setMediaError,
 } from "../redux/Posts/AdsSlice";
-import { secure_instance } from "../../axios/axios-config";
+import { secureInstance } from "../../axios/config";
 import UnsavedChangesPrompt from "../../utilities/hooks/UnsavedChanged";
 
 function EditAd() {
@@ -389,7 +389,7 @@ function EditAd() {
   const getAdInfo = async () => {
     try {
       // setLoading(true);
-      const request = await secure_instance.request({
+      const request = await secureInstance.request({
         url: `/api/ads/${params.id}/`,
         method: "Get",
       });

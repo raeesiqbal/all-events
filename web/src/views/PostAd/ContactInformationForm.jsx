@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Col, Container, Form, Row } from "react-bootstrap";
 import contactIcon from "../../assets/images/post-ad/contact.svg";
 import mapIcon from "../../assets/images/post-ad/map.svg";
-import { secure_instance } from "../../axios/axios-config";
+import { secureInstance } from "../../axios/config";
 
 function ContactInformationForm({ values, errors, touched, handleChange }) {
   const [countriesList, setCountries] = useState([]);
@@ -13,11 +13,10 @@ function ContactInformationForm({ values, errors, touched, handleChange }) {
   }));
 
   const listCountries = async () => {
-    const request = await secure_instance.request({
+    const request = await secureInstance.request({
       url: "/api/ads/country/",
       method: "Get",
     });
-    // console.log(request.data);
     setCountries(request.data.data);
   };
 

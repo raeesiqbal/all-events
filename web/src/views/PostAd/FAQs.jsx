@@ -64,19 +64,6 @@ function FAQs({
                 </Form.Label>
                 {faq.added === false && (
                   <>
-                    {/* {console.log(
-                      "errors.faqs[index].question",
-                      errors?.faqs?.length > 0 && errors?.faqs[index]?.question
-                    )} */}
-                    {console.log(
-                      "errors",
-                      errors.faqs?.length > 0 && errors.faqs[index].question
-                    )}
-                    {console.log(
-                      "touched",
-                      errors.faqs?.length > 0 && !!errors?.faqs[index]?.question
-                    )}
-
                     <Form.Control
                       style={{ height: "56px" }}
                       className="lg-input-small-text"

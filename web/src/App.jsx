@@ -9,6 +9,7 @@ import MyAds from "./views/Ads/MyAds";
 import ViewAd from "./views/Ads/ViewAd";
 import EditAd from "./views/EditAd/EditAd";
 import ResetPassword from "./views/ResetPassword/ResetPassword";
+import Messages from "./views/Messages/Messages";
 
 function App() {
   return (
@@ -16,43 +17,51 @@ function App() {
       <Route path="/" element={<Homepage />} />
       <Route
         path="/post-ad"
-        element={
+        element={(
           <ProtectedRoute>
             <PostAd />
           </ProtectedRoute>
-        }
+        )}
       />
       <Route
         path="/edit-ad/:id"
-        element={
+        element={(
           <ProtectedRoute>
             <EditAd />
           </ProtectedRoute>
-        }
+        )}
       />
       <Route
         path="/profile-settings"
-        element={
+        element={(
           <ProtectedRoute>
             <ProfileView />
           </ProtectedRoute>
-        }
+        )}
       />
       <Route
         path="/my-ads"
-        element={
+        element={(
           <ProtectedRoute>
             <MyAds />
           </ProtectedRoute>
-        }
+        )}
       />
       <Route
         path="/view-ad/:adId"
-        element={
+        element={(
           <ProtectedRoute>
             <ViewAd />
           </ProtectedRoute>
-        }
+        )}
+      />
+      <Route
+        path="/messages"
+        element={(
+          <ProtectedRoute>
+            <Messages />
+          </ProtectedRoute>
+        )}
       />
       <Route path="/reset-password" element={<ResetPassword />} />
       {/* <Route

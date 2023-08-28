@@ -1,7 +1,6 @@
 /* eslint-disable no-useless-catch */
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { instance, secure_instance } from "../../../axios/axios-config";
-import { getCookie, setCookie } from "../../../utilities/utils";
+import { secureInstance } from "../../../axios/config";
 
 // Create an initial state for the auth slice
 const initialState = {
@@ -36,7 +35,7 @@ export const setCompanyInformation = createAsyncThunk(
   "settings/setCompanyInfo",
   async ({ id }, { rejectWithValue }) => {
     try {
-      const response = await secure_instance.request({
+      const response = await secureInstance.request({
         url: `/api/companies/${id}/`,
         method: "Get",
       });
@@ -47,14 +46,14 @@ export const setCompanyInformation = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  }
+  },
 );
 
 export const editCompanyInformation = createAsyncThunk(
   "settings/editCompanyInfo",
   async ({ data, id }, { rejectWithValue }) => {
     try {
-      const response = await secure_instance.request({
+      const response = await secureInstance.request({
         url: `/api/companies/${id}/`,
         method: "PATCH",
         data,
@@ -66,7 +65,7 @@ export const editCompanyInformation = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  }
+  },
 );
 
 // Create the loginSlice
@@ -87,11 +86,9 @@ export const settingsSlice = createSlice({
       .addCase(setCompanyInformation.fulfilled, (state, action) => {
         state.loading = false;
         const { data } = action.payload;
-        // console.log("action.payload", action.payload);
         state.companyInformation = data;
       })
       .addCase(setCompanyInformation.rejected, (state, action) => {
-        // console.log(action);
         state.loading = false;
         state.error = action.payload;
       })
@@ -102,11 +99,9 @@ export const settingsSlice = createSlice({
       .addCase(editCompanyInformation.fulfilled, (state, action) => {
         state.loading = false;
         const { data } = action.payload;
-        // console.log("action.payload", action.payload);
         state.companyInformation = data;
       })
-      .addCase(editCompanyInformation.rejected, (state, action) => {
-        // console.log(action);
+      .addCase(editCompanyInformation.rejected, (state) => {
         state.loading = false;
         // state.error = action.payload;
       });

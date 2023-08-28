@@ -1,6 +1,6 @@
 /* eslint-disable no-useless-catch */
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { instance, secure_instance } from "../../../axios/axios-config";
+import { instance, secureInstance } from "../../../axios/config";
 import { getCookie, setCookie } from "../../../utilities/utils";
 
 // Create an initial state for the auth slice
@@ -37,7 +37,7 @@ export const handleRegister = createAsyncThunk(
       // Handle login error here if needed
       return rejectWithValue(err.response.data);
     }
-  }
+  },
 );
 
 export const handleLogin = createAsyncThunk(
@@ -60,7 +60,7 @@ export const handleLogin = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  }
+  },
 );
 
 export const refreshToken = createAsyncThunk("auth/refresh", async () => {
@@ -77,12 +77,12 @@ export const refreshToken = createAsyncThunk("auth/refresh", async () => {
 export const getAuthenticatedUser = createAsyncThunk(
   "auth/authenticatedUser",
   async () => {
-    const response = await secure_instance.request({
+    const response = await secureInstance.request({
       url: "/api/users/me/",
       method: "GET",
     });
     return response.data;
-  }
+  },
 );
 
 // Create the loginSlice
@@ -117,7 +117,6 @@ export const authSlice = createSlice({
         state.isLoggedInState = true;
       })
       .addCase(handleLogin.rejected, (state, action) => {
-        // console.log(action);
         state.loading = false;
         state.error = action.payload;
       })
@@ -125,7 +124,7 @@ export const authSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(handleRegister.fulfilled, (state, action) => {
+      .addCase(handleRegister.fulfilled, (state) => {
         state.loading = false;
         state.isRegistered = true;
       })
@@ -137,7 +136,7 @@ export const authSlice = createSlice({
         const { access } = action.payload;
         state.user.accessToken = access;
       })
-      .addCase(refreshToken.rejected, (state, action) => {
+      .addCase(refreshToken.rejected, (state) => {
         state.loading = false;
         // state.error = action.error.message;
         if (window.location.pathname !== "/") {
@@ -156,8 +155,8 @@ export const authSlice = createSlice({
         // state.error = action.error.message;
         // state.user.accessToken = access;
       })
-      .addCase(getAuthenticatedUser.rejected, (state, action) => {
-        const { access } = action.payload;
+      .addCase(getAuthenticatedUser.rejected, () => {
+
       });
   },
 });

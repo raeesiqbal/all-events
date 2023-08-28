@@ -115,10 +115,10 @@ function PostAd() {
       ...(values.companyInformation.country.length > 0
         ? { activation_countries: values.companyInformation.country }
         : {
-            activation_countries: [
-              parseInt(values.contactInformation.country, 10),
-            ],
-          }),
+          activation_countries: [
+            parseInt(values.contactInformation.country, 10),
+          ],
+        }),
       faqs: addSubCategoryToFaqs,
     };
 
@@ -307,7 +307,6 @@ function PostAd() {
     if (imagesToUpload.length === 0 && !imagesError) {
       // setImagesError(true);
       dispatch(setImagesError(true));
-      // console.log("ScrollCustom");
     }
 
     if (
@@ -578,7 +577,6 @@ function PostAd() {
               setValues,
             }) => (
               <Form noValidate onSubmit={handleSubmit}>
-                {console.log("valuesvalues", values)}
                 <ScrollToError />
                 <UnsavedChangesPrompt
                   hasUnsavedChanges={() => hasUnsavedChanges(values)}
