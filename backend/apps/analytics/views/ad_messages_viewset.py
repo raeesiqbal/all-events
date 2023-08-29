@@ -62,10 +62,14 @@ class MessageViewSet(BaseViewset):
         ).prefetch_related("chat_messages"),
     }
 
+    def perform_create(self, serializer):
+        # Associate the logged-in user with the object being created
+        if self.request.user.is_authenticated:
+            serializer.save(user=self.request.user)
+
     def list(self, request, *args, **kwargs):
         data = super().list(request, *args, **kwargs)
         list_data = data.data
-        print(list_data)
         queryset = self.get_queryset()
         inbox_count = queryset.count()
         archived_count = None
@@ -206,3 +210,14 @@ class MessageViewSet(BaseViewset):
                 message="Chat does not existes",
             ),
         )
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+
+        if request.user.role_type == USER_ROLE_TYPES["CLIENT"]:
+            instance.is_delete_client = True
+        elif request.user.role_type == USER_ROLE_TYPES["VENDOR"]:
+            instance.is_delete_vendor = True
+        instance.save()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)

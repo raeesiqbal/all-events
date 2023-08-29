@@ -53,28 +53,73 @@ class MessageChildSerializer(BaseSerializer):
         ]
 
 
-class UserChildSerializer(BaseSerializer):
-    class Meta:
-        model = User
-        fields = [
-            "first_name",
-            "last_name",
-            "phone",
-        ]
+# class UserChildSerializer(BaseSerializer):
+#     full_name = serializers.SerializerMethodField("get_full_name")
+
+#     def get_full_name(self, obj):
+#         return obj.first_name + " " + obj.last_name
+
+#     class Meta:
+#         model = User
+#         fields = [
+#             "full_name",
+#             "phone",
+#         ]
 
 
-class ClientChildSerializer(BaseSerializer):
-    user = UserChildSerializer()
+# class ClientChildSerializer(BaseSerializer):
+#     user = UserChildSerializer()
 
-    class Meta:
-        model = Client
-        fields = ["user"]
+#     class Meta:
+#         model = Client
+#         fields = ["user"]
+
+
+class PersonChildSerializer(serializers.Serializer):
+    name = serializers.CharField()
+    phone = serializers.CharField()
 
 
 class ChatListSerializer(BaseSerializer):
-    client = ClientChildSerializer()
+    read = serializers.SerializerMethodField()
+    archived = serializers.SerializerMethodField()
+    person = serializers.SerializerMethodField()
     latest_message = MessageChildSerializer()
     ad_image = serializers.SerializerMethodField("get_ad_image")
+
+    class Meta:
+        model = Chat
+        fields = [
+            "id",
+            "ad_image",
+            "event_date",
+            "latest_message",
+            "archived",
+            "read",
+            "person",
+        ]
+
+    def get_archived(self, obj):
+        archived = False
+        if self.context["request"].user.role_type == "client":
+            if obj.is_archived_client:
+                archived = True
+
+        if self.context["request"].user.role_type == "vendor":
+            if obj.is_archived_vendor:
+                archived = True
+        return archived
+
+    def get_read(self, obj):
+        read = False
+        if self.context["request"].user.role_type == "client":
+            if obj.is_read_client:
+                read = True
+
+        if self.context["request"].user.role_type == "vendor":
+            if obj.is_read_vendor:
+                read = True
+        return read
 
     def get_ad_image(self, obj):
         gallery = Gallery.objects.filter(ad=obj.ad).first()
@@ -85,19 +130,37 @@ class ChatListSerializer(BaseSerializer):
             else None
         )
 
-    class Meta:
-        model = Chat
-        fields = [
-            "id",
-            "ad_image",
-            "client",
-            "event_date",
-            "latest_message",
-            "is_archived_vendor",
-            "is_archived_client",
-            "is_read_vendor",
-            "is_read_client",
-        ]
+    def get_person(self, obj):
+        # You can customize the logic to generate the extra data here
+        user = self.context["request"].user
+
+        extra_data = {
+            "name": "",
+            "phone": "",
+        }
+
+        if user.role_type == "vendor":
+            extra_data["name"] = (
+                obj.client.user.first_name + " " + obj.client.user.last_name
+            )
+            extra_data["phone"] = obj.client.user.phone
+        elif user.role_type == "client":
+            extra_data["name"] = obj.ad.company.name
+            extra_data["phone"] = obj.ad.company.user.phone
+
+        return extra_data
+
+    def to_representation(self, instance):
+        # Call the parent class's to_representation method
+        representation = super().to_representation(instance)
+
+        # If the 'extra_data' field is present in the representation
+        if "extra_data" in representation:
+            # Use the ExtraDataSerializer to serialize the extra data
+            extra_data_serializer = PersonChildSerializer(representation["extra_data"])
+            representation["extra_data"] = extra_data_serializer.data
+
+        return representation
 
 
 class ChatMessageSerializer(BaseSerializer):
