@@ -169,4 +169,5 @@ class ChatMessageSerializer(BaseSerializer):
         fields = [
             "text",
             "created_at",
+            "sender",
         ]

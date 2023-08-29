@@ -4,17 +4,14 @@ from apps.utils.serializers.base import BaseSerializer
 
 
 class ClientUserUpdateChildSerializer(BaseSerializer):
-    
     class Meta:
         model = User
-        fields = ['first_name', 'last_name',
-                  'phone','image']
+        fields = ["first_name", "last_name", "phone"]
 
-   
 
 class ClientUpdateSerializer(BaseSerializer):
-    user=ClientUserUpdateChildSerializer()
-    
+    user = ClientUserUpdateChildSerializer()
+
     class Meta:
         model = Client
         fields = ["user"]

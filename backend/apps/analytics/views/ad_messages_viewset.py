@@ -143,12 +143,14 @@ class MessageViewSet(BaseViewset):
             dic = {
                 "name": chat.ad.company.name,
                 "ad": chat.ad.id,
+                "image": chat.ad.company.user.image,
             }
 
         elif request.user.role_type == USER_ROLE_TYPES["VENDOR"]:
             dic = {
                 "name": chat.client.user.first_name + chat.client.user.last_name,
                 "ad": chat.ad.id,
+                "image": chat.ad.company.user.image,
             }
 
         messages = Message.objects.filter(chat=chat)
@@ -157,7 +159,7 @@ class MessageViewSet(BaseViewset):
         return Response(
             status=status.HTTP_200_OK,
             data=ResponseInfo().format_response(
-                data={"messages": data.data, "data": dic},
+                data={"messages": data.data, "additional_info": dic},
                 status_code=status.HTTP_200_OK,
                 message="Success",
             ),
