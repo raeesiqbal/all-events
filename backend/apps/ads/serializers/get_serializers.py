@@ -9,9 +9,18 @@ from apps.ads.models import (
     Gallery,
     RelatedSubCategory,
     SubCategory,
+    Service,
 )
 from apps.companies.models import Company
 from apps.utils.serializers.base import BaseSerializer
+
+
+class ServiceGetSerializer(BaseSerializer):
+    class Meta:
+        model = Service
+        fields = [
+            "service",
+        ]
 
 
 class SubCategoryGetSerializer(BaseSerializer):
@@ -23,10 +32,12 @@ class CategoryGetSerializer(BaseSerializer):
         model = Category
         fields = "__all__"
 
+
 class CategoryGetSerializer(BaseSerializer):
     class Meta:
         model = Category
         fields = "__all__"
+
 
 class SubCategoryGetSerializer(BaseSerializer):
     category = CategoryGetSerializer()
@@ -34,8 +45,6 @@ class SubCategoryGetSerializer(BaseSerializer):
     class Meta:
         model = SubCategory
         fields = "__all__"
-
-
 
 
 class CountryGetSerializer(BaseSerializer):
@@ -78,14 +87,11 @@ class AdGetSerializer(BaseSerializer):
     country = CountryGetSerializer()
     ad_media = GalleryChildSerializer(many=True)
     ad_faqs = FaqsGetSerializer(many=True)
-    
-    ad_save_count=serializers.SerializerMethodField('get_ad_saved_count')
-    
+
+    ad_save_count = serializers.SerializerMethodField("get_ad_saved_count")
+
     def get_ad_saved_count(self, obj):
-        
         return obj.ad_saved.all().count()
-
-
 
     class Meta:
         model = Ad
@@ -114,8 +120,6 @@ class AdPublicGetSerializer(BaseSerializer):
     country = CountryGetSerializer()
     ad_media = GalleryChildSerializer(many=True)
     ad_faqs = FaqsGetSerializer(many=True)
-    
-
 
     class Meta:
         model = Ad
@@ -123,9 +127,9 @@ class AdPublicGetSerializer(BaseSerializer):
 
 
 class SuggestionGetSerializer(BaseSerializer):
-    name=serializers.CharField(max_length=100)
-    type=serializers.CharField(max_length=100)
+    name = serializers.CharField(max_length=100)
+    type = serializers.CharField(max_length=100)
 
     class Meta:
         model = Ad
-        fields = ["name","type"]
+        fields = ["name", "type"]

@@ -12,6 +12,9 @@ from .models import (
     RelatedSubCategory,
     ActivationSubCategory,
     Gallery,
+    Service,
+    AdminFAQ,
+    AdminQuestion,
 )
 
 
@@ -111,6 +114,16 @@ class CountyAdmin(admin.ModelAdmin):
     ]
 
 
+class ServiceAdmin(admin.ModelAdmin):
+    list_display = ("id",)
+    search_fields = [
+        "id",
+    ]
+    filter_horizontal = [
+        "sub_category",
+    ]
+
+
 class CategoryAdmin(admin.ModelAdmin):
     list_display = (
         "id",
@@ -202,13 +215,33 @@ class FAQAdmin(admin.ModelAdmin):
     )
 
 
+class AdminQuestionInline(admin.TabularInline):
+    model = AdminQuestion
+    extra = 1
+
+
+class AdminFAQAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "category",
+        "section",
+    )
+    search_fields = ["id", "category__name", "sub_category__name", "section__name"]
+    raw_id_fields = (
+        "category",
+        "section",
+    )
+    filter_horizontal = ("sub_category",)
+    inlines = (AdminQuestionInline,)
+
+
 admin.site.register(Ad, AdAdmin)
-
 admin.site.register(Gallery, GalleryAdmin)
-
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(SubCategory, SubCategoryAdmin)
 admin.site.register(Country, CountyAdmin)
 admin.site.register(FAQ, FAQAdmin)
 admin.site.register(RelatedSubCategory, RelatedSubCategoryAdmin)
 admin.site.register(ActivationSubCategory, ActivationSubCategoryAdmin)
+admin.site.register(Service, ServiceAdmin)
+admin.site.register(AdminFAQ, AdminFAQAdmin)
