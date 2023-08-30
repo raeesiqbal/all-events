@@ -41,3 +41,9 @@ class AdChatCreateSerializer(BaseSerializer):
             "event_date",
             "message",
         ]
+
+
+class AdMessageCreateSerializer(BaseSerializer):
+    class Meta:
+        model = Message
+        fields = ["text"]
