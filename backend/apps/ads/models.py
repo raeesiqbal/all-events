@@ -72,6 +72,8 @@ class Ad(NewAbstractModel):
         "ads.Country",
         related_name="country_ads",
         verbose_name=_("Judete in care oferiti serviciile mentionate"),
+        null=True,
+        blank=True,
     )
     # contact information
     website = models.TextField(_("Website"), null=True, blank=True)
@@ -140,18 +142,8 @@ class FAQ(models.Model):
         blank=True,
     )
 
-    sub_category = models.ForeignKey(
-        "ads.SubCategory", verbose_name=_("Sub Categorie"), on_delete=models.CASCADE
-    )
-    Types = (
-        (FAQ_TYPE["TEXT_FIELD"], "text_field"),
-        (FAQ_TYPE["CHECKBOX"], "checkbox"),
-    )
     question = models.TextField(_("Question"))
-
-    type = models.CharField(_("Type"), choices=Types, max_length=50)
-    answer_input = models.TextField(_("Answer Input"), null=True, blank=True)
-    answer_checkbox = models.BooleanField(_("Answer Checkbox"), default=False)
+    answer = models.TextField(_("Answer"))
 
     def __str__(self):
         return f"{self.question}"
@@ -224,23 +216,23 @@ class SectionName(models.Model):
     name = models.TextField(_("Name"), unique=True)
 
 
-class AdminFAQ(models.Model):
+class SiteFAQ(models.Model):
     category = models.ForeignKey(
         "ads.Category",
         verbose_name=_("Category"),
         on_delete=models.CASCADE,
-        related_name="admin_faq_category",
+        related_name="site_faq_category",
     )
     sub_category = models.ManyToManyField(
         "ads.SubCategory",
         verbose_name=_("Sub Category"),
-        related_name="admin_faq_sub_category",
+        related_name="site_faq_sub_category",
     )
     section = models.ForeignKey(
         "ads.SectionName",
         verbose_name=_("Section"),
         on_delete=models.CASCADE,
-        related_name="admin_faq_section",
+        related_name="site_faq_section",
     )
 
     def __str__(self):
@@ -248,16 +240,16 @@ class AdminFAQ(models.Model):
 
     class Meta:
         ordering = ["-id"]
-        verbose_name = "Admin FAQ"
-        verbose_name_plural = "Admin FAQ's"
+        verbose_name = "Site FAQ"
+        verbose_name_plural = "Site FAQ's"
 
 
-class AdminQuestion(models.Model):
-    admin_faq = models.ForeignKey(
-        "ads.AdminFAQ",
-        verbose_name=_("Admin FAQ"),
+class SiteQuestion(models.Model):
+    site_faq = models.ForeignKey(
+        "ads.SiteFAQ",
+        verbose_name=_("Site FAQ"),
         on_delete=models.CASCADE,
-        related_name="admin_faq",
+        related_name="site_faq_questions",
     )
     question = models.TextField(_("Question"))
     suggestion = ArrayField(base_field=models.TextField(), null=True, blank=True)
@@ -267,5 +259,29 @@ class AdminQuestion(models.Model):
 
     class Meta:
         ordering = ["-id"]
-        verbose_name = "Admin Question"
-        verbose_name_plural = "Admin Questions"
+        verbose_name = "Site Question"
+        verbose_name_plural = "Site Questions"
+
+
+class AdFAQ(models.Model):
+    ad = models.ForeignKey(
+        "ads.Ad",
+        verbose_name=_("Commercial"),
+        on_delete=models.CASCADE,
+        related_name="ad_faq_ad",
+    )
+    site_question = models.ForeignKey(
+        "ads.SiteQuestion",
+        verbose_name=_("Site Question"),
+        on_delete=models.CASCADE,
+        related_name="ad_faq_site_question",
+    )
+    answer = models.TextField(_("Answer"))
+
+    def __str__(self):
+        return f"{self.id}"
+
+    class Meta:
+        ordering = ["-id"]
+        verbose_name = "Ad FAQ"
+        verbose_name_plural = "Ad FAQ's"
