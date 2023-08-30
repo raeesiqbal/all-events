@@ -17,6 +17,7 @@ from apps.ads.models import (
 
 from apps.companies.models import Company
 from apps.utils.serializers.base import BaseSerializer
+from django.db.models import Q
 
 
 class SiteQuestionChildGetSerializer(BaseSerializer):
@@ -49,6 +50,33 @@ class ServiceGetSerializer(BaseSerializer):
         fields = [
             "service",
         ]
+
+
+class ServiceGetUniqueSerializer(BaseSerializer):
+    service = serializers.SerializerMethodField()
+
+    def get_service(self, obj):
+        all_services = obj.service
+        offered_services = self.context.get("all_services", None)
+        unique_services = []
+        for item in all_services:
+            if item not in offered_services and item not in unique_services:
+                unique_services.append(item)
+
+        return unique_services
+
+    class Meta:
+        model = Service
+        fields = [
+            "service",
+        ]
+
+    def to_representation(self, instance):
+        context = self.context  # Get the context passed to the serializer
+        # You can access context data and modify representation here
+        representation = super().to_representation(instance)
+        # Modify or add data to the representation as needed using context
+        return representation
 
 
 class SubCategoryGetSerializer(BaseSerializer):
@@ -138,8 +166,19 @@ class AdRetriveSerializer(BaseSerializer):
     ad_media = GalleryChildSerializer(many=True)
     ad_faqs = FaqsGetSerializer(many=True)
     ad_faq_ad = AdFaqsRetrieveSerializer(many=True)
-
     ad_save_count = serializers.SerializerMethodField("get_ad_saved_count")
+
+    site_services = serializers.SerializerMethodField()
+
+    def get_site_services(self, obj):
+        services = Service.objects.filter(sub_category__id=obj.sub_category.id)
+        # object_services = obj.offered_services
+        # context_data = {"all_services": object_services}
+        # child_serializer = ServiceGetUniqueSerializer(
+        #     services, context=context_data, many=True
+        # )
+        child_serializer = ServiceGetSerializer(services, many=True)
+        return child_serializer.data
 
     def get_ad_saved_count(self, obj):
         return obj.ad_saved.all().count()
