@@ -1,8 +1,6 @@
 from django.contrib import admin
 
 # Register your models here.
-
-# Register your models here.
 from .models import (
     FAQ,
     Ad,
@@ -15,7 +13,19 @@ from .models import (
     Service,
     AdminFAQ,
     AdminQuestion,
+    SectionName,
 )
+
+
+class SectionAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "name",
+    )
+    search_fields = [
+        "id",
+        "name",
+    ]
 
 
 class GalleryInline(admin.TabularInline):
@@ -245,3 +255,4 @@ admin.site.register(RelatedSubCategory, RelatedSubCategoryAdmin)
 admin.site.register(ActivationSubCategory, ActivationSubCategoryAdmin)
 admin.site.register(Service, ServiceAdmin)
 admin.site.register(AdminFAQ, AdminFAQAdmin)
+admin.site.register(SectionName, SectionAdmin)
