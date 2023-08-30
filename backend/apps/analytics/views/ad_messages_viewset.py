@@ -3,6 +3,7 @@ from apps.analytics.models import Chat, Message
 from apps.analytics.serializers.create_serializer import (
     AdChatCreateSerializer,
     FavouriteAdCreateSerializer,
+    AdMessageCreateSerializer,
 )
 from rest_framework.response import Response
 from rest_framework import status
@@ -40,6 +41,7 @@ class MessageViewSet(BaseViewset):
         "chat_archived": ChatIsArchivedSerializer,
         "chat_read": MessageIsReadSerializer,
         "chat_message": ChatMessageSerializer,
+        "message_create": AdMessageCreateSerializer,
     }
 
     action_permissions = {
@@ -51,6 +53,7 @@ class MessageViewSet(BaseViewset):
         "chat_read": [IsAuthenticated, IsClient | IsVendorUser],
         "chat_exist": [IsAuthenticated, IsClient],
         "chat_message": [IsAuthenticated, IsClient | IsVendorUser],
+        "message_create": [IsAuthenticated, IsClient | IsVendorUser],
     }
 
     user_role_queryset = {
@@ -223,3 +226,20 @@ class MessageViewSet(BaseViewset):
         instance.save()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(detail=True, url_path="message-create", methods=["post"])
+    def message_create(self, request, *args, **kwargs):
+        chat = Chat.objects.filter(id=kwargs.get("pk")).first()
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        Message.objects.create(
+            **serializer.validated_data, chat=chat, sender=request.user
+        )
+        return Response(
+            status=status.HTTP_201_CREATED,
+            data=ResponseInfo().format_response(
+                data={},
+                status_code=status.HTTP_201_CREATED,
+                message="Message created",
+            ),
+        )
