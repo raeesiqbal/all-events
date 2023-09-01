@@ -105,6 +105,11 @@
   stroke: white;
 }
 
+.form-check-input:checked {
+  background-color: #A0C49D !important;
+  border-color: #A0C49D !important;
+}
+
 @media (max-width: 1200px) {
   .login-modal-form-col {
     padding: 18px 28px;

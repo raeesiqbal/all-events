@@ -24,10 +24,10 @@ const initialState = {
 // Asynchronous action to handle login
 export const handleRegister = createAsyncThunk(
   "auth/register",
-  async (data, { rejectWithValue }) => {
+  async ({ data, role }, { rejectWithValue }) => {
     try {
       const response = await instance.request({
-        url: "/api/companies/",
+        url: role === "vendor" ? "/api/companies/" : "/api/clients/",
         method: "Post",
         data,
       });

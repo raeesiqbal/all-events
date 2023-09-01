@@ -100,12 +100,10 @@ function MyAds() {
         </Modal.Footer>
       </Modal>
 
-      <div className="my-ad-banner d-flex align-items-center justify-content-between">
-        <div style={{ marginLeft: "100px" }}>
-          <div className="roboto-bold-36px-h1">Ad Management</div>
-          <div className="roboto-regular-18px-body3">
-            Keep track of your posted ads with ease
-          </div>
+      <div className="my-ad-banner p-md-5">
+        <div className="roboto-bold-36px-h1 mb-2">Ad Management</div>
+        <div className="roboto-regular-18px-body3">
+          Keep track of your posted ads with ease
         </div>
       </div>
 

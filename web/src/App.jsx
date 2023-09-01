@@ -9,7 +9,7 @@ import MyAds from "./views/Ads/MyAds";
 import ViewAd from "./views/Ads/ViewAd";
 import EditAd from "./views/EditAd/EditAd";
 import ResetPassword from "./views/ResetPassword/ResetPassword";
-import Messages from "./views/Messages/Messages";
+import Chats from "./views/Chats/Chats";
 
 function App() {
   return (
@@ -59,7 +59,7 @@ function App() {
         path="/messages"
         element={(
           <ProtectedRoute>
-            <Messages />
+            <Chats />
           </ProtectedRoute>
         )}
       />

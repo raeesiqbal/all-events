@@ -7,24 +7,23 @@ import { secureInstance } from "../../../axios/config";
 const initialState = {
   loading: false,
   error: null,
-  contacts: [],
-  ContactSuccessAlert: false,
-  ContactErrorAlert: false,
+  messages: [],
+  additionalInfo: null,
+  MessageSuccessAlert: false,
+  MessageErrorAlert: false,
 };
 
-export const handleStartContact = createAsyncThunk(
-  "Contacts/create",
-  async ({ data }, { rejectWithValue }) => {
+export const sendMessage = createAsyncThunk(
+  "Messages/send",
+  async ({ id, data }, { rejectWithValue }) => {
     try {
       const response = await secureInstance.request({
-        url: "/api/analytics/ad-contact/",
+        url: `/api/analytics/ad-chat/${id}/message-create/`,
         method: "Post",
         data,
       });
-      // setTimeout(() => {
-      //   navigate("/contact-messages");
-      // }, 1000);
-      return response.data; // Assuming your loginAPI returns data with access_token, user_id, and role_id
+
+      return response.data;
     } catch (err) {
       // Use `err.response.data` as `action.payload` for a `rejected` action,
       // by explicitly returning it using the `rejectWithValue()` utility
@@ -33,15 +32,15 @@ export const handleStartContact = createAsyncThunk(
   },
 );
 
-export const listContacts = createAsyncThunk(
-  "Contacts/list",
-  async (data, { rejectWithValue }) => {
+export const listChatMessages = createAsyncThunk(
+  "Messages/list",
+  async (id, { rejectWithValue }) => {
     try {
       const response = await secureInstance.request({
-        url: "/api/analytics/ad-contact/",
+        url: `/api/analytics/ad-chat/${id}/chat-message/`,
         method: "Get",
       });
-      return response.data; // Assuming your loginAPI returns data with access_token, user_id, and role_id
+      return response.data;
     } catch (err) {
       // Use `err.response.data` as `action.payload` for a `rejected` action,
       // by explicitly returning it using the `rejectWithValue()` utility
@@ -50,9 +49,9 @@ export const listContacts = createAsyncThunk(
   },
 );
 
-// Create the ContactsSlice
-export const ContactsSlice = createSlice({
-  name: "Contacts",
+// Create the MessagesSlice
+export const MessagesSlice = createSlice({
+  name: "Chats",
   initialState,
   reducers: {
     handleResgisterationStatus: (state) => {
@@ -61,28 +60,28 @@ export const ContactsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(handleStartContact.pending, (state) => {
+      .addCase(sendMessage.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(handleStartContact.fulfilled, (state) => {
+      .addCase(sendMessage.fulfilled, (state) => {
         state.loading = false;
-        state.ContactSuccessAlert = true;
+        state.MessageSuccessAlert = true;
       })
-      .addCase(handleStartContact.rejected, (state, action) => {
+      .addCase(sendMessage.rejected, (state, action) => {
         state.loading = false;
-        state.ContactErrorAlert = action.payload;
-        // state.error = action.payload;
+        state.MessageErrorAlert = action.payload;
       })
-      .addCase(listContacts.pending, (state) => {
+      .addCase(listChatMessages.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(listContacts.fulfilled, (state, action) => {
+      .addCase(listChatMessages.fulfilled, (state, action) => {
         state.loading = false;
-        state.contacts = action.payload.data;
+        state.messages = action.payload.data.messages;
+        state.additionalInfo = action.payload.data.additional_info;
       })
-      .addCase(listContacts.rejected, (state, action) => {
+      .addCase(listChatMessages.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });
@@ -91,7 +90,7 @@ export const ContactsSlice = createSlice({
 
 export const {
   handleResgisterationStatus,
-} = ContactsSlice.actions;
+} = MessagesSlice.actions;
 
 // Export the reducer and actions
-export default ContactsSlice.reducer;
+export default MessagesSlice.reducer;

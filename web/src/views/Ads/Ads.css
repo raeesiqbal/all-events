@@ -314,6 +314,14 @@
 }
 /* carousel ------------------------------------ */
 
+@media (max-width: 880px) {
+  .my-ad-banner {
+    height: auto !important;
+    text-align: center;
+    padding: 20px 10px;
+  }
+}
+
 @media (max-width: 768px) {
   /* .embla__slide {
       flex: 0 0 50%; /* Breakpoint SM slide covers 50% of the viewport */

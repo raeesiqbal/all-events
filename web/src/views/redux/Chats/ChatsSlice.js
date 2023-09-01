@@ -8,6 +8,8 @@ const initialState = {
   loading: false,
   error: null,
   chats: [],
+  inboxCount: 0,
+  archivedCount: 0,
   ChatSuccessAlert: false,
   ChatErrorAlert: false,
 };
@@ -50,6 +52,42 @@ export const listChats = createAsyncThunk(
   },
 );
 
+export const archiveChat = createAsyncThunk(
+  "Chats/archive",
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await secureInstance.request({
+        url: `/api/analytics/ad-chat/${data.id}/archive/`,
+        method: "Patch",
+        data: { is_archived: data.is_archived },
+      });
+      return response.data; // Assuming your loginAPI returns data with access_token, user_id, and role_id
+    } catch (err) {
+      // Use `err.response.data` as `action.payload` for a `rejected` action,
+      // by explicitly returning it using the `rejectWithValue()` utility
+      return rejectWithValue(err.response.data);
+    }
+  },
+);
+
+export const deleteChat = createAsyncThunk(
+  "Chats/delete",
+  async ({ id }, { rejectWithValue }) => {
+    try {
+      const response = await secureInstance.request({
+        url: `/api/analytics/ad-chat/${id}/`,
+        method: "Delete",
+      });
+
+      return response.data;
+    } catch (err) {
+      // Use `err.response.data` as `action.payload` for a `rejected` action,
+      // by explicitly returning it using the `rejectWithValue()` utility
+      return rejectWithValue(err.response.data);
+    }
+  },
+);
+
 // Create the ChatsSlice
 export const ChatsSlice = createSlice({
   name: "Chats",
@@ -72,7 +110,6 @@ export const ChatsSlice = createSlice({
       .addCase(handleStartChat.rejected, (state, action) => {
         state.loading = false;
         state.ChatErrorAlert = action.payload;
-        // state.error = action.payload;
       })
       .addCase(listChats.pending, (state) => {
         state.loading = true;
@@ -81,10 +118,36 @@ export const ChatsSlice = createSlice({
       .addCase(listChats.fulfilled, (state, action) => {
         state.loading = false;
         state.chats = action.payload.data;
+        state.inboxCount = action.payload.inbox_count;
+        state.archivedCount = action.payload.archived_count;
       })
       .addCase(listChats.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+      .addCase(archiveChat.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(archiveChat.fulfilled, (state) => {
+        state.loading = false;
+        state.ChatSuccessAlert = true;
+      })
+      .addCase(archiveChat.rejected, (state, action) => {
+        state.loading = false;
+        state.ChatErrorAlert = action.payload;
+      })
+      .addCase(deleteChat.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteChat.fulfilled, (state) => {
+        state.loading = false;
+        state.ChatSuccessAlert = true;
+      })
+      .addCase(deleteChat.rejected, (state, action) => {
+        state.loading = false;
+        state.ChatErrorAlert = action.payload;
       });
   },
 });

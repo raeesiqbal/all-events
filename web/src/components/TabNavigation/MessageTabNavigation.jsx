@@ -16,7 +16,7 @@ const tabs = [
   },
 ];
 
-const MesssageTabNavigation = ({ activeTab, setActiveTab }) => {
+const MesssageTabNavigation = ({ activeTab, setActiveTab, counts }) => {
   const dispatch = useDispatch();
 
   const isActive = (label) => activeTab === label;
@@ -42,7 +42,7 @@ const MesssageTabNavigation = ({ activeTab, setActiveTab }) => {
             style={{ cursor: "pointer", borderBottom: "7px solid #fff" }}
           >
             <span>{tab.label}</span>
-            <span className="ps-2 text-secondary">(12)</span>
+            <span className="ps-2 text-secondary">{`(${counts[index]})`}</span>
           </div>
         ))}
       </div>

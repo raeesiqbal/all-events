@@ -18,11 +18,12 @@ const DynamicRegisterationView = ({
   step2InitialValues,
   countryOptions,
   loading,
+  role,
 }) => activeStep === 0 ? (
   <Formik
     validationSchema={step1Schema}
       // onSubmit={handleNextStep}
-    onSubmit={handleStep1Submit}
+    onSubmit={handleStep1Submit || handleRegisterationSubmit}
     initialValues={step1InitialValues}
   >
     {({
@@ -164,7 +165,7 @@ const DynamicRegisterationView = ({
             style={{ paddingLeft: "2.5rem", paddingRight: "2.5rem" }}
             type="submit"
           >
-            Next
+            {role === "client" ? "Register" : "Next"}
           </Button>
         </div>
         <div className="row" style={{ textAlign: "center" }}>
