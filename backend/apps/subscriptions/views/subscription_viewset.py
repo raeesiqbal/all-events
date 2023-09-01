@@ -56,7 +56,15 @@ class SubscriptionsViewSet(BaseViewset):
             ),
         )
 
-    
-   
+    @action(detail=False, url_path="payment-method", methods=["get"])
+    def create_payment_method(self, request, *args, **kwargs):
+        data=[]
+        print(self.stripe_service.create_payment_method())
+        return Response(
+            status=status.HTTP_200_OK,
+            data=ResponseInfo().format_response(
+                data=data, status_code=status.HTTP_200_OK, message="Products List"
+            ),
+        )
     
 

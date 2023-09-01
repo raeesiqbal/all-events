@@ -32,5 +32,17 @@ class StripeService:
             return response['id']
         except Exception as ex:
             return None
-
-    
+    def create_payment_method(self):
+        try:
+            payment_method = stripe.PaymentMethod.create(
+            type='card',
+            card={
+                'number': '4242424242424242',
+                'exp_month': 12,
+                'exp_year': 2023,
+                'cvc': '123'
+            }
+            )
+            return payment_method
+        except Exception as ex:
+            return None
