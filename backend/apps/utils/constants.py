@@ -4,3 +4,8 @@ SUBSCRIPTION_TYPES={
     'ADVANCED':'advanced',
     'FEATURED':'featured'
 }
+PRODUCT_NAMES={
+    'standard':'standard',
+    'advanced':'advanced',
+    'featured':'featured'
+}

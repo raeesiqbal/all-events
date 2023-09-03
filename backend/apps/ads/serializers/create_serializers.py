@@ -82,6 +82,9 @@ class DeleteUrlOnUpdateSerializer(serializers.Serializer):
 
 class SearchStringSerializer(serializers.Serializer):
     search_string = serializers.CharField(required=True, max_length=1000)
+    # user_role_fields={
+        
+    # }
    
     class Meta:
         model = Gallery
