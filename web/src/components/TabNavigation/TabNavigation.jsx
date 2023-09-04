@@ -8,6 +8,7 @@ import list from "../../assets/images/list.svg";
 import pieChart from "../../assets/images/pie-chart.svg";
 import plusCircle from "../../assets/images/plus-circle.svg";
 import settings from "../../assets/images/settings.svg";
+import analytics from "../../assets/images/uil_analytics.svg";
 import "./TabNavigation.css";
 import {
   handleClickTab,
@@ -40,6 +41,11 @@ const tabs = [
     label: "Settings",
     icon: settings,
     path: "/profile-settings",
+  },
+  {
+    label: "Analytics",
+    icon: analytics,
+    path: "/analytics",
   },
 ];
 

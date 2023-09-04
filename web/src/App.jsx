@@ -9,6 +9,7 @@ import MyAds from "./views/Ads/MyAds";
 import ViewAd from "./views/Ads/ViewAd";
 import EditAd from "./views/EditAd/EditAd";
 import ResetPassword from "./views/ResetPassword/ResetPassword";
+import Analytics from "./views/Analytics/Analytics";
 
 function App() {
   return (
@@ -51,6 +52,14 @@ function App() {
         element={
           <ProtectedRoute>
             <ViewAd />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/analytics"
+        element={
+          <ProtectedRoute>
+            <Analytics />
           </ProtectedRoute>
         }
       />

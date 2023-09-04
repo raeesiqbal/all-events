@@ -24,6 +24,7 @@ function CompanyInformation({
   isEditView,
   isMultipleCountries,
   setIsMultipleCountries,
+  handleIsSubCategoryChanged,
 }) {
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
@@ -90,6 +91,7 @@ function CompanyInformation({
 
   const handleSubCategorySelected = async (id) => {
     // values.sub_category = "";
+    handleIsSubCategoryChanged(id);
     const request = await secure_instance.request({
       url: `/api/ads/sub_category/${id}/activation-countries-exists/`,
       method: "Get",
