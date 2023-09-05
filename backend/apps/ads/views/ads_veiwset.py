@@ -42,9 +42,9 @@ class AdViewSet(BaseViewset):
         "partial_update": AdUpdateSerializer,
         "get_upload_url": GetUploadPresignedUrlSerializer,
         "delete_url": DeleteUrlSerializer,
-        "remove_url_on_update":DeleteUrlOnUpdateSerializer,
-        "list":AdGetSerializer,
-        "retrieve":AdGetSerializer
+        "remove_url_on_update": DeleteUrlOnUpdateSerializer,
+        "list": AdGetSerializer,
+        "retrieve": AdGetSerializer,
     }
     action_permissions = {
         "default": [],
@@ -54,16 +54,22 @@ class AdViewSet(BaseViewset):
         "partial_update": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
         "destroy": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
         "get_upload_url": [],
-        "remove_url_on_update":[IsAuthenticated, IsSuperAdmin | IsVendorUser]
+        "remove_url_on_update": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
     }
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     search_param = "search"
-    search_fields = ['name','company__name','country__name','sub_category__name','related_sub_category__name','activation_countries__name','city'
-                     'street','offered_services']
-    ordering_fields = ['name','sub_category__name','id']
-    filterset_fields = {
-        
-    }
+    search_fields = [
+        "name",
+        "company__name",
+        "country__name",
+        "sub_category__name",
+        "related_sub_category__name",
+        "activation_countries__name",
+        "city" "street",
+        "offered_services",
+    ]
+    ordering_fields = ["name", "sub_category__name", "id"]
+    filterset_fields = {}
     user_role_queryset = {
         USER_ROLE_TYPES["VENDOR"]: lambda self: Ad.objects.filter(
             company__user_id=self.request.user.id
@@ -179,7 +185,7 @@ class AdViewSet(BaseViewset):
                 data=serializer.data, status_code=status.HTTP_200_OK, message="Ads Get"
             ),
         )
-    
+
     def partial_update(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -187,7 +193,7 @@ class AdViewSet(BaseViewset):
         media_urls = serializer.validated_data.pop("media_urls", {})
 
         activation_countries = serializer.validated_data.pop("activation_countries", [])
-        ad=Ad.objects.filter(id=kwargs.get('pk'))
+        ad = Ad.objects.filter(id=kwargs.get("pk"))
         ad.first().activation_countries.clear()
         ad.first().activation_countries.add(*activation_countries)
         ad.update(**serializer.validated_data)
@@ -202,44 +208,45 @@ class AdViewSet(BaseViewset):
 
         FAQ.objects.bulk_create(faqs_list)
 
-            
-        
-        return  Response(
+        return Response(
             status=status.HTTP_200_OK,
             data=ResponseInfo().format_response(
-                data=AdGetSerializer(ad.first()).data, status_code=status.HTTP_200_OK, message="Ads Get"
+                data=AdGetSerializer(ad.first()).data,
+                status_code=status.HTTP_200_OK,
+                message="Ads Get",
             ),
         )
-    
 
     @action(detail=True, url_path="remove-url", methods=["post"])
     def remove_url_on_update(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        media_type=serializer.validated_data.get("media_type")
-        gallery_obj=Gallery.objects.filter(ad_id=kwargs['pk']).first()
-        url=serializer.validated_data.get("url")
-       
-        media=gallery_obj.media_urls.get(media_type,[])
+        media_type = serializer.validated_data.get("media_type")
+        gallery_obj = Gallery.objects.filter(ad_id=kwargs["pk"]).first()
+        url = serializer.validated_data.get("url")
+
+        media = gallery_obj.media_urls.get(media_type, [])
         if url in media:
             media.remove(url)
             gallery_obj.media_urls[media_type] = media
             gallery_obj.save()
-            
+
         self.s3_service.delete_s3_object_by_url(serializer.validated_data.get("url"))
         return Response(
             status=status.HTTP_200_OK,
             data=ResponseInfo().format_response(
-                data={}, status_code=status.HTTP_200_OK, message="delete media on update"
+                data={},
+                status_code=status.HTTP_200_OK,
+                message="delete media on update",
             ),
         )
-    
+
     @action(detail=False, url_path="view-effect", methods=["get"])
     def increment_view_effect(self, request, *args, **kwargs):
-        slug=request.GET.get("slug")
+        slug = request.GET.get("slug")
         obj = self.queryset.filter(slug=slug)
         if len(obj):
-            obj.update(total_views=F("total_views")+1)
+            obj.update(total_views=F("total_views") + 1)
 
         return Response(
             status=status.HTTP_200_OK,

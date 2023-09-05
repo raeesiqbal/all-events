@@ -1,7 +1,4 @@
 from rest_framework.permissions import IsAuthenticated
-from apps.analytics.models import FavouriteAd
-
-from apps.analytics.serializers.create_serializer import FavouriteAdCreateSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from apps.clients.models import Client

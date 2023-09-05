@@ -9,24 +9,24 @@ post_unarchive = Signal()
 
 class AbstractBaseModel(Model):
     created_by = ForeignKey(
-        'users.User', on_delete=SET_NULL, null=True, blank=True, related_name='+'
+        "users.User", on_delete=SET_NULL, null=True, blank=True, related_name="+"
     )
     created_at = DateTimeField(default=timezone.now)
     updated_by = ForeignKey(
-        'users.User', on_delete=SET_NULL, null=True, blank=True, related_name='+'
+        "users.User", on_delete=SET_NULL, null=True, blank=True, related_name="+"
     )
     updated_at = DateTimeField(auto_now=True)
 
     class Meta:
         abstract = True
-        ordering = ['-id']
+        ordering = ["-id"]
+
 
 class NewAbstractModel(Model):
-    
     created_at = DateTimeField(default=timezone.now)
-    
+
     updated_at = DateTimeField(auto_now=True)
 
     class Meta:
         abstract = True
-        ordering = ['-id']
+        ordering = ["-id"]

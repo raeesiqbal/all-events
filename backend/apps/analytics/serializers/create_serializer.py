@@ -3,18 +3,16 @@ from apps.utils.serializers.base import BaseSerializer
 from rest_framework import serializers
 
 
-class FavouriteAdCreateSerializer(BaseSerializer):
-    class Meta:
-        model = FavouriteAd
-        fields = [
-            "ad",
-        ]
-
-
 class AdReviewCreateSerializer(BaseSerializer):
     class Meta:
         model = AdReview
-        fields = "__all__"
+        fields = [
+            "title",
+            "name",
+            "rating",
+            "message",
+            "photos",
+        ]
 
 
 class MessageChildSerializer(BaseSerializer):

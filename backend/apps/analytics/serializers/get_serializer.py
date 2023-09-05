@@ -5,6 +5,43 @@ from apps.ads.serializers.get_serializers import GalleryChildSerializer
 from rest_framework import serializers
 from apps.clients.models import Client
 from apps.users.models import User
+from apps.analytics.models import FavouriteAd
+
+
+class AdFavChildSerializer(BaseSerializer):
+    ad_image = serializers.SerializerMethodField()
+    company = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Ad
+        fields = [
+            "ad_image",
+            "company",
+            "name",
+            "description",
+        ]
+
+    def get_ad_image(self, obj):
+        gallery = Gallery.objects.filter(ad=obj).first()
+
+        return (
+            gallery.media_urls.get("images")[0]
+            if gallery.media_urls.get("images")
+            else None
+        )
+
+    def get_company(self, obj):
+        return obj.company.name
+
+
+class FavouriteAdSerializer(BaseSerializer):
+    ad = AdFavChildSerializer()
+
+    class Meta:
+        model = FavouriteAd
+        fields = [
+            "ad",
+        ]
 
 
 class AdContactGetSerializer(BaseSerializer):

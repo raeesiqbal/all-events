@@ -93,16 +93,15 @@ class Ad(NewAbstractModel):
     others = models.TextField(_("Others"), null=True, blank=True)
 
     offered_services = ArrayField(base_field=models.TextField(), null=True, blank=True)
-    
-    total_views=models.IntegerField(_("Total Views"), default=0)
-    
+
+    total_views = models.IntegerField(_("Total Views"), default=0)
+
     def __str__(self):
         return f"{self.name}"
-    
+
     def save(self, *args, **kwargs):
         self.slug = unique_slugify(Ad, self.name, self.id)
         super(Ad, self).save(*args, **kwargs)
-
 
     class Meta:
         verbose_name = "Ad"

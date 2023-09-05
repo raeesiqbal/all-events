@@ -2,7 +2,6 @@ from rest_framework.permissions import IsAuthenticated
 from apps.analytics.models import Chat, Message
 from apps.analytics.serializers.create_serializer import (
     AdChatCreateSerializer,
-    FavouriteAdCreateSerializer,
     AdMessageCreateSerializer,
 )
 from rest_framework.response import Response
@@ -74,13 +73,14 @@ class MessageViewSet(BaseViewset):
         data = super().list(request, *args, **kwargs)
         list_data = data.data
         queryset = self.get_queryset()
-        inbox_count = queryset.count()
         archived_count = None
 
         if request.user.role_type == USER_ROLE_TYPES["CLIENT"]:
             archived_count = queryset.filter(is_archived_client=True).count()
+            inbox_count = queryset.filter(is_archived_client=False).count()
         elif request.user.role_type == USER_ROLE_TYPES["VENDOR"]:
             archived_count = queryset.filter(is_archived_vendor=True).count()
+            inbox_count = queryset.filter(is_archived_vendor=False).count()
 
         list_data["inbox_count"] = inbox_count
         list_data["archived_count"] = archived_count
@@ -156,7 +156,7 @@ class MessageViewSet(BaseViewset):
                 "image": chat.ad.company.user.image,
             }
 
-        messages = Message.objects.filter(chat=chat)
+        messages = Message.objects.filter(chat=chat).order_by("created_at")
         data = self.get_serializer(messages, many=True)
 
         return Response(

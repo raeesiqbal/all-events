@@ -31,7 +31,6 @@ class ChatAdmin(admin.ModelAdmin):
     )
     search_fields = [
         "id",
-        "client__email",
         "ad__name",
         "event_date",
         "latest_message__text",
@@ -77,7 +76,6 @@ class AdReviewAdmin(admin.ModelAdmin):
         "id",
         "title",
         "ad__name",
-        "client__email",
         "name",
         "rating",
     ]

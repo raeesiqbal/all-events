@@ -45,7 +45,7 @@ class AdReview(NewAbstractModel):
     )
 
     def __str__(self):
-        return f"{self.client.email} --> {self.ad.name}"
+        return f"{self.ad.name} --> {self.title}"
 
     class Meta:
         ordering = ["-id"]
