@@ -94,9 +94,10 @@ class Ad(NewAbstractModel):
     youtube = models.TextField(_("Youtube"), null=True, blank=True)
     tiktok = models.TextField(_("Tiktok"), null=True, blank=True)
     twitter = models.TextField(_("Twitter"), null=True, blank=True)
-    others = models.TextField(_("Others"), null=True, blank=True)
+    others = models.TextField(_("Others"), null=True, blank=True) 
 
     offered_services = ArrayField(base_field=models.TextField(), null=True, blank=True)
+    site_services = ArrayField(base_field=models.TextField(), null=True, blank=True)
 
     total_views = models.IntegerField(_("Total Views"), default=0)
 

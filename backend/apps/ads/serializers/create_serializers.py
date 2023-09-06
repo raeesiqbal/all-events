@@ -53,6 +53,7 @@ class AdCreateSerializer(BaseSerializer):
             "twitter",
             "others",
             "offered_services",
+            "site_services",
             "ad_faq_ad",
             "faqs",
             "media_urls",

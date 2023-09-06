@@ -84,6 +84,7 @@ class AdViewSet(BaseViewset):
         "city",
         "street",
         "offered_services",
+        "site_services",
     ]
     ordering_fields = ["name", "sub_category__name", "id"]
     filterset_fields = {
