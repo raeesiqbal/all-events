@@ -95,10 +95,39 @@ class AdViewSet(BaseViewset):
         media_urls = serializer.validated_data.pop("media_urls", {})
 
         faqs = serializer.validated_data.pop("faqs", [])
+        offered_services=serializer.validated_data.pop("offered_services")
         activation_countries = serializer.validated_data.pop("activation_countries", [])
         company = Company.objects.filter(user_id=request.user.id).first()
         if company:
-            ad = Ad.objects.create(**serializer.validated_data, company=company)
+            """subscription based checks"""
+            subscription=Subscription.objects.filter(company=company).first()
+            subscription_limits = {
+                SUBSCRIPTION_TYPES["FREE"]: {"images": 5, "video": 1},
+                SUBSCRIPTION_TYPES["STANDARD"]: {"images": 30, "video": 3},
+                SUBSCRIPTION_TYPES["ADVANCED"]: {"images": 100, "video": 5, "pdf": 1},
+                SUBSCRIPTION_TYPES["FEATURED"]: {"images": 200, "video": 10, "pdf": 1},
+            }
+
+            subscription_type = subscription.type
+
+            if subscription_type in subscription_limits:
+                limits = subscription_limits[subscription_type]
+                for key, limit in limits.items():
+                    if key in media_urls:
+                        media_urls[key] = media_urls[key][:limit]
+                if subscription_type == SUBSCRIPTION_TYPES["FREE"]:
+                    faqs = []
+                    offered_services = []
+            else:
+                return Response(
+                status=status.HTTP_200_OK,
+                data=ResponseInfo().format_response(
+                    data={}, status_code=status.HTTP_200_OK, message="Ad cannot created you don't have any plan selected"
+                    ),
+                )
+
+
+            ad = Ad.objects.create(**serializer.validated_data,offered_services=offered_services, company=company)
             ad.activation_countries.add(*activation_countries)
 
             """ads gallery created"""
