@@ -88,9 +88,11 @@ class AdViewSet(BaseViewset):
     ]
     ordering_fields = ["name", "sub_category__name", "id"]
     filterset_fields = {
-        "sub_category__category__name": ["iexact"],
-        "sub_category__name": ["iexact"],
-        "name": ["iexact"],
+        "sub_category__category__name": ["exact"],
+        "sub_category__name": ["exact"],
+        "name": ["exact"],
+        "ad_faq_ad__site_question_id": ["exact"],
+        "ad_faq_ad__answer": ["exact"],
     }
     user_role_queryset = {
         USER_ROLE_TYPES["VENDOR"]: lambda self: Ad.objects.filter(
