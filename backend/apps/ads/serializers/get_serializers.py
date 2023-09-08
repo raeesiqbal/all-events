@@ -10,7 +10,9 @@ from apps.ads.models import (
     RelatedSubCategory,
     SubCategory,
 )
+from apps.analytics.models import FavouriteAd
 from apps.companies.models import Company
+from apps.users.constants import USER_ROLE_TYPES
 from apps.utils.serializers.base import BaseSerializer
 
 
@@ -80,11 +82,21 @@ class AdGetSerializer(BaseSerializer):
     ad_faqs = FaqsGetSerializer(many=True)
     
     ad_save_count=serializers.SerializerMethodField('get_ad_saved_count')
+    my_fav=serializers.SerializerMethodField('get_my_fav')
+
     
     def get_ad_saved_count(self, obj):
         
         return obj.ad_saved.all().count()
-
+    
+    
+    def get_my_fav(self, obj):
+        
+        user = self.context['request'].user
+        fav=False
+        if user.role_type==USER_ROLE_TYPES['CLIENT']:
+            fav=FavouriteAd.objects.filter(user=user,ad=obj).exists()
+        return fav
 
 
     class Meta:

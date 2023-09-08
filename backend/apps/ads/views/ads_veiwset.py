@@ -28,7 +28,7 @@ from apps.users.constants import USER_ROLE_TYPES
 from apps.users.models import User
 from django.db.models import F
 
-from apps.users.permissions import IsSuperAdmin, IsVendorUser
+from apps.users.permissions import IsClient, IsSuperAdmin, IsVendorUser
 from apps.utils.constants import SUBSCRIPTION_TYPES
 from apps.utils.services.email_service import send_email_to_user
 from apps.utils.services.s3_service import S3Service
@@ -58,8 +58,8 @@ class AdViewSet(BaseViewset):
     action_permissions = {
         "default": [],
         "create": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
-        "list": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
-        "retrieve": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
+        "list": [IsAuthenticated, IsSuperAdmin | IsVendorUser|IsClient ],
+        "retrieve": [IsAuthenticated, IsSuperAdmin | IsVendorUser|IsClient ],
         "partial_update": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
         "destroy": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
         "get_upload_url": [],
