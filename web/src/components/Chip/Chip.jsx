@@ -1,15 +1,23 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./Chip.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faAdd } from "@fortawesome/free-solid-svg-icons";
 
-function Chip({ label, index, handleRemoveService, handleAddItem, selected }) {
+function Chip({
+  label,
+  index,
+  handleRemoveService,
+  handleAddItem,
+  selected,
+  adminServicesSelected,
+  adminServices,
+}) {
   const [chipActive, setChipActive] = useState(!!selected);
 
   const handleRemove = () => {
-    handleRemoveService(index);
+    handleRemoveService(index, label);
     if (!selected) {
       setChipActive(false);
     }
@@ -19,6 +27,16 @@ function Chip({ label, index, handleRemoveService, handleAddItem, selected }) {
     handleAddItem(index, label);
     setChipActive(true);
   };
+
+  useEffect(() => {
+    if (adminServices) {
+      const isActive = adminServicesSelected.includes(label);
+      console.log(isActive, label);
+      if (isActive) {
+        setChipActive(true);
+      }
+    }
+  }, [adminServices]);
 
   return (
     <div className={`chip ${chipActive && "chip-active"}`}>

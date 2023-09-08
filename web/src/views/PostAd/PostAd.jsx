@@ -79,6 +79,21 @@ function PostAd() {
       return;
     }
 
+    const totalSiteFaqQuestionsLength = preDefinedFAQs.reduce(
+      (accumulator, item) => accumulator + item.site_faq_questions.length,
+      0
+    );
+
+    const totalSelectedValuesLength = selectedValuesServerFAQ.reduce(
+      (accumulator, innerArray) => accumulator + innerArray.length,
+      0
+    );
+    if (totalSelectedValuesLength !== totalSiteFaqQuestionsLength) {
+      const el = document.querySelector(".server-faq-container");
+      (el?.parentElement ?? el)?.scrollIntoView();
+      return;
+    }
+
     console.log(
       "ON SUBMIT TEST => adminServicesSelected",
       adminServicesSelected
@@ -102,7 +117,7 @@ function PostAd() {
     // });
     const FAQsMap = values.FAQ.faqs.map((faq) => ({
       question: faq.question,
-      answer_input: faq.answer_input,
+      answer: faq.answer,
     }));
 
     // const serverFAQsMap = selectedValuesServerFAQ.map((faq) => ({
@@ -110,9 +125,9 @@ function PostAd() {
     //   answer: faq.value,
     // }));
 
-    const adminServicesMap = adminServicesSelected.map(
-      (service) => service.label
-    );
+    // const adminServicesMap = adminServicesSelected.map(
+    //   (service) => service.label
+    // );
 
     const objToSubmit = {
       media_urls: {
@@ -133,10 +148,8 @@ function PostAd() {
       tiktok: values.SocialMedia.tiktokURL,
       twitter: values.SocialMedia.twitterURL,
       // others: values.SocialMedia.othersURL,
-      offered_services: [
-        ...values.servicesOffered.services,
-        ...adminServicesMap,
-      ],
+      offered_services: values.servicesOffered.services,
+      site_services: adminServicesSelected,
       sub_category: parseInt(values.companyInformation.sub_category, 10),
       ...(relatedSubCategoryId !== null && {
         related_sub_categories: relatedSubCategoryId,
@@ -288,7 +301,7 @@ function PostAd() {
       faqs: Yup.array().of(
         Yup.object().shape({
           question: Yup.string().max(150, "Must be at most 150 characters"),
-          answer_input: Yup.string().max(500, "Must be at most 500 characters"), // You can add validation for answer_input here if needed
+          answer: Yup.string().max(500, "Must be at most 500 characters"), // You can add validation for answer here if needed
           type: Yup.string(), // You can add validation for type here if needed
           added: Yup.boolean(), // You can add validation for added here if needed
         })
@@ -443,7 +456,7 @@ function PostAd() {
           ...updatedFAQs,
           {
             question: "",
-            answer_input: "",
+            answer: "",
             type: "text_field",
             added: false,
           },

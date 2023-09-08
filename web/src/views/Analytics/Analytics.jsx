@@ -13,6 +13,7 @@ import viewsIcon from "../../assets/images/views.svg";
 import savesIcon from "../../assets/images/saves.svg";
 import reviewsIcon from "../../assets/images/reviews.svg";
 import messagesIcon from "../../assets/images/messages.svg";
+import dropdownIcon from "../../assets/images/dropdown.svg";
 import "./Analytics.css";
 import Footer from "../../components/Footer/Footer";
 import TabNavigation from "../../components/TabNavigation/TabNavigation";
@@ -78,7 +79,7 @@ function Analytics() {
   }, [user]);
 
   return (
-    <>
+    <div onClick={() => setShowDatePicker(false)}>
       <Header />
       <TabNavigation />
       <div className="profile-settings-banner d-flex align-items-center">
@@ -91,17 +92,28 @@ function Analytics() {
       </div>
 
       <Row
-        className="d-flex justify-content-center align-items-center"
+        className="d-flex justify-content-center align-items-center g-0"
         style={{ marginTop: "48px" }}
       >
-        {/* <Col md={11} lg={6} xl={6} /> */}
+        <Col md={11} lg={6} xl={6} />
         <Col md={11} lg={6} xl={6}>
-          <Dropdown show={showDatePicker} onClick={handleDropdownClick}>
-            <Dropdown.Toggle variant="success" id="dropdown-basic">
+          <Dropdown show={showDatePicker} onClick={(e) => e.stopPropagation()}>
+            <Dropdown.Toggle
+              variant="outline"
+              id="dropdown-basic"
+              onClick={handleDropdownClick}
+              style={{ border: "1px solid #797979", borderRadius: "4px" }}
+            >
               {/* {selectedDate ? selectedDate.toDateString() : "Select Date"} */}
-              Select Date
+              <span
+                style={{ marginRight: "50px", color: "#797979" }}
+                className="roboto-regular-16px-information"
+              >
+                Select Date Range
+              </span>
+              <img src={dropdownIcon} />
             </Dropdown.Toggle>
-            <Dropdown.Menu onClick={(e) => e.stopPropagation()}>
+            <Dropdown.Menu>
               <DateRangePicker
                 onChange={(item) => setState([item.selection])}
                 showSelectionPreview
@@ -316,7 +328,7 @@ function Analytics() {
       </Container>
 
       <Footer />
-    </>
+    </div>
   );
 }
 

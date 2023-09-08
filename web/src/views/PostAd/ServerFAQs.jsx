@@ -18,6 +18,7 @@ function ServerFAQs({
   selectedValues,
   setSelectedValues,
 }) {
+  console.log("selectedValues", selectedValues);
   // Initialize an array to keep track of selected values
   // Initialize an array to keep track of selected values and their respective question indexes
 
@@ -33,6 +34,11 @@ function ServerFAQs({
     question,
     faqID
   ) => {
+    console.log("sectionIndex", sectionIndex);
+    console.log("questionIndex", questionIndex);
+    console.log("value", value);
+    console.log("question", question);
+    console.log("faqID", faqID);
     const updatedValues = [...selectedValues];
     const questionId = questionIdCounter;
     setQuestionIdCounter(questionIdCounter + 1);
@@ -70,10 +76,35 @@ function ServerFAQs({
   //   setSelectedValues([]);
   // }, [siteFaqQuestions]);
 
-  console.log("siteFaqQuestionssiteFaqQuestions", siteFaqQuestions);
+  // Initialize a variable to store the total length
+  // let totalLength = 0;
+
+  // // Iterate through the data and sum up the lengths of site_faq_questions
+  // siteFaqQuestions.forEach((item) => {
+  //   totalLength += item.site_faq_questions.length;
+  // });
+  const totalSiteFaqQuestionsLength = siteFaqQuestions.reduce(
+    (accumulator, item) => accumulator + item.site_faq_questions.length,
+    0
+  );
+
+  const totalSelectedValuesLength = selectedValues.reduce(
+    (accumulator, innerArray) => accumulator + innerArray.length,
+    0
+  );
+
+  // console.log("siteFaqQuestionssiteFaqQuestions", siteFaqQuestions);
+  // console.log("selectedValues", selectedValues);
+  // console.log("totalLength", totalLength);
+  // console.log("totalSelectedValues", totalSelectedValues);
 
   return (
-    <Container fluid>
+    <Container fluid className="mt-5">
+      {totalSelectedValuesLength !== totalSiteFaqQuestionsLength && (
+        <div className="text-danger server-faq-container">
+          Answer to all Questions are required
+        </div>
+      )}
       <Row>
         {/* <div className="roboto-semi-bold-28px-h2 mt-5">Pre definedFAQs</div> */}
         {/* <div className="roboto-regular-14px-information mt-2 mb-3">
@@ -115,10 +146,11 @@ function ServerFAQs({
                             name={`formHorizontalRadios-${sectionIndex}-${index}`}
                             id={`formHorizontalRadios${suggestion}-${sectionIndex}-${index}-${suggestionIndex}`}
                             checked={
-                              selectedValues[sectionIndex] &&
-                              selectedValues[sectionIndex][index] &&
-                              selectedValues[sectionIndex][index].value ===
-                                suggestion
+                              (selectedValues[sectionIndex] &&
+                                selectedValues[sectionIndex][index] &&
+                                selectedValues[sectionIndex][index].value ===
+                                  suggestion) ||
+                              faq.answer === suggestion
                             }
                             onChange={() =>
                               handleRadioChange(
@@ -144,9 +176,11 @@ function ServerFAQs({
                         name={`formHorizontalRadios-${sectionIndex}-${index}`}
                         id={`yes-${sectionIndex}-${index}`}
                         checked={
-                          selectedValues[sectionIndex] &&
-                          selectedValues[sectionIndex][index] &&
-                          selectedValues[sectionIndex][index].value === "Yes"
+                          (selectedValues[sectionIndex] &&
+                            selectedValues[sectionIndex][index] &&
+                            selectedValues[sectionIndex][index].value ===
+                              "Yes") ||
+                          faq.answer === "Yes"
                         }
                         onChange={() =>
                           handleRadioChange(
@@ -164,9 +198,11 @@ function ServerFAQs({
                         name={`formHorizontalRadios-${sectionIndex}-${index}`}
                         id={`no-${sectionIndex}-${index}`}
                         checked={
-                          selectedValues[sectionIndex] &&
-                          selectedValues[sectionIndex][index] &&
-                          selectedValues[sectionIndex][index].value === "No"
+                          (selectedValues[sectionIndex] &&
+                            selectedValues[sectionIndex][index] &&
+                            selectedValues[sectionIndex][index].value ===
+                              "No") ||
+                          faq.answer === "No"
                         }
                         onChange={() =>
                           handleRadioChange(
