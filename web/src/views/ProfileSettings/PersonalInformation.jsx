@@ -123,7 +123,7 @@ function PersonalInformation() {
       <TabNavigation />
 
       <div className="profile-settings-banner d-flex align-items-center justify-content-between">
-        <div style={{ marginLeft: "100px" }}>
+        <div className="banner-text-heading">
           <div className="roboto-bold-36px-h1">Personal Information</div>
           <div className="roboto-regular-18px-body3">
             Update your information with ease
@@ -133,7 +133,7 @@ function PersonalInformation() {
         <ProfilePic />
       </div>
 
-      <Col className="justify-content-center" style={{ marginLeft: "54px" }}>
+      <Col className="justify-content-center left-arrow-settings">
         <div
           className="d-flex mt-3"
           style={{ cursor: "pointer" }}
@@ -190,7 +190,7 @@ function PersonalInformation() {
       </Alert>
 
       <Container
-        fluid
+        // fluid="md"
         style={{ marginTop: "50px", marginBottom: "200px" }}
         className=""
       >
@@ -255,7 +255,7 @@ function PersonalInformation() {
                     <Form.Group className="mb-3" controlId="form3Example4">
                       <Form.Label
                         className="roboto-medium-20px-body1 d-flex align-items-center"
-                        style={{ marginBottom: "20px" }}
+                        style={{ marginBottom: "20px", whiteSpace: "nowrap" }}
                       >
                         <img
                           src={contactIcon}
@@ -283,22 +283,22 @@ function PersonalInformation() {
                     </Form.Group>
                   </Col>
 
-                  <Col className="d-flex justify-content-end">
-                    <Button
-                      type="submit"
-                      disabled={loading}
-                      // onClick={handleClickSubmit}
-                      style={{ marginTop: "5rem", width: "30%" }}
-                      className="btn btn-success roboto-semi-bold-16px-information btn-lg"
-                    >
-                      {loading ? (
-                        // "Loading…"
-                        <Spinner animation="border" size="sm" />
-                      ) : (
-                        "Save Changes"
-                      )}
-                    </Button>
-                  </Col>
+                  <div className="d-flex justify-content-end mt-5">
+                    <Col xs={12} md={5} lg={3}>
+                      <Button
+                        variant="success"
+                        type="submit"
+                        disabled={loading}
+                        className="roboto-semi-bold-16px-information btn btn-height w-100"
+                      >
+                        {loading ? (
+                          <Spinner animation="border" size="sm" />
+                        ) : (
+                          "Save Changes"
+                        )}
+                      </Button>
+                    </Col>
+                  </div>
                 </Form>
               )}
             </Formik>

@@ -7,7 +7,7 @@
   --slide-size: 25%;
   --slide-size-for-5: 20%;
   --slide-height: 19rem;
-  padding: 1.6rem;
+  padding: 1.6rem 0;
 }
 
 .carousel-inner > .carousel-item > img,
@@ -172,11 +172,11 @@
 }
 
 .embla__button--prev {
-  left: 0.3rem;
+  left: -1.3rem;
 }
 
 .embla__button--next {
-  right: 0.3rem;
+  right: -1.3rem;
 }
 
 .embla__button:disabled {
@@ -192,6 +192,42 @@
   /* .embla__slide {
       flex: 0 0 50%; /* Breakpoint SM slide covers 50% of the viewport */
   /* } */
+
+  /* Breakpoint SM slide covers 50% of the viewport */
+  .embla__slide {
+    flex: 0 0 50%;
+  }
+  /* .embla {
+    --slide-size: 80%;
+    --slide-size-for-5: 80%;
+  } */
+
+  .embla__button--prev {
+    display: none;
+  }
+
+  .embla__button--next {
+    display: none;
+  }
+}
+
+@media (max-width: 425px) {
+  /* .embla__slide {
+      flex: 0 0 50%; /* Breakpoint SM slide covers 50% of the viewport */
+  /* } */
+  .embla__slide {
+    flex: 0 0 65%;
+  }
+
+  .embla__slide__vendors__by__country {
+    flex: 0 0 40% !important;
+    /* flex: 0 0 20%; */
+    min-width: 0;
+    /* padding: 1.6rem 0; */
+    padding-left: 10px !important;
+    position: relative;
+  }
+
   .embla {
     --slide-size: 80%;
     --slide-size-for-5: 80%;

@@ -8,16 +8,19 @@ import {
   InputGroup,
   Row,
 } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
-import heroImg1 from "../../assets/images/harold.jpg";
-// import heroImg1 from "../../assets/images/heroImg.svg";
+// import { useNavigate } from "react-router-dom";
+// import heroImg1 from "../../assets/images/harold.jpg";
+import heroImg1 from "../../assets/images/heroImg.svg";
 import useWindowDimensions from "../../utilities/hooks/useWindowDimension";
 
 function HeroSection() {
   const { width } = useWindowDimensions();
 
   return (
-    <Container fluid style={{ height: "auto", padding: "0" }}>
+    <Container
+      fluid
+      style={{ height: "auto", padding: "0", marginTop: "36px" }}
+    >
       <Row className="h-100 col-12 g-0 flex-column-reverse flex-md-row">
         <Col
           md={7}
@@ -115,9 +118,9 @@ function HeroSection() {
                     <br />
                     <Button
                       variant="success"
-                      className="roboto-semi-bold-16px-information"
+                      className="roboto-semi-bold-16px-information btn-height"
                       size="lg"
-                      style={{ width: "100%" }}
+                      style={{ width: "100%", height: "65px" }}
                     >
                       Search
                     </Button>

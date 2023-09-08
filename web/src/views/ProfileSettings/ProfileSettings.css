@@ -13,8 +13,8 @@
 .custom-card {
   transition: ease-out 300ms;
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.80);
-  box-shadow: 4px 6px 0px 9px #EFEFEF;
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 4px 6px 0px 9px #efefef;
 }
 
 .custom-card:hover {
@@ -31,4 +31,52 @@
   transition: ease-out 300ms;
   opacity: 1;
   /* display: block; */
+}
+
+.banner-text-heading {
+  margin-left: 100px;
+}
+
+.left-arrow-settings {
+  margin-left: 54px;
+}
+
+@media only screen and (max-width: 768px) {
+  .profile-settings-banner {
+    /* height: 165px; */
+    margin: 0px;
+    margin-top: 36px;
+    /* margin-top: 36px; */
+    /* object-fit: cover; */
+    /* background-repeat: no-repeat; */
+    /* background-size: cover; */
+  }
+
+  .banner-text-heading {
+    margin-left: 30px;
+  }
+
+  .left-arrow-settings {
+    margin-left: 32px;
+  }
+}
+@media only screen and (max-width: 425px) {
+  .profile-settings-banner {
+    /* height: 165px; */
+    margin: 0;
+    margin-top: 36px;
+    height: 200px;
+    /* margin-top: 36px; */
+    /* object-fit: cover; */
+    /* background-repeat: no-repeat; */
+    /* background-size: cover; */
+  }
+
+  .banner-text-heading {
+    margin-left: 10px;
+  }
+
+  .left-arrow-settings {
+    margin-left: 12px;
+  }
 }

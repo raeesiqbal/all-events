@@ -41,7 +41,7 @@ function ProfileSettings() {
       <Header />
       <TabNavigation />
       <div className="profile-settings-banner d-flex align-items-center justify-content-between">
-        <div style={{ marginLeft: "100px" }}>
+        <div className="banner-text-heading">
           <div className="roboto-bold-36px-h1">Profile Settings</div>
           <div className="roboto-regular-18px-body3">
             Update your information with ease
@@ -52,16 +52,16 @@ function ProfileSettings() {
       </div>
 
       <Container
-        fluid
-        style={{ marginTop: "100px", marginBottom: "200px" }}
+        fluid="md"
+        style={{ marginTop: "100px", marginBottom: "200px", padding: "0 30px" }}
         className=""
       >
         <Row className="justify-content-center">
-          <Col md={11} lg={9} xl={8}>
-            <Row className="mb-5">
-              <Col md={6}>
+          <Col sm={12} md={12} lg={10} xl={10}>
+            <Row className="gx-5">
+              <Col xs={12} sm={6} md={6} lg={6} className="mb-5">
                 <Card
-                  style={{ width: "21rem" }}
+                  style={{ minHeight: "180px" }}
                   className="custom-card"
                   onClick={() =>
                     dispatch(
@@ -91,9 +91,9 @@ function ProfileSettings() {
                   </Card.Body>
                 </Card>
               </Col>
-              <Col md={6}>
+              <Col xs={12} sm={6} md={6} lg={6} className="mb-5">
                 <Card
-                  style={{ width: "21rem" }}
+                  style={{ minHeight: "180px" }}
                   className="custom-card"
                   onClick={() =>
                     dispatch(
@@ -124,10 +124,10 @@ function ProfileSettings() {
                 </Card>
               </Col>
             </Row>
-            <Row>
-              <Col md={6}>
+            <Row className="gx-5">
+              <Col xs={12} sm={6} md={6} lg={6} className="mb-5">
                 <Card
-                  style={{ width: "21rem" }}
+                  style={{ minHeight: "180px" }}
                   className="custom-card"
                   onClick={() =>
                     dispatch(handleProfileSettingsCurrentView("ChangePassword"))
@@ -151,9 +151,9 @@ function ProfileSettings() {
                   </Card.Body>
                 </Card>
               </Col>
-              <Col md={6}>
+              <Col xs={12} sm={6} md={6} lg={6}>
                 <Card
-                  style={{ width: "21rem" }}
+                  style={{ minHeight: "180px" }}
                   className="custom-card"
                   onClick={() =>
                     dispatch(handleProfileSettingsCurrentView("DeleteAccount"))
