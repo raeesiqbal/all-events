@@ -12,6 +12,7 @@ from apps.ads.models import (
 )
 from apps.companies.models import Company
 from apps.utils.serializers.base import BaseSerializer
+from apps.analytics.models import FavouriteAd
 
 
 class SubCategoryGetSerializer(BaseSerializer):
@@ -78,6 +79,7 @@ class AdGetSerializer(BaseSerializer):
     country = CountryGetSerializer()
     ad_media = GalleryChildSerializer(many=True)
     ad_faqs = FaqsGetSerializer(many=True)
+    fav = serializers.SerializerMethodField()
 
     ad_save_count = serializers.SerializerMethodField("get_ad_saved_count")
 
@@ -87,6 +89,17 @@ class AdGetSerializer(BaseSerializer):
     class Meta:
         model = Ad
         fields = "__all__"
+
+    def get_fav(self, obj):
+        # You can customize the logic to generate the extra data here
+        user = self.context["request"].user
+
+        if user:
+            if FavouriteAd.objects.filter(user=user).exists():
+                return True
+            else:
+                return False
+        return None
 
 
 class RelatedSubCategory2GetSerializer(BaseSerializer):
@@ -111,7 +124,20 @@ class AdPublicGetSerializer(BaseSerializer):
     country = CountryGetSerializer()
     ad_media = GalleryChildSerializer(many=True)
     ad_faqs = FaqsGetSerializer(many=True)
+    fav = serializers.SerializerMethodField()
 
     class Meta:
         model = Ad
         fields = "__all__"
+
+    def get_fav(self, obj):
+        # You can customize the logic to generate the extra data here
+        user = self.context.get("user", None)
+        print("user", user)
+
+        if user:
+            if FavouriteAd.objects.filter(user=user).exists():
+                return True
+            else:
+                return False
+        return None

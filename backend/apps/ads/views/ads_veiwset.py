@@ -157,11 +157,23 @@ class AdViewSet(BaseViewset):
     def public_ads_list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(Ad.objects.all())
         page = self.paginate_queryset(queryset)
+        user = None
+
+        if request.user.is_authenticated:
+            user = request.user
 
         if page != None:
-            serializer = self.get_serializer(page, many=True)
+            serializer = self.get_serializer(
+                page,
+                many=True,
+                context={"user": user},
+            )
         else:
-            serializer = self.get_serializer(queryset, many=True)
+            serializer = self.get_serializer(
+                queryset,
+                many=True,
+                context={"user": user},
+            )
 
         data = serializer.data
         if page != None:
