@@ -13,6 +13,7 @@ import "./Chats.css";
 
 function Chats() {
   const dispatch = useDispatch();
+  const user = useSelector((state) => state.auth.user);
   const chats = useSelector((state) => state.chats.chats);
   const inboxCount = useSelector((state) => state.chats.inboxCount);
   const archivedCount = useSelector((state) => state.chats.archivedCount);
@@ -32,7 +33,7 @@ function Chats() {
   return (
     <>
       <Header />
-      <TabNavigation />
+      <TabNavigation role={user.role} />
 
       <div className="my-ad-banner p-md-5 mb-5">
         <div className="roboto-bold-36px-h1 mb-2">Chats</div>

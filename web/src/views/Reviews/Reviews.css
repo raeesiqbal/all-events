@@ -1,0 +1,61 @@
+
+.star-rating span {
+  cursor: pointer;
+}
+
+.filled-star {
+  color: #f0c14b; /* Yellow color for filled stars */
+  z-index: 1;
+}
+
+.empty-star {
+  color: #ccc; /* Gray color for empty stars */
+}
+
+.upload-review-img {
+  width: 100px;
+  height: 100px;
+  border: 2px dashed #A8A8A8;
+  color: #A8A8A8;
+  position: relative;
+  display: flex;
+}
+
+.upload-review-img span {
+  font-size: 80px;
+  line-height: 80px;
+  margin: auto !important;
+  z-index: 0;
+}
+
+.upload-review-img input {
+  position: absolute;
+  left: 0px;
+  right: 0px;
+  top: 0px;
+  bottom: 0px;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.upload-review-img img {
+  width: 100%;
+}
+
+.upload-review-img div {
+  width: 20px;
+  height: 20px;
+  background-color: grey;
+  color: white;
+  border-radius: 50%;
+  position: absolute;
+  right: -11px;
+  top: -11px;
+  cursor: pointer;
+  z-index: 5;
+  display: flex;
+  font-size: 36px;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid white;
+}

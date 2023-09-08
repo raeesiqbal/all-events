@@ -239,10 +239,8 @@ function Login() {
     if (forgotPassword) {
       setForgotPassword(false);
       dispatch(toggleLoginView());
-    } else if (activeStep > 0) {
-      dispatch(handlePrevStep());
     } else {
-      handleClose();
+      dispatch(handlePrevStep());
     }
   };
 
@@ -346,7 +344,7 @@ function Login() {
     if (isLoggedInState) {
       handleClose();
       dispatch(handleLoginStatusFalse());
-      navigate("/post-ad");
+      navigate(selectedRole === "client" ? "/" : "/post-ad");
     }
   }, [isLoggedInState]);
 
@@ -386,23 +384,27 @@ function Login() {
         </div>
       </div>
 
-      <div
-        style={{
-          position: "absolute",
-          left: "0",
-          paddingTop: "18px",
-          paddingLeft: "24px",
-        }}
-      >
-        <div role="presentation" onClick={handleClickArrowBack}>
-          <img
-            src={arrowBack}
-            alt="arrowBack"
-            className="arrowBack-icon"
-            style={{ cursor: "pointer" }}
-          />
-        </div>
-      </div>
+      {
+        selectedRole !== "client" && activeStep > 0 && (
+          <div
+            style={{
+              position: "absolute",
+              left: "0",
+              paddingTop: "18px",
+              paddingLeft: "24px",
+            }}
+          >
+            <div role="presentation" onClick={handleClickArrowBack}>
+              <img
+                src={arrowBack}
+                alt="arrowBack"
+                className="arrowBack-icon"
+                style={{ cursor: "pointer" }}
+              />
+            </div>
+          </div>
+        )
+      }
 
       {isLoginView && (
         <div
@@ -603,7 +605,7 @@ function Login() {
                         <img src={arctIcon} alt="Document Icon" />
                         <input className="form-check-input" style={{ width: "1.5em", height: "1.5em" }} checked={selectedRole === "vendor"} type="radio" name="flexRadioDefault" value="vendor" />
                       </div>
-                      <div style={{ fontSize: "20px", lineHeight: "24px", color: "#797979" }}>Are you looking for services for your projects?</div>
+                      <div style={{ fontSize: "20px", lineHeight: "24px", color: "#797979" }}>Are you looking to sell your services?</div>
                     </div>
                     <Button className="btn-success w-100" onClick={() => setHideRegisterStep1(true)}>Next</Button>
                   </div>

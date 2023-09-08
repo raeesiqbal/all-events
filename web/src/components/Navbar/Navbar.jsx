@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 // import './Navbar';
-import { Button, Col, Form, Row } from "react-bootstrap"; // Import Bootstrap components
-
+import {
+  Button, Col, Form, Row,
+} from "react-bootstrap"; // Import Bootstrap components
 import { useDispatch, useSelector } from "react-redux";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
@@ -9,11 +10,8 @@ import NavDropdown from "react-bootstrap/NavDropdown";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faAngleDown,
-  faArrowDown,
-  faBars,
 } from "@fortawesome/fontawesome-free-solid";
 import { useNavigate } from "react-router-dom";
-import { faArrowDownShortWide } from "@fortawesome/free-solid-svg-icons";
 import Allevents from "../../assets/images/Allevents.svg";
 import "./Navbar.css";
 import {
@@ -21,7 +19,6 @@ import {
   toggleLoginView,
 } from "../../views/redux/Login/loginSlice";
 import {
-  toggleRegisterModal,
   toggleRegisterView,
 } from "../../views/redux/Register/RegisterSlice";
 import {
@@ -48,9 +45,9 @@ function Header() {
 
   useEffect(() => {
     if (
-      user.userId === null &&
-      user.accessToken !== null &&
-      window.location.pathname === "/"
+      user.userId === null
+      && user.accessToken !== null
+      && window.location.pathname === "/"
     ) {
       dispatch(getAuthenticatedUser());
     }
@@ -178,15 +175,16 @@ function Header() {
           <NavDropdown
             // title="For him"
             id="navbarDropdown"
-            title={
+            title={(
               <div className="d-flex align-items-center">
-                For him{" "}
+                For him
+                {" "}
                 <FontAwesomeIcon
                   icon={faAngleDown}
                   style={{ marginLeft: "10px" }}
                 />
               </div>
-            }
+            )}
           >
             <NavDropdown.Item href="#">Action</NavDropdown.Item>
             <NavDropdown.Divider />
@@ -194,15 +192,16 @@ function Header() {
           </NavDropdown>
 
           <NavDropdown
-            title={
+            title={(
               <div className="d-flex align-items-center">
-                For her{" "}
+                For her
+                {" "}
                 <FontAwesomeIcon
                   icon={faAngleDown}
                   style={{ marginLeft: "10px" }}
                 />
               </div>
-            }
+            )}
             id="navbarDropdown"
           >
             <NavDropdown.Item href="#">Action</NavDropdown.Item>
@@ -211,15 +210,16 @@ function Header() {
           </NavDropdown>
 
           <NavDropdown
-            title={
+            title={(
               <div className="d-flex align-items-center">
-                Vendors{" "}
+                Vendors
+                {" "}
                 <FontAwesomeIcon
                   icon={faAngleDown}
                   style={{ marginLeft: "10px" }}
                 />
               </div>
-            }
+            )}
             id="navbarDropdown"
           >
             <NavDropdown.Item href="#">Action</NavDropdown.Item>
@@ -228,15 +228,16 @@ function Header() {
           </NavDropdown>
 
           <NavDropdown
-            title={
+            title={(
               <div className="d-flex align-items-center">
-                Venues{" "}
+                Venues
+                {" "}
                 <FontAwesomeIcon
                   icon={faAngleDown}
                   style={{ marginLeft: "10px" }}
                 />
               </div>
-            }
+            )}
             id="navbarDropdown"
           >
             <NavDropdown.Item href="#">Action</NavDropdown.Item>
@@ -245,15 +246,16 @@ function Header() {
           </NavDropdown>
 
           <NavDropdown
-            title={
+            title={(
               <div className="d-flex align-items-center">
-                Planning tools{" "}
+                Planning tools
+                {" "}
                 <FontAwesomeIcon
                   icon={faAngleDown}
                   style={{ marginLeft: "10px" }}
                 />
               </div>
-            }
+            )}
             id="navbarDropdown"
           >
             <NavDropdown.Item href="#">Action</NavDropdown.Item>
@@ -318,7 +320,7 @@ function Header() {
                   variant="outline-success"
                   type="submit"
                   className="mb-2 ms-3"
-                  onClick={(e) => navigate("/post-ad")}
+                  onClick={() => (user.role === "client" ? navigate("/favorite-ads") : navigate("/post-ad"))}
                   style={{ whiteSpace: "nowrap" }}
                 >
                   Dashboard

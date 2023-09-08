@@ -12,7 +12,7 @@ import * as formik from "formik";
 import * as Yup from "yup";
 import { Alert } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Header from "../../components/Navbar/Navbar";
 import user from "../../assets/images/profile-settings/user.svg";
 import oldPasswordIcon from "../../assets/images/profile-settings/old-password.svg";
@@ -37,6 +37,7 @@ function ChangePassword() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const user = useSelector((state) => state.auth.user);
 
   const initialValues = {
     old_password: "",
@@ -101,7 +102,7 @@ function ChangePassword() {
   return (
     <>
       <Header />
-      <TabNavigation />
+      <TabNavigation role={user.role} />
 
       <div className="profile-settings-banner d-flex align-items-center justify-content-between">
         <div style={{ marginLeft: "100px" }}>

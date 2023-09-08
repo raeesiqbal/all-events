@@ -184,7 +184,7 @@ function CompanyInformationSettings() {
   return (
     <>
       <Header />
-      <TabNavigation />
+      <TabNavigation role={user.role} />
 
       <div className="profile-settings-banner d-flex align-items-center justify-content-between">
         <div style={{ marginLeft: "100px" }}>

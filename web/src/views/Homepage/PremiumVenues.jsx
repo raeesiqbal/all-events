@@ -1,17 +1,25 @@
 import React, { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { Link } from "react-router-dom";
 import { Button, Card, Container } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart } from "@fortawesome/free-regular-svg-icons";
 import EmblaCarousel from "../../components/Carousel/Carousel";
 import { instance } from "../../axios/config";
 import placeholderIcon from "../../assets/images/placeholder.jpg";
+import { favoriteAd } from "../redux/Posts/AdsSlice";
 
 function PremiumVenues() {
   const [publicAds, setPublicAds] = useState([]);
+  const dispatch = useDispatch();
   const OPTIONS = { slidesToScroll: "auto", containScroll: "trimSnaps" };
 
+  const handlefavoriteAd = (id) => {
+    dispatch(favoriteAd(id));
+  };
+
   const componentToRender = (slide, index) => (
-    <div className="embla__slide" key={index}>
+    <Link className="embla__slide" key={index} to={`/view-ad/${slide.id}`}>
       <Card
         style={{
           padding: "10px",
@@ -44,9 +52,10 @@ function PremiumVenues() {
               }}
             >
               <FontAwesomeIcon
-                icon={faHeart}
+                icon={`fa-heart ${slide.favorite ? "fa-solid" : "fa-solid"}`}
                 size="lg"
                 style={{ color: "#fff" }}
+                onClick={() => handlefavoriteAd(slide.id)}
               />
             </div>
           </div>
@@ -79,7 +88,7 @@ function PremiumVenues() {
           </Card.Text>
         </Card.Body>
       </Card>
-    </div>
+    </Link>
   );
 
   const getVenueInfo = async () => {

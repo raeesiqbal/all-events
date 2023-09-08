@@ -72,7 +72,7 @@ export const archiveChat = createAsyncThunk(
 
 export const deleteChat = createAsyncThunk(
   "Chats/delete",
-  async ({ id }, { rejectWithValue }) => {
+  async (id, { rejectWithValue }) => {
     try {
       const response = await secureInstance.request({
         url: `/api/analytics/ad-chat/${id}/`,

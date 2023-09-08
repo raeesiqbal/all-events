@@ -45,6 +45,7 @@ import TabNavigation from "../../components/TabNavigation/TabNavigation";
 import { secureInstance } from "../../axios/config";
 import "./Ads.css";
 import { handleStartChat } from "../redux/Chats/ChatsSlice";
+import Reviews from "../Reviews/Reviews";
 
 export function PrevButton(props) {
   const { enabled, onClick } = props;
@@ -142,7 +143,7 @@ function ViewAd() {
     try {
       // setLoading(true);
       const request = await secureInstance.request({
-        url: `/api/ads/${params.adId}/`,
+        url: `/api/ads/${params.adId}/${user?.role ? "public-get/" : ""}`,
         method: "Get",
       });
       setCurrentAd(request.data.data);
@@ -177,7 +178,7 @@ function ViewAd() {
 
   useEffect(() => {
     getAdInfo();
-  }, []);
+  }, [user?.role]);
 
   const getData = () => {
     const data = user.userId === null ? {
@@ -198,7 +199,7 @@ function ViewAd() {
   return (
     <>
       <Header />
-      <TabNavigation />
+      <TabNavigation role={user.role} />
 
       <Container
         // fluid
@@ -434,9 +435,17 @@ function ViewAd() {
               >
                 FAQs
               </div>
+              <div
+                className={`${
+                  currentTab === 3 && "active-tab"
+                } roboto-regular-16px-information tab`}
+                onClick={() => setCurrentTab(3)}
+              >
+                Reviews
+              </div>
             </div>
 
-            {currentAd?.description !== null && (
+            {currentTab === 1 && currentAd?.description !== null && (
               <div className="d-flex flex-column">
                 <div className="d-flex roboto-semi-bold-24px-h3">About</div>
 
@@ -449,7 +458,7 @@ function ViewAd() {
               </div>
             )}
 
-            {currentAd?.offered_services.length > 0 && (
+            {currentTab === 1 && currentAd?.offered_services.length > 0 && (
               <div className="d-flex flex-column">
                 <div className="d-flex roboto-semi-bold-24px-h3">
                   Offered services
@@ -467,7 +476,7 @@ function ViewAd() {
               </div>
             )}
 
-            {currentAd?.ad_faqs.length > 0 && (
+            {currentTab === 2 && currentAd?.ad_faqs.length > 0 && (
               <div className="d-flex flex-column">
                 <div className="d-flex roboto-semi-bold-24px-h3">
                   Frequently Asked Questions
@@ -508,10 +517,14 @@ function ViewAd() {
                 ))}
               </div>
             )}
+
+            {
+              currentTab === 3 && <Reviews adId={currentAd?.id} adName={currentAd?.name} />
+            }
           </Col>
           <Col lg={4}>
             {
-              (user.userId === null || (user.userId !== null && user.role_type === "client")) ? (
+              (user?.userId === null || (user?.userId !== null && user?.role === "client")) ? (
                 <Form className="message-vendor-form" onSubmit={submitVendorRequestForm}>
                   <div
                     className="d-flex justify-content-center align-items-center roboto-semi-bold-28px-h2"
@@ -535,7 +548,7 @@ function ViewAd() {
                     onChange={(e) => setText(e.target.value)}
                   />
 
-                  {user.userId === null
+                  {user?.userId === null
                     ? (
                       <>
                         <Form.Control

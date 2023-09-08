@@ -54,6 +54,7 @@ function PostAd() {
   const navigate = useNavigate();
 
   const loading = useSelector((state) => state.Ads.loading);
+  const user = useSelector((state) => state.auth.user);
   const AdPostSuccessAlert = useSelector(
     (state) => state.Ads.AdPostSuccessAlert
   );
@@ -472,7 +473,7 @@ function PostAd() {
     <div style={{ position: "relative" }}>
       <TopBanner />
       <Header />
-      <TabNavigation />
+      <TabNavigation role={user.role} />
       <Alert
         severity="info"
         variant="filled"

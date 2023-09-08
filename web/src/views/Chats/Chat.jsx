@@ -29,6 +29,7 @@ const Chat = ({ chat }) => {
   const currentUser = useSelector((state) => state.auth.user);
 
   const [modalShow, setModalShow] = React.useState(false);
+  const [deleteModal, setDeleteModal] = React.useState(false);
   const [messageText, setMessageText] = React.useState("");
 
   let dates = [];
@@ -74,33 +75,36 @@ const Chat = ({ chat }) => {
         show={modalShow}
         onHide={() => setModalShow(false)}
         size="md"
+        className="chat-modal"
         aria-labelledby="contained-modal-title-vcenter"
-        centered
-        style={{ "--bs-modal-width": "720px" }}
+        centered={false} // Remove the centered prop
       >
-        <Modal.Body style={{ padding: "25px" }}>
-          <div className="w-100 d-flex justify-content-between align-items-center pb-3 mb-3 border-1 border-bottom border-grey">
+        <Modal.Body className="d-grid" style={{ alignContent: "end" }}>
+          <div
+            className="d-flex justify-content-between align-items-center pb-3 mb-3 border-1 border-bottom border-grey"
+            style={{ height: "fit-content" }}
+          >
             <div className="d-flex">
               <img
                 src={additionalInfo?.image || defaultProfilePhoto}
-                className="mr-3"
+                className="mr-3 profile-img"
                 alt="Profile Picture"
                 style={{ width: "80px" }}
               />
-              <h3 className="ms-3 my-auto" style={{ color: "#797979" }}>{additionalInfo?.name}</h3>
+              <h3 className="ms-2 ms-md-3 my-auto" style={{ color: "#797979" }}>{additionalInfo?.name}</h3>
             </div>
             <Link
-              className="me-5 text-decoration-none"
+              className="me-md-5 text-decoration-none"
               style={{ color: "#A0C49D", fontSize: "19px" }}
               to={`/view-ad/${additionalInfo?.ad}`}
             >
               Ad Details
             </Link>
           </div>
-          <div className="d-grid mb-3" style={{ maxHeight: "450px", overflowY: "scroll", marginRight: "-17px" }}>
+          <div className="mb-3 message-body">
             {
               messages.map((message) => {
-                const date = (!dates.includes(formattedDate(message.created_at))) ? (
+                const dateContent = (!dates.includes(formattedDate(message.created_at))) ? (
                   <div
                     className="mx-auto text-white px-2 py-1 mb-4"
                     style={{
@@ -114,10 +118,10 @@ const Chat = ({ chat }) => {
 
                 return (
                   <>
-                    {date}
+                    {dateContent}
                     {
                       (currentUser.userId === message.sender) ? (
-                        <div className="d-flex ms-auto mb-5" key={message.id}>
+                        <div className="d-flex justify-content-end mb-5" key={message.id}>
                           <div
                             className="p-3 pb-2 mt-3"
                             style={{
@@ -177,13 +181,56 @@ const Chat = ({ chat }) => {
               })
             }
           </div>
-          <div className="w-100 py-3 border-top border-grey">
+          <div className="w-100 pt-3 border-top border-grey" style={{ height: "fit-content" }}>
             <div className="d-flex" style={{ width: "86%", height: "44px" }}>
               <input type="text" className="send-messsage-input" placeholder="Type a message" value={messageText} onChange={(e) => setMessageText(e.target.value)} />
               <button type="button" className="send-messsage-button" onClick={sendChatMessage}>Send</button>
             </div>
           </div>
         </Modal.Body>
+      </Modal>
+
+      <Modal
+        show={deleteModal}
+        onHide={() => {
+          setDeleteModal(false);
+        }}
+        size="md"
+        aria-labelledby="contained-modal-title-vcenter"
+        centered
+      >
+        <Modal.Header closeButton style={{ border: "none" }} />
+        <Modal.Body>
+          <h4>Do you really want to delete this chat?</h4>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            onClick={() => {
+              setDeleteModal(false);
+            }}
+            variant="danger"
+            className="btn-md roboto-regular-16px-information text-white"
+            style={{
+              height: "44px",
+              fontWeight: "500",
+              paddingLeft: "32px",
+              paddingRight: "32px",
+            }}
+            // style={{ backgroundColor: "red" }}
+          >
+            No
+          </Button>
+          <Button
+            variant="success"
+            onClick={() => {
+              setDeleteModal(false);
+              dispatch(deleteChat(chat.id));
+              window.location.reload();
+            }}
+          >
+            Yes
+          </Button>
+        </Modal.Footer>
       </Modal>
 
       <Col lg={10} className="w-100 py-md-5 border-bottom border-2">
@@ -194,7 +241,7 @@ const Chat = ({ chat }) => {
                 src={chat.ad_image}
                 alt="AdImage"
                 className="img-fluid h-100 object-fit-cover mx-auto"
-                style={{ minWidth: "250px", maxHeight: "250px" }}
+                style={{ maxHeight: "250px" }}
               />
             </Col>
             <Col
@@ -275,8 +322,7 @@ const Chat = ({ chat }) => {
                         className="me-3"
                         style={{ width: "30px", cursor: "pointer" }}
                         onClick={() => {
-                          dispatch(deleteChat(chat.id));
-                          window.location.reload();
+                          setDeleteModal(true);
                         }}
                       >
                         <img

@@ -25,7 +25,9 @@ import Footer from "../../components/Footer/Footer";
 import TabNavigation from "../../components/TabNavigation/TabNavigation";
 import { secureInstance } from "../../axios/config";
 import "./Ads.css";
-import { handleUpdateAds, listVendorAds } from "../redux/Posts/AdsSlice";
+import {
+  handleUpdateAds, listVendorAds,
+} from "../redux/Posts/AdsSlice";
 
 function MyAds() {
   const navigate = useNavigate();
@@ -34,6 +36,7 @@ function MyAds() {
   const [modalShow, setModalShow] = React.useState(false);
   const [currentAdId, setCurrentAdId] = React.useState(null);
 
+  const user = useSelector((state) => state.auth.user);
   const vendorAds = useSelector((state) => state.Ads.vendorAds);
 
   const handleDeleteAd = async () => {
@@ -68,7 +71,7 @@ function MyAds() {
   return (
     <>
       <Header />
-      <TabNavigation />
+      <TabNavigation role={user?.role} />
       <Modal
         show={modalShow}
         onHide={() => setModalShow(false)}
@@ -210,13 +213,6 @@ function MyAds() {
                                     style={{ cursor: "pointer" }}
                                   />
                                   <img
-                                    src={gotoIcon}
-                                    alt="gotoIcon"
-                                    className="me-3"
-                                    onClick={() => navigate(`/view-ad/${id}`)}
-                                    style={{ cursor: "pointer" }}
-                                  />
-                                  <img
                                     src={deleteIcon}
                                     alt="deleteIcon"
                                     className="me-3"
@@ -226,6 +222,24 @@ function MyAds() {
                                     }}
                                     style={{ cursor: "pointer" }}
                                   />
+                                  <img
+                                    src={gotoIcon}
+                                    alt="gotoIcon"
+                                    className="me-3"
+                                    onClick={() => navigate(`/view-ad/${id}`)}
+                                    style={{ cursor: "pointer" }}
+                                  />
+                                  {/* {
+                                    user.role === "client" && (
+                                      <img
+                                        src={gotoIcon}
+                                        alt="editIcon"
+                                        className="me-3"
+                                        onClick={() => dispatch(favoriteAd(id))}
+                                        style={{ cursor: "pointer" }}
+                                      />
+                                    )
+                                  } */}
                                 </div>
                               </div>
                             </div>
@@ -273,7 +287,6 @@ function MyAds() {
                       onClick={() => navigate("/post-ad")}
                       className="btn btn-success roboto-semi-bold-16px-information btn-lg mt-5"
                       style={{ width: "80%", marginLeft: "-20px" }}
-                      // style={{ padding: "0 100px" }}
                     >
                       Post another Ad
                     </Button>

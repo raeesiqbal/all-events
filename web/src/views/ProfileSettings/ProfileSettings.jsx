@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight } from "@fortawesome/fontawesome-free-solid";
-import { Card, Col, Container, Row } from "react-bootstrap";
+import {
+  Card, Col, Container, Row,
+} from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import Header from "../../components/Navbar/Navbar";
 import personalInfo from "../../assets/images/profile-settings/personal-info.svg";
@@ -39,7 +41,7 @@ function ProfileSettings() {
   return (
     <>
       <Header />
-      <TabNavigation />
+      <TabNavigation role={user.role} />
       <div className="profile-settings-banner d-flex align-items-center justify-content-between">
         <div style={{ marginLeft: "100px" }}>
           <div className="roboto-bold-36px-h1">Profile Settings</div>
@@ -58,16 +60,14 @@ function ProfileSettings() {
       >
         <Row className="justify-content-center">
           <Col md={11} lg={9} xl={8}>
-            <Row className="mb-5">
-              <Col md={6}>
+            <Row>
+              <Col md={6} className="mb-5">
                 <Card
                   style={{ width: "21rem" }}
                   className="custom-card"
-                  onClick={() =>
-                    dispatch(
-                      handleProfileSettingsCurrentView("PersonalInformation")
-                    )
-                  }
+                  onClick={() => dispatch(
+                    handleProfileSettingsCurrentView("PersonalInformation"),
+                  )}
                 >
                   <Card.Body>
                     <div className="d-flex justify-content-between">
@@ -91,47 +91,45 @@ function ProfileSettings() {
                   </Card.Body>
                 </Card>
               </Col>
-              <Col md={6}>
+              {
+                user?.role !== "client" && (
+                  <Col md={6} className="mb-5">
+                    <Card
+                      style={{ width: "21rem" }}
+                      className="custom-card"
+                      onClick={() => dispatch(
+                        handleProfileSettingsCurrentView("CompanyInformation"),
+                      )}
+                    >
+                      <Card.Body>
+                        <div className="d-flex justify-content-between">
+                          <img
+                            src={companyInfo}
+                            alt="companyInfo"
+                            className="mb-4"
+                          />
+                          <FontAwesomeIcon
+                            icon={faArrowRight}
+                            style={{
+                              fontSize: "30px",
+                              color: "#878787",
+                              marginTop: "12px",
+                            }}
+                            className="cards-arrow"
+                          />
+                        </div>
+                        <Card.Title>Company Information</Card.Title>
+                        <Card.Text>Update your company info</Card.Text>
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                )
+              }
+              <Col md={6} className="mb-5">
                 <Card
                   style={{ width: "21rem" }}
                   className="custom-card"
-                  onClick={() =>
-                    dispatch(
-                      handleProfileSettingsCurrentView("CompanyInformation")
-                    )
-                  }
-                >
-                  <Card.Body>
-                    <div className="d-flex justify-content-between">
-                      <img
-                        src={companyInfo}
-                        alt="companyInfo"
-                        className="mb-4"
-                      />
-                      <FontAwesomeIcon
-                        icon={faArrowRight}
-                        style={{
-                          fontSize: "30px",
-                          color: "#878787",
-                          marginTop: "12px",
-                        }}
-                        className="cards-arrow"
-                      />
-                    </div>
-                    <Card.Title>Company Information</Card.Title>
-                    <Card.Text>Update your company info</Card.Text>
-                  </Card.Body>
-                </Card>
-              </Col>
-            </Row>
-            <Row>
-              <Col md={6}>
-                <Card
-                  style={{ width: "21rem" }}
-                  className="custom-card"
-                  onClick={() =>
-                    dispatch(handleProfileSettingsCurrentView("ChangePassword"))
-                  }
+                  onClick={() => dispatch(handleProfileSettingsCurrentView("ChangePassword"))}
                 >
                   <Card.Body>
                     <div className="d-flex justify-content-between">
@@ -151,13 +149,11 @@ function ProfileSettings() {
                   </Card.Body>
                 </Card>
               </Col>
-              <Col md={6}>
+              <Col md={6} className="mb-5">
                 <Card
                   style={{ width: "21rem" }}
                   className="custom-card"
-                  onClick={() =>
-                    dispatch(handleProfileSettingsCurrentView("DeleteAccount"))
-                  }
+                  onClick={() => dispatch(handleProfileSettingsCurrentView("DeleteAccount"))}
                 >
                   <Card.Body>
                     <div className="d-flex justify-content-between">

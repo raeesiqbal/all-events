@@ -72,15 +72,15 @@ function EmblaCarousel(props) {
 
   const scrollPrev = useCallback(
     () => emblaApi && emblaApi.scrollPrev(),
-    [emblaApi]
+    [emblaApi],
   );
   const scrollNext = useCallback(
     () => emblaApi && emblaApi.scrollNext(),
-    [emblaApi]
+    [emblaApi],
   );
   const scrollTo = useCallback(
     (index) => emblaApi && emblaApi.scrollTo(index),
-    [emblaApi]
+    [emblaApi],
   );
 
   const onInit = useCallback((emblaApi) => {
@@ -112,14 +112,14 @@ function EmblaCarousel(props) {
           <div className="embla__container">
             {componentToRender === undefined
               ? slides.map((index) => (
-                  <div className="embla__slide" key={index}>
-                    <img
-                      className="embla__slide__img"
-                      src={imageByIndex(index)}
-                      alt="Your alt text"
-                    />
-                  </div>
-                ))
+                <div className="embla__slide" key={index}>
+                  <img
+                    className="embla__slide__img"
+                    src={imageByIndex(index)}
+                    alt="Your alt text"
+                  />
+                </div>
+              ))
               : slides.map((slide, index) => componentToRender(slide, index))}
           </div>
         </div>

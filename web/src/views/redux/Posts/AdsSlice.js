@@ -8,6 +8,7 @@ const initialState = {
   loading: false,
   error: null,
   vendorAds: [],
+  favoriteAds: [],
   media_urls: {
     images: [],
     video: [],
@@ -108,6 +109,57 @@ export const listVendorAds = createAsyncThunk(
   },
 );
 
+// export const listClientAds = createAsyncThunk(
+//   "Ads/clientList",
+//   async (data, { rejectWithValue }) => {
+//     try {
+//       const response = await secureInstance.request({
+//         url: "/api/ads/public-list/",
+//         method: "Get",
+//       });
+//       return response.data; // Assuming your loginAPI returns data with access_token, user_id, and role_id
+//     } catch (err) {
+//       // Use `err.response.data` as `action.payload` for a `rejected` action,
+//       // by explicitly returning it using the `rejectWithValue()` utility
+//       return rejectWithValue(err.response.data);
+//     }
+//   },
+// );
+
+export const listFavoriteAds = createAsyncThunk(
+  "Ads/favoriteList",
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await secureInstance.request({
+        url: "/api/analytics/ad-fav/",
+        method: "Get",
+      });
+      return response.data;
+    } catch (err) {
+      // Use `err.response.data` as `action.payload` for a `rejected` action,
+      // by explicitly returning it using the `rejectWithValue()` utility
+      return rejectWithValue(err.response.data);
+    }
+  },
+);
+
+export const favoriteAd = createAsyncThunk(
+  "Ads/fav-ad",
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await secureInstance.request({
+        url: `/api/analytics/ad-fav/${id}/fav/`,
+        method: "Post",
+      });
+      return response.data; // Assuming your loginAPI returns data with access_token, user_id, and role_id
+    } catch (err) {
+      // Use `err.response.data` as `action.payload` for a `rejected` action,
+      // by explicitly returning it using the `rejectWithValue()` utility
+      return rejectWithValue(err.response.data);
+    }
+  },
+);
+
 // Create the loginSlice
 export const AdsSlice = createSlice({
   name: "Ads",
@@ -196,6 +248,31 @@ export const AdsSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
         // state.isMediaUploading = false;
+      })
+      .addCase(listFavoriteAds.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(listFavoriteAds.fulfilled, (state, action) => {
+        state.loading = false;
+        state.favoriteAds = action.payload.data;
+      })
+      .addCase(listFavoriteAds.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(favoriteAd.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(favoriteAd.fulfilled, (state) => {
+        state.loading = false;
+        state.AdPostSuccessAlert = true;
+      })
+      .addCase(favoriteAd.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+        state.AdPostErrorAlert = action.payload;
       });
   },
 });

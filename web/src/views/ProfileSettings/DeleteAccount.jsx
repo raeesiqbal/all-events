@@ -31,6 +31,8 @@ function DeleteAccount() {
   const [loading, setLoading] = useState(false);
   const [isFailedAlertMessage, setIsFailedAlertMessage] = useState(null);
 
+  const user = useSelector((state) => state.auth.user);
+
   const initialValues = {
     password: "",
     confirm_password: "",
@@ -85,7 +87,7 @@ function DeleteAccount() {
   return (
     <>
       <Header />
-      <TabNavigation />
+      <TabNavigation role={user.role} />
 
       <div className="profile-settings-banner d-flex align-items-center justify-content-between">
         <div style={{ marginLeft: "100px" }}>
