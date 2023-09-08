@@ -129,3 +129,18 @@ class SuggestionGetSerializer(BaseSerializer):
     class Meta:
         model = Ad
         fields = ["name","type"]
+
+class PremiumAdGetSerializer(BaseSerializer):
+    sub_category = SubCategoryGetSerializer()
+    related_sub_categories = SubCategoryGetSerializer()
+    activation_countries = CountryGetSerializer(many=True)
+    company = VendorChildSerializer()
+    country = CountryGetSerializer()
+    ad_media = GalleryChildSerializer(many=True)
+    ad_faqs = FaqsGetSerializer(many=True)
+    
+
+
+    class Meta:
+        model = Ad
+        fields = "__all__"
