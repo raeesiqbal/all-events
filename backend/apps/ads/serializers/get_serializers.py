@@ -168,9 +168,9 @@ class AdRetriveSerializer(BaseSerializer):
     ad_faq_ad = AdFaqsRetrieveSerializer(many=True)
     ad_save_count = serializers.SerializerMethodField("get_ad_saved_count")
 
-    site_services = serializers.SerializerMethodField()
+    site_services_list = serializers.SerializerMethodField()
 
-    def get_site_services(self, obj):
+    def get_site_services_list(self, obj):
         services = Service.objects.filter(sub_category__id=obj.sub_category.id)
         # object_services = obj.offered_services
         # context_data = {"all_services": object_services}
