@@ -50,10 +50,23 @@ class AdContactGetSerializer(BaseSerializer):
         fields = "__all__"
 
 
+# class AdReviewClientChildSerializer(BaseSerializer):
+#     full_name =
+#     class Meta:
+#         model = Client
+#         fields = ["user__first_name"]
+
+
 class AdReviewGetSerializer(BaseSerializer):
+    # client = AdReviewClientChildSerializer()
+    full_name = serializers.SerializerMethodField()
+
     class Meta:
         model = AdReview
         fields = "__all__"
+
+    def get_full_name(self, obj):
+        return obj.client.user.first_name + " " + obj.client.user.last_name
 
 
 class MessageGetChildSerializer(BaseSerializer):
