@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
-import { Button, Card, Container } from "react-bootstrap";
+import { Button, Card, Col, Container } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart } from "@fortawesome/free-regular-svg-icons";
 import EmblaCarousel from "../../components/Carousel/Carousel";
@@ -122,14 +122,16 @@ function PremiumVenues() {
             options={OPTIONS}
             componentToRender={componentToRender}
           />
-          <div className="d-flex justify-content-center mt-5">
-            <Button
-              variant="success"
-              type="submit"
-              className="roboto-semi-bold-16px-information"
-            >
-              See all Venues
-            </Button>
+          <div className="d-flex justify-content-center mt-5 w-100">
+            <Col xs={10} md={6} lg={2}>
+              <Button
+                variant="success"
+                type="submit"
+                className="roboto-semi-bold-16px-information btn-height w-100"
+              >
+                See all Venues
+              </Button>
+            </Col>
           </div>
         </Container>
       </Container>

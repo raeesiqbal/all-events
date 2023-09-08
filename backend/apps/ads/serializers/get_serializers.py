@@ -10,7 +10,9 @@ from apps.ads.models import (
     RelatedSubCategory,
     SubCategory,
 )
+from apps.analytics.models import FavouriteAd
 from apps.companies.models import Company
+from apps.users.constants import USER_ROLE_TYPES
 from apps.utils.serializers.base import BaseSerializer
 from apps.analytics.models import FavouriteAd
 
@@ -79,12 +81,19 @@ class AdGetSerializer(BaseSerializer):
     country = CountryGetSerializer()
     ad_media = GalleryChildSerializer(many=True)
     ad_faqs = FaqsGetSerializer(many=True)
-    fav = serializers.SerializerMethodField()
 
     ad_save_count = serializers.SerializerMethodField("get_ad_saved_count")
+    my_fav = serializers.SerializerMethodField("get_my_fav")
 
     def get_ad_saved_count(self, obj):
         return obj.ad_saved.all().count()
+
+    def get_my_fav(self, obj):
+        user = self.context["request"].user
+        fav = False
+        if user.role_type == USER_ROLE_TYPES["CLIENT"]:
+            fav = FavouriteAd.objects.filter(user=user, ad=obj).exists()
+        return fav
 
     class Meta:
         model = Ad
@@ -130,14 +139,25 @@ class AdPublicGetSerializer(BaseSerializer):
         model = Ad
         fields = "__all__"
 
-    def get_fav(self, obj):
-        # You can customize the logic to generate the extra data here
-        user = self.context.get("user", None)
-        print("user", user)
 
-        if user:
-            if FavouriteAd.objects.filter(user=user).exists():
-                return True
-            else:
-                return False
-        return None
+class SuggestionGetSerializer(BaseSerializer):
+    name = serializers.CharField(max_length=100)
+    type = serializers.CharField(max_length=100)
+
+    class Meta:
+        model = Ad
+        fields = ["name", "type"]
+
+
+class PremiumAdGetSerializer(BaseSerializer):
+    sub_category = SubCategoryGetSerializer()
+    related_sub_categories = SubCategoryGetSerializer()
+    activation_countries = CountryGetSerializer(many=True)
+    company = VendorChildSerializer()
+    country = CountryGetSerializer()
+    ad_media = GalleryChildSerializer(many=True)
+    ad_faqs = FaqsGetSerializer(many=True)
+
+    class Meta:
+        model = Ad
+        fields = "__all__"

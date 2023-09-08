@@ -8,7 +8,8 @@ import {
   editCompanyInformation,
   setSelectedImage,
 } from "../../views/redux/Settings/SettingsSlice";
-import { secureInstance } from "../../axios/config";
+import "./ProfilePic.css";
+import { secure_instance } from "../../axios/axios-config";
 
 const ProfilePic = () => {
   const [loadingImage, setLoadingImage] = useState(false);
@@ -81,58 +82,19 @@ const ProfilePic = () => {
     e.target.value = "";
   };
   return (
-    <div
-      className="d-flex"
-      style={{
-        position: "absolute",
-        right: "100px",
-        top: "0",
-      }}
-    >
+    <div className="d-flex profile-pic-container">
       <label htmlFor="file-input" style={{ cursor: "pointer" }}>
         {loadingImage && (
           <>
-            <div
-              style={{
-                position: "absolute",
-                top: 0,
-                right: "0",
-                // left: "20px",
-                maxWidth: "100%",
-                maxHeight: "100%",
-                width: "160px",
-                height: "160px",
-                objectFit: "cover",
-                borderRadius: "50%",
+            <div className="d-flex justify-content-center align-items-center loading-image-container" />
 
-                backgroundColor: "rgba(108, 117, 125, 0.3)",
-                backdropFilter: "blur(1px)",
-                zIndex: 2,
-              }}
-              className="d-flex justify-content-center align-items-center"
-            />
-
-            <CircularProgress
-              style={{
-                position: "absolute",
-                top: "60px",
-                left: "60px",
-                color: "#51f742",
-              }}
-            />
+            <CircularProgress className="circular-loader" />
           </>
         )}
 
         {selectedImage !== null || userImage !== null ? (
           <img
-            style={{
-              maxWidth: "100%",
-              maxHeight: "100%",
-              width: "160px",
-              height: "160px",
-              objectFit: "cover",
-              borderRadius: "50%",
-            }}
+            className="selected-image"
             src={
               selectedImage === null
                 ? userImage
@@ -141,35 +103,10 @@ const ProfilePic = () => {
             alt=""
           />
         ) : (
-          <img
-            style={{
-              maxWidth: "100%",
-              maxHeight: "100%",
-              width: "160px",
-              height: "160px",
-              objectFit: "cover",
-              borderRadius: "50%",
-            }}
-            src={defaultuserIcon}
-            alt=""
-          />
+          <img className="selected-image" src={defaultuserIcon} alt="" />
         )}
 
-        <div
-          style={{
-            position: "absolute",
-            bottom: "0px",
-            right: "0px",
-            width: "30px",
-            height: "30px",
-            background: "#FFFFFF",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            borderRadius: "30px",
-            zIndex: "10",
-          }}
-        >
+        <div className="camera-icon-container">
           <FontAwesomeIcon
             icon={faCamera}
             style={{ color: "black" }}

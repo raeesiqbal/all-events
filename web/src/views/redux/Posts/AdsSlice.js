@@ -204,7 +204,7 @@ export const AdsSlice = createSlice({
       })
       .addCase(handleCreateNewAd.rejected, (state, action) => {
         state.loading = false;
-        state.AdPostErrorAlert = action.payload;
+        state.AdPostErrorAlert = true;
         // state.error = action.payload;
       })
       .addCase(handleEditAd.pending, (state) => {

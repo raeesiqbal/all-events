@@ -1,13 +1,6 @@
 /* eslint-disable camelcase */
 import React, { useEffect } from "react";
-import {
-  Button,
-  Card,
-  Col,
-  Container,
-  Modal,
-  Row,
-} from "react-bootstrap";
+import { Button, Card, Col, Container, Modal, Row } from "react-bootstrap";
 // import * as formik from "formik";
 // import * as Yup from "yup";
 import { useNavigate } from "react-router-dom";
@@ -25,9 +18,8 @@ import Footer from "../../components/Footer/Footer";
 import TabNavigation from "../../components/TabNavigation/TabNavigation";
 import { secureInstance } from "../../axios/config";
 import "./Ads.css";
-import {
-  handleUpdateAds, listVendorAds,
-} from "../redux/Posts/AdsSlice";
+import { handleUpdateAds, listVendorAds } from "../redux/Posts/AdsSlice";
+import useWindowDimensions from "../../utilities/hooks/useWindowDimension";
 
 function MyAds() {
   const navigate = useNavigate();
@@ -38,6 +30,7 @@ function MyAds() {
 
   const user = useSelector((state) => state.auth.user);
   const vendorAds = useSelector((state) => state.Ads.vendorAds);
+  const { width } = useWindowDimensions();
 
   const handleDeleteAd = async () => {
     try {
@@ -65,8 +58,10 @@ function MyAds() {
   }, []);
 
   const sortedAdvertisements = [...vendorAds].sort(
-    (a, b) => new Date(b.created_at) - new Date(a.created_at),
+    (a, b) => new Date(b.created_at) - new Date(a.created_at)
   );
+
+  // console.log(width);
 
   return (
     <>
@@ -103,10 +98,12 @@ function MyAds() {
         </Modal.Footer>
       </Modal>
 
-      <div className="my-ad-banner p-md-5">
-        <div className="roboto-bold-36px-h1 mb-2">Ad Management</div>
-        <div className="roboto-regular-18px-body3">
-          Keep track of your posted ads with ease
+      <div className="my-ad-banner d-flex align-items-center justify-content-between">
+        <div style={{ marginLeft: "2rem" }}>
+          <div className="roboto-bold-36px-h1">Ad Management</div>
+          <div className="roboto-regular-18px-body3">
+            Keep track of your posted ads with ease
+          </div>
         </div>
       </div>
 
@@ -115,21 +112,24 @@ function MyAds() {
         style={{ marginTop: "40px", marginBottom: "200px" }}
         className=""
       >
-        <Row className="justify-content-center">
+        <Row
+          className="justify-content-center"
+          style={{
+            flexDirection:
+              sortedAdvertisements.length === 0 &&
+              width <= 768 &&
+              "column-reverse",
+          }}
+        >
           {sortedAdvertisements.length > 0 ? (
             sortedAdvertisements.map((product) => {
-              const {
-                id,
-                sub_category,
-                created_at,
-                country,
-                ad_media,
-              } = product;
+              const { id, sub_category, created_at, country, ad_media } =
+                product;
               return (
                 <Col lg={10} className="mb-4">
                   <Card key={id} className="ad-card">
                     <Row className="g-0">
-                      <Col sm={3} style={{ padding: "20px" }}>
+                      <Col xs={12} sm={3} style={{ padding: "20px" }}>
                         <Card.Img
                           src={
                             ad_media[0].media_urls.images !== undefined
@@ -141,6 +141,7 @@ function MyAds() {
                         />
                       </Col>
                       <Col
+                        xs={12}
                         sm={9}
                         className="d-flex justify-content-center align-items-center"
                       >
@@ -182,9 +183,9 @@ function MyAds() {
                                   maxWidth: "70%",
                                 }}
                               >
-                                {/* {`${
+                                {`${
                                   description && description.slice(0, 200)
-                                }...`} */}
+                                }...`}
                               </Card.Text>
                             </div>
 
@@ -254,10 +255,7 @@ function MyAds() {
           ) : (
             <>
               <Col lg={6} style={{ padding: "30px 0" }}>
-                <Col
-                  lg={10}
-                  className="d-flex justify-content-center text-center"
-                >
+                <Col lg={10} className="d-flex justify-content-center">
                   <div className="roboto-semi-bold-28px-h2">
                     Currently you have no Ads!
                   </div>
@@ -294,31 +292,33 @@ function MyAds() {
                 </Col>
               </Col>
 
-              <Col lg={6} className="d-flex">
-                <img
-                  src={noAds}
-                  alt="noAds"
-                  style={{ maxWidth: "100%", objectFit: "cover" }}
-                />
+              <Col sm={12} md={12} lg={6}>
+                <div className="d-flex justify-content-center w-100">
+                  <img
+                    src={noAds}
+                    alt="noAds"
+                    style={{ maxWidth: "100%", objectFit: "cover" }}
+                  />
+                </div>
               </Col>
             </>
           )}
         </Row>
 
         {vendorAds.length > 0 && (
-          <Col
-            className="d-flex justify-content-end"
-            style={{ marginRight: "100px", marginTop: "80px" }}
-          >
-            <Button
-              type="submit"
-              onClick={() => navigate("/post-ad")}
-              className="btn btn-success roboto-semi-bold-16px-information btn-lg"
-              style={{ padding: "0 100px" }}
-            >
-              Post another Ad
-            </Button>
-          </Col>
+          <div className="d-flex justify-content-end mt-5">
+            <Col xs={12} md={7} lg={6}>
+              <Button
+                variant="success"
+                type="submit"
+                className="roboto-semi-bold-16px-information btn btn-height w-100"
+                onClick={() => navigate("/post-ad")}
+              >
+                Post another Ad
+              </Button>
+            </Col>
+            <Col lg={1} sm={0} />
+          </div>
         )}
       </Container>
 

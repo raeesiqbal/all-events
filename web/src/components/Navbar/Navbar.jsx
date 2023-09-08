@@ -1,16 +1,12 @@
 import React, { useEffect, useState } from "react";
 // import './Navbar';
-import {
-  Button, Col, Form, Row,
-} from "react-bootstrap"; // Import Bootstrap components
+import { Button, Col, Form, Row } from "react-bootstrap"; // Import Bootstrap components
 import { useDispatch, useSelector } from "react-redux";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import NavDropdown from "react-bootstrap/NavDropdown";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faAngleDown,
-} from "@fortawesome/fontawesome-free-solid";
+import { faAngleDown } from "@fortawesome/fontawesome-free-solid";
 import { useNavigate } from "react-router-dom";
 import Allevents from "../../assets/images/Allevents.svg";
 import "./Navbar.css";
@@ -18,9 +14,7 @@ import {
   toggleLoginModal,
   toggleLoginView,
 } from "../../views/redux/Login/loginSlice";
-import {
-  toggleRegisterView,
-} from "../../views/redux/Register/RegisterSlice";
+import { toggleRegisterView } from "../../views/redux/Register/RegisterSlice";
 import {
   getAuthenticatedUser,
   refreshToken,
@@ -45,9 +39,9 @@ function Header() {
 
   useEffect(() => {
     if (
-      user.userId === null
-      && user.accessToken !== null
-      && window.location.pathname === "/"
+      user.userId === null &&
+      user.accessToken !== null &&
+      window.location.pathname === "/"
     ) {
       dispatch(getAuthenticatedUser());
     }
@@ -96,10 +90,15 @@ function Header() {
   };
 
   return (
-    <Navbar bg="body-tertiary" expand="lg" className="navbar">
+    <Navbar
+      bg="body-tertiary"
+      expand="lg"
+      className="navbar"
+      style={{ border: "1px solid rgba(0, 0, 0, 0.2)", boxShadow: "none" }}
+    >
       {window.location.pathname !== "/" && (
         <div
-          className="d-flex"
+          className="d-flex navbar-arrow-left"
           style={{ cursor: "pointer", width: "5vw" }}
           onClick={handleBack}
         >
@@ -121,7 +120,7 @@ function Header() {
       <Navbar.Brand onClick={() => navigate("/")}>
         <img src={Allevents} alt="Allevents" style={{ minWidth: "100%" }} />
       </Navbar.Brand>
-      {user.userId === null && (
+      {user.userId === null ? (
         <Button
           type="button"
           // className="login-button"
@@ -132,6 +131,20 @@ function Header() {
           onClick={(e) => handleLoginClick(e)}
         >
           Login
+        </Button>
+      ) : (
+        <Button
+          type="button"
+          className="btn-danger-custom text-danger login-button-mobile roboto-semi-bold-16px-information me-5"
+          style={{
+            fontSize: "16px",
+            fontWeight: "700",
+            // color: "red",
+            padding: "0",
+          }}
+          onClick={handleLogout}
+        >
+          Logout
         </Button>
       )}
 
@@ -175,16 +188,19 @@ function Header() {
           <NavDropdown
             // title="For him"
             id="navbarDropdown"
-            title={(
-              <div className="d-flex align-items-center">
-                For him
-                {" "}
-                <FontAwesomeIcon
-                  icon={faAngleDown}
-                  style={{ marginLeft: "10px" }}
-                />
-              </div>
-            )}
+            // style={{ borderBottom: "1px solid #1A1A1A", opacity: "0.1" }}
+            title={
+              <>
+                <div className="nav-mobile">
+                  <div className="d-flex align-items-center">For him </div>
+                  <FontAwesomeIcon
+                    icon={faAngleDown}
+                    style={{ marginLeft: "10px" }}
+                  />
+                </div>
+                <div className="mobile-border-nav" />
+              </>
+            }
           >
             <NavDropdown.Item href="#">Action</NavDropdown.Item>
             <NavDropdown.Divider />
@@ -192,16 +208,18 @@ function Header() {
           </NavDropdown>
 
           <NavDropdown
-            title={(
-              <div className="d-flex align-items-center">
-                For her
-                {" "}
-                <FontAwesomeIcon
-                  icon={faAngleDown}
-                  style={{ marginLeft: "10px" }}
-                />
-              </div>
-            )}
+            title={
+              <>
+                <div className="nav-mobile">
+                  <div className="d-flex align-items-center"> For her </div>
+                  <FontAwesomeIcon
+                    icon={faAngleDown}
+                    style={{ marginLeft: "10px" }}
+                  />
+                </div>
+                <div className="mobile-border-nav" />
+              </>
+            }
             id="navbarDropdown"
           >
             <NavDropdown.Item href="#">Action</NavDropdown.Item>
@@ -210,16 +228,18 @@ function Header() {
           </NavDropdown>
 
           <NavDropdown
-            title={(
-              <div className="d-flex align-items-center">
-                Vendors
-                {" "}
-                <FontAwesomeIcon
-                  icon={faAngleDown}
-                  style={{ marginLeft: "10px" }}
-                />
-              </div>
-            )}
+            title={
+              <>
+                <div className="nav-mobile">
+                  <div className="d-flex align-items-center"> Vendors </div>
+                  <FontAwesomeIcon
+                    icon={faAngleDown}
+                    style={{ marginLeft: "10px" }}
+                  />
+                </div>
+                <div className="mobile-border-nav" />
+              </>
+            }
             id="navbarDropdown"
           >
             <NavDropdown.Item href="#">Action</NavDropdown.Item>
@@ -228,16 +248,18 @@ function Header() {
           </NavDropdown>
 
           <NavDropdown
-            title={(
-              <div className="d-flex align-items-center">
-                Venues
-                {" "}
-                <FontAwesomeIcon
-                  icon={faAngleDown}
-                  style={{ marginLeft: "10px" }}
-                />
-              </div>
-            )}
+            title={
+              <>
+                <div className="nav-mobile">
+                  <div className="d-flex align-items-center"> Venues </div>
+                  <FontAwesomeIcon
+                    icon={faAngleDown}
+                    style={{ marginLeft: "10px" }}
+                  />
+                </div>
+                <div className="mobile-border-nav" />
+              </>
+            }
             id="navbarDropdown"
           >
             <NavDropdown.Item href="#">Action</NavDropdown.Item>
@@ -246,16 +268,21 @@ function Header() {
           </NavDropdown>
 
           <NavDropdown
-            title={(
-              <div className="d-flex align-items-center">
-                Planning tools
-                {" "}
-                <FontAwesomeIcon
-                  icon={faAngleDown}
-                  style={{ marginLeft: "10px" }}
-                />
-              </div>
-            )}
+            title={
+              <>
+                <div className="nav-mobile">
+                  <div className="d-flex align-items-center">
+                    {" "}
+                    Planning tools{" "}
+                  </div>
+                  <FontAwesomeIcon
+                    icon={faAngleDown}
+                    style={{ marginLeft: "10px" }}
+                  />
+                </div>
+                <div className="mobile-border-nav" />
+              </>
+            }
             id="navbarDropdown"
           >
             <NavDropdown.Item href="#">Action</NavDropdown.Item>
@@ -302,11 +329,12 @@ function Header() {
               <Col lg={3}>
                 <Button
                   type="button"
-                  className="btn-danger-custom text-danger roboto-semi-bold-16px-information"
+                  className="btn-danger-custom login-button text-danger roboto-semi-bold-16px-information"
                   style={{
                     fontSize: "16px",
                     fontWeight: "700",
                     // color: "red",
+                    marginLeft: "-20px",
                     padding: "0",
                   }}
                   onClick={handleLogout}
@@ -315,13 +343,13 @@ function Header() {
                 </Button>
               </Col>
 
-              <Col lg={2}>
+              <Col lg={3}>
                 <Button
                   variant="outline-success"
                   type="submit"
-                  className="mb-2 ms-3"
-                  onClick={() => (user.role === "client" ? navigate("/favorite-ads") : navigate("/post-ad"))}
-                  style={{ whiteSpace: "nowrap" }}
+                  className="mb-2 mobile-btn"
+                  onClick={(e) => navigate("/post-ad")}
+                  // style={{ whiteSpace: "nowrap" }}
                 >
                   Dashboard
                 </Button>

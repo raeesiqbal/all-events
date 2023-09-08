@@ -3,13 +3,7 @@
 /* eslint-disable no-shadow */
 /* eslint-disable camelcase */
 import React, { useCallback, useEffect, useState } from "react";
-import {
-  Button,
-  Col,
-  Container,
-  Form,
-  Row,
-} from "react-bootstrap";
+import { Button, Col, Container, Form, Row } from "react-bootstrap";
 // import * as formik from "formik";
 // import * as Yup from "yup";
 import { useNavigate, useParams } from "react-router-dom";
@@ -46,6 +40,7 @@ import { secureInstance } from "../../axios/config";
 import "./Ads.css";
 import { handleStartChat } from "../redux/Chats/ChatsSlice";
 import Reviews from "../Reviews/Reviews";
+import useWindowDimensions from "../../utilities/hooks/useWindowDimension";
 
 export function PrevButton(props) {
   const { enabled, onClick } = props;
@@ -100,6 +95,7 @@ function ViewAd() {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
 
+  const mediaQuery = useWindowDimensions();
   const options = { slidesToScroll: "auto", containScroll: "trimSnaps" };
 
   const [emblaRef, emblaApi] = useEmblaCarousel(options);
@@ -132,11 +128,11 @@ function ViewAd() {
 
   const scrollPrev = useCallback(
     () => emblaApi && emblaApi.scrollPrev(),
-    [emblaApi],
+    [emblaApi]
   );
   const scrollNext = useCallback(
     () => emblaApi && emblaApi.scrollNext(),
-    [emblaApi],
+    [emblaApi]
   );
 
   const getAdInfo = async () => {
@@ -181,11 +177,21 @@ function ViewAd() {
   }, [user?.role]);
 
   const getData = () => {
-    const data = user.userId === null ? {
-      email, phone, full_name: name, event_date: eventDate.toString(), message: text, ad: params.adId,
-    } : {
-      event_date: eventDate.toString(), message: text, ad: params.adId,
-    };
+    const data =
+      user.userId === null
+        ? {
+            email,
+            phone,
+            full_name: name,
+            event_date: eventDate.toString(),
+            message: text,
+            ad: params.adId,
+          }
+        : {
+            event_date: eventDate.toString(),
+            message: text,
+            ad: params.adId,
+          };
     return {
       data,
       navigate,
@@ -193,7 +199,11 @@ function ViewAd() {
   };
 
   const submitVendorRequestForm = () => {
-    dispatch(user.userId === null ? handleStartContact(getData()) : handleStartChat(getData()));
+    dispatch(
+      user.userId === null
+        ? handleStartContact(getData())
+        : handleStartChat(getData())
+    );
   };
 
   return (
@@ -207,7 +217,7 @@ function ViewAd() {
         className=""
       >
         <Row>
-          <div className="d-flex align-items-center justify-content-between mb-2 mx-3">
+          <div className="d-flex align-items-center justify-content-between">
             <div className="roboto-bold-36px-h1">{currentAd?.name}</div>
 
             <div>
@@ -222,65 +232,84 @@ function ViewAd() {
               <div className="carousel__container__view__ad">
                 <div className="embla__view__ad">
                   <div className="embla__viewport__view__ad" ref={emblaRef}>
-                    <div className="embla__container__view__ad">
-                      {slidesModified.map((slide, index) => (
-                        <div key={index} className="carousel-slide">
-                          <Row>
-                            <Col
-                              sm={6}
-                              md={6}
-                              lg={
-                                slide[`image${index * 3 + 2}`]
-                                || slide[`image${index * 3 + 3}`]
-                                  ? 6
-                                  : 12
-                              }
-                              xl={
-                                slide[`image${index * 3 + 2}`]
-                                || slide[`image${index * 3 + 3}`]
-                                  ? 6
-                                  : 12
-                              }
-                              className="main-image-container"
-                            >
-                              <img
-                                src={slide[`image${index * 3 + 1}`]}
-                                alt={`image${index * 3 + 1}`}
-                                className="main-image"
-                              />
-                            </Col>
+                    {mediaQuery.width > 441 ? (
+                      <div className="embla__container__view__ad">
+                        {slidesModified.map((slide, index) => (
+                          <div key={index} className="carousel-slide">
+                            {console.log({ slide })}
+                            <Row>
+                              <Col
+                                sm={6}
+                                md={6}
+                                lg={
+                                  slide[`image${index * 3 + 2}`] ||
+                                  slide[`image${index * 3 + 3}`]
+                                    ? 6
+                                    : 12
+                                }
+                                xl={
+                                  slide[`image${index * 3 + 2}`] ||
+                                  slide[`image${index * 3 + 3}`]
+                                    ? 6
+                                    : 12
+                                }
+                                className="main-image-container"
+                              >
+                                <img
+                                  src={slide[`image${index * 3 + 1}`]}
+                                  alt={`image${index * 3 + 1}`}
+                                  className="main-image"
+                                />
+                              </Col>
 
-                            <Col
-                              sm={6}
-                              md={6}
-                              lg={6}
-                              xl={6}
-                              className="image-stack"
-                            >
-                              {slide[`image${index * 3 + 2}`] && (
+                              <Col
+                                sm={6}
+                                md={6}
+                                lg={6}
+                                xl={6}
+                                className="image-stack"
+                              >
+                                {slide[`image${index * 3 + 2}`] && (
+                                  <img
+                                    src={slide[`image${index * 3 + 2}`]}
+                                    alt={`image${index * 3 + 2}`}
+                                    className="stacked-image"
+                                    style={{
+                                      minHeight: slide[`image${index * 3 + 3}`]
+                                        ? "100%"
+                                        : "464px",
+                                    }}
+                                  />
+                                )}
+                                {slide[`image${index * 3 + 3}`] && (
+                                  <img
+                                    src={slide[`image${index * 3 + 3}`]}
+                                    alt={`image${index * 3 + 3}`}
+                                    className="stacked-image"
+                                  />
+                                )}
+                              </Col>
+                            </Row>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="embla__container__view__ad">
+                        {imageLinks?.map((slide, index) => (
+                          <div key={index} className="carousel-slide">
+                            <Row>
+                              <Col>
                                 <img
-                                  src={slide[`image${index * 3 + 2}`]}
-                                  alt={`image${index * 3 + 2}`}
-                                  className="stacked-image"
-                                  style={{
-                                    minHeight: slide[`image${index * 3 + 3}`]
-                                      ? "100%"
-                                      : "464px",
-                                  }}
+                                  src={slide}
+                                  alt={index}
+                                  className="main-image"
                                 />
-                              )}
-                              {slide[`image${index * 3 + 3}`] && (
-                                <img
-                                  src={slide[`image${index * 3 + 3}`]}
-                                  alt={`image${index * 3 + 3}`}
-                                  className="stacked-image"
-                                />
-                              )}
-                            </Col>
-                          </Row>
-                        </div>
-                      ))}
-                    </div>
+                              </Col>
+                            </Row>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   <PrevButton onClick={scrollPrev} enabled={prevBtnEnabled} />
                   <NextButton onClick={scrollNext} enabled={nextBtnEnabled} />
@@ -316,12 +345,12 @@ function ViewAd() {
                   </span>
                 </div>
 
-                {(currentAd?.facebook !== ""
-                  || currentAd?.instagram !== ""
-                  || currentAd?.youtube !== ""
-                  || currentAd?.tiktok !== ""
-                  || currentAd?.twitter !== ""
-                  || currentAd?.others !== null) && (
+                {(currentAd?.facebook !== "" ||
+                  currentAd?.instagram !== "" ||
+                  currentAd?.youtube !== "" ||
+                  currentAd?.tiktok !== "" ||
+                  currentAd?.twitter !== "" ||
+                  currentAd?.others !== null) && (
                   <div className="d-flex align-items-center justify-content-between mt-2">
                     <div className="roboto-regular-16px-information">
                       Follow us on
@@ -334,7 +363,9 @@ function ViewAd() {
                           alt="FbIcon"
                           className="me-1"
                           style={{ cursor: "pointer" }}
-                          onClick={() => window.open(`/${currentAd?.facebook}`, "_blank")}
+                          onClick={() =>
+                            window.open(`/${currentAd?.facebook}`, "_blank")
+                          }
                           // onClick={() => navigate(`/${currentAd?.facebook}`)}
                         />
                       )}
@@ -345,7 +376,9 @@ function ViewAd() {
                           className="me-1"
                           style={{ cursor: "pointer" }}
                           // onClick={() => navigate(`/${currentAd?.instagram}`)}
-                          onClick={() => window.open(`/${currentAd?.instagram}`, "_blank")}
+                          onClick={() =>
+                            window.open(`/${currentAd?.instagram}`, "_blank")
+                          }
                         />
                       )}
                       {currentAd?.youtube !== "" && (
@@ -355,7 +388,9 @@ function ViewAd() {
                           alt="youtubeIcon"
                           style={{ cursor: "pointer" }}
                           // onClick={() => navigate(`/${currentAd?.youtube}`)}
-                          onClick={() => window.open(`/${currentAd?.youtube}`, "_blank")}
+                          onClick={() =>
+                            window.open(`/${currentAd?.youtube}`, "_blank")
+                          }
                         />
                       )}
                       {currentAd?.tiktok !== "" && (
@@ -365,7 +400,9 @@ function ViewAd() {
                           alt="tiktokIcon"
                           style={{ cursor: "pointer" }}
                           // onClick={() => navigate(`/${currentAd?.tiktok}`)}
-                          onClick={() => window.open(`/${currentAd?.tiktok}`, "_blank")}
+                          onClick={() =>
+                            window.open(`/${currentAd?.tiktok}`, "_blank")
+                          }
                         />
                       )}
                       {currentAd?.twitter !== "" && (
@@ -375,7 +412,9 @@ function ViewAd() {
                           alt="twitterIcon"
                           style={{ cursor: "pointer" }}
                           // onClick={() => navigate(`/${currentAd?.twitter}`)}
-                          onClick={() => window.open(`/${currentAd?.twitter}`, "_blank")}
+                          onClick={() =>
+                            window.open(`/${currentAd?.twitter}`, "_blank")
+                          }
                         />
                       )}
                       {currentAd?.others !== null && (
@@ -385,7 +424,9 @@ function ViewAd() {
                           alt="otherIcon"
                           style={{ cursor: "pointer" }}
                           // onClick={() => navigate(`/${currentAd?.others}`)}
-                          onClick={() => window.open(`/${currentAd?.others}`, "_blank")}
+                          onClick={() =>
+                            window.open(`/${currentAd?.others}`, "_blank")
+                          }
                         />
                       )}
                     </div>
@@ -518,103 +559,108 @@ function ViewAd() {
               </div>
             )}
 
-            {
-              currentTab === 3 && <Reviews adId={currentAd?.id} adName={currentAd?.name} />
-            }
+            {currentTab === 3 && (
+              <Reviews adId={currentAd?.id} adName={currentAd?.name} />
+            )}
           </Col>
           <Col lg={4}>
-            {
-              (user?.userId === null || (user?.userId !== null && user?.role === "client")) ? (
-                <Form className="message-vendor-form" onSubmit={submitVendorRequestForm}>
-                  <div
-                    className="d-flex justify-content-center align-items-center roboto-semi-bold-28px-h2"
-                    style={{ marginBottom: "26px" }}
-                  >
-                    {user.userId === null ? "Contact" : "Message"}
-                    {" "}
-                    Vendor
-                  </div>
+            {user?.userId === null ||
+            (user?.userId !== null && user?.role === "client") ? (
+              <Form
+                className="message-vendor-form"
+                onSubmit={submitVendorRequestForm}
+              >
+                <div
+                  className="d-flex justify-content-center align-items-center roboto-semi-bold-28px-h2"
+                  style={{ marginBottom: "26px" }}
+                >
+                  {user.userId === null ? "Contact" : "Message"} Vendor
+                </div>
 
-                  <Form.Control
-                    style={{ minHeight: "120px" }}
-                    className="lg-input-small-text mb-4"
-                    name="message.text"
-                    as="textarea"
-                    rows={3}
-                    type="text"
-                    size="lg"
-                    placeholder="Message"
-                    value={text || ""}
-                    onChange={(e) => setText(e.target.value)}
-                  />
+                <Form.Control
+                  style={{ minHeight: "120px" }}
+                  className="lg-input-small-text mb-4"
+                  name="message.text"
+                  as="textarea"
+                  rows={3}
+                  type="text"
+                  size="lg"
+                  placeholder="Message"
+                  value={text || ""}
+                  onChange={(e) => setText(e.target.value)}
+                />
 
-                  {user?.userId === null
-                    ? (
-                      <>
-                        <Form.Control
-                          style={{ height: "56px" }}
-                          className="lg-input-small-text mb-4"
-                          type="text"
-                          name="message.full_name"
-                          size="sm"
-                          placeholder="First and Last Name"
-                          value={name || ""}
-                          onChange={(e) => setName(e.target.value)}
-                        />
+                {user?.userId === null ? (
+                  <>
+                    <Form.Control
+                      style={{ height: "56px" }}
+                      className="lg-input-small-text mb-4"
+                      type="text"
+                      name="message.full_name"
+                      size="sm"
+                      placeholder="First and Last Name"
+                      value={name || ""}
+                      onChange={(e) => setName(e.target.value)}
+                    />
 
-                        <Form.Control
-                          style={{ height: "56px" }}
-                          className="lg-input-small-text mb-4"
-                          type="email"
-                          name="message.email"
-                          size="sm"
-                          placeholder="Email"
-                          value={email || ""}
-                          onChange={(e) => setEmail(e.target.value)}
-                        />
+                    <Form.Control
+                      style={{ height: "56px" }}
+                      className="lg-input-small-text mb-4"
+                      type="email"
+                      name="message.email"
+                      size="sm"
+                      placeholder="Email"
+                      value={email || ""}
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
 
-                        <Form.Control
-                          style={{ height: "56px" }}
-                          className="lg-input-small-text mb-4"
-                          type="text"
-                          name="message.phone"
-                          size="sm"
-                          placeholder="Phone"
-                          value={phone || ""}
-                          onChange={(e) => setPhone(e.target.value)}
-                        />
-                      </>
-                    ) : ""}
+                    <Form.Control
+                      style={{ height: "56px" }}
+                      className="lg-input-small-text mb-4"
+                      type="text"
+                      name="message.phone"
+                      size="sm"
+                      placeholder="Phone"
+                      value={phone || ""}
+                      onChange={(e) => setPhone(e.target.value)}
+                    />
+                  </>
+                ) : (
+                  ""
+                )}
 
-                  <Form.Control
-                    style={{ height: "56px" }}
-                    className="lg-input-small-text mb-4"
-                    type="date"
-                    name="message.event_date"
-                    size="sm"
-                    placeholder="Event date"
-                    value={eventDate || ""}
-                    onChange={(e) => setEventDate(e.target.value)}
-                  />
+                <Form.Control
+                  style={{ height: "56px" }}
+                  className="lg-input-small-text mb-4"
+                  type="date"
+                  name="message.event_date"
+                  size="sm"
+                  placeholder="Event date"
+                  value={eventDate || ""}
+                  onChange={(e) => setEventDate(e.target.value)}
+                />
 
-                  <p className="roboto-regular-14px-information">
-                    By clicking ‘Send’, I agree to Allevents
-                    {" "}
-                    <a className="roboto-regular-14px-information" href="#">Privacy Policy</a>
-                    , and
-                    {" "}
-                    <a className="roboto-regular-14px-information" href="#">Terms of Use</a>
-                  </p>
+                <p className="roboto-regular-14px-information">
+                  By clicking ‘Send’, I agree to Allevents{" "}
+                  <a className="roboto-regular-14px-information" href="#">
+                    Privacy Policy
+                  </a>
+                  , and{" "}
+                  <a className="roboto-regular-14px-information" href="#">
+                    Terms of Use
+                  </a>
+                </p>
 
-                  <Button
-                    type="submit"
-                    className="btn btn-success roboto-semi-bold-16px-information w-100"
-                  >
-                    Send
-                  </Button>
-                </Form>
-              ) : ""
-            }
+                <Button
+                  type="submit"
+                  className="btn btn-success roboto-semi-bold-16px-information w-100"
+                >
+                  Send
+                </Button>
+              </Form>
+            ) : (
+              ""
+            )}
           </Col>
         </Row>
       </Container>

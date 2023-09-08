@@ -14,6 +14,10 @@
   border: 3px solid red !important;
 }
 
+.post-ad-container {
+  padding-left: 90px;
+}
+
 .country-field .select__control {
   min-height: 56px;
 }
@@ -39,4 +43,24 @@
   transform: translateX(12px);
   /* margin-right: -10px; */
   /* margin-top: 40px !important; */
+}
+
+@media only screen and (max-width: 768px) {
+  .ad-banner {
+    /* height: 165px; */
+    margin: 0px;
+    margin-top: 36px;
+  }
+  .banner-images {
+    display: none !important;
+  }
+  .post-ad-container {
+    padding-left: 50px;
+  }
+}
+
+@media only screen and (max-width: 425px) {
+  .post-ad-container {
+    padding-left: 20px;
+  }
 }
