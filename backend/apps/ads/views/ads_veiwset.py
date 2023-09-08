@@ -52,7 +52,7 @@ class AdViewSet(BaseViewset):
         "retrieve":AdGetSerializer,
         "fetch_suggestion_list":SearchStringSerializer,
         "premium_venue_ads":PremiumAdGetSerializer,
-         "premium_vendor_ads":PremiumAdGetSerializer
+        "premium_vendor_ads":PremiumAdGetSerializer
 
     }
     action_permissions = {
