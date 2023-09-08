@@ -71,6 +71,7 @@ class AdViewSet(BaseViewset):
         "fetch_suggestion_list": [],
         "premium_venue_ads": [],
         "premium_vendor_ads": [],
+        "public_ads_list": [],
     }
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     search_param = "search"
@@ -216,7 +217,6 @@ class AdViewSet(BaseViewset):
 
         if request.user.is_authenticated:
             user = request.user
-
         if page != None:
             serializer = self.get_serializer(
                 page,

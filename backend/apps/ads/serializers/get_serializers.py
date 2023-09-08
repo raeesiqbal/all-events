@@ -122,10 +122,20 @@ class AdPublicGetSerializer(BaseSerializer):
     country = CountryGetSerializer()
     ad_media = GalleryChildSerializer(many=True)
     ad_faqs = FaqsGetSerializer(many=True)
+    fav = serializers.SerializerMethodField()
 
     class Meta:
         model = Ad
         fields = "__all__"
+
+    def get_fav(self, obj):
+        if self.context.get("user", None):
+            user = self.context.get("user", None)
+            fav = False
+            if user.role_type == USER_ROLE_TYPES["CLIENT"]:
+                fav = FavouriteAd.objects.filter(user=user, ad=obj).exists()
+            return fav
+        return None
 
 
 class SuggestionGetSerializer(BaseSerializer):
