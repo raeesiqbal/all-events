@@ -150,7 +150,16 @@ class PremiumAdGetSerializer(BaseSerializer):
     country = CountryGetSerializer()
     ad_media = GalleryChildSerializer(many=True)
     ad_faqs = FaqsGetSerializer(many=True)
-    
+    my_fav=serializers.SerializerMethodField('get_my_fav')
+
+    def get_my_fav(self, obj):
+        
+        user = self.context['request'].user
+        fav=False
+        if user.is_authenticated:
+            if user.role_type==USER_ROLE_TYPES['CLIENT']:
+                fav=FavouriteAd.objects.filter(user=user,ad=obj).exists()
+        return fav
 
 
     class Meta:
