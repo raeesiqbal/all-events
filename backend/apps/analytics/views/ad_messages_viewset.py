@@ -140,31 +140,40 @@ class MessageViewSet(BaseViewset):
 
     @action(detail=True, url_path="chat-message", methods=["get"])
     def chat_message(self, request, *args, **kwargs):
-        chat = Chat.objects.filter(id=kwargs.get("pk")).first()
+        if Chat.objects.filter(id=kwargs.get("pk")).exists():
+            chat = Chat.objects.filter(id=kwargs.get("pk")).first()
 
-        if request.user.role_type == USER_ROLE_TYPES["CLIENT"]:
-            dic = {
-                "name": chat.ad.company.name,
-                "ad": chat.ad.id,
-                "image": chat.ad.company.user.image,
-            }
+            if request.user.role_type == USER_ROLE_TYPES["CLIENT"]:
+                dic = {
+                    "name": chat.ad.company.name,
+                    "ad": chat.ad.id,
+                    "image": chat.ad.company.user.image,
+                }
 
-        elif request.user.role_type == USER_ROLE_TYPES["VENDOR"]:
-            dic = {
-                "name": chat.client.user.first_name + chat.client.user.last_name,
-                "ad": chat.ad.id,
-                "image": chat.ad.company.user.image,
-            }
+            elif request.user.role_type == USER_ROLE_TYPES["VENDOR"]:
+                dic = {
+                    "name": chat.client.user.first_name + chat.client.user.last_name,
+                    "ad": chat.ad.id,
+                    "image": chat.ad.company.user.image,
+                }
 
-        messages = Message.objects.filter(chat=chat).order_by("created_at")
-        data = self.get_serializer(messages, many=True)
+            messages = Message.objects.filter(chat=chat).order_by("created_at")
+            data = self.get_serializer(messages, many=True)
 
+            return Response(
+                status=status.HTTP_200_OK,
+                data=ResponseInfo().format_response(
+                    data={"messages": data.data, "additional_info": dic},
+                    status_code=status.HTTP_200_OK,
+                    message="Success",
+                ),
+            )
         return Response(
             status=status.HTTP_200_OK,
             data=ResponseInfo().format_response(
-                data={"messages": data.data, "additional_info": dic},
+                data={},
                 status_code=status.HTTP_200_OK,
-                message="Success",
+                message="Not Found",
             ),
         )
 
@@ -235,14 +244,15 @@ class MessageViewSet(BaseViewset):
         chat = Chat.objects.filter(id=kwargs.get("pk")).first()
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        Message.objects.create(
+        message = Message.objects.create(
             **serializer.validated_data, chat=chat, sender=request.user
         )
+        serializer = ChatMessageSerializer(message)
         return Response(
             status=status.HTTP_201_CREATED,
             data=ResponseInfo().format_response(
-                data={},
+                data=serializer.data,
                 status_code=status.HTTP_201_CREATED,
-                message="Message created",
+                message="Message Created",
             ),
         )

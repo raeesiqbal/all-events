@@ -72,7 +72,7 @@ class AdReviewGetSerializer(BaseSerializer):
 class MessageGetChildSerializer(BaseSerializer):
     class Meta:
         model = Message
-        fields = ["sender", "text"]
+        fields = ["sender", "text", "attachments"]
 
 
 # class ChatListSerializer(BaseSerializer):
@@ -99,6 +99,7 @@ class MessageChildSerializer(BaseSerializer):
         model = Message
         fields = [
             "text",
+            "attachments",
             "created_at",
         ]
 
@@ -218,6 +219,7 @@ class ChatMessageSerializer(BaseSerializer):
         model = Message
         fields = [
             "text",
+            "attachments",
             "created_at",
             "sender",
         ]

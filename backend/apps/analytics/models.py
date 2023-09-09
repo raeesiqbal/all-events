@@ -95,6 +95,7 @@ class Message(NewAbstractModel):
         "users.User", on_delete=models.CASCADE, related_name="my_messages"
     )
     text = models.TextField(null=True, blank=True)
+    attachments = ArrayField(base_field=models.TextField(), null=True, blank=True)
 
     def __str__(self):
         return f"{self.id}"

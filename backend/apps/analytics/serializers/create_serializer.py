@@ -18,7 +18,7 @@ class AdReviewCreateSerializer(BaseSerializer):
 class MessageChildSerializer(BaseSerializer):
     class Meta:
         model = Message
-        fields = ["text"]
+        fields = ["text", "attachments"]
 
 
 # class AdChatCreateSerializer(BaseSerializer):
@@ -44,4 +44,4 @@ class AdChatCreateSerializer(BaseSerializer):
 class AdMessageCreateSerializer(BaseSerializer):
     class Meta:
         model = Message
-        fields = ["text"]
+        fields = ["text", "attachments"]
