@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Card, Container } from "react-bootstrap";
+import { Button, Card, Col, Container } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart } from "@fortawesome/free-regular-svg-icons";
 import EmblaCarousel from "../../components/Carousel/Carousel";
@@ -107,21 +107,23 @@ function PremiumVendors() {
       >
         <Container>
           <div className="roboto-bold-36px-h1" style={{ marginLeft: "26px" }}>
-            Find our Premium Premium Vendors
+            Find our Premium Vendors
           </div>
           <EmblaCarousel
             slides={publicAds}
             options={OPTIONS}
             componentToRender={componentToRender}
           />
-          <div className="d-flex justify-content-center mt-5">
-            <Button
-              variant="success"
-              type="submit"
-              className="roboto-semi-bold-16px-information"
-            >
-              See all Vendors
-            </Button>
+          <div className="d-flex justify-content-center mt-5 w-100">
+            <Col xs={12} md={7} lg={2}>
+              <Button
+                variant="success"
+                type="submit"
+                className="roboto-semi-bold-16px-information btn btn-height w-100"
+              >
+                See all Vendors
+              </Button>
+            </Col>
           </div>
         </Container>
       </Container>

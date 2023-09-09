@@ -28,19 +28,22 @@ function StartPlanning() {
         <Col
           md={5}
           className="d-flex justify-content-left"
-          style={{ paddingRight: "0" }}
+          style={{ paddingLeft: "0" }}
         >
           <img
             src={planEventsImg}
             alt="planEventsImg"
-            style={{ maxWidth: "100%" }}
+            style={{ maxWidth: "100%", objectFit: "cover" }}
           />
         </Col>
         <Col
           md={7}
           className="d-flex align-items-center justify-content-center"
         >
-          <div style={{ padding: "50px 0" }}>
+          <div
+            style={{ padding: "50px 20px" }}
+            className="d-flex align-items-center justify-content-left"
+          >
             <div style={{ maxWidth: "461px" }}>
               <div className="text-left roboto-bold-36px-h1">
                 Start planning your events!
@@ -49,16 +52,18 @@ function StartPlanning() {
                 Let’s plan together your unforgettable memories! We offer you
                 all the necessary tools for managing your events.
               </p>
-            </div>
-            <div className="d-flex justify-content-left mt-3">
-              <Button
-                variant="success"
-                type="submit"
-                className="roboto-semi-bold-16px-information"
-                onClick={handleCreateAccountModal}
-              >
-                Create free account
-              </Button>
+              <div className="d-flex justify-content-left mt-5 w-100">
+                <Col xs={12} md={7} lg={6}>
+                  <Button
+                    variant="success"
+                    type="submit"
+                    className="roboto-semi-bold-16px-information btn-height w-100"
+                    onClick={handleCreateAccountModal}
+                  >
+                    Create free account
+                  </Button>
+                </Col>
+              </div>
             </div>
           </div>
         </Col>

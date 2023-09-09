@@ -1,5 +1,7 @@
 .event-card {
-  width: 48% !important;
+  /* width: 48% !important; */
+  box-shadow: 0px 4px 50px 0px rgba(0, 0, 0, 0.1);
+  margin-bottom: 24px;
 }
 
 .hero-form:active:focus {
@@ -25,5 +27,15 @@
 
   .hero-text p {
     font-size: 16px;
+  }
+}
+
+@media (max-width: 425px) {
+  .col-mobile {
+    padding: 0 20px !important;
+  }
+
+  .description-mobile {
+    display: none;
   }
 }

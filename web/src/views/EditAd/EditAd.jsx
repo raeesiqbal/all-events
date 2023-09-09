@@ -623,7 +623,7 @@ function EditAd() {
       </Alert>
 
       <div className="ad-banner d-flex align-items-center justify-content-between">
-        <div style={{ marginLeft: "100px" }}>
+        <div style={{ marginLeft: "2rem" }}>
           <div className="roboto-bold-36px-h1">Edit Ad</div>
           <div className="roboto-regular-18px-body3">
             Reach thousands of buyers on our platform
@@ -637,6 +637,7 @@ function EditAd() {
             top: "-32px",
             display: "flex",
           }}
+          className="banner-images"
         >
           <div style={{ marginTop: "30px" }} className="postAdBanner1">
             <img src={postAdBanner1} alt="postAdBanner1" />
@@ -660,7 +661,8 @@ function EditAd() {
 
       <Container
         fluid
-        style={{ marginTop: "40px", paddingLeft: "150px", minHeight: "100vh" }}
+        style={{ marginTop: "40px" }}
+        className="post-ad-container"
       >
         <Row>
           {currentAd !== null && localInitialValues !== null && (
@@ -805,7 +807,7 @@ function EditAd() {
                       type="submit"
                       disabled={loading || isMediaUploading}
                       onClick={() => handleClickSubmit(values)}
-                      className="btn btn-success roboto-semi-bold-16px-information btn-lg"
+                      className="btn btn-success roboto-semi-bold-16px-information btn-height btn-lg"
                       style={{ padding: "0 100px" }}
                     >
                       {loading ? (

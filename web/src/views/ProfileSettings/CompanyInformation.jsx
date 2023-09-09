@@ -181,18 +181,13 @@ function CompanyInformationSettings() {
     listCountries();
   }, []);
 
-  useEffect(() => {
-    console.log("whaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-    // getCompanyInfo();
-  }, []);
-
   return (
     <>
       <Header />
       <TabNavigation />
 
       <div className="profile-settings-banner d-flex align-items-center justify-content-between">
-        <div style={{ marginLeft: "100px" }}>
+        <div className="banner-text-heading">
           <div className="roboto-bold-36px-h1">Company Information</div>
           <div className="roboto-regular-18px-body3">
             Update your information with ease
@@ -202,7 +197,7 @@ function CompanyInformationSettings() {
         <ProfilePic />
       </div>
 
-      <Col className="justify-content-center" style={{ marginLeft: "54px" }}>
+      <Col className="justify-content-center left-arrow-settings">
         <div
           className="d-flex mt-3"
           style={{ cursor: "pointer" }}
@@ -597,22 +592,22 @@ function CompanyInformationSettings() {
                     </Col>
                   </Row>
 
-                  <Col className="d-flex justify-content-end">
-                    <Button
-                      type="submit"
-                      disabled={loading}
-                      // onClick={handleClickSubmit}
-                      style={{ marginTop: "8rem", width: "30%" }}
-                      className="btn btn-success roboto-semi-bold-16px-information btn-lg"
-                    >
-                      {loading ? (
-                        // "Loading…"
-                        <Spinner animation="border" size="sm" />
-                      ) : (
-                        "Save Changes"
-                      )}
-                    </Button>
-                  </Col>
+                  <div className="d-flex justify-content-end mt-5">
+                    <Col xs={12} md={5} lg={3}>
+                      <Button
+                        variant="success"
+                        type="submit"
+                        disabled={loading}
+                        className="roboto-semi-bold-16px-information btn btn-height w-100"
+                      >
+                        {loading ? (
+                          <Spinner animation="border" size="sm" />
+                        ) : (
+                          "Save Changes"
+                        )}
+                      </Button>
+                    </Col>
+                  </div>
                 </Form>
               )}
             </Formik>

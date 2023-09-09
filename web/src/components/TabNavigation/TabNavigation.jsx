@@ -25,7 +25,7 @@ const tabs = [
   {
     label: "Packages",
     icon: pieChart,
-    path: "/",
+    // path: "/",
   },
   {
     label: "Home",
@@ -77,17 +77,19 @@ const TabNavigation = () => {
       className="d-flex align-items-center justify-content-center"
       style={{ height: "50px", width: "100%" }}
     >
-      <div className="d-flex justify-content-between" style={{ width: "50vw" }}>
+      <div className="d-flex justify-content-between" style={{ width: "60vw" }}>
         {tabs.map((tab, index) => (
           <div
             className={`d-flex align-items-center ${
               isActive(tab.path) && "tab-active"
             }`}
             onClick={() => handleClickTabNav(index, tab.path)}
-            style={{ cursor: "pointer" }}
+            style={{
+              cursor: "pointer",
+            }}
           >
             {" "}
-            <img src={tab.icon} alt={tab.icon} className="me-2" />
+            <img src={tab.icon} alt={tab.icon} />
             <span className="tab-label">{tab.label}</span>
           </div>
         ))}

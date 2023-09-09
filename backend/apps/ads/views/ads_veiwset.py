@@ -3,6 +3,7 @@ import os
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.db.models import Value
+from django.db.models.functions import Random
 
 from django.contrib.contenttypes.models import ContentType
 from rest_framework.decorators import action
@@ -23,14 +24,17 @@ from apps.ads.serializers.get_serializers import (
     AdPublicGetSerializer,
     SuggestionGetSerializer,
     AdRetriveSerializer,
+    PremiumAdGetSerializer,
 )
 from apps.ads.serializers.update_serializer import AdUpdateSerializer
 from apps.companies.models import Company
+from apps.subscriptions.models import Subscription
 from apps.users.constants import USER_ROLE_TYPES
 from apps.users.models import User
 from django.db.models import F
 
-from apps.users.permissions import IsSuperAdmin, IsVendorUser
+from apps.users.permissions import IsClient, IsSuperAdmin, IsVendorUser
+from apps.utils.constants import SUBSCRIPTION_TYPES
 from apps.utils.services.email_service import send_email_to_user
 from apps.utils.services.s3_service import S3Service
 from apps.utils.views.base import BaseViewset, ResponseInfo
@@ -58,19 +62,23 @@ class AdViewSet(BaseViewset):
         "delete_url": DeleteUrlSerializer,
         "remove_url_on_update": DeleteUrlOnUpdateSerializer,
         "list": AdGetSerializer,
-        "retrieve": AdRetriveSerializer,
+        "retrieve": AdGetSerializer,
         "fetch_suggestion_list": SearchStringSerializer,
+        "premium_venue_ads": PremiumAdGetSerializer,
+        "premium_vendor_ads": PremiumAdGetSerializer,
     }
     action_permissions = {
         "default": [],
         "create": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
-        "list": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
-        "retrieve": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
+        "list": [IsAuthenticated, IsSuperAdmin | IsVendorUser | IsClient],
+        "retrieve": [IsAuthenticated, IsSuperAdmin | IsVendorUser | IsClient],
         "partial_update": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
         "destroy": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
         "get_upload_url": [],
         "remove_url_on_update": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
         "fetch_suggestion_list": [],
+        "premium_venue_ads": [],
+        "premium_vendor_ads": [],
     }
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     search_param = "search"
@@ -111,11 +119,45 @@ class AdViewSet(BaseViewset):
         faqs = serializer.validated_data.pop("faqs", [])
         ad_faqs = serializer.validated_data.pop("ad_faq_ad", [])
 
+        offered_services = serializer.validated_data.pop("offered_services")
         activation_countries = serializer.validated_data.pop("activation_countries", [])
         company = Company.objects.filter(user_id=request.user.id).first()
 
         if company:
-            ad = Ad.objects.create(**serializer.validated_data, company=company)
+            """subscription based checks"""
+            subscription = Subscription.objects.filter(company=company).first()
+            subscription_limits = {
+                SUBSCRIPTION_TYPES["FREE"]: {"images": 5, "video": 1},
+                SUBSCRIPTION_TYPES["STANDARD"]: {"images": 30, "video": 3},
+                SUBSCRIPTION_TYPES["ADVANCED"]: {"images": 100, "video": 5, "pdf": 1},
+                SUBSCRIPTION_TYPES["FEATURED"]: {"images": 200, "video": 10, "pdf": 1},
+            }
+
+            subscription_type = subscription.type
+
+            if subscription_type in subscription_limits:
+                limits = subscription_limits[subscription_type]
+                for key, limit in limits.items():
+                    if key in media_urls:
+                        media_urls[key] = media_urls[key][:limit]
+                if subscription_type == SUBSCRIPTION_TYPES["FREE"]:
+                    faqs = []
+                    offered_services = []
+            else:
+                return Response(
+                    status=status.HTTP_200_OK,
+                    data=ResponseInfo().format_response(
+                        data={},
+                        status_code=status.HTTP_200_OK,
+                        message="Ad cannot created you don't have any plan selected",
+                    ),
+                )
+
+            ad = Ad.objects.create(
+                **serializer.validated_data,
+                offered_services=offered_services,
+                company=company
+            )
             ad.activation_countries.add(*activation_countries)
 
             """ads gallery created"""
@@ -325,5 +367,63 @@ class AdViewSet(BaseViewset):
             status=status.HTTP_200_OK,
             data=ResponseInfo().format_response(
                 data=data, status_code=status.HTTP_200_OK, message="Ads Get"
+            ),
+        )
+
+    @action(detail=False, url_path="premium-venues", methods=["get"])
+    def premium_venue_ads(self, request, *args, **kwargs):
+        featured_companies = Subscription.objects.filter(
+            type=SUBSCRIPTION_TYPES["FEATURED"]
+        ).values_list("company", flat=True)
+        feature_ads = Ad.objects.filter(
+            company__in=featured_companies,
+            sub_category__category__name__icontains="venue",
+        ).order_by(Random())[:10]
+
+        queryset = self.filter_queryset(feature_ads)
+        page = self.paginate_queryset(queryset)
+
+        if page != None:
+            serializer = self.get_serializer(page, many=True)
+        else:
+            serializer = self.get_serializer(queryset, many=True)
+
+        data = serializer.data
+        if page != None:
+            data = self.get_paginated_response(data).data
+
+        return Response(
+            status=status.HTTP_200_OK,
+            data=ResponseInfo().format_response(
+                data=data, status_code=status.HTTP_200_OK, message="Featured Ads List"
+            ),
+        )
+
+    @action(detail=False, url_path="premium-vendors", methods=["get"])
+    def premium_vendor_ads(self, request, *args, **kwargs):
+        featured_companies = Subscription.objects.filter(
+            type=SUBSCRIPTION_TYPES["FEATURED"]
+        ).values_list("company", flat=True)
+        feature_ads = Ad.objects.filter(
+            company__in=featured_companies,
+            sub_category__category__name__icontains="vendor",
+        ).order_by(Random())[:10]
+
+        queryset = self.filter_queryset(feature_ads)
+        page = self.paginate_queryset(queryset)
+
+        if page != None:
+            serializer = self.get_serializer(page, many=True)
+        else:
+            serializer = self.get_serializer(queryset, many=True)
+
+        data = serializer.data
+        if page != None:
+            data = self.get_paginated_response(data).data
+
+        return Response(
+            status=status.HTTP_200_OK,
+            data=ResponseInfo().format_response(
+                data=data, status_code=status.HTTP_200_OK, message="Featured Ads List"
             ),
         )

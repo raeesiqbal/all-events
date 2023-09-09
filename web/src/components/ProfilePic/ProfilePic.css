@@ -1,0 +1,81 @@
+.profile-pic-container {
+  position: absolute;
+  right: 100px;
+  top: 0;
+}
+
+.loading-image-container {
+  position: absolute;
+  top: 0;
+  right: 0;
+  max-width: 100%;
+  max-height: 100%;
+  width: 160px;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 50%;
+  background-color: rgba(108, 117, 125, 0.3);
+  backdrop-filter: blur(1px);
+  z-index: 2;
+}
+
+.selected-image {
+  max-width: 100%;
+  max-height: 100%;
+  width: 160px;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.camera-icon-container {
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+  width: 30px;
+  height: 30px;
+  background: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 30px;
+  z-index: 10;
+}
+
+.circular-loader {
+  position: absolute;
+  top: 60px;
+  left: 60px;
+  color: #51f742;
+}
+
+@media only screen and (max-width: 425px) {
+  .profile-pic-container {
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
+
+  .selected-image {
+    width: 80px;
+    height: 80px;
+  }
+
+  .camera-icon-container {
+    /* position: absolute;
+    bottom: 0px;
+    right: 0px; */
+    width: 22px;
+    height: 22px;
+    /* border-radius: 10px; */
+    /* background: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10; */
+  }
+  .circular-loader {
+    top: 14px;
+    left: 15px;
+  }
+}

@@ -1,0 +1,11 @@
+SUBSCRIPTION_TYPES={
+    'FREE':'free',
+    'STANDARD':'standard',
+    'ADVANCED':'advanced',
+    'FEATURED':'featured'
+}
+PRODUCT_NAMES={
+    'standard':'standard',
+    'advanced':'advanced',
+    'featured':'featured'
+}

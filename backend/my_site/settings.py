@@ -65,7 +65,8 @@ INSTALLED_APPS = [
     "apps.ads",
     "django_rest_passwordreset",
     "apps.analytics",
-    "apps.clients"
+    "apps.clients",
+    "apps.subscriptions"
 ]
 
 MIDDLEWARE = [
@@ -310,3 +311,6 @@ EMAIL_HOST_PASSWORD = env.str("EMAIL_HOST_PASSWORD", default="")
 
 
 FRONTEND_URL= env.str("FRONTEND_URL", default="")
+
+STRIPE_PUBLISHABLE_KEY = env.str('STRIPE_PUBLISHABLE_KEY')
+STRIPE_SECRET_KEY = env.str('STRIPE_SECRET_KEY')
