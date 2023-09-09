@@ -1,16 +1,15 @@
-import React, { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { Button, Card, Col, Container } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart } from "@fortawesome/free-regular-svg-icons";
 import EmblaCarousel from "../../components/Carousel/Carousel";
-import { instance } from "../../axios/config";
 import placeholderIcon from "../../assets/images/placeholder.jpg";
-import { favoriteAd } from "../redux/Posts/AdsSlice";
+import { favoriteAd, listPublicAds } from "../redux/Posts/AdsSlice";
 
 function PremiumVenues() {
-  const [publicAds, setPublicAds] = useState([]);
+  const publicAds = useSelector((state) => state.Ads.publicAds);
   const dispatch = useDispatch();
   const OPTIONS = { slidesToScroll: "auto", containScroll: "trimSnaps" };
 
@@ -38,28 +37,35 @@ function PremiumVenues() {
           style={{ height: "100%", minHeight: "186px", objectFit: "cover" }}
         />
         <Card.Body>
-          <div
-            className="position-absolute"
-            style={{ top: "20px", right: "20px" }}
-          >
-            <div
-              className="d-flex align-items-center justify-content-center"
-              style={{
-                background: "#00000080",
-                width: "40px",
-                height: "40px",
-                borderRadius: "50%",
-              }}
-            >
-              <FontAwesomeIcon
-                icon={`fa-heart ${slide.favorite ? "fa-solid" : "fa-solid"}`}
-                size="lg"
-                style={{ color: "#fff" }}
-                onClick={() => handlefavoriteAd(slide.id)}
-              />
-            </div>
-          </div>
-
+          {
+            slide.fav !== null && (
+              <div
+                className="position-absolute"
+                style={{ top: "20px", right: "20px", zIndex: "2" }}
+              >
+                <div
+                  className="d-flex align-items-center justify-content-center"
+                  style={{
+                    background: "#00000080",
+                    width: "40px",
+                    height: "40px",
+                    borderRadius: "50%",
+                  }}
+                >
+                  <FontAwesomeIcon
+                    icon={slide.fav ? "fa-heart fa-solid" : faHeart}
+                    size="lg"
+                    style={{ color: "#fff", cursor: "pointer" }}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handlefavoriteAd(slide.id);
+                    }}
+                  />
+                </div>
+              </div>
+            )
+          }
           <Card.Title
             style={{ margin: "0" }}
             className="roboto-medium-20px-body1 card-title-custom"
@@ -91,20 +97,8 @@ function PremiumVenues() {
     </Link>
   );
 
-  const getVenueInfo = async () => {
-    try {
-      const request = await instance.request({
-        url: "/api/ads/public-list/",
-        method: "Get",
-      });
-      setPublicAds(request.data.data);
-    } catch (error) {
-      // handleFailedAlert();
-    }
-  };
-
   useEffect(() => {
-    getVenueInfo();
+    dispatch(listPublicAds());
   }, []);
 
   return (

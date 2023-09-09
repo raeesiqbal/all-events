@@ -19,7 +19,12 @@ const Reviews = ({ adId, adName }) => {
   const [offset, setOffset] = useState(0);
   const [limit, setLimit] = useState(10);
   const [page, setPage] = useState(1);
-  const [postReview, setPostReview] = useState({ rating: 0 });
+  const [postReview, setPostReview] = useState({
+    name: "",
+    title: "",
+    message: "",
+    rating: 0,
+  });
   const [isHide, setIsHide] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -104,7 +109,12 @@ const Reviews = ({ adId, adName }) => {
 
   const resetForm = () => {
     dispatch(setImagesToUpload([]));
-    setPostReview({ rating: 0 });
+    setPostReview({
+      name: "",
+      title: "",
+      message: "",
+      rating: 0,
+    });
   };
 
   const viewMoreReviews = () => {
@@ -191,6 +201,7 @@ const Reviews = ({ adId, adName }) => {
                         className="p-3"
                         type="text"
                         placeholder="Enter name"
+                        value={postReview.name}
                         onChange={(e) => setPostReview({
                           ...postReview,
                           name: e.target.value,
@@ -208,6 +219,7 @@ const Reviews = ({ adId, adName }) => {
                     className="p-3"
                     type="text"
                     placeholder="Enter title"
+                    value={postReview.title}
                     onChange={(e) => setPostReview({
                       ...postReview,
                       title: e.target.value,
@@ -245,6 +257,7 @@ const Reviews = ({ adId, adName }) => {
                 placeholder="Your feedback helps others"
                 as="textarea"
                 rows={10}
+                value={postReview.message}
                 onChange={(e) => setPostReview({
                   ...postReview,
                   message: e.target.value,
@@ -293,10 +306,14 @@ const Reviews = ({ adId, adName }) => {
       <div className="w-100">
         <Row className="border-bottom border-grey mx-0 py-4">
           <Col md={3} className="ps-0">
-            <Rating averageRating={2.4} />
+            <Rating averageRating={reviews.averageRating.toFixed(1)} />
           </Col>
           <Col md={9} className="d-grid py-3" style={{ alignContent: "space-between" }}>
-            <h3 style={{ fontWeight: "900" }}>142 Reviews</h3>
+            <h3 style={{ fontWeight: "900" }}>
+              {reviews.totalReviews}
+              {" "}
+              Reviews
+            </h3>
             {
               user?.role !== "vendor" && (
                 <div>
@@ -313,13 +330,13 @@ const Reviews = ({ adId, adName }) => {
         </Row>
         <Row className="py-4">
           {
-            reviews?.length > 0 ? (
-              reviews.map((review) => <Review review={review} />)
+            reviews?.data?.length > 0 ? (
+              reviews.data.map((review) => <Review review={review} />)
             ) : ""
           }
         </Row>
         {
-          limit === reviews.length && (
+          limit === reviews?.data?.length && (
             <Row className="d-flex">
               <Button
                 variant="white"

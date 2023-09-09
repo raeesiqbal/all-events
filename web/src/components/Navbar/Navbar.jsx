@@ -348,7 +348,7 @@ function Header() {
                   variant="outline-success"
                   type="submit"
                   className="mb-2 mobile-btn"
-                  onClick={(e) => navigate("/post-ad")}
+                  onClick={(e) => navigate(user?.role === "client" ? "/favorite-ads" : "/post-ad")}
                   // style={{ whiteSpace: "nowrap" }}
                 >
                   Dashboard

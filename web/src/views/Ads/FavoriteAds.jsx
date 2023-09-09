@@ -140,7 +140,8 @@ const FavoriteAds = () => {
                                   <div
                                     className="d-flex align-items-center justify-content-center"
                                     style={{
-                                      background: "#00000080",
+                                      border: "1px solid #cccccc",
+                                      background: "#eee",
                                       width: "40px",
                                       height: "40px",
                                       borderRadius: "50%",
@@ -148,9 +149,9 @@ const FavoriteAds = () => {
                                     }}
                                   >
                                     <FontAwesomeIcon
-                                      icon={faHeart}
+                                      icon="fa-heart fa-solid"
                                       size="lg"
-                                      style={{ color: "#fff" }}
+                                      style={{ color: "#e8091c" }}
                                       onClick={() => {
                                         dispatch(favoriteAd(ad.id));
                                         window.location.reload();

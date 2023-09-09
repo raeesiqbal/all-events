@@ -50,7 +50,7 @@ function PersonalInformation() {
       .max(20, "Must be at most 20 characters")
       .matches(
         /^[a-zA-Z\s-]*$/,
-        "Must only contain letters, spaces, and hyphens"
+        "Must only contain letters, spaces, and hyphens",
       ),
     person_lastName: Yup.string()
       .required("Last name is required")
@@ -58,7 +58,7 @@ function PersonalInformation() {
       .max(20, "Must be at most 20 characters")
       .matches(
         /^[a-zA-Z\s-]*$/,
-        "Must only contain letters, spaces, and hyphens"
+        "Must only contain letters, spaces, and hyphens",
       ),
     person_number: Yup.string()
       .min(8, "Must be at least 8 digits")
@@ -134,9 +134,7 @@ function PersonalInformation() {
         <div
           className="d-flex mt-3"
           style={{ cursor: "pointer" }}
-          onClick={() =>
-            dispatch(handleProfileSettingsCurrentView("profileSettings"))
-          }
+          onClick={() => dispatch(handleProfileSettingsCurrentView("profileSettings"))}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -200,7 +198,9 @@ function PersonalInformation() {
               initialValues={initialValues}
               enableReinitialize
             >
-              {({ handleSubmit, handleChange, values, touched, errors }) => (
+              {({
+                handleSubmit, handleChange, values, errors,
+              }) => (
                 <Form noValidate onSubmit={handleSubmit}>
                   <Col lg={4}>
                     <Form.Group className="mb-4" controlId="form3Example3">

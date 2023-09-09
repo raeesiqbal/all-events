@@ -9,7 +9,6 @@ import {
   setSelectedImage,
 } from "../../views/redux/Settings/SettingsSlice";
 import "./ProfilePic.css";
-import { secure_instance } from "../../axios/axios-config";
 
 const ProfilePic = () => {
   const [loadingImage, setLoadingImage] = useState(false);

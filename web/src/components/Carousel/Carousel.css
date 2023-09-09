@@ -48,6 +48,7 @@
   min-width: 0;
   padding-left: var(--slide-spacing);
   position: relative;
+  text-decoration: none;
 }
 
 .embla__slide__vendors__by__country {

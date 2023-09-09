@@ -1,5 +1,6 @@
 /* eslint-disable camelcase */
 import React, { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { Container } from "react-bootstrap";
 import { listChats } from "../redux/Chats/ChatsSlice";
@@ -19,6 +20,9 @@ function Chats() {
   const archivedCount = useSelector((state) => state.chats.archivedCount);
   const [activeTab, setActiveTab] = React.useState("Inbox");
   const [activeTabChats, setActiveTabChats] = React.useState();
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const chatId = searchParams.get("chatId");
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -47,7 +51,7 @@ function Chats() {
         className="pt-md-5"
       >
         <MesssageTabNavigation activeTab={activeTab} setActiveTab={setActiveTab} counts={[inboxCount, archivedCount]} />
-        {activeTabChats && activeTabChats.map((chat) => <Chat chat={chat} key={chat.id} />)}
+        {activeTabChats && activeTabChats.map((chat) => <Chat chat={chat} key={chat.id} isOpenChat={chat.id.toString() === chatId} />)}
       </Container>
 
       <Footer />

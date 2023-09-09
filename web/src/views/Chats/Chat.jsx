@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Button,
   Card,
@@ -19,8 +19,9 @@ import defaultProfilePhoto from "../../assets/images/profile-settings/person.svg
 import { archiveChat, deleteChat } from "../redux/Chats/ChatsSlice";
 import { listChatMessages, sendMessage } from "../redux/Messages/MessagesSlice";
 import "./Chats.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-const Chat = ({ chat }) => {
+const Chat = ({ chat, isOpenChat }) => {
   // const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -28,7 +29,7 @@ const Chat = ({ chat }) => {
   const additionalInfo = useSelector((state) => state.messages.additionalInfo);
   const currentUser = useSelector((state) => state.auth.user);
 
-  const [modalShow, setModalShow] = React.useState(false);
+  const [modalShow, setModalShow] = React.useState(isOpenChat);
   const [deleteModal, setDeleteModal] = React.useState(false);
   const [messageText, setMessageText] = React.useState("");
 
@@ -37,7 +38,6 @@ const Chat = ({ chat }) => {
   const openMessages = () => {
     dates = [];
     setModalShow(true);
-    dispatch(listChatMessages(chat.id));
   };
 
   const sendChatMessage = () => {
@@ -68,6 +68,10 @@ const Chat = ({ chat }) => {
   const formattedDate = (d) => `${`${date(d).getDate() + getOrdinalSuffix(date(d).getDate())} ${
     date(d).toLocaleString("en-US", { month: "long" })}, ${
     date(d).getFullYear()}`}`;
+
+  useEffect(() => {
+    if (modalShow) dispatch(listChatMessages(chat.id));
+  }, [modalShow]);
 
   return (
     <>
@@ -181,11 +185,18 @@ const Chat = ({ chat }) => {
               })
             }
           </div>
-          <div className="w-100 pt-3 border-top border-grey" style={{ height: "fit-content" }}>
+          <div className="w-100 pt-3 border-top border-grey" style={{ height: "fit-content", display: "flex" }}>
             <div className="d-flex" style={{ width: "86%", height: "44px" }}>
-              <input type="text" className="send-messsage-input" placeholder="Type a message" value={messageText} onChange={(e) => setMessageText(e.target.value)} />
-              <button type="button" className="send-messsage-button" onClick={sendChatMessage}>Send</button>
+              <input type="text" className="send-message-input" placeholder="Type a message" value={messageText} onChange={(e) => setMessageText(e.target.value)} />
+              <button type="button" className="send-message-button" onClick={sendChatMessage}>Send</button>
             </div>
+            <div className="d-flex justify-content-center" style={{ width: "14%" }}>
+              <div className="upload-message-img">
+                <span>+</span>
+                <input type="file" accept="image/*,video/*,.pdf" />
+              </div>
+            </div>
+            {/* <FontAwesomeIcon icon="fa-solid fa-paperclip" beatFade /> */}
           </div>
         </Modal.Body>
       </Modal>

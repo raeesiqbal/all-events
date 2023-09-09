@@ -7,7 +7,11 @@ import { secureInstance } from "../../../axios/config";
 const initialState = {
   loading: false,
   error: null,
-  reviews: [],
+  reviews: {
+    data: [],
+    averageRating: 0,
+    totalReviews: 0,
+  },
   // additionalInfo: null,
   ReviewSuccessAlert: false,
   ReviewErrorAlert: false,
@@ -78,7 +82,11 @@ export const ReviewsSlice = createSlice({
       })
       .addCase(listAdReviews.fulfilled, (state, action) => {
         state.loading = false;
-        state.reviews = action.payload.data.reviews.results;
+        state.reviews = {
+          data: action.payload.data.reviews.results,
+          averageRating: action.payload.data.avg,
+          totalReviews: action.payload.data.reviews.count,
+        };
         // state.additionalInfo = action.payload.data.additional_info;
       })
       .addCase(listAdReviews.rejected, (state, action) => {

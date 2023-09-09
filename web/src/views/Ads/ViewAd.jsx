@@ -3,7 +3,9 @@
 /* eslint-disable no-shadow */
 /* eslint-disable camelcase */
 import React, { useCallback, useEffect, useState } from "react";
-import { Button, Col, Container, Form, Row } from "react-bootstrap";
+import {
+  Button, Col, Container, Form, Row,
+} from "react-bootstrap";
 // import * as formik from "formik";
 // import * as Yup from "yup";
 import { useNavigate, useParams } from "react-router-dom";
@@ -35,7 +37,6 @@ import { handleStartContact } from "../redux/Contacts/ContactsSlice";
 // import profile_bg from "../../assets/images/profile-settings/profile-bg.svg";
 // import "./ProfileSettings.css";
 import Footer from "../../components/Footer/Footer";
-import TabNavigation from "../../components/TabNavigation/TabNavigation";
 import { secureInstance } from "../../axios/config";
 import "./Ads.css";
 import { handleStartChat } from "../redux/Chats/ChatsSlice";
@@ -89,6 +90,7 @@ function ViewAd() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [eventDate, setEventDate] = useState(new Date());
+  const [chatId, setChatId] = useState();
 
   const params = useParams();
   const navigate = useNavigate();
@@ -126,13 +128,22 @@ function ViewAd() {
     return slide;
   });
 
+  const isChatExists = async () => {
+    const response = await secureInstance.request({
+      url: `/api/analytics/ad-chat/${params.adId}/chat-exist/`,
+      method: "Get",
+    });
+    setChatId(response.data.data.id);
+    return response.data.data.id;
+  };
+
   const scrollPrev = useCallback(
     () => emblaApi && emblaApi.scrollPrev(),
-    [emblaApi]
+    [emblaApi],
   );
   const scrollNext = useCallback(
     () => emblaApi && emblaApi.scrollNext(),
-    [emblaApi]
+    [emblaApi],
   );
 
   const getAdInfo = async () => {
@@ -154,6 +165,7 @@ function ViewAd() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    isChatExists();
   }, []);
 
   const onSelect = useCallback((emblaApi) => {
@@ -177,21 +189,19 @@ function ViewAd() {
   }, [user?.role]);
 
   const getData = () => {
-    const data =
-      user.userId === null
-        ? {
-            email,
-            phone,
-            full_name: name,
-            event_date: eventDate.toString(),
-            message: text,
-            ad: params.adId,
-          }
-        : {
-            event_date: eventDate.toString(),
-            message: text,
-            ad: params.adId,
-          };
+    const data = user.userId === null
+      ? {
+        email,
+        phone,
+        full_name: name,
+        event_date: eventDate.toString(),
+        message: text,
+        ad: params.adId,
+      } : {
+        event_date: eventDate.toString(),
+        message: text,
+        ad: params.adId,
+      };
     return {
       data,
       navigate,
@@ -202,15 +212,13 @@ function ViewAd() {
     dispatch(
       user.userId === null
         ? handleStartContact(getData())
-        : handleStartChat(getData())
+        : handleStartChat(getData()),
     );
   };
 
   return (
     <>
       <Header />
-      <TabNavigation role={user.role} />
-
       <Container
         // fluid
         style={{ marginTop: "40px", marginBottom: "200px" }}
@@ -236,20 +244,19 @@ function ViewAd() {
                       <div className="embla__container__view__ad">
                         {slidesModified.map((slide, index) => (
                           <div key={index} className="carousel-slide">
-                            {console.log({ slide })}
                             <Row>
                               <Col
                                 sm={6}
                                 md={6}
                                 lg={
-                                  slide[`image${index * 3 + 2}`] ||
-                                  slide[`image${index * 3 + 3}`]
+                                  slide[`image${index * 3 + 2}`]
+                                  || slide[`image${index * 3 + 3}`]
                                     ? 6
                                     : 12
                                 }
                                 xl={
-                                  slide[`image${index * 3 + 2}`] ||
-                                  slide[`image${index * 3 + 3}`]
+                                  slide[`image${index * 3 + 2}`]
+                                  || slide[`image${index * 3 + 3}`]
                                     ? 6
                                     : 12
                                 }
@@ -345,12 +352,12 @@ function ViewAd() {
                   </span>
                 </div>
 
-                {(currentAd?.facebook !== "" ||
-                  currentAd?.instagram !== "" ||
-                  currentAd?.youtube !== "" ||
-                  currentAd?.tiktok !== "" ||
-                  currentAd?.twitter !== "" ||
-                  currentAd?.others !== null) && (
+                {(currentAd?.facebook !== ""
+                  || currentAd?.instagram !== ""
+                  || currentAd?.youtube !== ""
+                  || currentAd?.tiktok !== ""
+                  || currentAd?.twitter !== ""
+                  || currentAd?.others !== null) && (
                   <div className="d-flex align-items-center justify-content-between mt-2">
                     <div className="roboto-regular-16px-information">
                       Follow us on
@@ -363,9 +370,7 @@ function ViewAd() {
                           alt="FbIcon"
                           className="me-1"
                           style={{ cursor: "pointer" }}
-                          onClick={() =>
-                            window.open(`/${currentAd?.facebook}`, "_blank")
-                          }
+                          onClick={() => window.open(`/${currentAd?.facebook}`, "_blank")}
                           // onClick={() => navigate(`/${currentAd?.facebook}`)}
                         />
                       )}
@@ -376,9 +381,7 @@ function ViewAd() {
                           className="me-1"
                           style={{ cursor: "pointer" }}
                           // onClick={() => navigate(`/${currentAd?.instagram}`)}
-                          onClick={() =>
-                            window.open(`/${currentAd?.instagram}`, "_blank")
-                          }
+                          onClick={() => window.open(`/${currentAd?.instagram}`, "_blank")}
                         />
                       )}
                       {currentAd?.youtube !== "" && (
@@ -388,9 +391,7 @@ function ViewAd() {
                           alt="youtubeIcon"
                           style={{ cursor: "pointer" }}
                           // onClick={() => navigate(`/${currentAd?.youtube}`)}
-                          onClick={() =>
-                            window.open(`/${currentAd?.youtube}`, "_blank")
-                          }
+                          onClick={() => window.open(`/${currentAd?.youtube}`, "_blank")}
                         />
                       )}
                       {currentAd?.tiktok !== "" && (
@@ -400,9 +401,7 @@ function ViewAd() {
                           alt="tiktokIcon"
                           style={{ cursor: "pointer" }}
                           // onClick={() => navigate(`/${currentAd?.tiktok}`)}
-                          onClick={() =>
-                            window.open(`/${currentAd?.tiktok}`, "_blank")
-                          }
+                          onClick={() => window.open(`/${currentAd?.tiktok}`, "_blank")}
                         />
                       )}
                       {currentAd?.twitter !== "" && (
@@ -412,9 +411,7 @@ function ViewAd() {
                           alt="twitterIcon"
                           style={{ cursor: "pointer" }}
                           // onClick={() => navigate(`/${currentAd?.twitter}`)}
-                          onClick={() =>
-                            window.open(`/${currentAd?.twitter}`, "_blank")
-                          }
+                          onClick={() => window.open(`/${currentAd?.twitter}`, "_blank")}
                         />
                       )}
                       {currentAd?.others !== null && (
@@ -424,9 +421,7 @@ function ViewAd() {
                           alt="otherIcon"
                           style={{ cursor: "pointer" }}
                           // onClick={() => navigate(`/${currentAd?.others}`)}
-                          onClick={() =>
-                            window.open(`/${currentAd?.others}`, "_blank")
-                          }
+                          onClick={() => window.open(`/${currentAd?.others}`, "_blank")}
                         />
                       )}
                     </div>
@@ -564,103 +559,110 @@ function ViewAd() {
             )}
           </Col>
           <Col lg={4}>
-            {user?.userId === null ||
-            (user?.userId !== null && user?.role === "client") ? (
-              <Form
-                className="message-vendor-form"
-                onSubmit={submitVendorRequestForm}
-              >
-                <div
-                  className="d-flex justify-content-center align-items-center roboto-semi-bold-28px-h2"
-                  style={{ marginBottom: "26px" }}
-                >
-                  {user.userId === null ? "Contact" : "Message"} Vendor
-                </div>
-
-                <Form.Control
-                  style={{ minHeight: "120px" }}
-                  className="lg-input-small-text mb-4"
-                  name="message.text"
-                  as="textarea"
-                  rows={3}
-                  type="text"
-                  size="lg"
-                  placeholder="Message"
-                  value={text || ""}
-                  onChange={(e) => setText(e.target.value)}
-                />
-
-                {user?.userId === null ? (
-                  <>
-                    <Form.Control
-                      style={{ height: "56px" }}
-                      className="lg-input-small-text mb-4"
-                      type="text"
-                      name="message.full_name"
-                      size="sm"
-                      placeholder="First and Last Name"
-                      value={name || ""}
-                      onChange={(e) => setName(e.target.value)}
-                    />
-
-                    <Form.Control
-                      style={{ height: "56px" }}
-                      className="lg-input-small-text mb-4"
-                      type="email"
-                      name="message.email"
-                      size="sm"
-                      placeholder="Email"
-                      value={email || ""}
-                      onChange={(e) => setEmail(e.target.value)}
-                    />
-
-                    <Form.Control
-                      style={{ height: "56px" }}
-                      className="lg-input-small-text mb-4"
-                      type="text"
-                      name="message.phone"
-                      size="sm"
-                      placeholder="Phone"
-                      value={phone || ""}
-                      onChange={(e) => setPhone(e.target.value)}
-                    />
-                  </>
+            {user?.userId === null
+            || (user?.userId !== null && user?.role === "client") ? (
+                chatId !== null ? (
+                  <Button variant="success" className="w-100" onClick={() => navigate(`/messages?chatId=${chatId}`)}>Go to Chat</Button>
                 ) : (
-                  ""
-                )}
+                  <Form
+                    className="message-vendor-form"
+                    onSubmit={submitVendorRequestForm}
+                  >
+                    <div
+                      className="d-flex justify-content-center align-items-center roboto-semi-bold-28px-h2"
+                      style={{ marginBottom: "26px" }}
+                    >
+                      {user.userId === null ? "Contact" : "Message"}
+                      {" "}
+                      Vendor
+                    </div>
 
-                <Form.Control
-                  style={{ height: "56px" }}
-                  className="lg-input-small-text mb-4"
-                  type="date"
-                  name="message.event_date"
-                  size="sm"
-                  placeholder="Event date"
-                  value={eventDate || ""}
-                  onChange={(e) => setEventDate(e.target.value)}
-                />
+                    <Form.Control
+                      style={{ minHeight: "120px" }}
+                      className="lg-input-small-text mb-4"
+                      name="message.text"
+                      as="textarea"
+                      rows={3}
+                      type="text"
+                      size="lg"
+                      placeholder="Message"
+                      value={text || ""}
+                      onChange={(e) => setText(e.target.value)}
+                    />
 
-                <p className="roboto-regular-14px-information">
-                  By clicking ‘Send’, I agree to Allevents{" "}
-                  <a className="roboto-regular-14px-information" href="#">
-                    Privacy Policy
-                  </a>
-                  , and{" "}
-                  <a className="roboto-regular-14px-information" href="#">
-                    Terms of Use
-                  </a>
-                </p>
+                    {user?.userId === null ? (
+                      <>
+                        <Form.Control
+                          style={{ height: "56px" }}
+                          className="lg-input-small-text mb-4"
+                          type="text"
+                          name="message.full_name"
+                          size="sm"
+                          placeholder="First and Last Name"
+                          value={name || ""}
+                          onChange={(e) => setName(e.target.value)}
+                        />
 
-                <Button
-                  type="submit"
-                  className="btn btn-success roboto-semi-bold-16px-information w-100"
-                >
-                  Send
-                </Button>
-              </Form>
-            ) : (
-              ""
-            )}
+                        <Form.Control
+                          style={{ height: "56px" }}
+                          className="lg-input-small-text mb-4"
+                          type="email"
+                          name="message.email"
+                          size="sm"
+                          placeholder="Email"
+                          value={email || ""}
+                          onChange={(e) => setEmail(e.target.value)}
+                        />
+
+                        <Form.Control
+                          style={{ height: "56px" }}
+                          className="lg-input-small-text mb-4"
+                          type="text"
+                          name="message.phone"
+                          size="sm"
+                          placeholder="Phone"
+                          value={phone || ""}
+                          onChange={(e) => setPhone(e.target.value)}
+                        />
+                      </>
+                    ) : (
+                      ""
+                    )}
+
+                    <Form.Control
+                      style={{ height: "56px" }}
+                      className="lg-input-small-text mb-4"
+                      type="date"
+                      name="message.event_date"
+                      size="sm"
+                      placeholder="Event date"
+                      value={eventDate || ""}
+                      onChange={(e) => setEventDate(e.target.value)}
+                    />
+
+                    <p className="roboto-regular-14px-information">
+                      By clicking ‘Send’, I agree to Allevents
+                      {" "}
+                      <a className="roboto-regular-14px-information" href="#">
+                        Privacy Policy
+                      </a>
+                      , and
+                      {" "}
+                      <a className="roboto-regular-14px-information" href="#">
+                        Terms of Use
+                      </a>
+                    </p>
+
+                    <Button
+                      type="submit"
+                      className="btn btn-success roboto-semi-bold-16px-information w-100"
+                    >
+                      Send
+                    </Button>
+                  </Form>
+                )) : (
+                ""
+              )}
           </Col>
         </Row>
       </Container>

@@ -7,6 +7,14 @@ import defaultProfilePhoto from "../../assets/images/profile-settings/person.svg
 const Review = ({ review }) => {
   const user = useSelector((state) => state.auth.user);
 
+  const formatDate = (isoDate) => {
+    const date = new Date(isoDate);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Adding 1 because months are zero-based
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${month}/${day}/${year}`;
+  };
+
   return (
     <Row className="w-100">
       <Col sm={2} className="d-flex">
@@ -20,9 +28,7 @@ const Review = ({ review }) => {
       <Col sm={10} className="py-2">
         <div style={{ fontSize: "16px" }}>
           <span className="me-3" style={{ fontWeight: "700", width: "fit-content" }}>
-            {user.first_name}
-            {" "}
-            {user.last_name}
+            {review.full_name}
           </span>
           <span style={{ color: "#797979" }}>{review.title}</span>
         </div>
@@ -40,7 +46,7 @@ const Review = ({ review }) => {
         <div className="mb-2" style={{ fontSize: "16px", color: "#797979" }}>
           Sent on
           {" "}
-          {review.created_at}
+          {formatDate(review.created_at)}
         </div>
         <div className="d-md-flex justify-content-between">
           {

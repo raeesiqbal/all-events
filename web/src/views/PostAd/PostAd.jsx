@@ -389,7 +389,7 @@ function PostAd() {
   const handleRemoveService = (indexToRemove, values, setValues) => {
     const clonedServices = [...values.servicesOffered.services];
     const deletedService = clonedServices.filter(
-      (_, index) => index !== indexToRemove
+      (_, index) => index !== indexToRemove,
     );
     setValues({
       ...values,

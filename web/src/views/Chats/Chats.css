@@ -4,7 +4,7 @@
   border-bottom: solid rgba(146, 145, 145, 0.39);
 }
 
-.send-messsage-input {
+.send-message-input {
   width: 87%;
   height: 100%;
   border-top-left-radius: 24px;
@@ -14,7 +14,7 @@
   padding-left: 24px;
 }
 
-.send-messsage-button {
+.send-message-button {
   min-width: 74px;
   height: 100%;
   border-top-right-radius: 8px;
@@ -57,6 +57,54 @@
   overflow-y: scroll;
   margin-right: -17px;
   margin-top: 115px;
+}
+
+.upload-message-img {
+  width: 45px;
+  height: 45px;
+  border: 2px dashed #A8A8A8;
+  color: #A8A8A8;
+  position: relative;
+  display: flex;
+}
+
+.upload-message-img span {
+  font-size: 40px;
+  line-height: 40px;
+  margin: auto !important;
+  z-index: 0;
+}
+
+.upload-message-img input {
+  position: absolute;
+  left: 0px;
+  right: 0px;
+  top: 0px;
+  bottom: 0px;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.upload-message-img img {
+  width: 100%;
+}
+
+.upload-message-img div {
+  width: 20px;
+  height: 20px;
+  background-color: grey;
+  color: white;
+  border-radius: 50%;
+  position: absolute;
+  right: -11px;
+  top: -11px;
+  cursor: pointer;
+  z-index: 5;
+  display: flex;
+  font-size: 36px;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid white;
 }
 
 @media (max-width: 600px) {

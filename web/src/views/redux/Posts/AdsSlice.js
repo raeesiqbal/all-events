@@ -1,13 +1,14 @@
 /* eslint-disable camelcase */
 /* eslint-disable no-useless-catch */
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { secureInstance } from "../../../axios/config";
+import { instance, secureInstance } from "../../../axios/config";
 
 // Create an initial state for the auth slice
 const initialState = {
   loading: false,
   error: null,
   vendorAds: [],
+  publicAds: [],
   favoriteAds: [],
   media_urls: {
     images: [],
@@ -109,22 +110,22 @@ export const listVendorAds = createAsyncThunk(
   },
 );
 
-// export const listClientAds = createAsyncThunk(
-//   "Ads/clientList",
-//   async (data, { rejectWithValue }) => {
-//     try {
-//       const response = await secureInstance.request({
-//         url: "/api/ads/public-list/",
-//         method: "Get",
-//       });
-//       return response.data; // Assuming your loginAPI returns data with access_token, user_id, and role_id
-//     } catch (err) {
-//       // Use `err.response.data` as `action.payload` for a `rejected` action,
-//       // by explicitly returning it using the `rejectWithValue()` utility
-//       return rejectWithValue(err.response.data);
-//     }
-//   },
-// );
+export const listPublicAds = createAsyncThunk(
+  "Ads/public_list",
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await instance.request({
+        url: "/api/ads/public-list/",
+        method: "Get",
+      });
+      return response.data; // Assuming your loginAPI returns data with access_token, user_id, and role_id
+    } catch (err) {
+      // Use `err.response.data` as `action.payload` for a `rejected` action,
+      // by explicitly returning it using the `rejectWithValue()` utility
+      return rejectWithValue(err.response.data);
+    }
+  },
+);
 
 export const listFavoriteAds = createAsyncThunk(
   "Ads/favoriteList",
@@ -151,7 +152,7 @@ export const favoriteAd = createAsyncThunk(
         url: `/api/analytics/ad-fav/${id}/fav/`,
         method: "Post",
       });
-      return response.data; // Assuming your loginAPI returns data with access_token, user_id, and role_id
+      return { ...response.data, id }; // Assuming your loginAPI returns data with access_token, user_id, and role_id
     } catch (err) {
       // Use `err.response.data` as `action.payload` for a `rejected` action,
       // by explicitly returning it using the `rejectWithValue()` utility
@@ -232,6 +233,18 @@ export const AdsSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+      .addCase(listPublicAds.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(listPublicAds.fulfilled, (state, action) => {
+        state.loading = false;
+        state.publicAds = action.payload.data;
+      })
+      .addCase(listPublicAds.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
       .addCase(uploadImagesToCloud.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -265,9 +278,15 @@ export const AdsSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(favoriteAd.fulfilled, (state) => {
+      .addCase(favoriteAd.fulfilled, (state, action) => {
         state.loading = false;
         state.AdPostSuccessAlert = true;
+        if ([200, 201, 202, 203, 204].includes(action.payload.status_code)) {
+          state.publicAds = state.publicAds.map((ad) => {
+            if (ad.id === action.payload.id) ad.fav = !ad.fav;
+            return ad;
+          });
+        }
       })
       .addCase(favoriteAd.rejected, (state, action) => {
         state.loading = false;
