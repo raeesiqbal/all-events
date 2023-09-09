@@ -9,6 +9,7 @@ import pieChart from "../../assets/images/pie-chart.svg";
 import plusCircle from "../../assets/images/plus-circle.svg";
 import settings from "../../assets/images/settings.svg";
 import messages from "../../assets/images/mdi-light_message-text.svg";
+import analytics from "../../assets/images/uil_analytics.svg";
 import "./TabNavigation.css";
 import {
   handleClickTab,
@@ -46,6 +47,11 @@ const vendorTabs = [
     label: "Settings",
     icon: settings,
     path: "/profile-settings",
+  },
+  {
+    label: "Analytics",
+    icon: analytics,
+    path: "/analytics",
   },
 ];
 

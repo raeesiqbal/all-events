@@ -7,7 +7,7 @@ from apps.utils.utils import unique_slugify
 
 
 class Country(models.Model):
-    name = models.TextField(_("Judet"))
+    name = models.TextField(_("Judet"), unique=True)
 
     def __str__(self):
         return f"{self.name}"
@@ -18,12 +18,13 @@ class Country(models.Model):
 
 
 class Category(models.Model):
-    name = models.TextField(_("Categorie"))
+    name = models.TextField(_("Categorie"), unique=True)
 
     def __str__(self):
         return f"{self.name}"
 
     class Meta:
+        ordering = ["-id"]
         verbose_name = "Category"
         verbose_name_plural = "Categories"
 
@@ -41,6 +42,7 @@ class SubCategory(models.Model):
         return f"{self.name}"
 
     class Meta:
+        ordering = ["-id"]
         verbose_name = "Sub Category"
         verbose_name_plural = "Sub Categories"
 
@@ -70,6 +72,8 @@ class Ad(NewAbstractModel):
         "ads.Country",
         related_name="country_ads",
         verbose_name=_("Judete in care oferiti serviciile mentionate"),
+        null=True,
+        blank=True,
     )
     # contact information
     website = models.TextField(_("Website"), null=True, blank=True)
@@ -93,6 +97,7 @@ class Ad(NewAbstractModel):
     others = models.TextField(_("Others"), null=True, blank=True)
 
     offered_services = ArrayField(base_field=models.TextField(), null=True, blank=True)
+    site_services = ArrayField(base_field=models.TextField(), null=True, blank=True)
 
     total_views = models.IntegerField(_("Total Views"), default=0)
 
@@ -104,6 +109,7 @@ class Ad(NewAbstractModel):
         super(Ad, self).save(*args, **kwargs)
 
     class Meta:
+        ordering = ["-id"]
         verbose_name = "Ad"
         verbose_name_plural = "Ad's"
 
@@ -122,6 +128,7 @@ class Gallery(models.Model):
         return f"{self.ad}"
 
     class Meta:
+        ordering = ["-id"]
         verbose_name = "Gallery"
         verbose_name_plural = "Galleries"
 
@@ -135,22 +142,15 @@ class FAQ(models.Model):
         null=True,
         blank=True,
     )
-    sub_category = models.ForeignKey(
-        "ads.SubCategory", verbose_name=_("Sub Categorie"), on_delete=models.CASCADE
-    )
-    Types = (
-        (FAQ_TYPE["TEXT_FIELD"], "text_field"),
-        (FAQ_TYPE["CHECKBOX"], "checkbox"),
-    )
+
     question = models.TextField(_("Question"))
-    type = models.CharField(_("Type"), choices=Types, max_length=50)
-    answer_input = models.TextField(_("Answer Input"), null=True, blank=True)
-    answer_checkbox = models.BooleanField(_("Answer Checkbox"), default=False)
+    answer = models.TextField(_("Answer"))
 
     def __str__(self):
         return f"{self.question}"
 
     class Meta:
+        ordering = ["-id"]
         verbose_name = "FAQ"
         verbose_name_plural = "FAQ'S"
 
@@ -167,6 +167,7 @@ class ActivationSubCategory(models.Model):
         return f"{self.sub_category.name}"
 
     class Meta:
+        ordering = ["-id"]
         verbose_name = "Activation Sub Category"
         verbose_name_plural = "Activation Sub Categories"
 
@@ -189,6 +190,99 @@ class RelatedSubCategory(models.Model):
         return f"{self.id}"
 
     class Meta:
+        ordering = ["-id"]
         verbose_name = "Related Sub Category"
         verbose_name_plural = "Related Sub Categories"
         unique_together = ["sub_category_1", "sub_category_2"]
+
+
+class Service(models.Model):
+    sub_category = models.ManyToManyField(
+        "ads.SubCategory",
+        verbose_name=_("Sub Category"),
+        related_name="question_sub_category",
+    )
+    service = ArrayField(base_field=models.TextField())
+
+    def __str__(self):
+        return f"{self.id}"
+
+    class Meta:
+        ordering = ["-id"]
+        verbose_name = "Service"
+        verbose_name_plural = "Services"
+
+
+class SectionName(models.Model):
+    name = models.TextField(_("Name"), unique=True)
+
+
+class SiteFAQ(models.Model):
+    category = models.ForeignKey(
+        "ads.Category",
+        verbose_name=_("Category"),
+        on_delete=models.CASCADE,
+        related_name="site_faq_category",
+    )
+    sub_category = models.ManyToManyField(
+        "ads.SubCategory",
+        verbose_name=_("Sub Category"),
+        related_name="site_faq_sub_category",
+    )
+    section = models.ForeignKey(
+        "ads.SectionName",
+        verbose_name=_("Section"),
+        on_delete=models.CASCADE,
+        related_name="site_faq_section",
+    )
+
+    def __str__(self):
+        return f"{self.id}"
+
+    class Meta:
+        ordering = ["-id"]
+        verbose_name = "Site FAQ"
+        verbose_name_plural = "Site FAQ's"
+
+
+class SiteQuestion(models.Model):
+    site_faq = models.ForeignKey(
+        "ads.SiteFAQ",
+        verbose_name=_("Site FAQ"),
+        on_delete=models.CASCADE,
+        related_name="site_faq_questions",
+    )
+    question = models.TextField(_("Question"))
+    suggestion = ArrayField(base_field=models.TextField(), null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.id}"
+
+    class Meta:
+        ordering = ["-id"]
+        verbose_name = "Site Question"
+        verbose_name_plural = "Site Questions"
+
+
+class AdFAQ(models.Model):
+    ad = models.ForeignKey(
+        "ads.Ad",
+        verbose_name=_("Commercial"),
+        on_delete=models.CASCADE,
+        related_name="ad_faq_ad",
+    )
+    site_question = models.ForeignKey(
+        "ads.SiteQuestion",
+        verbose_name=_("Site Question"),
+        on_delete=models.CASCADE,
+        related_name="ad_faq_site_question",
+    )
+    answer = models.TextField(_("Answer"))
+
+    def __str__(self):
+        return f"{self.id}"
+
+    class Meta:
+        ordering = ["-id"]
+        verbose_name = "Ad FAQ"
+        verbose_name_plural = "Ad FAQ's"

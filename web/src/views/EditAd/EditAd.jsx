@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from "react";
 import * as formik from "formik";
 import * as Yup from "yup";
-import {
-  Button, Col, Container, Form, Row, Spinner,
-} from "react-bootstrap";
+import { Button, Col, Container, Form, Row, Spinner } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { Alert } from "@mui/material";
@@ -32,6 +30,8 @@ import {
 } from "../redux/Posts/AdsSlice";
 import { secureInstance } from "../../axios/config";
 import UnsavedChangesPrompt from "../../utilities/hooks/UnsavedChanged";
+import ServerFAQs from "../PostAd/ServerFAQs";
+import { ScrollToError } from "../../utilities/ScrollToError";
 
 function EditAd() {
   const { Formik } = formik;
@@ -49,12 +49,18 @@ function EditAd() {
   const [relatedSubCategoryId, setRelatedSubCategoryId] = useState(null);
   const [isMultipleCountries, setIsMultipleCountries] = useState(false);
   const [localInitialValues, setLocalInitialValues] = useState(null);
+  const [preDefinedFAQs, setPreDefinedFAQs] = useState([]);
+  const [selectedValuesServerFAQ, setSelectedValuesServerFAQ] = useState([]);
+
+  const [adminServicesSelected, setAdminServicesSelected] = useState([]);
+  const [adminServices, setAdminServices] = useState([]);
 
   const loading = useSelector((state) => state.Ads.loading);
   const user = useSelector((state) => state.auth.user);
   const AdPostSuccessAlert = useSelector(
-    (state) => state.Ads.AdPostSuccessAlert,
+    (state) => state.Ads.AdPostSuccessAlert
   );
+
   const AdPostErrorAlert = useSelector((state) => state.Ads.AdPostErrorAlert);
   const imagesToUpload = useSelector((state) => state.Ads.media_urls.images);
   const imagesError = useSelector((state) => state.Ads.imagesError);
@@ -70,17 +76,31 @@ function EditAd() {
       return;
     }
 
+    console.log("selectedValuesServerFAQ", selectedValuesServerFAQ);
+
+    // return;
+
     const extractSubCatId = values.companyInformation.sub_category.id
       ? parseInt(values.companyInformation.sub_category.id, 10)
       : parseInt(values.companyInformation.sub_category, 10);
 
-    const addSubCategoryToFaqs = values.FAQ.faqs.map((faq) => ({
-      sub_category: extractSubCatId,
+    const FAQsMap = values.FAQ.faqs.map((faq) => ({
       question: faq.question,
-      answer_input: faq.answer_input,
-      answer_checkbox: faq.answer_checkbox,
-      type: faq.type,
+      answer: faq.answer,
     }));
+    const flattenedServerFAQs = selectedValuesServerFAQ.flatMap(
+      (sectionValues) =>
+        sectionValues.map((questionValues) => ({
+          site_question: questionValues.id,
+          answer: questionValues.value,
+        }))
+    );
+
+    console.log("adminServicesSelected", adminServicesSelected);
+
+    // const adminServicesMap = adminServicesSelected.map(
+    //   (service) => service.label
+    // );
 
     const objToSubmit = {
       media_urls: {
@@ -103,11 +123,13 @@ function EditAd() {
       twitter: values.SocialMedia.twitterURL,
       // others: values.SocialMedia.othersURL,
       offered_services: values.servicesOffered.services,
+      site_services: adminServicesSelected,
       sub_category: extractSubCatId,
       related_sub_categories: relatedSubCategoryId,
       country: parseInt(values.contactInformation.country, 10),
       activation_countries: values.companyInformation.country,
-      faqs: addSubCategoryToFaqs,
+      ad_faq_ad: flattenedServerFAQs,
+      faqs: FAQsMap,
     };
     dispatch(handleEditAd({ data: objToSubmit, navigate, adID: currentAd.id }));
   };
@@ -117,54 +139,56 @@ function EditAd() {
       // MIXED TYPES ARE APPLIED BECAUSE THE FORM GETS AN OBJECT FROM API, WHILE SUBMITTING IT EXPECTS AN INTEGER
       category: Yup.mixed().when({
         is: (value) => value !== undefined, // Apply the validation when the field is present
-        then: () => Yup.lazy((value) => {
-          if (typeof value === "object") {
-            // If it's an object, define the object shape
-            return Yup.object({
-              // Add your object schema here...
-            });
-          }
-          if (typeof value === "number") {
-            // If it's a number, apply integer validation
-            return Yup.number().integer();
-          }
-          if (typeof value === "string") {
-            // If it's a string, apply string validation
-            return Yup.string();
-          }
+        then: () =>
+          Yup.lazy((value) => {
+            if (typeof value === "object") {
+              // If it's an object, define the object shape
+              return Yup.object({
+                // Add your object schema here...
+              });
+            }
+            if (typeof value === "number") {
+              // If it's a number, apply integer validation
+              return Yup.number().integer();
+            }
+            if (typeof value === "string") {
+              // If it's a string, apply string validation
+              return Yup.string();
+            }
 
-          // Return null or throw an error if none of the types match
-          throw new Error("Invalid field type");
-        }),
+            // Return null or throw an error if none of the types match
+            throw new Error("Invalid field type");
+          }),
       }),
       // MIXED TYPES ARE APPLIED BECAUSE THE FORM GETS AN OBJECT FROM API, WHILE SUBMITTING IT EXPECTS AN INTEGER
       sub_category: Yup.mixed().when({
         is: (value) => value !== undefined, // Apply the validation when the field is present
-        then: () => Yup.lazy((value) => {
-          if (typeof value === "object") {
-            // If it's an object, define the object shape
-            return Yup.object({
-              // Add your object schema here...
-            });
-          }
-          if (typeof value === "number") {
-            // If it's a number, apply integer validation
-            return Yup.number().integer();
-          }
-          if (typeof value === "string") {
-            // If it's a string, apply string validation
-            return Yup.string();
-          }
+        then: () =>
+          Yup.lazy((value) => {
+            if (typeof value === "object") {
+              // If it's an object, define the object shape
+              return Yup.object({
+                // Add your object schema here...
+              });
+            }
+            if (typeof value === "number") {
+              // If it's a number, apply integer validation
+              return Yup.number().integer();
+            }
+            if (typeof value === "string") {
+              // If it's a string, apply string validation
+              return Yup.string();
+            }
 
-          // Return null or throw an error if none of the types match
-          throw new Error("Invalid field type");
-        }),
+            // Return null or throw an error if none of the types match
+            throw new Error("Invalid field type");
+          }),
       }),
       description: Yup.string()
         .max(2000, "Must be at most 2000 characters")
         .matches(
           /^[a-zA-Z0-9.,;:'"/?!@&*()^+\-|\s]+$/,
-          'Only letters, digits, ".,;:\'/?!@&*()^+-|" signs, and spaces are allowed',
+          'Only letters, digits, ".,;:\'/?!@&*()^+-|" signs, and spaces are allowed'
         ),
       // .required("Required"),
       country: Yup.mixed().required("This field is required"),
@@ -174,35 +198,35 @@ function EditAd() {
         .max(30, "Must be at most 30 characters")
         .matches(
           /^[a-zA-Z0-9.\-+_]+$/,
-          'Only letters, digits, ".", "-", "+", and "_" signs are allowed',
+          'Only letters, digits, ".", "-", "+", and "_" signs are allowed'
         ),
       county: Yup.array().min(1, "country is required"),
       city: Yup.string()
         .max(25, "Must be at most 25 characters")
         .matches(
           /^[a-zA-Z\s-]+$/,
-          'Only letters, spaces, and "-" sign are allowed',
+          'Only letters, spaces, and "-" sign are allowed'
         )
         .required("Required"),
       street: Yup.string()
         .max(35, "Must be at most 25 characters")
         .matches(
           /^[a-zA-Z\s-]+$/,
-          'Only letters, spaces, and "-" sign are allowed',
+          'Only letters, spaces, and "-" sign are allowed'
         )
         .required("Required"),
       contact_number: Yup.string()
         .max(10, "Must be at most 10 characters")
         .matches(
           /^[a-zA-Z0-9\-/]+$/,
-          'Only digits, letters, "-" and "/" signs are allowed',
+          'Only digits, letters, "-" and "/" signs are allowed'
         )
         .required("Required"),
       fullAddress: Yup.string()
         .max(70, "Must be at most 70 characters")
         .matches(
           /^[a-zA-Z0-9",\-./\s]+$/,
-          'Only letters, ",-./" signs, spaces, and digits are allowed',
+          'Only letters, ",-./" signs, spaces, and digits are allowed'
         ),
     }),
     SocialMedia: Yup.object().shape({
@@ -210,37 +234,37 @@ function EditAd() {
         .max(40, "Must be 40 characters or less")
         .matches(
           /^((ftp|http|https):\/\/)?(www.)?(?!.*(ftp|http|https|www.))[a-zA-Z0-9_-]+(\.[a-zA-Z]+)+((\/)[\w#]+)*(\/\w+\?[a-zA-Z0-9_]+=\w+(&[a-zA-Z0-9_]+=\w+)*)?$/gm,
-          "Invalid characters",
+          "Invalid characters"
         ),
       instagramURL: Yup.string()
         .max(40, "Must be 40 characters or less")
         .matches(
           /^((ftp|http|https):\/\/)?(www.)?(?!.*(ftp|http|https|www.))[a-zA-Z0-9_-]+(\.[a-zA-Z]+)+((\/)[\w#]+)*(\/\w+\?[a-zA-Z0-9_]+=\w+(&[a-zA-Z0-9_]+=\w+)*)?$/gm,
-          "Invalid characters",
+          "Invalid characters"
         ),
       youtubeURL: Yup.string()
         .max(40, "Must be 40 characters or less")
         .matches(
           /^((ftp|http|https):\/\/)?(www.)?(?!.*(ftp|http|https|www.))[a-zA-Z0-9_-]+(\.[a-zA-Z]+)+((\/)[\w#]+)*(\/\w+\?[a-zA-Z0-9_]+=\w+(&[a-zA-Z0-9_]+=\w+)*)?$/gm,
-          "Invalid characters",
+          "Invalid characters"
         ),
       tiktokURL: Yup.string()
         .max(40, "Must be 40 characters or less")
         .matches(
           /^((ftp|http|https):\/\/)?(www.)?(?!.*(ftp|http|https|www.))[a-zA-Z0-9_-]+(\.[a-zA-Z]+)+((\/)[\w#]+)*(\/\w+\?[a-zA-Z0-9_]+=\w+(&[a-zA-Z0-9_]+=\w+)*)?$/gm,
-          "Invalid characters",
+          "Invalid characters"
         ),
       twitterURL: Yup.string()
         .max(40, "Must be 40 characters or less")
         .matches(
           /^((ftp|http|https):\/\/)?(www.)?(?!.*(ftp|http|https|www.))[a-zA-Z0-9_-]+(\.[a-zA-Z]+)+((\/)[\w#]+)*(\/\w+\?[a-zA-Z0-9_]+=\w+(&[a-zA-Z0-9_]+=\w+)*)?$/gm,
-          "Invalid characters",
+          "Invalid characters"
         ),
       otherURL: Yup.string()
         .max(40, "Must be 40 characters or less")
         .matches(
           /^((ftp|http|https):\/\/)?(www.)?(?!.*(ftp|http|https|www.))[a-zA-Z0-9_-]+(\.[a-zA-Z]+)+((\/)[\w#]+)*(\/\w+\?[a-zA-Z0-9_]+=\w+(&[a-zA-Z0-9_]+=\w+)*)?$/gm,
-          "Invalid characters",
+          "Invalid characters"
         ),
     }),
   });
@@ -257,8 +281,8 @@ function EditAd() {
       dispatch(setImagesError(false));
     }
     if (
-      !values.companyInformation.country
-      || values.companyInformation.country.length === 0
+      !values.companyInformation.country ||
+      values.companyInformation.country.length === 0
     ) {
       errors.companyInformation = {
         ...errors.companyInformation,
@@ -267,8 +291,8 @@ function EditAd() {
     }
 
     if (
-      !values.contactInformation.country
-      || values.contactInformation.country.length === 0
+      !values.contactInformation.country ||
+      values.contactInformation.country.length === 0
     ) {
       errors.contactInformation = {
         ...errors.contactInformation,
@@ -341,7 +365,7 @@ function EditAd() {
   const handleRemoveService = (indexToRemove, values, setValues) => {
     const clonedServices = [...values.servicesOffered.services];
     const deletedService = clonedServices.filter(
-      (_, index) => index !== indexToRemove,
+      (_, index) => index !== indexToRemove
     );
     setValues({
       ...values,
@@ -378,13 +402,44 @@ function EditAd() {
           ...updatedFAQs,
           {
             question: "",
-            answer_input: "",
+            answer: "",
             type: "text_field",
             added: false,
           },
         ],
       },
     });
+  };
+
+  const handleIsSubCategoryChanged = async (id) => {
+    console.log("handleIsSubCategoryChanged", id);
+
+    try {
+      const request = await secureInstance.request({
+        url: `api/ads/service/${id}/get-services/`,
+        method: "Get",
+      });
+
+      const responseSiteQuestions = await secureInstance.request({
+        url: `api/ads/site/${id}/site-questions/`,
+        method: "Get",
+      });
+      console.log("request.data.data[0]", request.data.data);
+      setPreDefinedFAQs(responseSiteQuestions.data.data);
+      if (
+        request.data.data[0] !== undefined &&
+        Object.prototype.hasOwnProperty.call(request.data.data[0], "service")
+      ) {
+        setAdminServices(request.data.data[0].service);
+      } else {
+        // alert("emptyyyyyyyyy");
+        setAdminServices([]);
+      }
+      // console.log("request.data", request.data.data[0].service);
+    } catch (err) {
+      // Handle login error here if needed
+      console.log(err);
+    }
   };
 
   const getAdInfo = async () => {
@@ -395,12 +450,48 @@ function EditAd() {
         method: "Get",
       });
       setSelectedCountries(
-        request.data.data.activation_countries.map((country) => country.id),
+        request.data.data.activation_countries.map((country) => country.id)
       );
       const faqsWithAddedProperty = request.data.data?.ad_faqs.map((item) => ({
         ...item,
         added: true,
       }));
+      setAdminServices(request.data.data?.site_services[0]?.service);
+
+      const serverFaqsMap = request.data.data.ad_faq_ad.map((serverFAQ) => ({
+        site_faq_questions: [
+          {
+            question: serverFAQ.site_question.question,
+            suggestion: serverFAQ.site_question.suggestion,
+            answer: serverFAQ.answer,
+            id: serverFAQ.site_question.id,
+          },
+        ],
+      }));
+
+      console.log("serverFaqsMap", serverFaqsMap);
+
+      const initialSelectedValues = request.data.data.ad_faq_ad.map((item) => [
+        {
+          value: item.answer,
+          question: item.site_question.question,
+          id: item.site_question.id,
+        },
+      ]);
+
+      setSelectedValuesServerFAQ(initialSelectedValues);
+
+      // setSelectedValuesServerFAQ
+
+      setPreDefinedFAQs(serverFaqsMap);
+
+      setAdminServices(request.data.data.site_services_list[0].service);
+      setAdminServicesSelected(request.data.data.site_services);
+      // console.log(
+      //   "request.data.data?.site_services[0]?.service",
+      //   request.data.data?.site_services[0]?.service
+      // );
+
       setLocalInitialValues({
         companyInformation: {
           commercial_name: request.data.data?.name,
@@ -411,7 +502,7 @@ function EditAd() {
           // country: request.data.data?.activation_countries[0].id, // Initialize without any selected countries
           ...(request.data.data?.activation_countries.length > 0 && {
             country: request.data.data?.activation_countries.map(
-              (country) => country.id,
+              (country) => country.id
             ),
           }),
         },
@@ -448,10 +539,11 @@ function EditAd() {
     }
   };
 
-  const hasUnsavedChanges = (values) => selectedCountries.length !== ""
-    || imagesToUpload.length > 0
-    || Object.keys(values).some(
-      (field) => values[field] !== localInitialValues[field],
+  const hasUnsavedChanges = (values) =>
+    selectedCountries.length !== "" ||
+    imagesToUpload.length > 0 ||
+    Object.keys(values).some(
+      (field) => values[field] !== localInitialValues[field]
     );
 
   useEffect(() => {
@@ -482,7 +574,7 @@ function EditAd() {
   }, [AdPostSuccessAlert]);
 
   useEffect(() => {
-    if ((AdPostErrorAlert, mediaError)) {
+    if (AdPostErrorAlert || mediaError) {
       setTimeout(() => {
         dispatch(handleUpdateAdPostErrorAlerting(false));
         dispatch(setMediaError(null));
@@ -527,8 +619,8 @@ function EditAd() {
         {AdPostErrorAlert?.website?.length > 0
           ? AdPostErrorAlert?.website
           : mediaError !== null
-            ? mediaError
-            : "Something went wrong"}
+          ? mediaError
+          : "Something went wrong"}
       </Alert>
 
       <div className="ad-banner d-flex align-items-center justify-content-between">
@@ -592,6 +684,7 @@ function EditAd() {
                 setValues,
               }) => (
                 <Form noValidate onSubmit={handleSubmit}>
+                  <ScrollToError />
                   <UnsavedChangesPrompt
                     hasUnsavedChanges={() => hasUnsavedChanges(values)}
                   />
@@ -605,6 +698,7 @@ function EditAd() {
                     setRelatedSubCategoryId={setRelatedSubCategoryId}
                     isMultipleCountries={isMultipleCountries}
                     setIsMultipleCountries={setIsMultipleCountries}
+                    handleIsSubCategoryChanged={handleIsSubCategoryChanged}
                     handleChange={handleChange}
                     handleBlur={handleBlur}
                     isEditView
@@ -644,8 +738,15 @@ function EditAd() {
                   <ServicesOffered
                     values={values}
                     handleChange={handleChange}
-                    handleAddServices={(currentService) => handleAddServices(currentService, values, setValues)}
-                    handleRemoveService={(index) => handleRemoveService(index, values, setValues)}
+                    handleAddServices={(currentService) =>
+                      handleAddServices(currentService, values, setValues)
+                    }
+                    handleRemoveService={(index) =>
+                      handleRemoveService(index, values, setValues)
+                    }
+                    adminServices={adminServices}
+                    adminServicesSelected={adminServicesSelected}
+                    setAdminServicesSelected={setAdminServicesSelected}
                   />
 
                   <PdfUploader
@@ -660,12 +761,45 @@ function EditAd() {
                     errors={errors.FAQ ?? errors}
                     touched={touched.FAQ ?? touched}
                     handleChange={handleChange}
-                    handleAddFieldsForFAQ={() => handleAddFAQsFields(values, setValues)}
-                    handleAddFAQ={(index) => handleAddFAQ(index, values, setValues)}
-                    handleRemoveFAQ={(index) => handleRemoveFAQ(index, values, setValues)}
-                    handleEditFAQ={(index) => handleEditFAQ(index, values, setValues)}
+                    handleAddFieldsForFAQ={() =>
+                      handleAddFAQsFields(values, setValues)
+                    }
+                    handleAddFAQ={(index) =>
+                      handleAddFAQ(index, values, setValues)
+                    }
+                    handleRemoveFAQ={(index) =>
+                      handleRemoveFAQ(index, values, setValues)
+                    }
+                    handleEditFAQ={(index) =>
+                      handleEditFAQ(index, values, setValues)
+                    }
                   />
-                  <div style={{ paddingBottom: "200px" }} />
+
+                  {preDefinedFAQs.length > 0 && (
+                    <ServerFAQs
+                      // values={values}
+                      // errors={errors.FAQ ?? errors}
+                      // touched={touched.FAQ ?? touched}
+                      // handleChange={handleChange}
+                      // handleAddFieldsForFAQ={() =>
+                      //   handleAddFAQsFields(values, setValues)
+                      // }
+                      // handleAddFAQ={(index) =>
+                      //   handleAddFAQ(index, values, setValues)
+                      // }
+                      // handleRemoveFAQ={(index) =>
+                      //   handleRemoveFAQ(index, values, setValues)
+                      // }
+                      // handleEditFAQ={(index) =>
+                      //   handleEditFAQ(index, values, setValues)
+                      // }
+                      siteFaqQuestions={preDefinedFAQs}
+                      selectedValues={selectedValuesServerFAQ}
+                      setSelectedValues={setSelectedValuesServerFAQ}
+                    />
+                  )}
+
+                  <div style={{ paddingBottom: "300px" }} />
                   <Col
                     className="d-flex justify-content-end"
                     style={{ marginRight: "150px" }}

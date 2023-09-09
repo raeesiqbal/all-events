@@ -30,6 +30,8 @@ import {
 import UnsavedChangesPrompt from "../../utilities/hooks/UnsavedChanged";
 import { ScrollToError } from "../../utilities/ScrollToError";
 import { handleWelcomeUserAlert } from "../redux/Auth/authSlice";
+import { secureInstance } from "../../axios/axios-config";
+import ServerFAQs from "./ServerFAQs";
 
 function PostAd() {
   const { Formik } = formik;
@@ -49,6 +51,11 @@ function PostAd() {
   const [uploadingData, setUploadingData] = useState(false);
   const [relatedSubCategoryId, setRelatedSubCategoryId] = useState(null);
   const [isMultipleCountries, setIsMultipleCountries] = useState(false);
+  const [adminServicesSelected, setAdminServicesSelected] = useState([]);
+  const [adminServices, setAdminServices] = useState([]);
+  const [preDefinedFAQs, setPreDefinedFAQs] = useState([]);
+  const [selectedValuesServerFAQ, setSelectedValuesServerFAQ] = useState([]);
+
   // const [isWelcomeAlert, setIsWelcomeAlert] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -73,6 +80,35 @@ function PostAd() {
       return;
     }
 
+    const totalSiteFaqQuestionsLength = preDefinedFAQs.reduce(
+      (accumulator, item) => accumulator + item.site_faq_questions.length,
+      0
+    );
+
+    const totalSelectedValuesLength = selectedValuesServerFAQ.reduce(
+      (accumulator, innerArray) => accumulator + innerArray.length,
+      0
+    );
+    if (totalSelectedValuesLength !== totalSiteFaqQuestionsLength) {
+      const el = document.querySelector(".server-faq-container");
+      (el?.parentElement ?? el)?.scrollIntoView();
+      return;
+    }
+
+    console.log(
+      "ON SUBMIT TEST => adminServicesSelected",
+      adminServicesSelected
+    );
+    const flattenedServerFAQs = selectedValuesServerFAQ.flatMap(
+      (sectionValues) =>
+        sectionValues.map((questionValues) => ({
+          site_question: questionValues.id,
+          answer: questionValues.value,
+        }))
+    );
+
+    console.log("ON SUBMIT TEST => flattenedAnswers", flattenedServerFAQs);
+    // return;
     // const addSubCategoryToFaqs = values.FAQ.faqs.map((faq) => {
     //   faq,
     //     (faq.sub_category = parseInt(
@@ -80,13 +116,19 @@ function PostAd() {
     //       10
     //     ));
     // });
-    const addSubCategoryToFaqs = values.FAQ.faqs.map((faq) => ({
-      sub_category: parseInt(values.companyInformation.sub_category, 10),
+    const FAQsMap = values.FAQ.faqs.map((faq) => ({
       question: faq.question,
-      answer_input: faq.answer_input,
-      answer_checkbox: faq.answer_checkbox,
-      type: faq.type,
+      answer: faq.answer,
     }));
+
+    // const serverFAQsMap = selectedValuesServerFAQ.map((faq) => ({
+    //   site_question: faq.question,
+    //   answer: faq.value,
+    // }));
+
+    // const adminServicesMap = adminServicesSelected.map(
+    //   (service) => service.label
+    // );
 
     const objToSubmit = {
       media_urls: {
@@ -108,6 +150,7 @@ function PostAd() {
       twitter: values.SocialMedia.twitterURL,
       // others: values.SocialMedia.othersURL,
       offered_services: values.servicesOffered.services,
+      site_services: adminServicesSelected,
       sub_category: parseInt(values.companyInformation.sub_category, 10),
       ...(relatedSubCategoryId !== null && {
         related_sub_categories: relatedSubCategoryId,
@@ -116,11 +159,12 @@ function PostAd() {
       ...(values.companyInformation.country.length > 0
         ? { activation_countries: values.companyInformation.country }
         : {
-          activation_countries: [
-            parseInt(values.contactInformation.country, 10),
-          ],
-        }),
-      faqs: addSubCategoryToFaqs,
+            activation_countries: [
+              parseInt(values.contactInformation.country, 10),
+            ],
+          }),
+      ad_faq_ad: flattenedServerFAQs,
+      faqs: FAQsMap,
     };
 
     dispatch(handleCreateNewAd({ data: objToSubmit, navigate }));
@@ -182,7 +226,6 @@ function PostAd() {
               // If it's a string, apply string validation
               return Yup.string();
             }
-
             // Return null or throw an error if none of the types match
             throw new Error("Invalid field type");
           }),
@@ -255,12 +298,11 @@ function PostAd() {
         "Invalid characters"
       ),
     }),
-
     FAQ: Yup.object().shape({
       faqs: Yup.array().of(
         Yup.object().shape({
           question: Yup.string().max(150, "Must be at most 150 characters"),
-          answer_input: Yup.string().max(500, "Must be at most 500 characters"), // You can add validation for answer_input here if needed
+          answer: Yup.string().max(500, "Must be at most 500 characters"), // You can add validation for answer here if needed
           type: Yup.string(), // You can add validation for type here if needed
           added: Yup.boolean(), // You can add validation for added here if needed
         })
@@ -293,7 +335,7 @@ function PostAd() {
       otherURL: "",
     },
     FAQ: {
-      faqs: [],
+      faqs: preDefinedFAQs,
     },
     servicesOffered: {
       services: [],
@@ -386,10 +428,12 @@ function PostAd() {
     });
   };
 
+  console.log("adminServicesSelected", adminServicesSelected);
+
   const handleRemoveService = (indexToRemove, values, setValues) => {
     const clonedServices = [...values.servicesOffered.services];
     const deletedService = clonedServices.filter(
-      (_, index) => index !== indexToRemove,
+      (_, index) => index !== indexToRemove
     );
     setValues({
       ...values,
@@ -412,27 +456,44 @@ function PostAd() {
           ...updatedFAQs,
           {
             question: "",
-            answer_input: "",
+            answer: "",
             type: "text_field",
             added: false,
           },
         ],
       },
     });
-    // setValues({
-    //   ...values,
-    //   FAQ: {
-    //     faqs: [
-    //       ...values.FAQ.faqs,
-    //       {
-    //         question: "",
-    //         answer_input: "",
-    //         type: "text_field",
-    //         added: false,
-    //       },
-    //     ],
-    //   },
-    // });
+  };
+
+  const handleIsSubCategoryChanged = async (id) => {
+    console.log("handleIsSubCategoryChanged", id);
+
+    try {
+      const request = await secureInstance.request({
+        url: `api/ads/service/${id}/get-services/`,
+        method: "Get",
+      });
+
+      const responseSiteQuestions = await secureInstance.request({
+        url: `api/ads/site/${id}/site-questions/`,
+        method: "Get",
+      });
+      console.log("request.data.data[0]", request.data.data);
+      setPreDefinedFAQs(responseSiteQuestions.data.data);
+      if (
+        request.data.data[0] !== undefined &&
+        Object.prototype.hasOwnProperty.call(request.data.data[0], "service")
+      ) {
+        setAdminServices(request.data.data[0].service);
+      } else {
+        // alert("emptyyyyyyyyy");
+        setAdminServices([]);
+      }
+      // console.log("request.data", request.data.data[0].service);
+    } catch (err) {
+      // Handle login error here if needed
+      console.log(err);
+    }
   };
 
   const hasUnsavedChanges = (values) =>
@@ -468,6 +529,8 @@ function PostAd() {
     }
     // return () => clearTimeout(alertTimeout);
   }, [isWelcomeUserAlert]);
+
+  console.log("adminServices", adminServices);
 
   return (
     <div style={{ position: "relative", overflowX: "hidden" }}>
@@ -597,6 +660,7 @@ function PostAd() {
                   setRelatedSubCategoryId={setRelatedSubCategoryId}
                   isMultipleCountries={isMultipleCountries}
                   setIsMultipleCountries={setIsMultipleCountries}
+                  handleIsSubCategoryChanged={handleIsSubCategoryChanged}
                   handleChange={handleChange}
                   handleBlur={handleBlur}
                 />
@@ -643,6 +707,9 @@ function PostAd() {
                   handleRemoveService={(index) =>
                     handleRemoveService(index, values, setValues)
                   }
+                  adminServices={adminServices}
+                  adminServicesSelected={adminServicesSelected}
+                  setAdminServicesSelected={setAdminServicesSelected}
                 />
 
                 <PdfUploader
@@ -671,7 +738,32 @@ function PostAd() {
                   }
                 />
 
-                <div style={{ paddingBottom: "200px" }} />
+                {console.log("preDefinedFAQs", preDefinedFAQs)}
+                {preDefinedFAQs.length > 0 && (
+                  <ServerFAQs
+                    // values={values}
+                    // errors={errors.FAQ ?? errors}
+                    // touched={touched.FAQ ?? touched}
+                    // handleChange={handleChange}
+                    // handleAddFieldsForFAQ={() =>
+                    //   handleAddFAQsFields(values, setValues)
+                    // }
+                    // handleAddFAQ={(index) =>
+                    //   handleAddFAQ(index, values, setValues)
+                    // }
+                    // handleRemoveFAQ={(index) =>
+                    //   handleRemoveFAQ(index, values, setValues)
+                    // }
+                    // handleEditFAQ={(index) =>
+                    //   handleEditFAQ(index, values, setValues)
+                    // }
+                    siteFaqQuestions={preDefinedFAQs}
+                    selectedValues={selectedValuesServerFAQ}
+                    setSelectedValues={setSelectedValuesServerFAQ}
+                  />
+                )}
+
+                <div style={{ paddingBottom: "300px" }} />
                 <Col
                   className="d-flex justify-content-end"
                   style={{ marginRight: "100px" }}

@@ -137,7 +137,7 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
         "HOST": env.str("DATABASE_HOST", default="localhost"),
-        "NAME": env.str("DATABASE_NAME", default="postgres"),
+        "NAME": env.str("DATABASE_NAME", default="mehaio2"),
         "USER": env.str("DATABASE_USER", default="postgres"),
         "PASSWORD": env.str("DATABASE_PASSWORD", default="wcptfs"),
         "PORT": env.str("DATABASE_PORT", default="5433"),

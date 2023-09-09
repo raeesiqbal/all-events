@@ -12,7 +12,6 @@ from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-from apps.ads.models import FAQ, Ad, Category, Gallery, SubCategory
 from apps.ads.serializers.create_serializers import (
     AdCreateSerializer,
     DeleteUrlOnUpdateSerializer,
@@ -23,8 +22,9 @@ from apps.ads.serializers.create_serializers import (
 from apps.ads.serializers.get_serializers import (
     AdGetSerializer,
     AdPublicGetSerializer,
-    PremiumAdGetSerializer,
     SuggestionGetSerializer,
+    AdRetriveSerializer,
+    PremiumAdGetSerializer,
 )
 from apps.ads.serializers.update_serializer import AdUpdateSerializer
 from apps.companies.models import Company
@@ -38,6 +38,14 @@ from apps.utils.constants import SUBSCRIPTION_TYPES
 from apps.utils.services.email_service import send_email_to_user
 from apps.utils.services.s3_service import S3Service
 from apps.utils.views.base import BaseViewset, ResponseInfo
+from apps.ads.models import (
+    FAQ,
+    AdFAQ,
+    Ad,
+    Category,
+    Gallery,
+    SubCategory,
+)
 
 
 class AdViewSet(BaseViewset):
@@ -82,8 +90,10 @@ class AdViewSet(BaseViewset):
         "sub_category__name",
         "related_sub_category__name",
         "activation_countries__name",
-        "city" "street",
+        "city",
+        "street",
         "offered_services",
+        "site_services",
     ]
     ordering_fields = ["name", "sub_category__name", "id"]
     filterset_fields = {
@@ -91,6 +101,8 @@ class AdViewSet(BaseViewset):
         "sub_category__name": ["exact"],
         "name": ["exact"],
         "country__name": ["exact"],
+        "ad_faq_ad__site_question_id": ["exact"],
+        "ad_faq_ad__answer": ["exact"],
     }
     user_role_queryset = {
         USER_ROLE_TYPES["VENDOR"]: lambda self: Ad.objects.filter(
@@ -107,9 +119,12 @@ class AdViewSet(BaseViewset):
         media_urls = serializer.validated_data.pop("media_urls", {})
 
         faqs = serializer.validated_data.pop("faqs", [])
+        ad_faqs = serializer.validated_data.pop("ad_faq_ad", [])
+
         offered_services = serializer.validated_data.pop("offered_services")
         activation_countries = serializer.validated_data.pop("activation_countries", [])
         company = Company.objects.filter(user_id=request.user.id).first()
+
         if company:
             """subscription based checks"""
             subscription = Subscription.objects.filter(company=company).first()
@@ -148,15 +163,19 @@ class AdViewSet(BaseViewset):
             ad.activation_countries.add(*activation_countries)
 
             """ads gallery created"""
-
             Gallery.objects.create(ad=ad, media_urls=media_urls)
 
-            # ad faqs
+            # faqs
             faqs_list = []
             for faq in faqs:
                 faqs_list.append(FAQ(**faq, ad=ad))
-
             FAQ.objects.bulk_create(faqs_list)
+
+            # ad faqs
+            ad_faqs_list = []
+            for faq in ad_faqs:
+                ad_faqs_list.append(AdFAQ(**faq, ad=ad))
+            AdFAQ.objects.bulk_create(ad_faqs_list)
 
             return Response(
                 status=status.HTTP_200_OK,
@@ -257,6 +276,7 @@ class AdViewSet(BaseViewset):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         faqs = serializer.validated_data.pop("faqs", [])
+        ad_faqs = serializer.validated_data.pop("ad_faq_ad", [])
         media_urls = serializer.validated_data.pop("media_urls", {})
 
         activation_countries = serializer.validated_data.pop("activation_countries", [])
@@ -267,13 +287,18 @@ class AdViewSet(BaseViewset):
         Gallery.objects.filter(ad=ad.first()).update(media_urls=media_urls)
 
         FAQ.objects.filter(ad=ad.first()).delete()
-
-        # ad faqs
+        # faqs
         faqs_list = []
         for faq in faqs:
             faqs_list.append(FAQ(**faq, ad=ad.first()))
-
         FAQ.objects.bulk_create(faqs_list)
+
+        # ad faqs
+        AdFAQ.objects.filter(ad=ad.first()).delete()
+        ad_faqs_list = []
+        for faq in ad_faqs:
+            ad_faqs_list.append(AdFAQ(**faq, ad=ad.first()))
+        AdFAQ.objects.bulk_create(ad_faqs_list)
 
         return Response(
             status=status.HTTP_200_OK,

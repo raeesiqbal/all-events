@@ -22,6 +22,7 @@ class ClientViewSet(BaseViewset):
     queryset = Client.objects.all()
     action_serializers = {
         "default": ClientListSerializer,
+        # "default": ClientGetSerializer,
         "create": ClientCreateSerializer,
         "list": ClientListSerializer,
         "retrieve": ClientGetSerializer,
