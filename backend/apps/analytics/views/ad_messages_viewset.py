@@ -199,10 +199,13 @@ class MessageViewSet(BaseViewset):
         if Chat.objects.filter(
             client=request.user.client_profile, ad=kwargs.get("pk")
         ).exists():
+            chat = Chat.objects.filter(
+                client=request.user.client_profile, ad=kwargs.get("pk")
+            ).first()
             return Response(
                 status=status.HTTP_200_OK,
                 data=ResponseInfo().format_response(
-                    data={},
+                    data={"id": chat.id},
                     status_code=status.HTTP_200_OK,
                     message="Chat existes",
                 ),
