@@ -200,17 +200,19 @@ class AdGetSerializer(BaseSerializer):
     ad_faqs = FaqsGetSerializer(many=True)
 
     ad_save_count = serializers.SerializerMethodField("get_ad_saved_count")
-    my_fav = serializers.SerializerMethodField("get_my_fav")
+    fav = serializers.SerializerMethodField()
 
     def get_ad_saved_count(self, obj):
         return obj.ad_saved.all().count()
 
-    def get_my_fav(self, obj):
-        user = self.context["request"].user
-        fav = False
-        if user.role_type == USER_ROLE_TYPES["CLIENT"]:
-            fav = FavouriteAd.objects.filter(user=user, ad=obj).exists()
-        return fav
+    def get_fav(self, obj):
+        user = self.context.get("user", None)
+        if user:
+            if FavouriteAd.objects.filter(user=user).exists():
+                return True
+            else:
+                return False
+        return None
 
     class Meta:
         model = Ad
@@ -273,15 +275,19 @@ class PremiumAdGetSerializer(BaseSerializer):
     country = CountryGetSerializer()
     ad_media = GalleryChildSerializer(many=True)
     ad_faqs = FaqsGetSerializer(many=True)
-    my_fav = serializers.SerializerMethodField("get_my_fav")
+    fav = serializers.SerializerMethodField()
 
-    def get_my_fav(self, obj):
-        user = self.context["request"].user
-        fav = False
-        if user.is_authenticated:
-            if user.role_type == USER_ROLE_TYPES["CLIENT"]:
-                fav = FavouriteAd.objects.filter(user=user, ad=obj).exists()
-        return fav
+    def get_fav(self, obj):
+        # You can customize the logic to generate the extra data here
+        user = self.context.get("user", None)
+        print("user", user)
+
+        if user:
+            if FavouriteAd.objects.filter(user=user).exists():
+                return True
+            else:
+                return False
+        return None
 
     class Meta:
         model = Ad

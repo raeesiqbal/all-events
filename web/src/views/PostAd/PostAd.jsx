@@ -30,7 +30,7 @@ import {
 import UnsavedChangesPrompt from "../../utilities/hooks/UnsavedChanged";
 import { ScrollToError } from "../../utilities/ScrollToError";
 import { handleWelcomeUserAlert } from "../redux/Auth/authSlice";
-import { secureInstance } from "../../axios/axios-config";
+import { secureInstance } from "../../axios/config";
 import ServerFAQs from "./ServerFAQs";
 
 function PostAd() {

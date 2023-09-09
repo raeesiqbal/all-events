@@ -123,8 +123,14 @@ function MyAds() {
         >
           {sortedAdvertisements.length > 0 ? (
             sortedAdvertisements.map((product) => {
-              const { id, sub_category, created_at, country, ad_media } =
-                product;
+              const {
+                id,
+                sub_category,
+                created_at,
+                country,
+                ad_media,
+                description,
+              } = product;
               return (
                 <Col lg={10} className="mb-4">
                   <Card key={id} className="ad-card">
