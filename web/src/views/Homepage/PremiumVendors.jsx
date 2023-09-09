@@ -3,7 +3,7 @@ import { Button, Card, Col, Container } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart } from "@fortawesome/free-regular-svg-icons";
 import EmblaCarousel from "../../components/Carousel/Carousel";
-import { instance } from "../../axios/axios-config";
+import { instance } from "../../axios/config";
 import placeholderIcon from "../../assets/images/placeholder.jpg";
 
 function PremiumVendors() {
@@ -83,7 +83,6 @@ function PremiumVendors() {
   );
 
   const getVenueInfo = async () => {
-    // console.log(values);
     try {
       const request = await instance.request({
         url: "/api/ads/public-list/",

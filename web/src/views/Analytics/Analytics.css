@@ -1,0 +1,49 @@
+.profile-settings-banner {
+  /* width: 100%; */
+  position: relative;
+  /* background-image: url("../../assets//images/profile-settings/profile-bg.svg"); */
+  background-image: url("../../assets//images/post-ad/ads-bg.svg");
+  height: 165px;
+  margin: 0 52px;
+  margin-top: 36px;
+  object-fit: cover;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.custom-card-analytics {
+  transition: ease-out 300ms;
+  /* border-radius: 16px;
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 4px 6px 0px 9px #efefef; */
+  /* box-shadow: 4px 6px 0px 9px #efefef; */
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px,
+    rgba(0, 0, 0, 0.3) 0px 3px 7px -3px;
+
+  border-radius: 20px;
+  border: 1px solid #e9edf7;
+  background: #fff;
+}
+
+.custom-card-analytics:hover {
+  /* display: flex; */
+  transform: scale(1.05);
+}
+
+.cards-arrow {
+  /* display: none; */
+  opacity: 0;
+}
+
+.custom-card-analytics:hover .cards-arrow {
+  transition: ease-out 300ms;
+  opacity: 1;
+  /* display: block; */
+}
+
+.rdrCalendarWrapper {
+  /* border: solid; */
+}
+.rdrDefinedRangesWrapper {
+  display: none;
+}

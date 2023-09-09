@@ -11,6 +11,11 @@
   margin-left: 10px;
 }
 
+.message-tab-active {
+  border-bottom: 7px solid #A0C49D !important;
+  height: 45px;
+}
+
 @media only screen and (max-width: 850px) {
   .tab-label {
     display: none;

@@ -1,0 +1,141 @@
+.message-tabs {
+  width: 100%;
+  display: flex;
+  border-bottom: solid rgba(146, 145, 145, 0.39);
+}
+
+.send-message-input {
+  width: 87%;
+  height: 100%;
+  border-top-left-radius: 24px;
+  border-bottom-left-radius: 24px;
+  background-color: #F2F2F7;
+  border: none;
+  padding-left: 24px;
+}
+
+.send-message-button {
+  min-width: 74px;
+  height: 100%;
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+  background-color: #A0C49D;
+  border: none;
+  color: white;
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.chat-modal {
+  height: 100vh;
+  --bs-modal-width: 720px;
+}
+
+.chat-modal .modal-dialog {
+  margin: 0px;
+  margin-left: auto;
+}
+
+.chat-modal .modal-content {
+  height: 100vh;
+}
+
+.chat-modal .modal-body {
+  height: 100vh;
+  padding: 25px;
+}
+
+.chat-modal .modal-body > div.d-flex {
+  position: absolute;
+  left: 25px;
+  top: 25px;
+  right: 25px;
+  background-color: white;
+}
+
+.chat-modal .modal-body .message-body {
+  overflow-y: scroll;
+  margin-right: -17px;
+  margin-top: 115px;
+}
+
+.upload-message-img {
+  width: 45px;
+  height: 45px;
+  border: 2px dashed #A8A8A8;
+  color: #A8A8A8;
+  position: relative;
+  display: flex;
+}
+
+.upload-message-img span {
+  font-size: 40px;
+  line-height: 40px;
+  margin: auto !important;
+  z-index: 0;
+}
+
+.upload-message-img input {
+  position: absolute;
+  left: 0px;
+  right: 0px;
+  top: 0px;
+  bottom: 0px;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.upload-message-img img {
+  width: 100%;
+}
+
+.upload-message-img div {
+  width: 20px;
+  height: 20px;
+  background-color: grey;
+  color: white;
+  border-radius: 50%;
+  position: absolute;
+  right: -11px;
+  top: -11px;
+  cursor: pointer;
+  z-index: 5;
+  display: flex;
+  font-size: 36px;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid white;
+}
+
+@media (max-width: 600px) {
+  .chat-modal .modal-body {
+    padding: 15px;
+  }
+
+  .chat-modal .modal-body img.profile-img {
+    width: 40px !important;
+  }
+
+  .chat-modal .modal-body div.d-grid {
+    margin-right: -10px !important;
+  }
+
+  .chat-modal .modal-body > div.d-flex {
+    position: absolute;
+    left: 12px;
+    top: 12px;
+    right: 12px;
+  }
+
+  .chat-modal .modal-body div.d-flex h3 {
+    font-size: 20px !important;
+  }
+
+  .chat-modal .modal-body div.d-flex a {
+    font-size: 16px !important;
+  }
+
+  .chat-modal .modal-body .message-body {
+    margin-top: 70px;
+  }
+}

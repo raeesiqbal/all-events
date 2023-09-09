@@ -66,7 +66,7 @@ INSTALLED_APPS = [
     "django_rest_passwordreset",
     "apps.analytics",
     "apps.clients",
-    "apps.subscriptions"
+    "apps.subscriptions",
 ]
 
 MIDDLEWARE = [
@@ -137,7 +137,7 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
         "HOST": env.str("DATABASE_HOST", default="localhost"),
-        "NAME": env.str("DATABASE_NAME", default="postgres"),
+        "NAME": env.str("DATABASE_NAME", default="mehaio2"),
         "USER": env.str("DATABASE_USER", default="postgres"),
         "PASSWORD": env.str("DATABASE_PASSWORD", default="wcptfs"),
         "PORT": env.str("DATABASE_PORT", default="5433"),
@@ -310,7 +310,7 @@ EMAIL_HOST_USER = env.str("EMAIL_HOST_USER", default="")
 EMAIL_HOST_PASSWORD = env.str("EMAIL_HOST_PASSWORD", default="")
 
 
-FRONTEND_URL= env.str("FRONTEND_URL", default="")
+FRONTEND_URL = env.str("FRONTEND_URL", default="")
 
-STRIPE_PUBLISHABLE_KEY = env.str('STRIPE_PUBLISHABLE_KEY')
-STRIPE_SECRET_KEY = env.str('STRIPE_SECRET_KEY')
+STRIPE_PUBLISHABLE_KEY = env.str("STRIPE_PUBLISHABLE_KEY")
+STRIPE_SECRET_KEY = env.str("STRIPE_SECRET_KEY")

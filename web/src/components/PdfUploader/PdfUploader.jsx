@@ -6,7 +6,7 @@ import React, { useState, useEffect } from "react";
 import { Button, Col, Container, Row } from "react-bootstrap";
 import InfoIcon from "../../assets/images/gg_info.svg";
 import "../ImageUploader/ImageUploader.css";
-import { secure_instance } from "../../axios/axios-config";
+import { secureInstance } from "../../axios/config";
 
 function PdfUploader({
   setparentImagesUploadedImages,
@@ -22,7 +22,7 @@ function PdfUploader({
     formData.append("content_type", uploadedPdf.type);
 
     try {
-      const request = await secure_instance.request({
+      const request = await secureInstance.request({
         url: "/api/ads/upload-url/",
         method: "Post",
         data: formData,
@@ -52,7 +52,6 @@ function PdfUploader({
       };
       setPdfs(updatedPdfs);
     };
-    console.log("updatedPdfs inside image component", updatedPdfs);
     setImagesError(false);
     uploadFileToCloud(uploadedPdf);
     setparentImagesUploadedImages(updatedPdfs);
@@ -67,7 +66,6 @@ function PdfUploader({
   };
 
   const handlePDFView = (pdf) => {
-    console.log("pdfpdf", pdf);
     return (
       <a href={pdf} target="_blank" rel="noreferrer">
         Download Pdf

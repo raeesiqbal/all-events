@@ -35,8 +35,7 @@ class CompanyViewSet(BaseViewset):
         "create": VendorCreateSerializer,
         "retrieve": CompanyRetrieveSerializer,
         "partial_update": VendorUpdateSerializer,
-        "get_upload_url":GetUploadPresignedUrlSerializer
-
+        "get_upload_url": GetUploadPresignedUrlSerializer,
     }
     action_permissions = {
         "default": [],
@@ -46,13 +45,14 @@ class CompanyViewSet(BaseViewset):
         "partial_update": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
         "public_companies_list": [],
         "public_company_retrieve": [],
-        "get_upload_url":[]
+        "get_upload_url": [],
     }
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     search_param = "search"
     search_fields = []
     ordering_fields = []
     filterset_fields = {}
+
     user_role_queryset = {
         USER_ROLE_TYPES["VENDOR"]: lambda self: Company.objects.filter(
             user_id=self.request.user.id
@@ -112,7 +112,7 @@ class CompanyViewSet(BaseViewset):
                 message="Companies get",
             ),
         )
-    
+
     @action(detail=False, url_path="upload-url", methods=["post"])
     def get_upload_url(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -120,11 +120,11 @@ class CompanyViewSet(BaseViewset):
 
         file = serializer.validated_data.get("file")
         content_type = serializer.validated_data.get("content_type")
-        upload_folder='vendor'
+        upload_folder = "vendor"
         file_url = None
         # # Uploading resume to S3.
         s3_service = S3Service()
-        file_url = s3_service.upload_file(file, content_type,upload_folder)
+        file_url = s3_service.upload_file(file, content_type, upload_folder)
 
         return Response(
             status=status.HTTP_200_OK,

@@ -8,6 +8,10 @@ function ServicesOffered({
   handleChange,
   handleAddServices,
   handleRemoveService,
+  // handleAddService,
+  adminServices,
+  adminServicesSelected,
+  setAdminServicesSelected,
 }) {
   const [currentService, setCurrentService] = useState("");
   const [serviceError, setServiceError] = useState("");
@@ -26,6 +30,36 @@ function ServicesOffered({
   const addService = () => {
     handleAddServices(currentService);
     setCurrentService("");
+  };
+
+  console.log("adminServicesSelected", adminServicesSelected);
+
+  const handleAddItem = (index, label) => {
+    console.log("indexindex", index, label);
+    // handleAddServices(label);
+    // const newService = {
+    //   id: index,
+    //   label,
+    // };
+    setAdminServicesSelected([...adminServicesSelected, label]);
+    // handleAddServices(currentService);
+    // setCurrentService("");
+  };
+  // const handleRemoveAdminService = (indexToRemove, label) => {
+  //   const clonedServices = [...adminServicesSelected];
+  //   const filteredServices = clonedServices.filter(
+  //     (item) => item.id !== indexToRemove
+  //   );
+  //   setAdminServicesSelected(filteredServices);
+  //   console.log("filteredServices", filteredServices);
+  // };
+  const handleRemoveAdminService = (_, labelToRemove) => {
+    console.log("labelToRemove", labelToRemove);
+    const filteredServices = adminServicesSelected.filter(
+      (service) => service !== labelToRemove
+    );
+    setAdminServicesSelected(filteredServices);
+    console.log("filteredServices", filteredServices);
   };
 
   return (
@@ -72,12 +106,25 @@ function ServicesOffered({
         </Col>
 
         <Row xs="auto" lg={6} style={{ maxWidth: "800px", marginTop: "20px" }}>
+          {adminServices?.map((service, index) => (
+            <Col lg={3}>
+              <Chip
+                label={service}
+                index={index}
+                handleRemoveService={handleRemoveAdminService}
+                handleAddItem={handleAddItem}
+                adminServicesSelected={adminServicesSelected}
+                adminServices
+              />
+            </Col>
+          ))}
           {values.servicesOffered.services.map((service, index) => (
             <Col lg={3}>
               <Chip
                 label={service}
                 index={index}
                 handleRemoveService={handleRemoveService}
+                selected
               />
             </Col>
           ))}

@@ -39,7 +39,7 @@ function ProfileSettings() {
   return (
     <>
       <Header />
-      <TabNavigation />
+      <TabNavigation role={user.role} />
       <div className="profile-settings-banner d-flex align-items-center justify-content-between">
         <div className="banner-text-heading">
           <div className="roboto-bold-36px-h1">Profile Settings</div>
@@ -91,41 +91,41 @@ function ProfileSettings() {
                   </Card.Body>
                 </Card>
               </Col>
-              <Col xs={12} sm={6} md={6} lg={6} className="mb-5">
-                <Card
-                  style={{ minHeight: "180px" }}
-                  className="custom-card"
-                  onClick={() =>
-                    dispatch(
-                      handleProfileSettingsCurrentView("CompanyInformation")
-                    )
-                  }
-                >
-                  <Card.Body>
-                    <div className="d-flex justify-content-between">
-                      <img
-                        src={companyInfo}
-                        alt="companyInfo"
-                        className="mb-4"
-                      />
-                      <FontAwesomeIcon
-                        icon={faArrowRight}
-                        style={{
-                          fontSize: "30px",
-                          color: "#878787",
-                          marginTop: "12px",
-                        }}
-                        className="cards-arrow"
-                      />
-                    </div>
-                    <Card.Title>Company Information</Card.Title>
-                    <Card.Text>Update your company info</Card.Text>
-                  </Card.Body>
-                </Card>
-              </Col>
-            </Row>
-            <Row className="gx-5">
-              <Col xs={12} sm={6} md={6} lg={6} className="mb-5">
+              {user?.role !== "client" && (
+                <Col md={6} className="mb-5">
+                  <Card
+                    style={{ width: "21rem" }}
+                    className="custom-card"
+                    onClick={() =>
+                      dispatch(
+                        handleProfileSettingsCurrentView("CompanyInformation")
+                      )
+                    }
+                  >
+                    <Card.Body>
+                      <div className="d-flex justify-content-between">
+                        <img
+                          src={companyInfo}
+                          alt="companyInfo"
+                          className="mb-4"
+                        />
+                        <FontAwesomeIcon
+                          icon={faArrowRight}
+                          style={{
+                            fontSize: "30px",
+                            color: "#878787",
+                            marginTop: "12px",
+                          }}
+                          className="cards-arrow"
+                        />
+                      </div>
+                      <Card.Title>Company Information</Card.Title>
+                      <Card.Text>Update your company info</Card.Text>
+                    </Card.Body>
+                  </Card>
+                </Col>
+              )}
+              <Col md={6} className="mb-5">
                 <Card
                   style={{ minHeight: "180px" }}
                   className="custom-card"
@@ -151,7 +151,7 @@ function ProfileSettings() {
                   </Card.Body>
                 </Card>
               </Col>
-              <Col xs={12} sm={6} md={6} lg={6}>
+              <Col md={6} className="mb-5">
                 <Card
                   style={{ minHeight: "180px" }}
                   className="custom-card"

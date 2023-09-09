@@ -40,6 +40,10 @@
     @include typography(#1A1A1A, Roboto, 28px, 600, normal, normal);
 }
 
+.roboto-semi-bold-32px-h2 {
+    @include typography(#797979, Roboto, 28px, 600, normal, normal);
+}
+
 .roboto-bold-36px-h1 {
     @include typography(#1A1A1A, Roboto, 36px, 700, normal, normal);
 }

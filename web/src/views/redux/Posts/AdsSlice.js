@@ -1,14 +1,15 @@
 /* eslint-disable camelcase */
 /* eslint-disable no-useless-catch */
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { instance, secure_instance } from "../../../axios/axios-config";
-import { getCookie, setCookie } from "../../../utilities/utils";
+import { instance, secureInstance } from "../../../axios/config";
 
 // Create an initial state for the auth slice
 const initialState = {
   loading: false,
   error: null,
   vendorAds: [],
+  publicAds: [],
+  favoriteAds: [],
   media_urls: {
     images: [],
     video: [],
@@ -26,7 +27,7 @@ export const handleCreateNewAd = createAsyncThunk(
   async ({ data, navigate }, { rejectWithValue }) => {
     // const dataToSubmit = objToSubmit
     try {
-      const response = await secure_instance.request({
+      const response = await secureInstance.request({
         url: "/api/ads/",
         method: "Post",
         data,
@@ -40,7 +41,7 @@ export const handleCreateNewAd = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  }
+  },
 );
 
 export const handleEditAd = createAsyncThunk(
@@ -48,7 +49,7 @@ export const handleEditAd = createAsyncThunk(
   async ({ data, navigate, adID }, { rejectWithValue }) => {
     // const dataToEdit = data;
     try {
-      const response = await secure_instance.request({
+      const response = await secureInstance.request({
         url: `/api/ads/${adID}/`,
         method: "Patch",
         data,
@@ -62,7 +63,7 @@ export const handleEditAd = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  }
+  },
 );
 
 export const uploadImagesToCloud = createAsyncThunk(
@@ -74,7 +75,7 @@ export const uploadImagesToCloud = createAsyncThunk(
     formData.append("content_type", uploadedImage.type);
 
     try {
-      const response = await secure_instance.request({
+      const response = await secureInstance.request({
         url: "/api/ads/upload-url/",
         method: "Post",
         data: formData,
@@ -89,14 +90,14 @@ export const uploadImagesToCloud = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  }
+  },
 );
 
 export const listVendorAds = createAsyncThunk(
   "Ads/list",
   async (data, { rejectWithValue }) => {
     try {
-      const response = await secure_instance.request({
+      const response = await secureInstance.request({
         url: "/api/ads/",
         method: "Get",
       });
@@ -106,7 +107,58 @@ export const listVendorAds = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  }
+  },
+);
+
+export const listPublicAds = createAsyncThunk(
+  "Ads/public_list",
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await instance.request({
+        url: "/api/ads/public-list/",
+        method: "Get",
+      });
+      return response.data; // Assuming your loginAPI returns data with access_token, user_id, and role_id
+    } catch (err) {
+      // Use `err.response.data` as `action.payload` for a `rejected` action,
+      // by explicitly returning it using the `rejectWithValue()` utility
+      return rejectWithValue(err.response.data);
+    }
+  },
+);
+
+export const listFavoriteAds = createAsyncThunk(
+  "Ads/favoriteList",
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await secureInstance.request({
+        url: "/api/analytics/ad-fav/",
+        method: "Get",
+      });
+      return response.data;
+    } catch (err) {
+      // Use `err.response.data` as `action.payload` for a `rejected` action,
+      // by explicitly returning it using the `rejectWithValue()` utility
+      return rejectWithValue(err.response.data);
+    }
+  },
+);
+
+export const favoriteAd = createAsyncThunk(
+  "Ads/fav-ad",
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await secureInstance.request({
+        url: `/api/analytics/ad-fav/${id}/fav/`,
+        method: "Post",
+      });
+      return { ...response.data, id }; // Assuming your loginAPI returns data with access_token, user_id, and role_id
+    } catch (err) {
+      // Use `err.response.data` as `action.payload` for a `rejected` action,
+      // by explicitly returning it using the `rejectWithValue()` utility
+      return rejectWithValue(err.response.data);
+    }
+  },
 );
 
 // Create the loginSlice
@@ -145,15 +197,13 @@ export const AdsSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(handleCreateNewAd.fulfilled, (state, action) => {
+      .addCase(handleCreateNewAd.fulfilled, (state) => {
         state.loading = false;
         state.AdPostSuccessAlert = true;
         state.media_urls.images = [];
         // navigate("/post-ad");
-        console.log("action.payload", action.payload);
       })
       .addCase(handleCreateNewAd.rejected, (state, action) => {
-        // console.log(action);
         state.loading = false;
         state.AdPostErrorAlert = true;
         // state.error = action.payload;
@@ -162,13 +212,11 @@ export const AdsSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(handleEditAd.fulfilled, (state, action) => {
+      .addCase(handleEditAd.fulfilled, (state) => {
         state.loading = false;
         state.AdPostSuccessAlert = true;
-        console.log("action.payload", action.payload);
       })
       .addCase(handleEditAd.rejected, (state, action) => {
-        // console.log(action);
         state.loading = false;
         state.error = action.payload;
         state.AdPostErrorAlert = action.payload;
@@ -180,10 +228,20 @@ export const AdsSlice = createSlice({
       .addCase(listVendorAds.fulfilled, (state, action) => {
         state.loading = false;
         state.vendorAds = action.payload.data;
-        console.log("action.payload", action.payload);
       })
       .addCase(listVendorAds.rejected, (state, action) => {
-        // console.log(action);
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(listPublicAds.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(listPublicAds.fulfilled, (state, action) => {
+        state.loading = false;
+        state.publicAds = action.payload.data;
+      })
+      .addCase(listPublicAds.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
@@ -198,13 +256,42 @@ export const AdsSlice = createSlice({
         state.media_urls.images.push(file_url);
         state.imagesError = false;
         // state.isMediaUploading = false;
-        console.log("action.payload", action.payload);
       })
       .addCase(uploadImagesToCloud.rejected, (state, action) => {
-        // console.log(action);
         state.loading = false;
         state.error = action.payload;
         // state.isMediaUploading = false;
+      })
+      .addCase(listFavoriteAds.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(listFavoriteAds.fulfilled, (state, action) => {
+        state.loading = false;
+        state.favoriteAds = action.payload.data;
+      })
+      .addCase(listFavoriteAds.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(favoriteAd.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(favoriteAd.fulfilled, (state, action) => {
+        state.loading = false;
+        state.AdPostSuccessAlert = true;
+        if ([200, 201, 202, 203, 204].includes(action.payload.status_code)) {
+          state.publicAds = state.publicAds.map((ad) => {
+            if (ad.id === action.payload.id) ad.fav = !ad.fav;
+            return ad;
+          });
+        }
+      })
+      .addCase(favoriteAd.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+        state.AdPostErrorAlert = action.payload;
       });
   },
 });

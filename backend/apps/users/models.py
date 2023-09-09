@@ -56,12 +56,10 @@ class User(AbstractUser):
     User model.
     """
 
-
     ROLE_TYPES = (
         (USER_ROLE_TYPES["SUPER_ADMIN"], "super_admin"),
         (USER_ROLE_TYPES["VENDOR"], "vendor"),
         (USER_ROLE_TYPES["CLIENT"], "client"),
-
     )
 
     username = None
@@ -78,7 +76,6 @@ class User(AbstractUser):
     delete_reason = models.TextField(null=True, blank=True)
 
     image = models.TextField(null=True, blank=True)
-
 
     USERNAME_FIELD = "email"
     EMAIL_FIELD = "email"

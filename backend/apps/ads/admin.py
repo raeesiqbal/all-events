@@ -1,8 +1,6 @@
 from django.contrib import admin
 
 # Register your models here.
-
-# Register your models here.
 from .models import (
     FAQ,
     Ad,
@@ -12,7 +10,23 @@ from .models import (
     RelatedSubCategory,
     ActivationSubCategory,
     Gallery,
+    Service,
+    SiteFAQ,
+    SiteQuestion,
+    SectionName,
+    AdFAQ,
 )
+
+
+class SectionAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "name",
+    )
+    search_fields = [
+        "id",
+        "name",
+    ]
 
 
 class GalleryInline(admin.TabularInline):
@@ -28,11 +42,13 @@ class FAQInline(admin.TabularInline):
 class AdAdmin(admin.ModelAdmin):
     list_display = (
         "id",
+        "slug",
         "name",
         "company",
     )
     search_fields = [
         "id",
+        "slug",
         "name",
     ]
     raw_id_fields = (
@@ -47,6 +63,7 @@ class AdAdmin(admin.ModelAdmin):
             None,
             {
                 "fields": (
+                    "slug",
                     "created_at",
                     "name",
                     "company",
@@ -108,6 +125,16 @@ class CountyAdmin(admin.ModelAdmin):
     search_fields = [
         "id",
         "name",
+    ]
+
+
+class ServiceAdmin(admin.ModelAdmin):
+    list_display = ("id",)
+    search_fields = [
+        "id",
+    ]
+    filter_horizontal = [
+        "sub_category",
     ]
 
 
@@ -182,33 +209,79 @@ class FAQAdmin(admin.ModelAdmin):
     list_display = (
         "id",
         "ad",
-        "sub_category",
-        "type",
         "question",
-        "answer_input",
+        "answer",
     )
     search_fields = [
         "id",
         "ad__name",
-        "sub_category__name",
-        "type",
         "question",
-        "answer_input",
+        "answer",
     ]
 
-    raw_id_fields = (
-        "ad",
-        "sub_category",
+    raw_id_fields = ("ad",)
+
+
+class SiteQuestionInline(admin.TabularInline):
+    model = SiteQuestion
+    extra = 1
+
+
+class SiteFAQAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "category",
+        "section",
     )
+    search_fields = ["id", "category__name", "sub_category__name", "section__name"]
+    raw_id_fields = (
+        "category",
+        "section",
+    )
+    filter_horizontal = ("sub_category",)
+    inlines = (SiteQuestionInline,)
+
+
+class SiteQuestionAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "site_faq",
+        "question",
+        "suggestion",
+    )
+    search_fields = [
+        "id",
+        "site_faq",
+        "question",
+        "suggestion",
+    ]
+    raw_id_fields = ("site_faq",)
+
+
+class AdFAQSite(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "ad",
+        "site_question",
+    )
+    search_fields = [
+        "id",
+        "ad",
+        "site_question",
+    ]
+    raw_id_fields = ("ad", "site_question")
 
 
 admin.site.register(Ad, AdAdmin)
-
 admin.site.register(Gallery, GalleryAdmin)
-
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(SubCategory, SubCategoryAdmin)
 admin.site.register(Country, CountyAdmin)
 admin.site.register(FAQ, FAQAdmin)
 admin.site.register(RelatedSubCategory, RelatedSubCategoryAdmin)
 admin.site.register(ActivationSubCategory, ActivationSubCategoryAdmin)
+admin.site.register(Service, ServiceAdmin)
+admin.site.register(SiteFAQ, SiteFAQAdmin)
+admin.site.register(SectionName, SectionAdmin)
+admin.site.register(SiteQuestion, SiteQuestionAdmin)
+admin.site.register(AdFAQ, AdFAQSite)

@@ -1,14 +1,6 @@
 /* eslint-disable camelcase */
 import React, { useEffect } from "react";
-import {
-  Button,
-  Card,
-  Col,
-  Container,
-  Form,
-  Modal,
-  Row,
-} from "react-bootstrap";
+import { Button, Card, Col, Container, Modal, Row } from "react-bootstrap";
 // import * as formik from "formik";
 // import * as Yup from "yup";
 import { useNavigate } from "react-router-dom";
@@ -24,7 +16,7 @@ import gotoIcon from "../../assets/images/post-ad/goto.svg";
 import noAds from "../../assets/images/post-ad/no-ads.svg";
 import Footer from "../../components/Footer/Footer";
 import TabNavigation from "../../components/TabNavigation/TabNavigation";
-import { secure_instance } from "../../axios/axios-config";
+import { secureInstance } from "../../axios/config";
 import "./Ads.css";
 import { handleUpdateAds, listVendorAds } from "../redux/Posts/AdsSlice";
 import useWindowDimensions from "../../utilities/hooks/useWindowDimension";
@@ -36,13 +28,14 @@ function MyAds() {
   const [modalShow, setModalShow] = React.useState(false);
   const [currentAdId, setCurrentAdId] = React.useState(null);
 
+  const user = useSelector((state) => state.auth.user);
   const vendorAds = useSelector((state) => state.Ads.vendorAds);
   const { width } = useWindowDimensions();
 
   const handleDeleteAd = async () => {
     try {
       // setLoading(true);
-      await secure_instance.request({
+      await secureInstance.request({
         url: `/api/ads/${currentAdId}/`,
         method: "Delete",
       });
@@ -73,7 +66,7 @@ function MyAds() {
   return (
     <>
       <Header />
-      <TabNavigation />
+      <TabNavigation role={user?.role} />
       <Modal
         show={modalShow}
         onHide={() => setModalShow(false)}
@@ -132,12 +125,11 @@ function MyAds() {
             sortedAdvertisements.map((product) => {
               const {
                 id,
-                // category,
-                description,
                 sub_category,
                 created_at,
                 country,
                 ad_media,
+                description,
               } = product;
               return (
                 <Col lg={10} className="mb-4">
@@ -228,13 +220,6 @@ function MyAds() {
                                     style={{ cursor: "pointer" }}
                                   />
                                   <img
-                                    src={gotoIcon}
-                                    alt="gotoIcon"
-                                    className="me-3"
-                                    onClick={() => navigate(`/view-ad/${id}`)}
-                                    style={{ cursor: "pointer" }}
-                                  />
-                                  <img
                                     src={deleteIcon}
                                     alt="deleteIcon"
                                     className="me-3"
@@ -244,6 +229,24 @@ function MyAds() {
                                     }}
                                     style={{ cursor: "pointer" }}
                                   />
+                                  <img
+                                    src={gotoIcon}
+                                    alt="gotoIcon"
+                                    className="me-3"
+                                    onClick={() => navigate(`/view-ad/${id}`)}
+                                    style={{ cursor: "pointer" }}
+                                  />
+                                  {/* {
+                                    user.role === "client" && (
+                                      <img
+                                        src={gotoIcon}
+                                        alt="editIcon"
+                                        className="me-3"
+                                        onClick={() => dispatch(favoriteAd(id))}
+                                        style={{ cursor: "pointer" }}
+                                      />
+                                    )
+                                  } */}
                                 </div>
                               </div>
                             </div>
@@ -288,7 +291,6 @@ function MyAds() {
                       onClick={() => navigate("/post-ad")}
                       className="btn btn-success roboto-semi-bold-16px-information btn-lg mt-5"
                       style={{ width: "80%", marginLeft: "-20px" }}
-                      // style={{ padding: "0 100px" }}
                     >
                       Post another Ad
                     </Button>

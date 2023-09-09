@@ -64,19 +64,6 @@ function FAQs({
                 </Form.Label>
                 {faq.added === false && (
                   <>
-                    {/* {console.log(
-                      "errors.faqs[index].question",
-                      errors?.faqs?.length > 0 && errors?.faqs[index]?.question
-                    )} */}
-                    {console.log(
-                      "errors",
-                      errors.faqs?.length > 0 && errors.faqs[index].question
-                    )}
-                    {console.log(
-                      "touched",
-                      errors.faqs?.length > 0 && !!errors?.faqs[index]?.question
-                    )}
-
                     <Form.Control
                       style={{ height: "56px" }}
                       className="lg-input-small-text"
@@ -107,18 +94,17 @@ function FAQs({
                   style={{ height: "56px" }}
                   className="lg-input-small-text"
                   type="text"
-                  name={`FAQ.faqs[${index}].answer_input`}
+                  name={`FAQ.faqs[${index}].answer`}
                   size="sm"
                   placeholder="Type your answer"
-                  value={faq.answer_input}
+                  value={faq.answer}
                   onChange={handleChange}
                   isInvalid={
-                    errors.faqs?.length > 0 &&
-                    !!errors?.faqs[index]?.answer_input
+                    errors.faqs?.length > 0 && !!errors?.faqs[index]?.answer
                   }
                 />
                 <Form.Control.Feedback type="invalid">
-                  {errors.faqs?.length > 0 && errors.faqs[index].answer_input}
+                  {errors.faqs?.length > 0 && errors.faqs[index].answer}
                 </Form.Control.Feedback>
               </Form.Group>
             </Col>

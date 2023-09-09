@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { Button, Container } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { CircularProgress } from "@mui/material";
-import { secure_instance } from "../../axios/axios-config";
+import { secureInstance } from "../../axios/config";
 import {
   setIsMediaUploading,
   setMediaError,
@@ -28,7 +28,7 @@ function VideoUploader({ setVideoToUpload, videoToUpload }) {
     formData.append("content_type", uploadedVideo.type);
 
     try {
-      const request = await secure_instance.request({
+      const request = await secureInstance.request({
         url: "/api/ads/upload-url/",
         method: "Post",
         data: formData,
@@ -58,7 +58,6 @@ function VideoUploader({ setVideoToUpload, videoToUpload }) {
       // setparentVideoUploaded(uploadedVideo);
       uploadFileToCloud(uploadedVideo);
 
-      console.log("uploadedVideo", uploadedVideo);
       reader.readAsDataURL(uploadedVideo);
     } else {
       // Handle video size error
@@ -70,25 +69,25 @@ function VideoUploader({ setVideoToUpload, videoToUpload }) {
   //   setVideo(null);
   // };
 
-  // console.log(videoToPreview);
 
   const removeVideo = async () => {
     const urlToDelete = videoToUpload;
 
     try {
-      const request = await secure_instance.request({
+      const request = await secureInstance.request({
         url: "/api/ads/delete-url/",
         method: "Post",
         data: {
           url: urlToDelete[0],
         },
       });
-      console.log("request", request);
       // ----------------do this inside redux
       if (request.status === 200) {
         setVideo(null);
       }
-    } catch (err) {}
+    } catch (err) {
+      console.log("error", err);
+    }
 
     setVideoToUpload([]);
   };

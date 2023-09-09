@@ -23,7 +23,7 @@ import contactIcon from "../../assets/images/post-ad/contact.svg";
 import "./ProfileSettings.css";
 import Footer from "../../components/Footer/Footer";
 import TabNavigation from "../../components/TabNavigation/TabNavigation";
-import { secure_instance } from "../../axios/axios-config";
+import { secureInstance } from "../../axios/config";
 import { handleProfileSettingsCurrentView } from "../redux/TabNavigation/TabNavigationSlice";
 import ProfilePic from "../../components/ProfilePic/ProfilePic";
 
@@ -50,7 +50,7 @@ function PersonalInformation() {
       .max(20, "Must be at most 20 characters")
       .matches(
         /^[a-zA-Z\s-]*$/,
-        "Must only contain letters, spaces, and hyphens"
+        "Must only contain letters, spaces, and hyphens",
       ),
     person_lastName: Yup.string()
       .required("Last name is required")
@@ -58,7 +58,7 @@ function PersonalInformation() {
       .max(20, "Must be at most 20 characters")
       .matches(
         /^[a-zA-Z\s-]*$/,
-        "Must only contain letters, spaces, and hyphens"
+        "Must only contain letters, spaces, and hyphens",
       ),
     person_number: Yup.string()
       .min(8, "Must be at least 8 digits")
@@ -68,9 +68,7 @@ function PersonalInformation() {
   });
 
   const getPersonalInfo = async () => {
-    // console.log(values);
-
-    const request = await secure_instance.request({
+    const request = await secureInstance.request({
       url: "/api/users/me/",
       method: "Get",
     });
@@ -93,7 +91,7 @@ function PersonalInformation() {
   const handleUpdateUserInfo = async (values) => {
     try {
       setLoading(true);
-      const request = await secure_instance.request({
+      const request = await secureInstance.request({
         url: `/api/users/${user.userId}/`,
         method: "Patch",
         data: {
@@ -113,14 +111,13 @@ function PersonalInformation() {
   };
 
   useEffect(() => {
-    // console.log("whaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
     getPersonalInfo();
   }, []);
 
   return (
     <>
       <Header />
-      <TabNavigation />
+      <TabNavigation role={user.role} />
 
       <div className="profile-settings-banner d-flex align-items-center justify-content-between">
         <div className="banner-text-heading">
@@ -137,9 +134,7 @@ function PersonalInformation() {
         <div
           className="d-flex mt-3"
           style={{ cursor: "pointer" }}
-          onClick={() =>
-            dispatch(handleProfileSettingsCurrentView("profileSettings"))
-          }
+          onClick={() => dispatch(handleProfileSettingsCurrentView("profileSettings"))}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -203,7 +198,9 @@ function PersonalInformation() {
               initialValues={initialValues}
               enableReinitialize
             >
-              {({ handleSubmit, handleChange, values, touched, errors }) => (
+              {({
+                handleSubmit, handleChange, values, errors,
+              }) => (
                 <Form noValidate onSubmit={handleSubmit}>
                   <Col lg={4}>
                     <Form.Group className="mb-4" controlId="form3Example3">

@@ -25,7 +25,7 @@ module.exports = {
       "double",
       { avoidEscape: true, allowTemplateLiterals: true },
     ],
-    "max-len": ["error", { code: 120 }],
+    "max-len": ["error", { code: 140 }],
     "react/prop-types": 0,
     // "import/no-extraneous-dependencies": ["error", { devDependencies: true }],
     "no-param-reassign": [2, { props: false }],

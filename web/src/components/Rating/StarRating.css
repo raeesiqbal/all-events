@@ -1,0 +1,34 @@
+/* CSS */
+.star-rating {
+  display: flex;
+  font-size: 24px;
+  color: #f0c14b; /* Yellow color for filled stars */
+  justify-content: space-between;
+}
+
+.star-filled {
+  color: #f0c14b; /* Yellow color for filled stars */
+  z-index: 1;
+}
+
+.star-partial {
+  display: flex;
+  position: relative;
+  color: #f0c14b; /* Yellow color for filled stars */
+  width: 1em; /* Width of a single star */
+  overflow: hidden;
+}
+
+.star-partial span {
+  overflow: hidden;
+}
+
+.star-partial > .star-empty {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.star-empty {
+  color: #ccc; /* Gray color for empty stars */
+}

@@ -1,16 +1,37 @@
-from apps.ads.models import Ad, Category, Country, Gallery, SubCategory, FAQ
 from apps.utils.serializers.base import BaseSerializer
 from rest_framework import serializers
+from apps.ads.models import (
+    Ad,
+    Category,
+    Country,
+    Gallery,
+    SubCategory,
+    FAQ,
+    AdFAQ,
+)
 
 
 class FaqsChildCreateSerializer(BaseSerializer):
     class Meta:
         model = FAQ
-        fields = ["sub_category", "question", "answer_input", "answer_checkbox", "type"]
+        fields = [
+            "question",
+            "answer",
+        ]
+
+
+class AdFAQChildCreateSerializer(BaseSerializer):
+    class Meta:
+        model = AdFAQ
+        fields = [
+            "site_question",
+            "answer",
+        ]
 
 
 class AdCreateSerializer(BaseSerializer):
     faqs = serializers.ListField(child=FaqsChildCreateSerializer())
+    ad_faq_ad = serializers.ListField(child=AdFAQChildCreateSerializer())
     media_urls = serializers.JSONField(default=dict)
 
     class Meta:
@@ -32,6 +53,8 @@ class AdCreateSerializer(BaseSerializer):
             "twitter",
             "others",
             "offered_services",
+            "site_services",
+            "ad_faq_ad",
             "faqs",
             "media_urls",
             "name",
@@ -64,7 +87,8 @@ class GetUploadPresignedUrlSerializer(serializers.Serializer):
 
 class DeleteUrlSerializer(serializers.Serializer):
     url = serializers.CharField(required=True, max_length=1000)
-    
+
+
 class FaqsCreateSerializer(BaseSerializer):
     class Meta:
         model = FAQ
@@ -74,18 +98,15 @@ class FaqsCreateSerializer(BaseSerializer):
 class DeleteUrlOnUpdateSerializer(serializers.Serializer):
     url = serializers.CharField(required=True, max_length=1000)
     media_type = serializers.CharField(required=True, max_length=1000)
-   
-    
+
     class Meta:
         model = Gallery
-        fields = ["url","media_type"]
+        fields = ["url", "media_type"]
+
 
 class SearchStringSerializer(serializers.Serializer):
     search_string = serializers.CharField(required=True, max_length=1000)
-    # user_role_fields={
-        
-    # }
-   
+
     class Meta:
         model = Gallery
         fields = ["search_string"]

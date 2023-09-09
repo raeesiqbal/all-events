@@ -24,6 +24,7 @@ class UserAdmin(DjanoAdmin):
                     "phone",
                     "newsletter",
                     "terms_acceptance",
+                    "image",
                 )
             },
         ),

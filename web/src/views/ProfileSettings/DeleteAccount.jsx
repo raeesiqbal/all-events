@@ -18,7 +18,7 @@ import oldPasswordIcon from "../../assets/images/profile-settings/old-password.s
 import "./ProfileSettings.css";
 import Footer from "../../components/Footer/Footer";
 import TabNavigation from "../../components/TabNavigation/TabNavigation";
-import { secure_instance } from "../../axios/axios-config";
+import { secureInstance } from "../../axios/config";
 import { deleteCookie } from "../../utilities/utils";
 import { handleProfileSettingsCurrentView } from "../redux/TabNavigation/TabNavigationSlice";
 import ProfilePic from "../../components/ProfilePic/ProfilePic";
@@ -30,6 +30,8 @@ function DeleteAccount() {
   const [isFailedAlert, setIsFailedAlert] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isFailedAlertMessage, setIsFailedAlertMessage] = useState(null);
+
+  const user = useSelector((state) => state.auth.user);
 
   const initialValues = {
     password: "",
@@ -59,7 +61,7 @@ function DeleteAccount() {
   const handleDeleteAccount = async (values) => {
     try {
       setLoading(true);
-      await secure_instance.request({
+      await secureInstance.request({
         url: `/api/users/delete/`,
         method: "Post",
         data: {
@@ -85,7 +87,7 @@ function DeleteAccount() {
   return (
     <>
       <Header />
-      <TabNavigation />
+      <TabNavigation role={user.role} />
 
       <div className="profile-settings-banner d-flex align-items-center justify-content-between">
         <div className="banner-text-heading">

@@ -8,6 +8,8 @@ import list from "../../assets/images/list.svg";
 import pieChart from "../../assets/images/pie-chart.svg";
 import plusCircle from "../../assets/images/plus-circle.svg";
 import settings from "../../assets/images/settings.svg";
+import messages from "../../assets/images/mdi-light_message-text.svg";
+import analytics from "../../assets/images/uil_analytics.svg";
 import "./TabNavigation.css";
 import {
   handleClickTab,
@@ -15,7 +17,7 @@ import {
 } from "../../views/redux/TabNavigation/TabNavigationSlice";
 import { setImagesToUpload } from "../../views/redux/Posts/AdsSlice";
 
-const tabs = [
+const vendorTabs = [
   {
     label: "Post an Ad",
     icon: plusCircle,
@@ -37,23 +39,46 @@ const tabs = [
     path: "/my-ads",
   },
   {
+    label: "Messages",
+    icon: messages,
+    path: "/messages",
+  },
+  {
+    label: "Settings",
+    icon: settings,
+    path: "/profile-settings",
+  },
+  {
+    label: "Analytics",
+    icon: analytics,
+    path: "/analytics",
+  },
+];
+
+const clientTabs = [
+  {
+    label: "Favorite Ad",
+    icon: plusCircle,
+    path: "/favorite-ads",
+  },
+  {
+    label: "Messages",
+    icon: messages,
+    path: "/messages",
+  },
+  {
     label: "Settings",
     icon: settings,
     path: "/profile-settings",
   },
 ];
 
-const TabNavigation = () => {
+const TabNavigation = ({ role }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const isActive = (path) => {
-    if (window.location.pathname === path) {
-      return true;
-    }
-    return false;
-    // currentActiveNavigationTab;
-  };
+  const isActive = (path) => window.location.pathname === path;
+  const tabs = role === "client" ? clientTabs : vendorTabs;
 
   const handleClickTabNav = (index, path) => {
     if (path === "/post-ad") {
@@ -74,6 +99,7 @@ const TabNavigation = () => {
       <div className="d-flex justify-content-between" style={{ width: "60vw" }}>
         {tabs.map((tab, index) => (
           <div
+            key={tab.label}
             className={`d-flex align-items-center ${
               isActive(tab.path) && "tab-active"
             }`}

@@ -19,6 +19,7 @@
 .tab {
   padding: 10px 20px;
   height: 40px;
+  cursor: pointer;
 }
 
 .active-tab {
@@ -102,6 +103,21 @@
 
   object-fit: cover;
   /* margin-bottom: 10px; */
+}
+
+.message-vendor-form {
+  border-radius: 5px;
+  background: #FFF;
+  box-shadow: 0px 4px 50px 0px rgba(0, 0, 0, 0.10);
+  padding: 25px;
+}
+
+.message-vendor-form input, .message-vendor-form textarea {
+  border-radius: 5px;
+  border: 1px solid #D9D9D9;
+  background: #FAFAFA;
+  padding: 13px 20px;
+  resize: none;
 }
 
 /* carousel ------------------------------------ */
@@ -298,6 +314,14 @@
   height: 34%;
 }
 /* carousel ------------------------------------ */
+
+@media (max-width: 880px) {
+  .my-ad-banner {
+    height: auto !important;
+    text-align: center;
+    padding: 20px 10px;
+  }
+}
 
 @media (max-width: 768px) {
   /* .embla__slide {

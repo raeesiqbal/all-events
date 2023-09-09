@@ -1,29 +1,20 @@
 import React, { useEffect, useState } from "react";
 // import './Navbar';
 import { Button, Col, Form, Row } from "react-bootstrap"; // Import Bootstrap components
-
 import { useDispatch, useSelector } from "react-redux";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import NavDropdown from "react-bootstrap/NavDropdown";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faAngleDown,
-  faArrowDown,
-  faBars,
-} from "@fortawesome/fontawesome-free-solid";
+import { faAngleDown } from "@fortawesome/fontawesome-free-solid";
 import { useNavigate } from "react-router-dom";
-import { faArrowDownShortWide } from "@fortawesome/free-solid-svg-icons";
 import Allevents from "../../assets/images/Allevents.svg";
 import "./Navbar.css";
 import {
   toggleLoginModal,
   toggleLoginView,
 } from "../../views/redux/Login/loginSlice";
-import {
-  toggleRegisterModal,
-  toggleRegisterView,
-} from "../../views/redux/Register/RegisterSlice";
+import { toggleRegisterView } from "../../views/redux/Register/RegisterSlice";
 import {
   getAuthenticatedUser,
   refreshToken,
@@ -357,7 +348,7 @@ function Header() {
                   variant="outline-success"
                   type="submit"
                   className="mb-2 mobile-btn"
-                  onClick={(e) => navigate("/post-ad")}
+                  onClick={(e) => navigate(user?.role === "client" ? "/favorite-ads" : "/post-ad")}
                   // style={{ whiteSpace: "nowrap" }}
                 >
                   Dashboard

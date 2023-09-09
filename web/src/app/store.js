@@ -5,7 +5,7 @@ import { composeWithDevTools } from "redux-devtools-extension";
 import rootReducer from "./reducer";
 
 const composedEnhancer = composeWithDevTools(
-  applyMiddleware(thunkMiddleware)
+  applyMiddleware(thunkMiddleware),
   // other store enhancers if any
 );
 
