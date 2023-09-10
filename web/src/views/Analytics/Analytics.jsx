@@ -52,7 +52,6 @@ function Analytics() {
   };
 
   const handleSelect = (ranges) => {
-    console.log(ranges);
     setSelectionRange(ranges.selection);
     // {
     //   selection: {

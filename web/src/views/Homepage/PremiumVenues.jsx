@@ -9,6 +9,7 @@ import placeholderIcon from "../../assets/images/placeholder.jpg";
 import { favoriteAd, listPublicAds } from "../redux/Posts/AdsSlice";
 
 function PremiumVenues() {
+  const user = useSelector((state) => state.auth.user);
   const publicAds = useSelector((state) => state.Ads.publicAds);
   const dispatch = useDispatch();
   const OPTIONS = { slidesToScroll: "auto", containScroll: "trimSnaps" };
@@ -98,8 +99,8 @@ function PremiumVenues() {
   );
 
   useEffect(() => {
-    dispatch(listPublicAds());
-  }, []);
+    dispatch(listPublicAds(user?.userId !== null));
+  }, [user]);
 
   return (
     publicAds.length > 0 && (

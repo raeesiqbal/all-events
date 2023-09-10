@@ -306,11 +306,11 @@ const Reviews = ({ adId, adName }) => {
       <div className="w-100">
         <Row className="border-bottom border-grey mx-0 py-4">
           <Col md={3} className="ps-0">
-            <Rating averageRating={reviews.averageRating.toFixed(1)} />
+            <Rating averageRating={reviews?.averageRating?.toFixed(1) || 0} />
           </Col>
           <Col md={9} className="d-grid py-3" style={{ alignContent: "space-between" }}>
             <h3 style={{ fontWeight: "900" }}>
-              {reviews.totalReviews}
+              {reviews?.totalReviews || 0}
               {" "}
               Reviews
             </h3>
@@ -332,7 +332,7 @@ const Reviews = ({ adId, adName }) => {
           {
             reviews?.data?.length > 0 ? (
               reviews.data.map((review) => <Review review={review} />)
-            ) : ""
+            ) : <h3>No reviews yet</h3>
           }
         </Row>
         {
