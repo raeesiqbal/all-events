@@ -240,13 +240,11 @@ class AdViewSet(BaseViewset):
             serializer = self.get_serializer(
                 page,
                 many=True,
-                context={"user": user},
             )
         else:
             serializer = self.get_serializer(
                 queryset,
                 many=True,
-                context={"user": user},
             )
 
         data = serializer.data

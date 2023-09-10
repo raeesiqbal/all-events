@@ -206,13 +206,16 @@ class AdGetSerializer(BaseSerializer):
         return obj.ad_saved.all().count()
 
     def get_fav(self, obj):
-        user = self.context.get("user", None)
-        if user:
-            if FavouriteAd.objects.filter(user=user).exists():
-                return True
+        request = self.context["request"]
+        if request.user.is_authenticated:
+            user = request.user
+            if user.role_type == USER_ROLE_TYPES["CLIENT"]:
+                fav = FavouriteAd.objects.filter(user=user, ad=obj).exists()
+                return fav
             else:
-                return False
-        return None
+                return None
+        else:
+            return None
 
     class Meta:
         model = Ad
@@ -249,13 +252,16 @@ class AdPublicGetSerializer(BaseSerializer):
         fields = "__all__"
 
     def get_fav(self, obj):
-        if self.context.get("user", None):
-            user = self.context.get("user", None)
-            fav = False
+        request = self.context["request"]
+        if request.user.is_authenticated:
+            user = request.user
             if user.role_type == USER_ROLE_TYPES["CLIENT"]:
                 fav = FavouriteAd.objects.filter(user=user, ad=obj).exists()
-            return fav
-        return None
+                return fav
+            else:
+                return None
+        else:
+            return None
 
 
 class SuggestionGetSerializer(BaseSerializer):
@@ -278,16 +284,16 @@ class PremiumAdGetSerializer(BaseSerializer):
     fav = serializers.SerializerMethodField()
 
     def get_fav(self, obj):
-        # You can customize the logic to generate the extra data here
-        user = self.context.get("user", None)
-        print("user", user)
-
-        if user:
-            if FavouriteAd.objects.filter(user=user).exists():
-                return True
+        request = self.context["request"]
+        if request.user.is_authenticated:
+            user = request.user
+            if user.role_type == USER_ROLE_TYPES["CLIENT"]:
+                fav = FavouriteAd.objects.filter(user=user, ad=obj).exists()
+                return fav
             else:
-                return False
-        return None
+                return None
+        else:
+            return None
 
     class Meta:
         model = Ad
