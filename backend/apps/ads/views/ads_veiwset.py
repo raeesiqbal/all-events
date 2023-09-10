@@ -96,12 +96,12 @@ class AdViewSet(BaseViewset):
         "offered_services",
         "site_services",
     ]
-    ad_filterset_fields=["sub_category__name","site_question_id","answer"]
+    ad_filterset_fields = ["sub_category__name", "site_question_id", "answer"]
     ordering_fields = ["name", "sub_category__name", "id"]
     filterset_fields = {
         "sub_category__category__name": ["exact"],
         "name": ["exact"],
-        "country__name": ["exact"]
+        "country__name": ["exact"],
     }
     user_role_queryset = {
         USER_ROLE_TYPES["VENDOR"]: lambda self: Ad.objects.filter(
