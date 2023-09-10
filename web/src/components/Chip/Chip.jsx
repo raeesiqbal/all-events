@@ -31,7 +31,6 @@ function Chip({
   useEffect(() => {
     if (adminServices) {
       const isActive = adminServicesSelected.includes(label);
-      console.log(isActive, label);
       if (isActive) {
         setChipActive(true);
       }

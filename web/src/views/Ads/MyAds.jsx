@@ -61,8 +61,6 @@ function MyAds() {
     (a, b) => new Date(b.created_at) - new Date(a.created_at)
   );
 
-  // console.log(width);
-
   return (
     <>
       <Header />

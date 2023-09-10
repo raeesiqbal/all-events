@@ -32,10 +32,7 @@ function ServicesOffered({
     setCurrentService("");
   };
 
-  console.log("adminServicesSelected", adminServicesSelected);
-
   const handleAddItem = (index, label) => {
-    console.log("indexindex", index, label);
     // handleAddServices(label);
     // const newService = {
     //   id: index,
@@ -51,15 +48,12 @@ function ServicesOffered({
   //     (item) => item.id !== indexToRemove
   //   );
   //   setAdminServicesSelected(filteredServices);
-  //   console.log("filteredServices", filteredServices);
   // };
   const handleRemoveAdminService = (_, labelToRemove) => {
-    console.log("labelToRemove", labelToRemove);
     const filteredServices = adminServicesSelected.filter(
       (service) => service !== labelToRemove
     );
     setAdminServicesSelected(filteredServices);
-    console.log("filteredServices", filteredServices);
   };
 
   return (
