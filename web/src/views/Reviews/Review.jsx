@@ -38,7 +38,6 @@ const Review = ({ review }) => {
           <div className="me-2">
             <StarRating averageRating={review.rating} style={{ fontSize: "18px" }} />
           </div>
-          <span style={{ fontSize: "16px", fontWeight: "700", lineHeight: "26px" }}>4</span>
         </div>
         <div className="w-100 mb-2">
           {review.message}

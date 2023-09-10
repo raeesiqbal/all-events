@@ -220,10 +220,10 @@ class MessageViewSet(BaseViewset):
                 ),
             )
         return Response(
-            status=status.HTTP_404_NOT_FOUND,
+            status=status.HTTP_200_OK,
             data=ResponseInfo().format_response(
                 data={},
-                status_code=status.HTTP_404_NOT_FOUND,
+                status_code=status.HTTP_200_OK,
                 message="Chat does not existes",
             ),
         )

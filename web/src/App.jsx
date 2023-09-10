@@ -19,67 +19,67 @@ function App() {
       <Route path="/" element={<Homepage />} />
       <Route
         path="/post-ad"
-        element={
+        element={(
           <ProtectedRoute role="vendor">
             <PostAd />
           </ProtectedRoute>
-        }
+        )}
       />
       <Route
         path="/edit-ad/:id"
-        element={
+        element={(
           <ProtectedRoute role="vendor">
             <EditAd />
           </ProtectedRoute>
-        }
+        )}
       />
       <Route
         path="/profile-settings"
-        element={
+        element={(
           <ProtectedRoute>
             <ProfileView />
           </ProtectedRoute>
-        }
+        )}
       />
       <Route
         path="/my-ads"
-        element={
+        element={(
           <ProtectedRoute role="vendor">
             <MyAds />
           </ProtectedRoute>
-        }
+        )}
       />
       <Route
         path="/view-ad/:adId"
-        element={
+        element={(
           <ProtectedRoute>
             <ViewAd />
           </ProtectedRoute>
-        }
+        )}
       />
       <Route
         path="/messages"
-        element={
+        element={(
           <ProtectedRoute>
             <Chats />
           </ProtectedRoute>
-        }
+        )}
       />
       <Route
         path="/favorite-ads"
-        element={
+        element={(
           <ProtectedRoute>
             <FavoriteAds />
           </ProtectedRoute>
-        }
+        )}
       />
       <Route
         path="/analytics"
-        element={
+        element={(
           <ProtectedRoute>
             <Analytics />
           </ProtectedRoute>
-        }
+        )}
       />
       <Route path="/reset-password" element={<ResetPassword />} />
       {/* <Route

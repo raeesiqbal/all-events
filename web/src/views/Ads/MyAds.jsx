@@ -61,8 +61,6 @@ function MyAds() {
     (a, b) => new Date(b.created_at) - new Date(a.created_at)
   );
 
-  // console.log(width);
-
   return (
     <>
       <Header />
@@ -143,7 +141,7 @@ function MyAds() {
                               : placeholderIcon
                           }
                           alt="AdTemp"
-                          style={{ height: "100%", objectFit: "cover" }}
+                          style={{ height: "100%", maxHeight: "330px", objectFit: "cover" }}
                         />
                       </Col>
                       <Col
@@ -189,9 +187,9 @@ function MyAds() {
                                   maxWidth: "70%",
                                 }}
                               >
-                                {`${
-                                  description && description.slice(0, 200)
-                                }...`}
+                                {
+                                  description && (description.length > 200 ? `${description.slice(0, 200)}...` : description)
+                                }
                               </Card.Text>
                             </div>
 
