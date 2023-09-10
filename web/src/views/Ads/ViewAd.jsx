@@ -165,7 +165,7 @@ function ViewAd() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    isChatExists();
+    if (user?.role === "client") isChatExists();
   }, []);
 
   const onSelect = useCallback((emblaApi) => {
