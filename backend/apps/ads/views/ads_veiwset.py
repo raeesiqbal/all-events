@@ -12,6 +12,7 @@ from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
+from apps.ads.filters import AdCustomFilterBackend
 from apps.ads.serializers.create_serializers import (
     AdCreateSerializer,
     DeleteUrlOnUpdateSerializer,
@@ -81,7 +82,7 @@ class AdViewSet(BaseViewset):
         "premium_vendor_ads": [],
         "public_ads_list": [],
     }
-    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filter_backends = [AdCustomFilterBackend, SearchFilter, OrderingFilter]
     search_param = "search"
     search_fields = [
         "name",
@@ -95,14 +96,12 @@ class AdViewSet(BaseViewset):
         "offered_services",
         "site_services",
     ]
+    ad_filterset_fields=["sub_category__name","site_question_id","answer"]
     ordering_fields = ["name", "sub_category__name", "id"]
     filterset_fields = {
         "sub_category__category__name": ["exact"],
-        "sub_category__name": ["exact"],
         "name": ["exact"],
-        "country__name": ["exact"],
-        "ad_faq_ad__site_question_id": ["exact"],
-        "ad_faq_ad__answer": ["exact"],
+        "country__name": ["exact"]
     }
     user_role_queryset = {
         USER_ROLE_TYPES["VENDOR"]: lambda self: Ad.objects.filter(
