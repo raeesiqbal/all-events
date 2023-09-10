@@ -206,6 +206,7 @@ class AdGetSerializer(BaseSerializer):
         return obj.ad_saved.all().count()
 
     def get_fav(self, obj):
+        return None
         request = self.context["request"]
         if request.user.is_authenticated:
             user = request.user
