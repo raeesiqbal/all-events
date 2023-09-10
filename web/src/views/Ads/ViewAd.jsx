@@ -90,7 +90,7 @@ function ViewAd() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [eventDate, setEventDate] = useState(new Date());
-  const [chatId, setChatId] = useState();
+  const [chatId, setChatId] = useState(null);
 
   const params = useParams();
   const navigate = useNavigate();
@@ -133,7 +133,7 @@ function ViewAd() {
       url: `/api/analytics/ad-chat/${params.adId}/chat-exist/`,
       method: "Get",
     });
-    setChatId(response.data.data.id);
+    if (response.data.data?.id) setChatId(response.data.data.id);
     return response.data.data.id;
   };
 

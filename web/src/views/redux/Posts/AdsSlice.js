@@ -112,9 +112,10 @@ export const listVendorAds = createAsyncThunk(
 
 export const listPublicAds = createAsyncThunk(
   "Ads/public_list",
-  async (data, { rejectWithValue }) => {
+  async (isLoggedIn, { rejectWithValue }) => {
     try {
-      const response = await instance.request({
+      const request = isLoggedIn ? secureInstance : instance;
+      const response = await request.request({
         url: "/api/ads/public-list/",
         method: "Get",
       });
