@@ -81,20 +81,11 @@ class ServiceGetUniqueSerializer(BaseSerializer):
         return representation
 
 
-class SubCategoryGetSerializer(BaseSerializer):
-    category = CategoryCreateSerializer()
-
-
 class CategoryGetSerializer(BaseSerializer):
     class Meta:
         model = Category
         fields = "__all__"
 
-
-class CategoryGetSerializer(BaseSerializer):
-    class Meta:
-        model = Category
-        fields = "__all__"
 
 
 class SubCategoryGetSerializer(BaseSerializer):
@@ -297,4 +288,26 @@ class PremiumAdGetSerializer(BaseSerializer):
 
     class Meta:
         model = Ad
+        fields = "__all__"
+
+
+
+class SubCategoryChildGetSerializer(BaseSerializer):
+    
+    class Meta:
+        model = SubCategory
+        fields = "__all__"
+
+class CategoryKeywordSerializer(BaseSerializer):
+    
+    sub_categories=SubCategoryChildGetSerializer(many=True)
+    class Meta:
+        model = Category
+        fields = "__all__"
+
+class SubCategoryKeywordSerializer(BaseSerializer):
+    category = CategoryCreateSerializer()
+
+    class Meta:
+        model = SubCategory
         fields = "__all__"

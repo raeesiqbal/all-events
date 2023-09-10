@@ -1,6 +1,7 @@
+from apps.ads.serializers.create_serializers import CategoryCreateSerializer
 from apps.analytics.models import AdReview, Chat, Message, ContactRequest
 from apps.utils.serializers.base import BaseSerializer
-from apps.ads.models import Ad, Gallery
+from apps.ads.models import Ad, Category, Gallery, SubCategory
 from apps.ads.serializers.get_serializers import GalleryChildSerializer
 from rest_framework import serializers
 from apps.clients.models import Client
