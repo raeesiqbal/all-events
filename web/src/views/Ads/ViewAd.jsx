@@ -541,7 +541,6 @@ function ViewAd() {
                 ) : (
                   <Form
                     className="message-vendor-form"
-                    onSubmit={submitVendorRequestForm}
                   >
                     <div
                       className="d-flex justify-content-center align-items-center roboto-semi-bold-28px-h2"
@@ -629,8 +628,9 @@ function ViewAd() {
                     </p>
 
                     <Button
-                      type="submit"
+                      type="button"
                       className="btn btn-success roboto-semi-bold-16px-information w-100"
+                      onClick={submitVendorRequestForm}
                     >
                       Send
                     </Button>
