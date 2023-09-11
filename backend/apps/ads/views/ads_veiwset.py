@@ -252,7 +252,6 @@ class AdViewSet(BaseViewset):
             if category not in grouped_data:
                 grouped_data[category] = []
             grouped_data[category].append(subcategory)
-        # print(grouped_data)
         subcategory_serializer = SubCategoryFilterSerializer(many=True)
         category_serializer = CategoryGetSerializer()
         serialized_data = []
@@ -264,10 +263,7 @@ class AdViewSet(BaseViewset):
             serialized_data.append(category_data)
 
         page = self.paginate_queryset(queryset)
-        user = None
 
-        if request.user.is_authenticated:
-            user = request.user
         if page != None:
             serializer = self.get_serializer(
                 page,
