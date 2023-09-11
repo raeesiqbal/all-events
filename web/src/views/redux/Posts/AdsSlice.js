@@ -240,7 +240,7 @@ export const AdsSlice = createSlice({
       })
       .addCase(listPublicAds.fulfilled, (state, action) => {
         state.loading = false;
-        state.publicAds = action.payload.data;
+        state.publicAds = action.payload.data.data;
       })
       .addCase(listPublicAds.rejected, (state, action) => {
         state.loading = false;
