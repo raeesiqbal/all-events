@@ -13,6 +13,8 @@ from apps.ads.models import (
     SiteQuestion,
     SiteFAQ,
     AdFAQ,
+    SiteQuestion,
+    SiteFAQ,
 )
 from apps.analytics.models import FavouriteAd
 from apps.companies.models import Company
@@ -85,7 +87,6 @@ class CategoryGetSerializer(BaseSerializer):
     class Meta:
         model = Category
         fields = "__all__"
-
 
 
 class SubCategoryGetSerializer(BaseSerializer):
@@ -291,19 +292,52 @@ class PremiumAdGetSerializer(BaseSerializer):
         fields = "__all__"
 
 
-
 class SubCategoryChildGetSerializer(BaseSerializer):
-    
     class Meta:
         model = SubCategory
         fields = "__all__"
 
+
+class SiteQuestionSerializer(BaseSerializer):
+    class Meta:
+        model = SiteQuestion
+        fields = ["question", "suggestion"]
+
+
+class SiteFaqSerializer(BaseSerializer):
+    site_faq_questions = SiteQuestionSerializer(many=True, read_only=True)
+    section = serializers.SerializerMethodField()
+
+    class Meta:
+        model = SiteFAQ
+        fields = ["section", "site_faq_questions"]
+
+    def get_section(self, obj):
+        return obj.section.name
+
+
+class ServiceFilterSerializer(BaseSerializer):
+    class Meta:
+        model = Service
+        fields = ["service"]
+
+
+class SubCategoryFilterSerializer(BaseSerializer):
+    site_faq_sub_category = SiteFaqSerializer(many=True, read_only=True)
+    service_sub_category = ServiceFilterSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = SubCategory
+        fields = ["name", "site_faq_sub_category", "service_sub_category"]
+
+
 class CategoryKeywordSerializer(BaseSerializer):
-    
-    sub_categories=SubCategoryChildGetSerializer(many=True)
+    sub_categories = SubCategoryChildGetSerializer(many=True)
+
     class Meta:
         model = Category
         fields = "__all__"
+
 
 class SubCategoryKeywordSerializer(BaseSerializer):
     category = CategoryCreateSerializer()

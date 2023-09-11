@@ -12,7 +12,7 @@ from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-from apps.ads.constants import  SEARCH_TYPE_MAPPING
+from apps.ads.constants import SEARCH_TYPE_MAPPING
 from apps.ads.filters import AdCustomFilterBackend
 from apps.ads.serializers.create_serializers import (
     AdCreateSerializer,
@@ -29,6 +29,8 @@ from apps.ads.serializers.get_serializers import (
     SuggestionGetSerializer,
     AdRetriveSerializer,
     PremiumAdGetSerializer,
+    CategoryGetSerializer,
+    SubCategoryFilterSerializer,
 )
 from apps.ads.serializers.update_serializer import AdUpdateSerializer
 from apps.companies.models import Company
@@ -69,8 +71,7 @@ class AdViewSet(BaseViewset):
         "retrieve": AdGetSerializer,
         "fetch_suggestion_list": SearchStringSerializer,
         "premium_venue_ads": PremiumAdGetSerializer,
-        "premium_vendor_ads": PremiumAdGetSerializer
-        
+        "premium_vendor_ads": PremiumAdGetSerializer,
     }
     action_permissions = {
         "default": [],
@@ -85,7 +86,7 @@ class AdViewSet(BaseViewset):
         "premium_venue_ads": [],
         "premium_vendor_ads": [],
         "public_ads_list": [],
-        "keyword_details":[]
+        "keyword_details": [],
     }
     filter_backends = [AdCustomFilterBackend, SearchFilter, OrderingFilter]
     search_param = "search"
@@ -235,6 +236,33 @@ class AdViewSet(BaseViewset):
     @action(detail=False, url_path="public-list", methods=["get"])
     def public_ads_list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(Ad.objects.all())
+
+        sub_categories = queryset.values_list("sub_category").distinct()
+        sub_categories = (
+            SubCategory.objects.filter(id__in=sub_categories)
+            .prefetch_related(
+                "site_faq_sub_category__site_faq_questions",
+                "service_sub_category",
+            )
+            .all()
+        )
+        grouped_data = {}
+        for subcategory in sub_categories:
+            category = subcategory.category
+            if category not in grouped_data:
+                grouped_data[category] = []
+            grouped_data[category].append(subcategory)
+        # print(grouped_data)
+        subcategory_serializer = SubCategoryFilterSerializer(many=True)
+        category_serializer = CategoryGetSerializer()
+        serialized_data = []
+        for category, subcategories in grouped_data.items():
+            category_data = category_serializer.to_representation(category)
+            category_data["subcategories"] = subcategory_serializer.to_representation(
+                subcategories
+            )
+            serialized_data.append(category_data)
+
         page = self.paginate_queryset(queryset)
         user = None
 
@@ -258,7 +286,9 @@ class AdViewSet(BaseViewset):
         return Response(
             status=status.HTTP_200_OK,
             data=ResponseInfo().format_response(
-                data=data, status_code=status.HTTP_200_OK, message="Ads List"
+                data={"data": data, "filter": serialized_data},
+                status_code=status.HTTP_200_OK,
+                message="Ads List",
             ),
         )
 
@@ -445,21 +475,21 @@ class AdViewSet(BaseViewset):
 
     @action(detail=False, url_path="keyword-details", methods=["get"])
     def keyword_details(self, request, *args, **kwargs):
-        data=[]
-        type=request.GET.get('type')
-        keyword=SEARCH_TYPE_MAPPING[type]
-        value=request.GET.get(keyword)
+        data = []
+        type = request.GET.get("type")
+        keyword = SEARCH_TYPE_MAPPING[type]
+        value = request.GET.get(keyword)
         if value and type:
-            
-            obj=KEYWORD_MODEL_MAPPING[keyword].objects.filter(name__iexact=value).first()
-            if obj._meta.model==Category:
-                data=CategoryKeywordSerializer(obj).data
-            elif obj._meta.model==SubCategory:
-                data=SubCategoryKeywordSerializer(obj).data
-            
-                
-        
-       
+            obj = (
+                KEYWORD_MODEL_MAPPING[keyword]
+                .objects.filter(name__iexact=value)
+                .first()
+            )
+            if obj._meta.model == Category:
+                data = CategoryKeywordSerializer(obj).data
+            elif obj._meta.model == SubCategory:
+                data = SubCategoryKeywordSerializer(obj).data
+
         return Response(
             status=status.HTTP_200_OK,
             data=ResponseInfo().format_response(

@@ -1,4 +1,4 @@
-from apps.ads.models import SubCategory,Category,Ad
+from apps.ads.models import SubCategory, Category, Ad
 
 
 SUBSCRIPTION_TYPES = {
@@ -13,7 +13,7 @@ PRODUCT_NAMES = {
     "featured": "featured",
 }
 KEYWORD_MODEL_MAPPING = {
-    "sub_category__name":SubCategory,
-    "sub_category__category__name":Category,
-    "commercial_name":Ad
+    "sub_category__name": SubCategory,
+    "sub_category__category__name": Category,
+    "commercial_name": Ad,
 }
