@@ -485,6 +485,11 @@ function PostAd() {
     }
   };
 
+  const handleCategoryClicked = () => {
+    setPreDefinedFAQs([]);
+    setAdminServices([]);
+  };
+
   const hasUnsavedChanges = (values) =>
     selectedCountries.length !== "" ||
     imagesToUpload.length > 0 ||
@@ -650,6 +655,7 @@ function PostAd() {
                   handleIsSubCategoryChanged={handleIsSubCategoryChanged}
                   handleChange={handleChange}
                   handleBlur={handleBlur}
+                  handleCategoryClicked={handleCategoryClicked}
                 />
 
                 <ImageUploader

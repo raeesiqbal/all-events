@@ -429,6 +429,11 @@ function EditAd() {
     }
   };
 
+  const handleCategoryClicked = () => {
+    setPreDefinedFAQs([]);
+    setAdminServices([]);
+  };
+
   const getAdInfo = async () => {
     try {
       // setLoading(true);
@@ -439,30 +444,38 @@ function EditAd() {
       setSelectedCountries(
         request.data.data.activation_countries.map((country) => country.id)
       );
+
+      console.log("request---------------", request);
       const faqsWithAddedProperty = request.data.data?.ad_faqs.map((item) => ({
         ...item,
         added: true,
       }));
+
       setAdminServices(request.data.data?.site_services[0]?.service);
 
-      const serverFaqsMap = request.data.data.ad_faq_ad.map((serverFAQ) => ({
-        site_faq_questions: [
-          {
-            question: serverFAQ.site_question.question,
-            suggestion: serverFAQ.site_question.suggestion,
-            answer: serverFAQ.answer,
-            id: serverFAQ.site_question.id,
-          },
-        ],
-      }));
+      const serverFaqsMap = request.data.data?.ad_faq_ad
+        ? request.data.data?.ad_faq_ad.map((serverFAQ) => ({
+            site_faq_questions: [
+              {
+                question: serverFAQ.site_question.question,
+                suggestion: serverFAQ.site_question.suggestion,
+                answer: serverFAQ.answer,
+                id: serverFAQ.site_question.id,
+              },
+            ],
+          }))
+        : [];
 
-      const initialSelectedValues = request.data.data.ad_faq_ad.map((item) => [
-        {
-          value: item.answer,
-          question: item.site_question.question,
-          id: item.site_question.id,
-        },
-      ]);
+
+      const initialSelectedValues = request.data.data?.ad_faq_ad
+        ? request.data.data?.ad_faq_ad.map((item) => [
+            {
+              value: item.answer,
+              question: item.site_question.question,
+              id: item.site_question.id,
+            },
+          ])
+        : [];
 
       setSelectedValuesServerFAQ(initialSelectedValues);
 
@@ -470,8 +483,13 @@ function EditAd() {
 
       setPreDefinedFAQs(serverFaqsMap);
 
-      setAdminServices(request.data.data.site_services_list[0].service);
+      if (request.data.data.site_services_list?.length > 0) {
+        setAdminServices(request.data.data.site_services_list[0].service);
+      }
+      console.log("test line --------------------------");
+
       setAdminServicesSelected(request.data.data.site_services);
+
 
       setLocalInitialValues({
         companyInformation: {
@@ -640,6 +658,8 @@ function EditAd() {
           </div>
         </div>
       </div>
+      {console.log("currentAd", currentAd)}
+      {console.log("localInitialValues", localInitialValues)}
 
       <Container
         fluid
@@ -682,6 +702,7 @@ function EditAd() {
                     handleIsSubCategoryChanged={handleIsSubCategoryChanged}
                     handleChange={handleChange}
                     handleBlur={handleBlur}
+                    handleCategoryClicked={handleCategoryClicked}
                     isEditView
                   />
 

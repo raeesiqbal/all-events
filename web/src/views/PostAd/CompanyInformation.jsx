@@ -25,6 +25,7 @@ function CompanyInformation({
   isMultipleCountries,
   setIsMultipleCountries,
   handleIsSubCategoryChanged,
+  handleCategoryClicked,
 }) {
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
@@ -239,6 +240,7 @@ function CompanyInformation({
                   fetchSubCategories(e.target.value);
                   handleChange(e);
                 }}
+                onClick={() => handleCategoryClicked()}
                 // onBlur={handleBlur}
                 isValid={touched.category && !errors.category}
                 isInvalid={touched.category && !!errors.category}
