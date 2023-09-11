@@ -345,7 +345,9 @@ const Chat = ({ chat, isOpenChat }) => {
             onClick={() => {
               setDeleteModal(false);
               dispatch(deleteChat(chat.id));
-              dispatch(listChats());
+              setTimeout(() => {
+                dispatch(listChats());
+              }, 2000);
             }}
           >
             Yes
