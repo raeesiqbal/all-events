@@ -18,4 +18,4 @@ class Subscription(NewAbstractModel):
         "companies.Company", on_delete=models.CASCADE, related_name="my_subscriptions"
     )
     stripe_customer_id = models.TextField(null=True, blank=True)
-    extras = models.JSONField(default=dict)
+    extras = models.JSONField(default=dict, null=True, blank=True)

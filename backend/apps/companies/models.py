@@ -39,11 +39,11 @@ class Company(NewAbstractModel):
     city = models.TextField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
-        if not Subscription.objects.filter(company_id=self.id).exists():
-            Subscription.objects.create(
-                company_id=self.id, type=SUBSCRIPTION_TYPES["FEATURED"]
-            )
         super(Company, self).save(*args, **kwargs)
+        if not Subscription.objects.filter(company=self).exists():
+            Subscription.objects.create(
+                company=self, type=SUBSCRIPTION_TYPES["FEATURED"]
+            )
 
     class Meta:
         verbose_name = "Company"
