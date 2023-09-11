@@ -40,7 +40,9 @@ class Company(NewAbstractModel):
 
     def save(self, *args, **kwargs):
         if not Subscription.objects.filter(company_id=self.id).exists():
-            Subscription.objects.create(company_id=self.id,type=SUBSCRIPTION_TYPES["FEATURED"])
+            Subscription.objects.create(
+                company_id=self.id, type=SUBSCRIPTION_TYPES["FEATURED"]
+            )
         super(Company, self).save(*args, **kwargs)
 
     class Meta:
