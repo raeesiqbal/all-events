@@ -202,7 +202,7 @@ function Login() {
   };
 
   useEffect(() => {
-    if (isRegisterView && error) {
+    if (isRegisterView && error && error.user?.email) {
       if (error.user.email.length > 0) {
         dispatch(setActiveStep(0));
       }
@@ -587,7 +587,7 @@ function Login() {
 
               {error && (
                 <Alert severity="error" style={{ marginBottom: "10px" }}>
-                  {error.user.email.length > 0 ? error.user.email[0] : "Error"}
+                  {error.user?.email && error.user.email.length > 0 ? error.user.email[0] : "Error"}
                 </Alert>
               )}
               {

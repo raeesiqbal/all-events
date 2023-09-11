@@ -239,30 +239,31 @@ class AdViewSet(BaseViewset):
         offset = self.request.query_params.get("offset")
 
         filter_data = []
-        if int(offset) == 0:
-            sub_categories = queryset.values_list("sub_category").distinct()
-            sub_categories = (
-                SubCategory.objects.filter(id__in=sub_categories)
-                .prefetch_related(
-                    "site_faq_sub_category__site_faq_questions",
-                    "service_sub_category",
+        if offset:
+            if int(offset) == 0:
+                sub_categories = queryset.values_list("sub_category").distinct()
+                sub_categories = (
+                    SubCategory.objects.filter(id__in=sub_categories)
+                    .prefetch_related(
+                        "site_faq_sub_category__site_faq_questions",
+                        "service_sub_category",
+                    )
+                    .all()
                 )
-                .all()
-            )
-            grouped_data = {}
-            for subcategory in sub_categories:
-                category = subcategory.category
-                if category not in grouped_data:
-                    grouped_data[category] = []
-                grouped_data[category].append(subcategory)
-            subcategory_serializer = SubCategoryFilterSerializer(many=True)
-            category_serializer = CategoryGetSerializer()
-            for category, subcategories in grouped_data.items():
-                category_data = category_serializer.to_representation(category)
-                category_data[
-                    "subcategories"
-                ] = subcategory_serializer.to_representation(subcategories)
-                filter_data.append(category_data)
+                grouped_data = {}
+                for subcategory in sub_categories:
+                    category = subcategory.category
+                    if category not in grouped_data:
+                        grouped_data[category] = []
+                    grouped_data[category].append(subcategory)
+                subcategory_serializer = SubCategoryFilterSerializer(many=True)
+                category_serializer = CategoryGetSerializer()
+                for category, subcategories in grouped_data.items():
+                    category_data = category_serializer.to_representation(category)
+                    category_data[
+                        "subcategories"
+                    ] = subcategory_serializer.to_representation(subcategories)
+                    filter_data.append(category_data)
 
         page = self.paginate_queryset(queryset)
 
