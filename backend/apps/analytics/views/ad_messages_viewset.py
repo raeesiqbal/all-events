@@ -102,7 +102,7 @@ class MessageViewSet(BaseViewset):
             return Response(
                 status=status.HTTP_200_OK,
                 data=ResponseInfo().format_response(
-                    data={},
+                    data={"id": chat.id},
                     status_code=status.HTTP_200_OK,
                     message="Chat has been created successfully",
                 ),
