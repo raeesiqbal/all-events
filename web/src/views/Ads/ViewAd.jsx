@@ -166,7 +166,7 @@ function ViewAd() {
   useEffect(() => {
     window.scrollTo(0, 0);
     if (user?.role === "client") isChatExists();
-  }, []);
+  }, [user]);
 
   const onSelect = useCallback((emblaApi) => {
     // setSelectedIndex(emblaApi.selectedScrollSnap());
