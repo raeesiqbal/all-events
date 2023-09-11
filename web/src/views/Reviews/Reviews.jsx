@@ -29,8 +29,8 @@ const Reviews = ({ adId, adName }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   const handleImageUpload = (event) => {
-    event.preventDefault();
     setIsLoading(true);
+    event.preventDefault();
     const uploadedImage = event.target.files[0];
     const updatedImages = [...postReview.photos];
 
@@ -102,7 +102,8 @@ const Reviews = ({ adId, adName }) => {
     });
   };
 
-  const resetForm = () => {
+  const resetForm = (isDelete = true) => {
+    if (isDelete) imagesToUpload.map((image, index) => removeImage(image, index));
     dispatch(setImagesToUpload([]));
     setPostReview({
       name: "",
@@ -115,7 +116,7 @@ const Reviews = ({ adId, adName }) => {
   const submitReview = () => {
     dispatch(addReview({ id: adId, data: postReview }));
     setIsHide(true);
-    resetForm();
+    resetForm(false);
   };
 
   const viewMoreReviews = () => {
@@ -129,15 +130,26 @@ const Reviews = ({ adId, adName }) => {
   };
 
   useEffect(() => {
-    setTimeout(() => {
-      dispatch(listAdReviews({
-        id: adId,
-        offset,
-        limit,
-        page,
-      }));
-    }, 2000);
+    if (isHide) {
+      setTimeout(() => {
+        dispatch(listAdReviews({
+          id: adId,
+          offset,
+          limit,
+          page,
+        }));
+      }, 1000);
+    }
   }, [isHide]);
+
+  useEffect(() => {
+    dispatch(listAdReviews({
+      id: adId,
+      offset,
+      limit,
+      page,
+    }));
+  }, []);
 
   useEffect(() => {
     setPostReview({
@@ -147,15 +159,11 @@ const Reviews = ({ adId, adName }) => {
     setIsLoading(false);
   }, [imagesToUpload]);
 
-  useEffect(() => {
-    if (postReview.title !== null && postReview.message !== null && postReview.rating > 0) setIsLoading(false);
-  }, [postReview]);
-
   return (
     <>
       <Modal
         show={!isHide}
-        onHide={() => resetForm()}
+        onHide={() => setIsHide(true)}
         dialogClassName="modal-90w"
         aria-labelledby="example-custom-modal-styling-title"
         centered="true"

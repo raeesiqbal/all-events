@@ -50,6 +50,7 @@ const Chat = ({ chat, isOpenChat }) => {
       dispatch(sendMessage({ id: chat.id, data: { text: messageText, attachments: attachment } }));
     }
     setMessageText("");
+    setAttachment(null);
     dispatch(listChatMessages(chat.id));
   };
 
@@ -82,6 +83,24 @@ const Chat = ({ chat, isOpenChat }) => {
     } else {
       // Handle video size error
       console.log("File size should be less than or equal to 25MB");
+    }
+  };
+
+  const removeImage = async () => {
+    try {
+      const response = await secureInstance.request({
+        url: "/api/ads/delete-url/",
+        method: "Post",
+        data: {
+          url: attachment[0],
+        },
+      });
+
+      if (response.status === 200) {
+        setAttachment(null);
+      }
+    } catch (e) {
+      // Image is not deleted
     }
   };
 
@@ -231,7 +250,7 @@ const Chat = ({ chat, isOpenChat }) => {
                             </p>
                             <div className="d-flex w-100 justify-content-between" style={{ fontSize: "10px" }}>
                               {
-                                message.attachmentss !== [] ? (
+                                message.attachments !== null ? (
                                   <a
                                     href={message.attachments}
                                     style={{ color: "#A0C49D", textDecoration: "none" }}
@@ -270,9 +289,12 @@ const Chat = ({ chat, isOpenChat }) => {
                         <input type="file" accept="image/*,video/*,.pdf" onChange={handleAttachment} />
                       </>
                     ) : (
-                      <a href={attachment} style={{ textDecoration: "none" }} target="_blank" rel="noreferrer">
-                        <FontAwesomeIcon icon="fa-solid fa-paperclip" beatFade />
-                      </a>
+                      <>
+                        <div onClick={removeImage}>-</div>
+                        <a href={attachment} style={{ textDecoration: "none" }} target="_blank" rel="noreferrer">
+                          <FontAwesomeIcon icon="fa-solid fa-paperclip" beatFade />
+                        </a>
+                      </>
                     )
                   )
                 }
