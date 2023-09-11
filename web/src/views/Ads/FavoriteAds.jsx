@@ -154,7 +154,7 @@ const FavoriteAds = () => {
                                       style={{ color: "#e8091c" }}
                                       onClick={() => {
                                         dispatch(favoriteAd(ad.id));
-                                        window.location.reload();
+                                        dispatch(listFavoriteAds());
                                       }}
                                     />
                                   </div>

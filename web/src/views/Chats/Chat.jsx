@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import {
   Button,
   Card,
@@ -10,20 +10,23 @@ import { Link } from "react-router-dom";
 import dayjs from "dayjs";
 // import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { CircularProgress } from "@mui/material";
 import deleteIcon from "../../assets/images/post-ad/delete.svg";
 import timeIcon from "../../assets/images/post-ad/carbon_time.svg";
 import archiveIcon from "../../assets/images/ph_archive-box-light.svg";
 import gotoIcon from "../../assets/images/post-ad/goto.svg";
 import phoneIcon from "../../assets/images/fluent_call.svg";
 import defaultProfilePhoto from "../../assets/images/profile-settings/person.svg";
-import { archiveChat, deleteChat } from "../redux/Chats/ChatsSlice";
+import { archiveChat, deleteChat, listChats } from "../redux/Chats/ChatsSlice";
 import { listChatMessages, sendMessage } from "../redux/Messages/MessagesSlice";
 import "./Chats.css";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { secureInstance } from "../../axios/config";
 
 const Chat = ({ chat, isOpenChat }) => {
   // const navigate = useNavigate();
   const dispatch = useDispatch();
+  const messageBody = useRef(null);
 
   const messages = useSelector((state) => state.messages.messages);
   const additionalInfo = useSelector((state) => state.messages.additionalInfo);
@@ -32,6 +35,8 @@ const Chat = ({ chat, isOpenChat }) => {
   const [modalShow, setModalShow] = React.useState(isOpenChat);
   const [deleteModal, setDeleteModal] = React.useState(false);
   const [messageText, setMessageText] = React.useState("");
+  const [attachment, setAttachment] = React.useState(null);
+  const [isLoading, setIsLoading] = React.useState(false);
 
   let dates = [];
 
@@ -41,7 +46,43 @@ const Chat = ({ chat, isOpenChat }) => {
   };
 
   const sendChatMessage = () => {
-    dispatch(sendMessage({ id: chat.id, data: { text: messageText } }));
+    if (messageText !== "" || attachment !== null) {
+      dispatch(sendMessage({ id: chat.id, data: { text: messageText, attachments: attachment } }));
+    }
+    setMessageText("");
+    dispatch(listChatMessages(chat.id));
+  };
+
+  const uploadFileToCloud = async (uploadedVideo) => {
+    const formData = new FormData(); // pass in the form
+    formData.append("file", uploadedVideo);
+    formData.append("content_type", uploadedVideo.type);
+
+    try {
+      const request = await secureInstance.request({
+        url: "/api/ads/upload-url/",
+        method: "Post",
+        data: formData,
+      });
+      setAttachment([request.data.data.file_url]);
+    } catch (e) {
+      // --------- WILL ROUTE ON SOME PAGE ON FAILURE ---------
+      console.log("error", e);
+    }
+    setIsLoading(false);
+  };
+
+  const handleAttachment = (event) => {
+    event.preventDefault();
+    setIsLoading(true);
+    const uploadedVideo = event.target.files[0];
+
+    if (uploadedVideo && uploadedVideo.size <= 25000000) {
+      uploadFileToCloud(uploadedVideo);
+    } else {
+      // Handle video size error
+      console.log("File size should be less than or equal to 25MB");
+    }
   };
 
   const date = (d) => new Date(d);
@@ -72,6 +113,12 @@ const Chat = ({ chat, isOpenChat }) => {
   useEffect(() => {
     if (modalShow) dispatch(listChatMessages(chat.id));
   }, [modalShow]);
+
+  useEffect(() => {
+    if (messageBody.current) {
+      messageBody.current.scrollTop = messageBody.current.scrollHeight;
+    }
+  }, [messages]);
 
   return (
     <>
@@ -105,7 +152,7 @@ const Chat = ({ chat, isOpenChat }) => {
               Ad Details
             </Link>
           </div>
-          <div className="mb-3 message-body">
+          <div className="mb-3 message-body" ref={messageBody}>
             {
               messages.map((message) => {
                 const dateContent = (!dates.includes(formattedDate(message.created_at))) ? (
@@ -136,9 +183,17 @@ const Chat = ({ chat, isOpenChat }) => {
                               borderTopRightRadius: "0px",
                             }}
                           >
-                            <p style={{ fontSize: "14px" }}>{message.text}</p>
+                            <p className={message.text ? "" : "text-secondary"} style={{ fontSize: `${message.text ? "14px" : "12px"}` }}>
+                              {message.text || "Attachment sent"}
+                            </p>
                             <div className="d-flex w-100 justify-content-between" style={{ fontSize: "10px" }}>
-                              <div style={{ color: "#A0C49D" }} />
+                              {
+                                message.attachments !== null ? (
+                                  <a href={message.attachments} style={{ color: "#A0C49D", textDecoration: "none" }} target="_blank" rel="noreferrer">View Attachment</a>
+                                ) : (
+                                  <div />
+                                )
+                              }
                               <div>{getTime(message.created_at)}</div>
                             </div>
                           </div>
@@ -171,9 +226,24 @@ const Chat = ({ chat, isOpenChat }) => {
                               borderTopLeftRadius: "0px",
                             }}
                           >
-                            <p style={{ fontSize: "14px" }}>{message.text}</p>
+                            <p className={message.text ? "" : "text-secondary"} style={{ fontSize: `${message.text ? "14px" : "12px"}` }}>
+                              {message.text || "Attachment received"}
+                            </p>
                             <div className="d-flex w-100 justify-content-between" style={{ fontSize: "10px" }}>
-                              <div style={{ color: "#A0C49D" }} />
+                              {
+                                message.attachmentss !== [] ? (
+                                  <a
+                                    href={message.attachments}
+                                    style={{ color: "#A0C49D", textDecoration: "none" }}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                  >
+                                    View Attachment
+                                  </a>
+                                ) : (
+                                  <div />
+                                )
+                              }
                               <div>{getTime(message.created_at)}</div>
                             </div>
                           </div>
@@ -188,15 +258,32 @@ const Chat = ({ chat, isOpenChat }) => {
           <div className="w-100 pt-3 border-top border-grey" style={{ height: "fit-content", display: "flex" }}>
             <div className="d-flex" style={{ width: "86%", height: "44px" }}>
               <input type="text" className="send-message-input" placeholder="Type a message" value={messageText} onChange={(e) => setMessageText(e.target.value)} />
-              <button type="button" className="send-message-button" onClick={sendChatMessage}>Send</button>
+              <button type="button" className="send-message-button" disabled={isLoading} onClick={sendChatMessage}>Send</button>
             </div>
             <div className="d-flex justify-content-center" style={{ width: "14%" }}>
               <div className="upload-message-img">
-                <span>+</span>
-                <input type="file" accept="image/*,video/*,.pdf" />
+                {
+                  !isLoading && (
+                    attachment === null ? (
+                      <>
+                        <span>+</span>
+                        <input type="file" accept="image/*,video/*,.pdf" onChange={handleAttachment} />
+                      </>
+                    ) : (
+                      <a href={attachment} style={{ textDecoration: "none" }} target="_blank" rel="noreferrer">
+                        <FontAwesomeIcon icon="fa-solid fa-paperclip" beatFade />
+                      </a>
+                    )
+                  )
+                }
+                {isLoading && (
+                  <>
+                    <div className="d-flex justify-content-center align-items-center loading-image-container" />
+                    <CircularProgress className="attachment-loader" />
+                  </>
+                )}
               </div>
             </div>
-            {/* <FontAwesomeIcon icon="fa-solid fa-paperclip" beatFade /> */}
           </div>
         </Modal.Body>
       </Modal>
@@ -236,7 +323,7 @@ const Chat = ({ chat, isOpenChat }) => {
             onClick={() => {
               setDeleteModal(false);
               dispatch(deleteChat(chat.id));
-              window.location.reload();
+              dispatch(listChats());
             }}
           >
             Yes

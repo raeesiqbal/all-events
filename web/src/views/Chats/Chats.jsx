@@ -4,6 +4,7 @@ import { useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { Container } from "react-bootstrap";
 import { listChats } from "../redux/Chats/ChatsSlice";
+import { listChatMessages } from "../redux/Messages/MessagesSlice";
 import Header from "../../components/Navbar/Navbar";
 import Footer from "../../components/Footer/Footer";
 import TabNavigation from "../../components/TabNavigation/TabNavigation";
@@ -28,6 +29,13 @@ function Chats() {
     window.scrollTo(0, 0);
     dispatch(listChats());
   }, []);
+
+  useEffect(() => {
+    if (chatId) {
+      dispatch(listChatMessages(chatId));
+      dispatch(listChats());
+    }
+  }, [chatId]);
 
   useEffect(() => {
     const isArchived = activeTab === "Archived";
