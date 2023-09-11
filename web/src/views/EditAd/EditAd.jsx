@@ -76,10 +76,6 @@ function EditAd() {
       return;
     }
 
-    console.log("selectedValuesServerFAQ", selectedValuesServerFAQ);
-
-    // return;
-
     const extractSubCatId = values.companyInformation.sub_category.id
       ? parseInt(values.companyInformation.sub_category.id, 10)
       : parseInt(values.companyInformation.sub_category, 10);
@@ -95,8 +91,6 @@ function EditAd() {
           answer: questionValues.value,
         }))
     );
-
-    console.log("adminServicesSelected", adminServicesSelected);
 
     // const adminServicesMap = adminServicesSelected.map(
     //   (service) => service.label
@@ -309,10 +303,6 @@ function EditAd() {
     setPdfsToUpload(images);
   };
 
-  const handleClickSubmit = () => {
-    // console.log("submit clickedddddddddddd");
-  };
-
   const handleAddFAQ = (index, values, setValues) => {
     const currentFAQ = values.FAQ.faqs[index];
     currentFAQ.added = true;
@@ -412,8 +402,6 @@ function EditAd() {
   };
 
   const handleIsSubCategoryChanged = async (id) => {
-    console.log("handleIsSubCategoryChanged", id);
-
     try {
       const request = await secureInstance.request({
         url: `api/ads/service/${id}/get-services/`,
@@ -424,7 +412,7 @@ function EditAd() {
         url: `api/ads/site/${id}/site-questions/`,
         method: "Get",
       });
-      console.log("request.data.data[0]", request.data.data);
+
       setPreDefinedFAQs(responseSiteQuestions.data.data);
       if (
         request.data.data[0] !== undefined &&
@@ -435,7 +423,6 @@ function EditAd() {
         // alert("emptyyyyyyyyy");
         setAdminServices([]);
       }
-      // console.log("request.data", request.data.data[0].service);
     } catch (err) {
       // Handle login error here if needed
       console.log(err);
@@ -479,7 +466,6 @@ function EditAd() {
           }))
         : [];
 
-      console.log("serverFaqsMap", serverFaqsMap);
 
       const initialSelectedValues = request.data.data?.ad_faq_ad
         ? request.data.data?.ad_faq_ad.map((item) => [
@@ -504,10 +490,6 @@ function EditAd() {
 
       setAdminServicesSelected(request.data.data.site_services);
 
-      // console.log(
-      //   "request.data.data?.site_services[0]?.service",
-      //   request.data.data?.site_services[0]?.service
-      // );
 
       setLocalInitialValues({
         companyInformation: {

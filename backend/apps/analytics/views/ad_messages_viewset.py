@@ -91,8 +91,10 @@ class MessageViewSet(BaseViewset):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         message = serializer.validated_data.pop("message", {})
+        ad = serializer.validated_data.pop("ad", {})
         client = Client.objects.get(user=request.user)
-        if not Chat.objects.filter(**serializer.validated_data, client=client).exists():
+
+        if not Chat.objects.filter(ad=ad, client=client).exists():
             chat = Chat.objects.create(**serializer.validated_data, client=client)
             msg = Message.objects.create(chat=chat, sender=request.user, text=message)
             chat.latest_message = msg
@@ -142,6 +144,9 @@ class MessageViewSet(BaseViewset):
     def chat_message(self, request, *args, **kwargs):
         if Chat.objects.filter(id=kwargs.get("pk")).exists():
             chat = Chat.objects.filter(id=kwargs.get("pk")).first()
+            chat.is_delete_client = False
+            chat.is_delete_vendor = False
+            chat.save()
 
             if request.user.role_type == USER_ROLE_TYPES["CLIENT"]:
                 dic = {

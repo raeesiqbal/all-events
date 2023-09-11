@@ -95,10 +95,6 @@ function PostAd() {
       return;
     }
 
-    console.log(
-      "ON SUBMIT TEST => adminServicesSelected",
-      adminServicesSelected
-    );
     const flattenedServerFAQs = selectedValuesServerFAQ.flatMap(
       (sectionValues) =>
         sectionValues.map((questionValues) => ({
@@ -107,7 +103,6 @@ function PostAd() {
         }))
     );
 
-    console.log("ON SUBMIT TEST => flattenedAnswers", flattenedServerFAQs);
     // return;
     // const addSubCategoryToFaqs = values.FAQ.faqs.map((faq) => {
     //   faq,
@@ -428,8 +423,6 @@ function PostAd() {
     });
   };
 
-  console.log("adminServicesSelected", adminServicesSelected);
-
   const handleRemoveService = (indexToRemove, values, setValues) => {
     const clonedServices = [...values.servicesOffered.services];
     const deletedService = clonedServices.filter(
@@ -466,8 +459,6 @@ function PostAd() {
   };
 
   const handleIsSubCategoryChanged = async (id) => {
-    console.log("handleIsSubCategoryChanged", id);
-
     try {
       const request = await secureInstance.request({
         url: `api/ads/service/${id}/get-services/`,
@@ -478,7 +469,6 @@ function PostAd() {
         url: `api/ads/site/${id}/site-questions/`,
         method: "Get",
       });
-      console.log("request.data.data[0]", request.data.data);
       setPreDefinedFAQs(responseSiteQuestions.data.data);
       if (
         request.data.data[0] !== undefined &&
@@ -489,7 +479,6 @@ function PostAd() {
         // alert("emptyyyyyyyyy");
         setAdminServices([]);
       }
-      // console.log("request.data", request.data.data[0].service);
     } catch (err) {
       // Handle login error here if needed
       console.log(err);
@@ -534,8 +523,6 @@ function PostAd() {
     }
     // return () => clearTimeout(alertTimeout);
   }, [isWelcomeUserAlert]);
-
-  console.log("adminServices", adminServices);
 
   return (
     <div style={{ position: "relative", overflowX: "hidden" }}>
@@ -744,7 +731,6 @@ function PostAd() {
                   }
                 />
 
-                {console.log("preDefinedFAQs", preDefinedFAQs)}
                 {preDefinedFAQs.length > 0 && (
                   <ServerFAQs
                     // values={values}

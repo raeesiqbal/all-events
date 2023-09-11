@@ -12,6 +12,8 @@ from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
+from apps.ads.constants import SEARCH_TYPE_MAPPING
+from apps.ads.filters import AdCustomFilterBackend
 from apps.ads.serializers.create_serializers import (
     AdCreateSerializer,
     DeleteUrlOnUpdateSerializer,
@@ -22,9 +24,13 @@ from apps.ads.serializers.create_serializers import (
 from apps.ads.serializers.get_serializers import (
     AdGetSerializer,
     AdPublicGetSerializer,
+    CategoryKeywordSerializer,
+    SubCategoryKeywordSerializer,
     SuggestionGetSerializer,
     AdRetriveSerializer,
     PremiumAdGetSerializer,
+    CategoryGetSerializer,
+    SubCategoryFilterSerializer,
 )
 from apps.ads.serializers.update_serializer import AdUpdateSerializer
 from apps.companies.models import Company
@@ -34,7 +40,7 @@ from apps.users.models import User
 from django.db.models import F
 
 from apps.users.permissions import IsClient, IsSuperAdmin, IsVendorUser
-from apps.utils.constants import SUBSCRIPTION_TYPES
+from apps.utils.constants import KEYWORD_MODEL_MAPPING, SUBSCRIPTION_TYPES
 from apps.utils.services.email_service import send_email_to_user
 from apps.utils.services.s3_service import S3Service
 from apps.utils.views.base import BaseViewset, ResponseInfo
@@ -80,8 +86,9 @@ class AdViewSet(BaseViewset):
         "premium_venue_ads": [],
         "premium_vendor_ads": [],
         "public_ads_list": [],
+        "keyword_details": [],
     }
-    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filter_backends = [AdCustomFilterBackend, SearchFilter, OrderingFilter]
     search_param = "search"
     search_fields = [
         "name",
@@ -95,14 +102,12 @@ class AdViewSet(BaseViewset):
         "offered_services",
         "site_services",
     ]
+    ad_filterset_fields = ["sub_category__name", "site_question_id", "answer"]
     ordering_fields = ["name", "sub_category__name", "id"]
     filterset_fields = {
         "sub_category__category__name": ["exact"],
-        "sub_category__name": ["exact"],
         "name": ["exact"],
         "country__name": ["exact"],
-        "ad_faq_ad__site_question_id": ["exact"],
-        "ad_faq_ad__answer": ["exact"],
     }
     user_role_queryset = {
         USER_ROLE_TYPES["VENDOR"]: lambda self: Ad.objects.filter(
@@ -231,11 +236,36 @@ class AdViewSet(BaseViewset):
     @action(detail=False, url_path="public-list", methods=["get"])
     def public_ads_list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(Ad.objects.all())
-        page = self.paginate_queryset(queryset)
-        user = None
+        offset = self.request.query_params.get("offset")
 
-        if request.user.is_authenticated:
-            user = request.user
+        filter_data = []
+        if int(offset) == 0:
+            sub_categories = queryset.values_list("sub_category").distinct()
+            sub_categories = (
+                SubCategory.objects.filter(id__in=sub_categories)
+                .prefetch_related(
+                    "site_faq_sub_category__site_faq_questions",
+                    "service_sub_category",
+                )
+                .all()
+            )
+            grouped_data = {}
+            for subcategory in sub_categories:
+                category = subcategory.category
+                if category not in grouped_data:
+                    grouped_data[category] = []
+                grouped_data[category].append(subcategory)
+            subcategory_serializer = SubCategoryFilterSerializer(many=True)
+            category_serializer = CategoryGetSerializer()
+            for category, subcategories in grouped_data.items():
+                category_data = category_serializer.to_representation(category)
+                category_data[
+                    "subcategories"
+                ] = subcategory_serializer.to_representation(subcategories)
+                filter_data.append(category_data)
+
+        page = self.paginate_queryset(queryset)
+
         if page != None:
             serializer = self.get_serializer(
                 page,
@@ -254,7 +284,9 @@ class AdViewSet(BaseViewset):
         return Response(
             status=status.HTTP_200_OK,
             data=ResponseInfo().format_response(
-                data=data, status_code=status.HTTP_200_OK, message="Ads List"
+                data={"data": data, "filter": filter_data},
+                status_code=status.HTTP_200_OK,
+                message="Ads List",
             ),
         )
 
@@ -431,6 +463,30 @@ class AdViewSet(BaseViewset):
         data = serializer.data
         if page != None:
             data = self.get_paginated_response(data).data
+
+        return Response(
+            status=status.HTTP_200_OK,
+            data=ResponseInfo().format_response(
+                data=data, status_code=status.HTTP_200_OK, message="Featured Ads List"
+            ),
+        )
+
+    @action(detail=False, url_path="keyword-details", methods=["get"])
+    def keyword_details(self, request, *args, **kwargs):
+        data = []
+        type = request.GET.get("type")
+        keyword = SEARCH_TYPE_MAPPING[type]
+        value = request.GET.get(keyword)
+        if value and type:
+            obj = (
+                KEYWORD_MODEL_MAPPING[keyword]
+                .objects.filter(name__iexact=value)
+                .first()
+            )
+            if obj._meta.model == Category:
+                data = CategoryKeywordSerializer(obj).data
+            elif obj._meta.model == SubCategory:
+                data = SubCategoryKeywordSerializer(obj).data
 
         return Response(
             status=status.HTTP_200_OK,

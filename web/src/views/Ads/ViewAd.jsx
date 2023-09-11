@@ -165,7 +165,7 @@ function ViewAd() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    isChatExists();
+    if (user?.role === "client") isChatExists();
   }, []);
 
   const onSelect = useCallback((emblaApi) => {
@@ -327,31 +327,6 @@ function ViewAd() {
           <Col lg={4}>
             <div className="d-flex justify-content-between flex-column h-100">
               <div className="d-flex flex-column">
-                <div className="d-flex align-items-center">
-                  <FontAwesomeIcon icon={faStar} style={{ color: "#f0be41" }} />
-                  <FontAwesomeIcon
-                    icon="fa-solid fa-star"
-                    style={{ color: "#f0be41" }}
-                  />
-                  <FontAwesomeIcon
-                    icon="fa-solid fa-star"
-                    style={{ color: "#f0be41" }}
-                  />
-                  <FontAwesomeIcon
-                    icon="fa-solid fa-star"
-                    style={{ color: "#f0be41" }}
-                  />
-                  <span
-                    className="d-flex align-items-center roboto-regular-14px-information"
-                    style={{ margin: "0 6px" }}
-                  >
-                    <strong> 4.9 </strong>
-                  </span>
-                  <span className="d-flex align-items-center text-muted roboto-regular-14px-information">
-                    142 reviews
-                  </span>
-                </div>
-
                 {(currentAd?.facebook !== ""
                   || currentAd?.instagram !== ""
                   || currentAd?.youtube !== ""

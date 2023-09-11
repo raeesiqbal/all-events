@@ -200,7 +200,7 @@ class Service(models.Model):
     sub_category = models.ManyToManyField(
         "ads.SubCategory",
         verbose_name=_("Sub Category"),
-        related_name="question_sub_category",
+        related_name="service_sub_category",
     )
     service = ArrayField(base_field=models.TextField())
 

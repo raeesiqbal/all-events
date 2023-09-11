@@ -237,7 +237,6 @@ function CompanyInformation({
                 value={values.category || ""}
                 // onChange={handleChange}
                 onChange={(e) => {
-                  console.log("category selected", e.target.value);
                   fetchSubCategories(e.target.value);
                   handleChange(e);
                 }}

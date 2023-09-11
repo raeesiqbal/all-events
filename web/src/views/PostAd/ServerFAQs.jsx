@@ -18,7 +18,6 @@ function ServerFAQs({
   selectedValues,
   setSelectedValues,
 }) {
-  console.log("selectedValues", selectedValues);
   // Initialize an array to keep track of selected values
   // Initialize an array to keep track of selected values and their respective question indexes
 
@@ -34,11 +33,6 @@ function ServerFAQs({
     question,
     faqID
   ) => {
-    console.log("sectionIndex", sectionIndex);
-    console.log("questionIndex", questionIndex);
-    console.log("value", value);
-    console.log("question", question);
-    console.log("faqID", faqID);
     const updatedValues = [...selectedValues];
     const questionId = questionIdCounter;
     setQuestionIdCounter(questionIdCounter + 1);
@@ -51,8 +45,6 @@ function ServerFAQs({
     };
     setSelectedValues(updatedValues);
   };
-
-  console.log("selectedValues", selectedValues);
 
   // useEffect(() => {
   //   setSelectedValues(
@@ -92,11 +84,6 @@ function ServerFAQs({
     (accumulator, innerArray) => accumulator + innerArray.length,
     0
   );
-
-  // console.log("siteFaqQuestionssiteFaqQuestions", siteFaqQuestions);
-  // console.log("selectedValues", selectedValues);
-  // console.log("totalLength", totalLength);
-  // console.log("totalSelectedValues", totalSelectedValues);
 
   return (
     <Container fluid className="mt-5">

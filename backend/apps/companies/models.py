@@ -1,5 +1,7 @@
 from django.db import models
 from apps.ads.models import Country
+from apps.subscriptions.models import Subscription
+from apps.utils.constants import SUBSCRIPTION_TYPES
 from apps.utils.models.base import NewAbstractModel
 from apps.users.models import User
 from django.utils.translation import gettext_lazy as _
@@ -35,6 +37,11 @@ class Company(NewAbstractModel):
     )
     image = models.TextField(null=True, blank=True)
     city = models.TextField(null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not Subscription.objects.filter(company_id=self.id).exists():
+            Subscription.objects.create(company_id=self.id,type=SUBSCRIPTION_TYPES["FEATURED"])
+        super(Company, self).save(*args, **kwargs)
 
     class Meta:
         verbose_name = "Company"

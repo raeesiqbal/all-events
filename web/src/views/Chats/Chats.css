@@ -64,8 +64,9 @@
   height: 45px;
   border: 2px dashed #A8A8A8;
   color: #A8A8A8;
-  position: relative;
+  position: relative !important;
   display: flex;
+  cursor: pointer;
 }
 
 .upload-message-img span {
@@ -73,16 +74,32 @@
   line-height: 40px;
   margin: auto !important;
   z-index: 0;
+  cursor: pointer;
+}
+
+.upload-message-img a {
+  font-size: 25px;
+  line-height: 40px;
+  margin: auto !important;
+  cursor: pointer;
+}
+
+.upload-message-img .attachment-loader {
+  width: 18px !important;
+  height: 18px !important;
+  margin: auto !important;
+  cursor: pointer;
 }
 
 .upload-message-img input {
-  position: absolute;
+  position: absolute !important;
   left: 0px;
   right: 0px;
   top: 0px;
   bottom: 0px;
   opacity: 0;
   cursor: pointer;
+  z-index: 2;
 }
 
 .upload-message-img img {
