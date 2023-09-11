@@ -287,6 +287,7 @@ export const AdsSlice = createSlice({
             if (ad.id === action.payload.id) ad.fav = !ad.fav;
             return ad;
           });
+          state.favoriteAds = state.favoriteAds.filter((ad) => ad.ad.id !== action.payload.id);
         }
       })
       .addCase(favoriteAd.rejected, (state, action) => {

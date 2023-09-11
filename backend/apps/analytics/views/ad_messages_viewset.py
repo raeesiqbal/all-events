@@ -91,7 +91,7 @@ class MessageViewSet(BaseViewset):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         message = serializer.validated_data.pop("message", {})
-        ad = serializer.validated_data.pop("ad", {})
+        ad = serializer.validated_data.get("ad", {})
         client = Client.objects.get(user=request.user)
 
         if not Chat.objects.filter(ad=ad, client=client).exists():
@@ -102,7 +102,7 @@ class MessageViewSet(BaseViewset):
             return Response(
                 status=status.HTTP_200_OK,
                 data=ResponseInfo().format_response(
-                    data={},
+                    data={"id": chat.id},
                     status_code=status.HTTP_200_OK,
                     message="Chat has been created successfully",
                 ),

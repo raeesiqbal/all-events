@@ -1,10 +1,9 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import {
   Card, Col, Container, Row,
 } from "react-bootstrap";
-import { faHeart } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { favoriteAd, listFavoriteAds } from "../redux/Posts/AdsSlice";
 import Header from "../../components/Navbar/Navbar";
@@ -15,7 +14,6 @@ import gotoIcon from "../../assets/images/post-ad/goto.svg";
 import placeholderIcon from "../../assets/images/placeholder.jpg";
 
 const FavoriteAds = () => {
-  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const user = useSelector((state) => state.auth.user);
@@ -154,7 +152,6 @@ const FavoriteAds = () => {
                                       style={{ color: "#e8091c" }}
                                       onClick={() => {
                                         dispatch(favoriteAd(ad.id));
-                                        dispatch(listFavoriteAds());
                                       }}
                                     />
                                   </div>

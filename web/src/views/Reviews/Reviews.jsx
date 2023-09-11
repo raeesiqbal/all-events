@@ -102,11 +102,6 @@ const Reviews = ({ adId, adName }) => {
     });
   };
 
-  const submitReview = () => {
-    dispatch(addReview({ id: adId, data: postReview }));
-    setIsHide(true);
-  };
-
   const resetForm = () => {
     dispatch(setImagesToUpload([]));
     setPostReview({
@@ -115,6 +110,12 @@ const Reviews = ({ adId, adName }) => {
       message: "",
       rating: 0,
     });
+  };
+
+  const submitReview = () => {
+    dispatch(addReview({ id: adId, data: postReview }));
+    setIsHide(true);
+    resetForm();
   };
 
   const viewMoreReviews = () => {
@@ -128,13 +129,15 @@ const Reviews = ({ adId, adName }) => {
   };
 
   useEffect(() => {
-    dispatch(listAdReviews({
-      id: adId,
-      offset,
-      limit,
-      page,
-    }));
-  }, []);
+    setTimeout(() => {
+      dispatch(listAdReviews({
+        id: adId,
+        offset,
+        limit,
+        page,
+      }));
+    }, 2000);
+  }, [isHide]);
 
   useEffect(() => {
     setPostReview({
