@@ -68,7 +68,7 @@ class AdViewSet(BaseViewset):
         "delete_url": DeleteUrlSerializer,
         "remove_url_on_update": DeleteUrlOnUpdateSerializer,
         "list": AdGetSerializer,
-        "retrieve": AdGetSerializer,
+        "retrieve": AdRetriveSerializer,
         "fetch_suggestion_list": SearchStringSerializer,
         "premium_venue_ads": PremiumAdGetSerializer,
         "premium_vendor_ads": PremiumAdGetSerializer,
