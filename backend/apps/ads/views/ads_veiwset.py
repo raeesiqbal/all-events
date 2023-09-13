@@ -52,6 +52,7 @@ from apps.ads.models import (
     Gallery,
     SubCategory,
 )
+from django.db import connection
 
 
 class AdViewSet(BaseViewset):
@@ -163,7 +164,7 @@ class AdViewSet(BaseViewset):
             ad = Ad.objects.create(
                 **serializer.validated_data,
                 offered_services=offered_services,
-                company=company
+                company=company,
             )
             ad.activation_countries.add(*activation_countries)
 
@@ -235,13 +236,88 @@ class AdViewSet(BaseViewset):
 
     @action(detail=False, url_path="public-list", methods=["get"])
     def public_ads_list(self, request, *args, **kwargs):
+        filter = True
+        payload = request.data
+
+        # payload = {
+        #     "data": {
+        #         "categories": [],
+        #         "sub_categories": [],
+        #         "questions": [
+        #             # {3: "No"},
+        #             # {4: "100-200"},
+        #         ],
+        #         "commercial_name": "vendo a commercial b",
+        #     }
+        # }
+        # cursor
+
+        cursor = connection.cursor()
+
+        # Extract data from the payload
+        categories = payload["data"]["categories"]
+        sub_categories = payload["data"]["sub_categories"]
+        questions = payload["data"]["questions"]
+        commercial_name = payload["data"]["commercial_name"]
+
+        # Build the SQL query for Ads filtering
+        ads_query = """
+            SELECT * FROM ads_ad
+            WHERE
+        """
+        # Add conditions for categories and subcategories
+        if categories:
+            ads_query += f"category_id IN ({', '.join(map(str, categories))}) OR "
+        if sub_categories:
+            ads_query += (
+                f"sub_category_id IN ({', '.join(map(str, sub_categories))}) OR "
+            )
+        if commercial_name:
+            ads_query += f"name = '{commercial_name}' OR "
+
+        # Remove the trailing "OR"
+        ads_query = ads_query.rstrip("OR ")
+
+        # Build the SQL query for FAQ filtering
+        faq_query = """
+            SELECT ad_id FROM ads_adfaq 
+            WHERE
+        """
+
+        # Add conditions for FAQ questions
+
+        if questions:
+            faq_conditions = []
+            for question in questions:
+                for question_id, answer in question.items():
+                    faq_conditions.append(
+                        f"(site_question_id = {question_id} AND answer = %s)"
+                    )
+            faq_query += " OR ".join(faq_conditions)
+
+            # Execute the SQL queries and fetch the results
+            cursor.execute(
+                faq_query,
+                [answer for question in questions for _, answer in question.items()],
+            )
+            filtered_ad_ids = cursor.fetchall()
+            filtered_ad_ids = [item[0] for item in filtered_ad_ids]
+
+            if filtered_ad_ids:
+                ads_query += f"OR id in ({', '.join(map(str, filtered_ad_ids))})"
+
+        cursor.execute(ads_query)
+        filtered_ads = cursor.fetchall()
+
         queryset = self.filter_queryset(Ad.objects.all())
         offset = self.request.query_params.get("offset")
 
         filter_data = []
+
         if offset:
             if int(offset) == 0:
                 sub_categories = queryset.values_list("sub_category").distinct()
+
                 sub_categories = (
                     SubCategory.objects.filter(id__in=sub_categories)
                     .prefetch_related(
