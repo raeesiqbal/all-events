@@ -2,7 +2,7 @@ from datetime import date, datetime
 import os
 from django.conf import settings
 from django.template.loader import render_to_string
-from django.db.models import Value
+from django.db.models import Value, F, Q
 from django.db.models.functions import Random
 
 from django.contrib.contenttypes.models import ContentType
@@ -37,7 +37,6 @@ from apps.companies.models import Company
 from apps.subscriptions.models import Subscription
 from apps.users.constants import USER_ROLE_TYPES
 from apps.users.models import User
-from django.db.models import F
 
 from apps.users.permissions import IsClient, IsSuperAdmin, IsVendorUser
 from apps.utils.constants import KEYWORD_MODEL_MAPPING, SUBSCRIPTION_TYPES
@@ -53,7 +52,6 @@ from apps.ads.models import (
     SubCategory,
 )
 from django.db import connection
-
 
 class AdViewSet(BaseViewset):
     """
@@ -236,110 +234,72 @@ class AdViewSet(BaseViewset):
 
     @action(detail=False, url_path="public-list", methods=["get"])
     def public_ads_list(self, request, *args, **kwargs):
-        filter = True
         payload = request.data
 
-        # payload = {
-        #     "data": {
-        #         "categories": [],
-        #         "sub_categories": [],
-        #         "questions": [
-        #             # {3: "No"},
-        #             # {4: "100-200"},
-        #         ],
-        #         "commercial_name": "vendo a commercial b",
-        #     }
-        # }
-        # cursor
-
-        cursor = connection.cursor()
-
         # Extract data from the payload
-        categories = payload["data"]["categories"]
-        sub_categories = payload["data"]["sub_categories"]
-        questions = payload["data"]["questions"]
-        commercial_name = payload["data"]["commercial_name"]
+        payload_data = payload.get("data", {})
+        categories = payload_data.get("categories", [])
+        sub_categories = payload_data.get("sub_categories", [])
+        questions = payload_data.get("questions", [])
+        commercial_name = payload_data.get("commercial_name", "")
 
-        # Build the SQL query for Ads filtering
-        ads_query = """
-            SELECT * FROM ads_ad
-            WHERE
-        """
-        # Add conditions for categories and subcategories
+        # Build Q objects for filtering Ads based on categories and subcategories
+        category_q = Q()
+        subcategory_q = Q()
+
         if categories:
-            ads_query += f"category_id IN ({', '.join(map(str, categories))}) OR "
+            category_q = Q(sub_category__category__name__in=categories)
+
         if sub_categories:
-            ads_query += (
-                f"sub_category_id IN ({', '.join(map(str, sub_categories))}) OR "
-            )
+            subcategory_q = Q(sub_category__name__in=sub_categories)
+
+        # Combine the Q objects
+        combined_q = category_q | subcategory_q
+
+        # Filter Ads by commercial_name
         if commercial_name:
-            ads_query += f"name = '{commercial_name}' OR "
+            combined_q |= Q(name=commercial_name)
 
-        # Remove the trailing "OR"
-        ads_query = ads_query.rstrip("OR ")
-
-        # Build the SQL query for FAQ filtering
-        faq_query = """
-            SELECT ad_id FROM ads_adfaq 
-            WHERE
-        """
-
-        # Add conditions for FAQ questions
-
+        # Filter Ads by FAQ questions
         if questions:
-            faq_conditions = []
+            faq_conditions = Q()
+
             for question in questions:
                 for question_id, answer in question.items():
-                    faq_conditions.append(
-                        f"(site_question_id = {question_id} AND answer = %s)"
-                    )
-            faq_query += " OR ".join(faq_conditions)
+                    faq_conditions |= Q(ad_faq_ad__site_question_id=question_id, ad_faq_ad__answer=answer)
 
-            # Execute the SQL queries and fetch the results
-            cursor.execute(
-                faq_query,
-                [answer for question in questions for _, answer in question.items()],
-            )
-            filtered_ad_ids = cursor.fetchall()
-            filtered_ad_ids = [item[0] for item in filtered_ad_ids]
+            # Apply the FAQ conditions to filter Ads
+            combined_q |= faq_conditions
 
-            if filtered_ad_ids:
-                ads_query += f"OR id in ({', '.join(map(str, filtered_ad_ids))})"
-
-        cursor.execute(ads_query)
-        filtered_ads = cursor.fetchall()
-
-        queryset = self.filter_queryset(Ad.objects.all())
-        offset = self.request.query_params.get("offset")
+        queryset = Ad.objects.filter(combined_q).distinct()
 
         filter_data = []
 
-        if offset:
-            if int(offset) == 0:
-                sub_categories = queryset.values_list("sub_category").distinct()
+        if payload["filter"]:
+            sub_categories = queryset.values_list("sub_category").distinct()
 
-                sub_categories = (
-                    SubCategory.objects.filter(id__in=sub_categories)
-                    .prefetch_related(
-                        "site_faq_sub_category__site_faq_questions",
-                        "service_sub_category",
-                    )
-                    .all()
+            sub_categories = (
+                SubCategory.objects.filter(id__in=sub_categories)
+                .prefetch_related(
+                    "site_faq_sub_category__site_faq_questions",
+                    "service_sub_category",
                 )
-                grouped_data = {}
-                for subcategory in sub_categories:
-                    category = subcategory.category
-                    if category not in grouped_data:
-                        grouped_data[category] = []
-                    grouped_data[category].append(subcategory)
-                subcategory_serializer = SubCategoryFilterSerializer(many=True)
-                category_serializer = CategoryGetSerializer()
-                for category, subcategories in grouped_data.items():
-                    category_data = category_serializer.to_representation(category)
-                    category_data[
-                        "subcategories"
-                    ] = subcategory_serializer.to_representation(subcategories)
-                    filter_data.append(category_data)
+                .all()
+            )
+            grouped_data = {}
+            for subcategory in sub_categories:
+                category = subcategory.category
+                if category not in grouped_data:
+                    grouped_data[category] = []
+                grouped_data[category].append(subcategory)
+            subcategory_serializer = SubCategoryFilterSerializer(many=True)
+            category_serializer = CategoryGetSerializer()
+            for category, subcategories in grouped_data.items():
+                category_data = category_serializer.to_representation(category)
+                category_data[
+                    "subcategories"
+                ] = subcategory_serializer.to_representation(subcategories)
+                filter_data.append(category_data)
 
         page = self.paginate_queryset(queryset)
 
