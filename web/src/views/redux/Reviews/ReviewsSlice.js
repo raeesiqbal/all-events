@@ -55,7 +55,7 @@ export const listAdReviews = createAsyncThunk(
 
 // Create the ReviewsSlice
 export const ReviewsSlice = createSlice({
-  name: "Chats",
+  name: "Reviews",
   initialState,
   reducers: {
     handleResgisterationStatus: (state) => {

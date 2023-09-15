@@ -51,7 +51,6 @@ from apps.ads.models import (
     Gallery,
     SubCategory,
 )
-from django.db import connection
 
 class AdViewSet(BaseViewset):
     """
@@ -232,7 +231,7 @@ class AdViewSet(BaseViewset):
             ),
         )
 
-    @action(detail=False, url_path="public-list", methods=["get"])
+    @action(detail=False, url_path="public-list", methods=["post"])
     def public_ads_list(self, request, *args, **kwargs):
         payload = request.data
 
@@ -275,7 +274,7 @@ class AdViewSet(BaseViewset):
 
         filter_data = []
 
-        if payload["filter"]:
+        if payload.get("filter", False):
             sub_categories = queryset.values_list("sub_category").distinct()
 
             sub_categories = (

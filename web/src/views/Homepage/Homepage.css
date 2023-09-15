@@ -16,6 +16,43 @@
   text-overflow: ellipsis;
 }
 
+.suggestion-dropdown {
+  position: absolute;
+  top: 56px;
+  left: 0px;
+  right: 0px;
+  max-height: 400px;
+  overflow-y: scroll;
+  border-bottom-left-radius: 15px;
+  border-bottom-right-radius: 15px;
+  box-shadow: "0px 5px 8px 0px rgba(0, 0, 0, 0.1)";
+  border-left: 1px solid lightgrey;
+  border-right: 1px solid lightgrey;
+  border-bottom: 1px solid lightgrey;
+  background-color: white;
+}
+
+.suggestion-dropdown > div {
+  border-bottom: 1px solid lightgrey;
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.suggestion-dropdown > div:hover {
+  background-color: rgb(237, 237, 237);
+}
+
+.suggestion-dropdown > div:last-child {
+  border-bottom: none !important;
+}
+
+.suggestion-dropdown > div > div {
+  border-radius: 16px;
+  font-weight: 500;
+  font-size: 13px;
+}
+
 @media (max-width: 992px) {
   .event-card {
     width: 100% !important;

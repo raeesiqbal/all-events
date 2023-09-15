@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { Button, Card, Col, Container } from "react-bootstrap";
+import {
+  Button, Card, Col, Container,
+} from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart } from "@fortawesome/free-regular-svg-icons";
 import EmblaCarousel from "../../components/Carousel/Carousel";
@@ -86,7 +88,7 @@ function PremiumVendors() {
     try {
       const request = await instance.request({
         url: "/api/ads/public-list/",
-        method: "Get",
+        method: "Post",
       });
       setPublicAds(request.data.data);
     } catch (error) {

@@ -1,4 +1,6 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import {
   Button,
   Col,
@@ -11,10 +13,45 @@ import {
 // import { useNavigate } from "react-router-dom";
 // import heroImg1 from "../../assets/images/harold.jpg";
 import heroImg1 from "../../assets/images/heroImg.svg";
-import useWindowDimensions from "../../utilities/hooks/useWindowDimension";
+import { listAdsByKeyword, listSuggestions, setSearchKeyword } from "../redux/Search/SearchSlice";
 
 function HeroSection() {
-  const { width } = useWindowDimensions();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [showSuggestions, setShowSuggestions] = React.useState(false);
+  const [isDisabled, setIsDisabled] = React.useState(true);
+  const suggestionsList = useSelector((state) => state.search.data.suggestionsList);
+  const keyword = useSelector((state) => state.search.data.keyword);
+  const suggestionDropdown = useRef();
+
+  const handleSuggestions = (e) => {
+    e.preventDefault();
+
+    dispatch(setSearchKeyword({ name: e.target.value }));
+
+    dispatch(listSuggestions({ search_string: e.target.value }));
+    setShowSuggestions(e.target.value !== "");
+
+    setIsDisabled(e.target.value === "");
+  };
+
+  const handleSuggestionClick = (suggestion) => {
+    dispatch(setSearchKeyword({ ...suggestion }));
+    setShowSuggestions(false);
+  };
+
+  const handleSearchButton = () => {
+    if (window.location.pathname === "/") navigate("/search");
+    if (window.location.pathname === "/search") {
+      dispatch(listAdsByKeyword({ keyword, limit: 10, offset: 0 }));
+    }
+  };
+
+  useEffect(() => {
+    if (suggestionDropdown.current) {
+      suggestionDropdown.current.style.overflowY = suggestionDropdown.current.clientHeight > 400 ? "scroll" : "auto";
+    }
+  }, [suggestionsList]);
 
   return (
     <Container
@@ -35,98 +72,82 @@ function HeroSection() {
                 quis morbi.
               </p>
             </div>
-            <div className="s003">
+            <div className="position-relative">
               <Form>
-                {width > 992 ? (
-                  <InputGroup className="flex-nowrap">
+                <InputGroup className="flex-nowrap">
+                  <div
+                    className="d-flex w-100"
+                    style={{
+                      border: "1px solid #D9D9D9",
+                      borderRadius: "5px",
+                      position: "relative",
+                    }}
+                  >
                     <div
-                      className="d-flex"
                       style={{
-                        border: "1px solid #D9D9D9",
-                        borderRadius: "5px",
-                        position: "relative",
+                        position: "absolute",
+                        top: "14px",
+                        left: "25px",
                       }}
                     >
-                      <div
-                        style={{
-                          position: "absolute",
-                          top: "14px",
-                          left: "25px",
-                        }}
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 20 20"
+                        fill="none"
                       >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="20"
-                          height="20"
-                          viewBox="0 0 20 20"
-                          fill="none"
-                        >
-                          <path
-                            // eslint-disable-next-line max-len
-                            d="M19.0002 19.0002L14.6572 14.6572M14.6572 14.6572C15.4001 13.9143 15.9894 13.0324 16.3914 12.0618C16.7935 11.0911 17.0004 10.0508 17.0004 9.00021C17.0004 7.9496 16.7935 6.90929 16.3914 5.93866C15.9894 4.96803 15.4001 4.08609 14.6572 3.34321C13.9143 2.60032 13.0324 2.01103 12.0618 1.60898C11.0911 1.20693 10.0508 1 9.00021 1C7.9496 1 6.90929 1.20693 5.93866 1.60898C4.96803 2.01103 4.08609 2.60032 3.34321 3.34321C1.84288 4.84354 1 6.87842 1 9.00021C1 11.122 1.84288 13.1569 3.34321 14.6572C4.84354 16.1575 6.87842 17.0004 9.00021 17.0004C11.122 17.0004 13.1569 16.1575 14.6572 14.6572Z"
-                            stroke="#1A1A1A"
-                            strokeWidth="1.5"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                        </svg>
-                      </div>
-                      <FormControl
-                        className="shadow-none roboto-regular-16px-information form-control"
-                        placeholder="Wedding Venues"
-                        style={{
-                          outline: 0,
-                          border: "none",
-                          paddingLeft: "60px",
-                          margin: "10px 0",
-                          borderRadius: "0",
-                          borderRight: "1px solid #D9D9D9",
-                        }}
-                      />
-                      <FormControl
-                        className="shadow-none roboto-regular-16px-information form-control"
-                        placeholder="in Where"
-                        style={{
-                          border: "none",
-                          margin: "10px 0",
-                          color: "#797979",
-                        }}
-                      />
-                      <Button
-                        variant="success"
-                        size="lg"
-                        className="roboto-semi-bold-16px-information rounded-end-1 rounded-start-0"
-                        style={{ height: "56px" }}
-                      >
-                        Search
-                      </Button>
+                        <path
+                          // eslint-disable-next-line max-len
+                          d="M19.0002 19.0002L14.6572 14.6572M14.6572 14.6572C15.4001 13.9143 15.9894 13.0324 16.3914 12.0618C16.7935 11.0911 17.0004 10.0508 17.0004 9.00021C17.0004 7.9496 16.7935 6.90929 16.3914 5.93866C15.9894 4.96803 15.4001 4.08609 14.6572 3.34321C13.9143 2.60032 13.0324 2.01103 12.0618 1.60898C11.0911 1.20693 10.0508 1 9.00021 1C7.9496 1 6.90929 1.20693 5.93866 1.60898C4.96803 2.01103 4.08609 2.60032 3.34321 3.34321C1.84288 4.84354 1 6.87842 1 9.00021C1 11.122 1.84288 13.1569 3.34321 14.6572C4.84354 16.1575 6.87842 17.0004 9.00021 17.0004C11.122 17.0004 13.1569 16.1575 14.6572 14.6572Z"
+                          stroke="#1A1A1A"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
                     </div>
-                  </InputGroup>
-                ) : (
-                  <>
-                    <Form.Control
-                      size="lg"
-                      type="text"
+                    <FormControl
+                      className="shadow-none roboto-regular-16px-information form-control"
                       placeholder="Wedding Venues"
+                      style={{
+                        outline: 0,
+                        border: "none",
+                        paddingLeft: "60px",
+                        margin: "10px 0",
+                        borderRadius: "0",
+                        borderRight: "1px solid #D9D9D9",
+                      }}
+                      value={keyword.name}
+                      onChange={handleSuggestions}
                     />
-                    <br />
-                    <Form.Control
-                      size="lg"
-                      type="text"
-                      placeholder="in Where"
-                    />
-                    <br />
                     <Button
                       variant="success"
-                      className="roboto-semi-bold-16px-information btn-height"
                       size="lg"
-                      style={{ width: "100%", height: "65px" }}
+                      className="roboto-semi-bold-16px-information rounded-end-1 rounded-start-0"
+                      style={{ height: "56px" }}
+                      disabled={isDisabled}
+                      onClick={() => handleSearchButton()}
                     >
                       Search
                     </Button>
-                  </>
-                )}
+                  </div>
+                </InputGroup>
               </Form>
+              {
+                showSuggestions && (
+                  <div className="suggestion-dropdown" ref={suggestionDropdown}>
+                    {
+                      suggestionsList.map((suggestion) => (
+                        <div className="w-100 px-3 py-2" onClick={(e) => handleSuggestionClick(suggestion)}>
+                          <span className="my-auto px-2">{suggestion.name}</span>
+                          <div className="px-3 py-1 bg-secondary text-white my-auto">{suggestion.type}</div>
+                        </div>
+                      ))
+                    }
+                  </div>
+                )
+              }
             </div>
           </div>
         </Col>
