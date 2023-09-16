@@ -2,9 +2,10 @@ import React from "react";
 import { Button, Col, Row } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { faHeart, faStar } from "@fortawesome/free-regular-svg-icons";
+import { faHeart } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { favoriteAd } from "../redux/Posts/AdsSlice";
+import Pagination from "./Pagination";
 
 const Ads = () => {
   const dispatch = useDispatch();
@@ -12,8 +13,8 @@ const Ads = () => {
   const adsList = useSelector((state) => state.search.data.adsList);
 
   return (
-    <Col md={9}>
-      <Row>
+    <Col md={9} className="ps-md-4">
+      <Row className="mx-0">
         {
           adsList?.map((ad) => (
             <Col md={12} className="mb-4 rounded bg-white p-3">
@@ -67,7 +68,9 @@ const Ads = () => {
                       <span> (142)</span>
                     </div>
                   </div>
-                  <div className="w-100 mb-3" style={{ fontSize: "16px" }}>{ad.description}</div>
+                  <div className="w-100 mb-3" style={{ fontSize: "16px" }}>
+                    {ad.description.length > 250 ? `${ad.description.slice(0, 250)}...` : ad.description}
+                  </div>
                   <div className="w-100">
                     <Button variant="success" className="px-4 py-2" onClick={() => navigate(`/view-ad/${ad.id}`)}>See Vendor</Button>
                   </div>
@@ -77,6 +80,7 @@ const Ads = () => {
           ))
         }
       </Row>
+      <Pagination />
     </Col>
   );
 };

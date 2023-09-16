@@ -14,9 +14,11 @@ import Ads from "./Ads";
 const Search = () => {
   const dispatch = useDispatch();
   const keyword = useSelector((state) => state.search.data.keyword);
+  const offset = useSelector((state) => state.search.data.pagination.offset);
+  const limit = useSelector((state) => state.search.data.pagination.limit);
 
   useEffect(() => {
-    dispatch(listAdsByKeyword({ keyword, limit: 10, offset: 0 }));
+    dispatch(listAdsByKeyword({ keyword, limit, offset }));
   }, []);
 
   return (

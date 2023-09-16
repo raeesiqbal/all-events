@@ -3,16 +3,20 @@ import { Col, Form } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronDown, faChevronUp } from "@fortawesome/fontawesome-free-solid";
-import { listAdsByFilter } from "../redux/Search/SearchSlice";
+import {
+  listAdsByFilter, setCategories, setSubcategories, setQuestions, setCommercialName,
+} from "../redux/Search/SearchSlice";
 
 const Filters = () => {
   const dispatch = useDispatch();
   const filters = useSelector((state) => state.search.data.filters);
   const keyword = useSelector((state) => state.search.data.keyword);
-  const [categories, setCategories] = React.useState([]);
-  const [subcategories, setSubcategories] = React.useState([]);
-  const [questions, setQuestions] = React.useState([]);
-  const [commercialName, setCommercialName] = React.useState("");
+  const limit = useSelector((state) => state.search.data.pagination.limit);
+  const offset = useSelector((state) => state.search.data.pagination.offset);
+  const categories = useSelector((state) => state.search.data.payload.categories);
+  const subcategories = useSelector((state) => state.search.data.payload.subcategories);
+  const questions = useSelector((state) => state.search.data.payload.questions);
+  const commercialName = useSelector((state) => state.search.data.payload.commercialName);
 
   const toggleChildDiv = (e) => {
     e.currentTarget.parentNode.children[1].classList.toggle("d-none");
@@ -21,56 +25,47 @@ const Filters = () => {
   };
 
   const handleCategory = (e, categoryName) => {
-    // e.preventDefault();
-    if (e.currentTarget.checked) {
-      setCategories([...categories, categoryName]);
-    } else {
-      setCategories(categories.filter((category) => category !== categoryName));
-    }
+    const data = e.currentTarget.checked ? [...categories, categoryName] : categories.filter((category) => category !== categoryName);
+    dispatch(setCategories({ categories: data }));
   };
 
   const handleSubcategory = (e, subcategoryName) => {
+    let data = [];
     if (e.currentTarget.checked) {
-      setSubcategories([...subcategories, subcategoryName]);
+      data = [...subcategories, subcategoryName];
     } else {
-      setSubcategories(subcategories.filter((subcategory) => subcategory !== subcategoryName));
+      data = subcategories.filter((subcategory) => subcategory !== subcategoryName);
     }
+    dispatch(setSubcategories({ subcategories: data }));
   };
 
   function areEqualObjects(obj1, obj2) {
     const keys1 = Object.keys(obj1);
     const keys2 = Object.keys(obj2);
 
-    if (keys1.length !== keys2.length) {
-      return false;
-    }
+    if (keys1.length !== keys2.length) return false;
 
     for (const key of keys1) {
-      if (obj1[key] !== obj2[key]) {
-        return false;
-      }
+      if (obj1[key] !== obj2[key]) return false;
     }
 
     return true;
   }
 
   const handleQuestion = (e, question) => {
-    if (e.currentTarget.checked) {
-      setQuestions([...questions, question]);
-    } else {
-      setQuestions(questions.filter((q) => !areEqualObjects(q, question)));
-    }
+    const data = e.currentTarget.checked ? [...questions, question] : questions.filter((q) => !areEqualObjects(q, question));
+    dispatch(setQuestions({ questions: data }));
   };
 
   const clearFilters = (e) => {
     e.preventDefault();
-    setCategories([]);
-    setSubcategories([]);
-    setQuestions([]);
+    dispatch(setCategories({ categories: [] }));
+    dispatch(setSubcategories({ subcategories: [] }));
+    dispatch(setQuestions({ questions: [] }));
   };
 
   useEffect(() => {
-    if (categories !== [] || subcategories !== [] || questions !== []) {
+    if (categories.length !== 0 || subcategories.length !== 0 || questions.length !== 0 || commercialName !== "") {
       dispatch(listAdsByFilter({
         data: {
           data: {
@@ -78,14 +73,16 @@ const Filters = () => {
           },
           filter: false,
         },
-        limit: 10,
-        offset: 0,
+        limit,
+        offset,
       }));
     }
   }, [categories, subcategories, questions]);
 
   useEffect(() => {
-    if (keyword.type === "commercial_name") setCommercialName(keyword.name);
+    if (keyword.type === "commercial_name") dispatch(setCommercialName({ commercialName: keyword.name }));
+    if (keyword.type === "category") dispatch(setCategories({ categories: [keyword.name] }));
+    if (keyword.type === "sub_categories") dispatch(setSubcategories({ subcategories: [keyword.name] }));
   }, [keyword]);
 
   return (
@@ -153,81 +150,68 @@ const Filters = () => {
             }
           </div>
         </div>
-        <div className="w-100 pb-2 mb-3 border-bottom">
-          <div
-            className="w-100 d-flex justify-content-between mb-2"
-            style={{ cursor: "pointer" }}
-            onClick={toggleChildDiv}
-          >
-            <span style={{ fontSize: "18px", fontWeight: "700" }}>Questions</span>
-            <FontAwesomeIcon icon={faChevronDown} />
-            <FontAwesomeIcon icon={faChevronUp} className="d-none" />
-          </div>
-          <div className="ps-4 d-none">
-            {
-              filters?.map((category) => category.subcategories?.map((subcategory) => subcategory.site_faq_sub_category?.map((siteFaq) => (
-                <div className="w-100 pb-2 mb-3 border-bottom">
-                  <div
-                    className="w-100 d-flex justify-content-between mb-2"
-                    style={{ cursor: "pointer" }}
-                    onClick={toggleChildDiv}
-                  >
-                    <div>
-                      <span style={{ fontSize: "18px", fontWeight: "700" }}>{siteFaq.section}</span>
-                      {/* <span> (Questions)</span> */}
-                    </div>
-                    <FontAwesomeIcon icon={faChevronDown} />
-                    <FontAwesomeIcon icon={faChevronUp} className="d-none" />
-                  </div>
-                  <div className="ps-4 d-none">
-                    <ol>
-                      {
-                        siteFaq.site_faq_questions.map((faq) => (
-                          <li>
-                            <div className="mb-2" style={{ fontWeight: "700" }}>{faq.question}</div>
-                            <div className="ps-4 mb-2">
-                              {
-                                faq.suggestion && (
-                                  faq.suggestion.length === 0 ? (
-                                    ["Yes", "No"].map((answer) => (
-                                      <Form.Group className="mb-1">
-                                        <Form.Check
-                                          type="checkbox"
-                                          label={answer}
-                                          value={answer}
-                                          name={faq.question}
-                                          checked={questions.filter((q) => areEqualObjects(q, { [faq.id]: answer })).length !== 0}
-                                          onChange={(e) => handleQuestion(e, { [faq.id]: answer })}
-                                        />
-                                      </Form.Group>
-                                    ))
-                                  ) : (
-                                    faq.suggestion.map((answer) => (
-                                      <Form.Group className="mb-1">
-                                        <Form.Check
-                                          type="checkbox"
-                                          label={answer}
-                                          value={answer}
-                                          name={faq.question}
-                                          checked={questions.filter((q) => areEqualObjects(q, { [faq.id]: answer })).length !== 0}
-                                          onChange={(e) => handleQuestion(e, { [faq.id]: answer })}
-                                        />
-                                      </Form.Group>
-                                    ))
-                                  )
-                                )
-                              }
-                            </div>
-                          </li>
-                        ))
-                      }
-                    </ol>
-                  </div>
+        {
+          filters?.map((category) => category.subcategories?.map((subcategory) => subcategory.site_faq_sub_category?.map((siteFaq) => (
+            <div className="w-100 pb-2 mb-3 border-bottom">
+              <div
+                className="w-100 d-flex justify-content-between mb-2"
+                style={{ cursor: "pointer" }}
+                onClick={toggleChildDiv}
+              >
+                <div>
+                  <span style={{ fontSize: "18px", fontWeight: "700" }}>{siteFaq.section}</span>
+                  {/* <span> (Questions)</span> */}
                 </div>
-              ))))
-            }
-          </div>
-        </div>
+                <FontAwesomeIcon icon={faChevronDown} />
+                <FontAwesomeIcon icon={faChevronUp} className="d-none" />
+              </div>
+              <div className="d-none">
+                <ol className="ps-4">
+                  {
+                    siteFaq.site_faq_questions.map((faq) => (
+                      <li>
+                        <div className="mb-2" style={{ fontSize: "14px", fontWeight: "500" }}>{faq.question}</div>
+                        <div className="ps-1 mb-2">
+                          {
+                            faq.suggestion && (
+                              faq.suggestion.length === 0 ? (
+                                ["Yes", "No"].map((answer) => (
+                                  <Form.Group className="mb-1">
+                                    <Form.Check
+                                      type="checkbox"
+                                      label={answer}
+                                      value={answer}
+                                      name={faq.question}
+                                      checked={questions.filter((q) => areEqualObjects(q, { [faq.id]: answer })).length !== 0}
+                                      onChange={(e) => handleQuestion(e, { [faq.id]: answer })}
+                                    />
+                                  </Form.Group>
+                                ))
+                              ) : (
+                                faq.suggestion.map((answer) => (
+                                  <Form.Group className="mb-1">
+                                    <Form.Check
+                                      type="checkbox"
+                                      label={answer}
+                                      value={answer}
+                                      name={faq.question}
+                                      checked={questions.filter((q) => areEqualObjects(q, { [faq.id]: answer })).length !== 0}
+                                      onChange={(e) => handleQuestion(e, { [faq.id]: answer })}
+                                    />
+                                  </Form.Group>
+                                ))
+                              )
+                            )
+                          }
+                        </div>
+                      </li>
+                    ))
+                  }
+                </ol>
+              </div>
+            </div>
+          ))))
+        }
       </div>
     </Col>
   );
