@@ -37,13 +37,9 @@ class Company(NewAbstractModel):
     )
     image = models.TextField(null=True, blank=True)
     city = models.TextField(null=True, blank=True)
-
-    def save(self, *args, **kwargs):
-        super(Company, self).save(*args, **kwargs)
-        if not Subscription.objects.filter(company=self).exists():
-            Subscription.objects.create(
-                company=self, type=SUBSCRIPTION_TYPES["FEATURED"]
-            )
+    stripe_customer_id = models.TextField(
+        _("Stripe Customer Id"), null=True, blank=True
+    )
 
     class Meta:
         verbose_name = "Company"

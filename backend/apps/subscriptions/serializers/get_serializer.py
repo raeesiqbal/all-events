@@ -4,7 +4,6 @@ from apps.utils.serializers.base import BaseSerializer
 
 
 class TestSerializer(BaseSerializer):
-    
     class Meta:
         model = Client
-        fields = ['user']
+        fields = ["user"]
