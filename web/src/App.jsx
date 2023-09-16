@@ -12,11 +12,13 @@ import ResetPassword from "./views/ResetPassword/ResetPassword";
 import Chats from "./views/Chats/Chats";
 import FavoriteAds from "./views/Ads/FavoriteAds";
 import Analytics from "./views/Analytics/Analytics";
+import Search from "./views/Search/Search";
 
 function App() {
   return (
     <Routes>
       <Route path="/" element={<Homepage />} />
+      <Route path="/search" element={<Search />} />
       <Route
         path="/post-ad"
         element={(

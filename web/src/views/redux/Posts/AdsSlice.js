@@ -117,7 +117,7 @@ export const listPublicAds = createAsyncThunk(
       const request = isLoggedIn ? secureInstance : instance;
       const response = await request.request({
         url: "/api/ads/public-list/",
-        method: "Get",
+        method: "Post",
       });
       return response.data; // Assuming your loginAPI returns data with access_token, user_id, and role_id
     } catch (err) {
