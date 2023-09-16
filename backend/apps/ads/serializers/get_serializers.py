@@ -16,6 +16,8 @@ from apps.ads.models import (
     SiteQuestion,
     SiteFAQ,
 )
+from apps.analytics.models import AdReview
+from django.db.models import Avg
 from apps.analytics.models import FavouriteAd
 from apps.companies.models import Company
 from apps.users.constants import USER_ROLE_TYPES
@@ -239,6 +241,8 @@ class AdPublicGetSerializer(BaseSerializer):
     ad_faqs = FaqsGetSerializer(many=True)
     fav = serializers.SerializerMethodField()
     ad_faq_ad = AdFaqsGetSerializer(many=True)
+    total_reviews = serializers.SerializerMethodField()
+    average_rating = serializers.SerializerMethodField()
 
     class Meta:
         model = Ad
@@ -256,6 +260,12 @@ class AdPublicGetSerializer(BaseSerializer):
         else:
             return None
 
+    def get_total_reviews(self, obj):
+        return AdReview.objects.filter(ad=obj).count()
+
+    def get_average_rating(self, obj):
+        avg_rating = AdReview.objects.filter(ad=obj).aggregate(Avg("rating"))
+        return avg_rating["rating__avg"]
 
 class SuggestionGetSerializer(BaseSerializer):
     name = serializers.CharField(max_length=100)
