@@ -14,7 +14,10 @@ from apps.subscriptions.serializers.create_serializer import (
     InputPriceIdSerializer,
 )
 
-from apps.subscriptions.serializers.get_serializer import TestSerializer
+from apps.subscriptions.serializers.get_serializer import (
+    TestSerializer,
+    MySubscriptionsSerializer,
+)
 from apps.subscriptions.stripe_service import StripeService
 from apps.utils.constants import PRODUCT_NAMES
 
@@ -33,6 +36,7 @@ class SubscriptionsViewSet(BaseViewset):
         "default": TestSerializer,
         "create_subscription": CreateCustomerSerializer,
         "product_subscription_list": InputPriceIdSerializer,
+        "my_subscriptions": MySubscriptionsSerializer,
     }
     action_permissions = {
         "default": [],
@@ -56,6 +60,7 @@ class SubscriptionsViewSet(BaseViewset):
             data.append(
                 {
                     "id": product.id,
+                    "name": product.name,
                     "object": product.object,
                     "description": product.description,
                     "images": product.images,
@@ -93,17 +98,7 @@ class SubscriptionsViewSet(BaseViewset):
         if not Subscription.objects.filter(
             company__user__email=request.user.email
         ).exists():
-            subscription = stripe.Subscription.create(
-                customer=customer,
-                items=[
-                    {
-                        "price": price_id,
-                    }
-                ],
-                payment_behavior="default_incomplete",
-                payment_settings={"save_default_payment_method": "on_subscription"},
-                expand=["latest_invoice.payment_intent"],
-            )
+            subscription = self.stripe_service.create_subscription(customer, price_id)
             Subscription.objects.create(
                 company=company,
                 subscription_id=subscription.id,
@@ -111,17 +106,82 @@ class SubscriptionsViewSet(BaseViewset):
                 price_id=subscription["items"].data[0].price.id,
                 unit_amount=subscription["items"].data[0].price.unit_amount,
                 latest_invoice_id=subscription.latest_invoice.id,
+                client_secret=subscription.latest_invoice.payment_intent.client_secret,
+                status="inactive",
+            )
+            return Response(
+                status=status.HTTP_200_OK,
+                data=ResponseInfo().format_response(
+                    data={
+                        "subscriptionId": subscription.id,
+                        "clientSecret": subscription.latest_invoice.payment_intent.client_secret,
+                    },
+                    status_code=status.HTTP_200_OK,
+                    message="Subscription Created",
+                ),
             )
 
+        else:
+            subscription = Subscription.objects.filter(
+                company__user__email=request.user.email, status="inactive"
+            ).first()
+            if price_id == subscription.price_id:
+                return Response(
+                    status=status.HTTP_200_OK,
+                    data=ResponseInfo().format_response(
+                        data={
+                            "subscriptionId": subscription.subscription_id,
+                            "clientSecret": subscription.client_secret,
+                        },
+                        status_code=status.HTTP_200_OK,
+                        message="Subscription info",
+                    ),
+                )
+            else:
+                stripe.Subscription.delete(subscription.subscription_id)
+                Subscription.objects.filter(
+                    company__user__email=request.user.email, status="inactive"
+                ).delete()
+                subscription = self.stripe_service.create_subscription(
+                    customer, price_id
+                )
+                print(subscription)
+
+                Subscription.objects.create(
+                    company=company,
+                    subscription_id=subscription.id,
+                    stripe_customer_id=customer,
+                    price_id=subscription["items"].data[0].price.id,
+                    unit_amount=subscription["items"].data[0].price.unit_amount,
+                    latest_invoice_id=subscription.latest_invoice.id,
+                    client_secret=subscription.latest_invoice.payment_intent.client_secret,
+                    status="inactive",
+                )
+
+                return Response(
+                    status=status.HTTP_200_OK,
+                    data=ResponseInfo().format_response(
+                        data={
+                            "subscriptionId": subscription.id,
+                            "clientSecret": subscription.latest_invoice.payment_intent.client_secret,
+                        },
+                        status_code=status.HTTP_200_OK,
+                        message="Subscription Created",
+                    ),
+                )
+
+    @action(detail=False, url_path="my-subscriptions", methods=["post"])
+    def my_subscriptions(self, request, *args, **kwargs):
+        my_subscriptions = Subscription.objects.filter(
+            company__user__email=request.user.email
+        )
+        serializer = self.get_serializer(my_subscriptions).data
         return Response(
             status=status.HTTP_200_OK,
             data=ResponseInfo().format_response(
-                data={
-                    "subscriptionId": subscription.id,
-                    "clientSecret": subscription.latest_invoice.payment_intent.client_secret,
-                },
+                data=serializer,
                 status_code=status.HTTP_200_OK,
-                message="Subscription Created",
+                message="My subscriptions",
             ),
         )
 

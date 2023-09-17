@@ -5,6 +5,8 @@ from django.utils.translation import gettext_lazy as _
 
 
 class Subscription(NewAbstractModel):
+
+    
     company = models.ForeignKey(
         "companies.Company", on_delete=models.CASCADE, related_name="my_subscriptions"
     )
@@ -17,8 +19,11 @@ class Subscription(NewAbstractModel):
     # price
     price_id = models.TextField(_("Plan Id"))
     unit_amount = models.TextField(_("Unit Amount"))
-    # latest Invoice
+    # Invoice
     latest_invoice_id = models.TextField(_("Latest Invoice Id"))
+    client_secret = models.TextField(_("Client Secret"))
+    # status
+    status = models.TextField(_("Status"))
 
     class Meta:
         verbose_name = "Subscription"

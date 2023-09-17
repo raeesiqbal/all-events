@@ -69,8 +69,6 @@ class StripeService:
         except Exception as ex:
             return None
 
-
-
     def create_session(self, customer_id, price_id, domain_url):
         try:
             checkout_session = stripe.checkout.Session.create(
@@ -88,4 +86,21 @@ class StripeService:
             )
             return checkout_session
         except Exception as ex:
-            return None 
+            return None
+
+    def create_subscription(self, customer_id, price_id):
+        try:
+            create_subscription = stripe.Subscription.create(
+                customer=customer_id,
+                items=[
+                    {
+                        "price": price_id,
+                    }
+                ],
+                payment_behavior="default_incomplete",
+                payment_settings={"save_default_payment_method": "on_subscription"},
+                expand=["latest_invoice.payment_intent"],
+            )
+            return create_subscription
+        except Exception as ex:
+            return None
