@@ -1,17 +1,17 @@
-from apps.ads.serializers.create_serializers import CategoryCreateSerializer
 from apps.analytics.models import AdReview, Chat, Message, ContactRequest
 from apps.utils.serializers.base import BaseSerializer
-from apps.ads.models import Ad, Category, Gallery, SubCategory
-from apps.ads.serializers.get_serializers import GalleryChildSerializer
+from apps.ads.models import Ad, Category, Gallery
 from rest_framework import serializers
-from apps.clients.models import Client
-from apps.users.models import User
 from apps.analytics.models import FavouriteAd
+from django.db.models import Avg
 
 
 class AdFavChildSerializer(BaseSerializer):
     ad_image = serializers.SerializerMethodField()
     company = serializers.SerializerMethodField()
+    country = serializers.SerializerMethodField()
+    sub_category = serializers.SerializerMethodField()
+    average_rating = serializers.SerializerMethodField()
 
     class Meta:
         model = Ad
@@ -19,6 +19,9 @@ class AdFavChildSerializer(BaseSerializer):
             "ad_image",
             "company",
             "name",
+            "country",
+            "sub_category",
+            "average_rating",
             "description",
         ]
 
@@ -33,6 +36,16 @@ class AdFavChildSerializer(BaseSerializer):
 
     def get_company(self, obj):
         return obj.company.name
+
+    def get_country(self, obj):
+        return obj.country.name
+
+    def get_sub_category(self, obj):
+        return obj.sub_category.name
+
+    def get_average_rating(self, obj):
+        avg_rating = AdReview.objects.filter(ad=obj).aggregate(Avg("rating"))
+        return avg_rating["rating__avg"]
 
 
 class FavouriteAdSerializer(BaseSerializer):

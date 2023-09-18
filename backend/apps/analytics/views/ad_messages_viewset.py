@@ -165,17 +165,24 @@ class MessageViewSet(BaseViewset):
             chat = Chat.objects.filter(id=kwargs.get("pk")).first()
             chat.is_delete_client = False
             chat.is_delete_vendor = False
+            chat.is_read_client = True
             chat.save()
 
             if request.user.role_type == USER_ROLE_TYPES["CLIENT"]:
+                chat.is_read_client = True
+                chat.save()
                 dic = {
+                    "event_date": chat.event_date,
                     "name": chat.ad.company.name,
                     "ad": chat.ad.id,
                     "image": chat.ad.company.user.image,
                 }
 
             elif request.user.role_type == USER_ROLE_TYPES["VENDOR"]:
+                chat.is_read_vendor = True
+                chat.save()
                 dic = {
+                    "event_date": chat.event_date,
                     "name": chat.client.user.first_name + chat.client.user.last_name,
                     "ad": chat.ad.id,
                     "image": chat.ad.company.user.image,
