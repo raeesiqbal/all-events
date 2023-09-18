@@ -68,23 +68,6 @@ export const archiveChat = createAsyncThunk(
   },
 );
 
-// export const isChatExists = createAsyncThunk(
-//   "Chats/is_chat_exists",
-//   async (id, { rejectWithValue }) => {
-//     try {
-//       const response = await secureInstance.request({
-//         url: `/api/analytics/ad-chat/${id}/chat-exist/`,
-//         method: "Get",
-//       });
-//       return response.status_code; // Assuming your loginAPI returns data with access_token, user_id, and role_id
-//     } catch (err) {
-//       // Use `err.response.data` as `action.payload` for a `rejected` action,
-//       // by explicitly returning it using the `rejectWithValue()` utility
-//       return rejectWithValue(err.response.data);
-//     }
-//   },
-// );
-
 export const deleteChat = createAsyncThunk(
   "Chats/delete",
   async (id, { rejectWithValue }) => {

@@ -3,55 +3,40 @@ import React, { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { Container } from "react-bootstrap";
-import { listChats } from "../redux/Chats/ChatsSlice";
-import { listChatMessages } from "../redux/Messages/MessagesSlice";
 import Header from "../../components/Navbar/Navbar";
 import Footer from "../../components/Footer/Footer";
 import TabNavigation from "../../components/TabNavigation/TabNavigation";
 import MesssageTabNavigation from "../../components/TabNavigation/MessageTabNavigation";
-import Chat from "./Chat";
 import "../Ads/Ads.css";
-import "./Chats.css";
+import "./Subscriptions.css";
 
-function Chats() {
+function Subscriptions() {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
-  const chats = useSelector((state) => state.chats.chats);
-  const inboxCount = useSelector((state) => state.chats.inboxCount);
-  const archivedCount = useSelector((state) => state.chats.archivedCount);
+  const subscriptions = useSelector((state) => state.subscriptions.subscriptions);
+  const activeCount = useSelector((state) => state.subscriptions.activeCount);
+  const expiredCount = useSelector((state) => state.subscriptions.expiredCount);
   const [activeTab, setActiveTab] = React.useState("Inbox");
-  const [activeTabChats, setActiveTabChats] = React.useState();
+  const [activeTabSubscriptions, setActiveTabSubscriptions] = React.useState();
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const chatId = searchParams.get("chatId");
 
   const tabs = [
     {
-      label: "Inbox",
-      count: inboxCount,
+      label: "Active",
+      count: activeCount,
     },
     {
-      label: "Archived",
-      count: archivedCount,
+      label: "Expired",
+      count: expiredCount,
     },
   ];
 
   useEffect(() => {
-    window.scrollTo(0, 0);
-    dispatch(listChats());
-  }, []);
-
-  useEffect(() => {
-    if (chatId) {
-      dispatch(listChatMessages(chatId));
-      dispatch(listChats());
-    }
-  }, [chatId]);
-
-  useEffect(() => {
-    const isArchived = activeTab === "Archived";
-    setActiveTabChats(chats.filter((message) => message.archived === isArchived));
-  }, [activeTab, chats]);
+    const isActive = activeTab === "Active";
+    setActiveTabSubscriptions(subscriptions.filter((subscription) => subscription.active === isActive));
+  }, [activeTab, subscriptions]);
 
   return (
     <>
@@ -59,9 +44,9 @@ function Chats() {
       <TabNavigation role={user.role} />
 
       <div className="my-ad-banner p-md-5 mb-5">
-        <div className="roboto-bold-36px-h1 mb-2">Chats</div>
+        <div className="roboto-bold-36px-h1 mb-2">Subscriptions</div>
         <div className="roboto-regular-18px-body3">
-          Keep track of potential client queries and reply timely
+          Review, upgrade and update your packages
         </div>
       </div>
 
@@ -70,7 +55,7 @@ function Chats() {
         className="pt-md-5"
       >
         <MesssageTabNavigation activeTab={activeTab} setActiveTab={setActiveTab} tabs={tabs} />
-        {activeTabChats && activeTabChats.map((chat) => <Chat chat={chat} key={chat.id} isOpenChat={chat.id.toString() === chatId} />)}
+        {activeTabSubscriptions && activeTabSubscriptions.map((chat) => <Chat chat={chat} key={chat.id} isOpenChat={chat.id.toString() === chatId} />)}
       </Container>
 
       <Footer />
@@ -78,4 +63,4 @@ function Chats() {
   );
 }
 
-export default Chats;
+export default Subscriptions;

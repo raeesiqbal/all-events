@@ -13,12 +13,22 @@ import Chats from "./views/Chats/Chats";
 import FavoriteAds from "./views/Ads/FavoriteAds";
 import Analytics from "./views/Analytics/Analytics";
 import Search from "./views/Search/Search";
+import Subscriptions from "./views/Subscriptions/Subscriptions";
+import Plans from "./views/Subscriptions/Plans";
+import Checkout from "./views/Subscriptions/Checkout";
 
 function App() {
   return (
     <Routes>
       <Route path="/" element={<Homepage />} />
-      <Route path="/search" element={<Search />} />
+      <Route
+        path="/search"
+        element={(
+          <ProtectedRoute>
+            <Search />
+          </ProtectedRoute>
+        )}
+      />
       <Route
         path="/post-ad"
         element={(
@@ -80,6 +90,30 @@ function App() {
         element={(
           <ProtectedRoute>
             <Analytics />
+          </ProtectedRoute>
+        )}
+      />
+      <Route
+        path="/subscriptions"
+        element={(
+          <ProtectedRoute role="vendor">
+            <Subscriptions />
+          </ProtectedRoute>
+        )}
+      />
+      <Route
+        path="/plans"
+        element={(
+          <ProtectedRoute>
+            <Plans />
+          </ProtectedRoute>
+        )}
+      />
+      <Route
+        path="/checkout"
+        element={(
+          <ProtectedRoute>
+            <Checkout />
           </ProtectedRoute>
         )}
       />

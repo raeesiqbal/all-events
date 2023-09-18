@@ -7,18 +7,10 @@ import {
   handleClickTab,
 } from "../../views/redux/TabNavigation/TabNavigationSlice";
 
-const tabs = [
-  {
-    label: "Inbox",
-  },
-  {
-    label: "Archived",
-  },
-];
-
-const MesssageTabNavigation = ({ activeTab, setActiveTab, counts }) => {
+const MesssageTabNavigation = ({
+  activeTab, setActiveTab, tabs,
+}) => {
   const dispatch = useDispatch();
-
   const isActive = (label) => activeTab === label;
 
   const handleClickTabNav = (index, label) => {
@@ -42,7 +34,11 @@ const MesssageTabNavigation = ({ activeTab, setActiveTab, counts }) => {
             style={{ cursor: "pointer", borderBottom: "7px solid #fff" }}
           >
             <span>{tab.label}</span>
-            <span className="ps-2 text-secondary">{`(${counts[index]})`}</span>
+            {
+              tab.count && (
+                <span className="ps-2 text-secondary">{`(${tab.count})`}</span>
+              )
+            }
           </div>
         ))}
       </div>

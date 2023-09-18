@@ -1,0 +1,19 @@
+.subscription-free {
+  background-color: rgb(245, 245, 245);
+  color: rgba(121, 121, 121, 1);
+}
+
+.subscription-pro {
+  background-color: rgb(255, 250, 214);
+  color: rgba(121, 121, 121, 1);
+}
+
+.subscription-teams {
+  background-color: rgb(216, 255, 251);
+  color: rgba(121, 121, 121, 1);
+}
+
+.subscription-business {
+  background-color: rgb(219, 229, 255);
+  color: rgba(121, 121, 121, 1);
+}
