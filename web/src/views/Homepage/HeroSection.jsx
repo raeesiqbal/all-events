@@ -22,6 +22,8 @@ function HeroSection() {
   const [isDisabled, setIsDisabled] = React.useState(true);
   const suggestionsList = useSelector((state) => state.search.data.suggestionsList);
   const keyword = useSelector((state) => state.search.data.keyword);
+  const limit = useSelector((state) => state.search.data.pagination.limit);
+  const offset = useSelector((state) => state.search.data.pagination.offset);
   const suggestionDropdown = useRef();
 
   const handleSuggestions = (e) => {
@@ -31,19 +33,18 @@ function HeroSection() {
 
     dispatch(listSuggestions({ search_string: e.target.value }));
     setShowSuggestions(e.target.value !== "");
-
-    setIsDisabled(e.target.value === "");
   };
 
   const handleSuggestionClick = (suggestion) => {
     dispatch(setSearchKeyword({ ...suggestion }));
     setShowSuggestions(false);
+    setIsDisabled(keyword.name === "");
   };
 
   const handleSearchButton = () => {
     if (window.location.pathname === "/") navigate("/search");
     if (window.location.pathname === "/search") {
-      dispatch(listAdsByKeyword({ keyword, limit: 10, offset: 0 }));
+      dispatch(listAdsByKeyword({ keyword, limit, offset }));
     }
   };
 
@@ -73,13 +74,14 @@ function HeroSection() {
               </p>
             </div>
             <div className="position-relative">
-              <Form>
+              <div>
                 <InputGroup className="flex-nowrap">
                   <div
                     className="d-flex w-100"
                     style={{
                       border: "1px solid #D9D9D9",
-                      borderRadius: "5px",
+                      borderTopLeftRadius: "5px",
+                      borderTopRightRadius: "5px",
                       position: "relative",
                     }}
                   >
@@ -114,7 +116,6 @@ function HeroSection() {
                         outline: 0,
                         border: "none",
                         paddingLeft: "60px",
-                        margin: "10px 0",
                         borderRadius: "0",
                         borderRight: "1px solid #D9D9D9",
                       }}
@@ -124,8 +125,8 @@ function HeroSection() {
                     <Button
                       variant="success"
                       size="lg"
-                      className="roboto-semi-bold-16px-information rounded-end-1 rounded-start-0"
-                      style={{ height: "56px" }}
+                      className="roboto-semi-bold-16px-information"
+                      style={{ height: "56px", borderRadius: "0px" }}
                       disabled={isDisabled}
                       onClick={() => handleSearchButton()}
                     >
@@ -133,7 +134,7 @@ function HeroSection() {
                     </Button>
                   </div>
                 </InputGroup>
-              </Form>
+              </div>
               {
                 showSuggestions && (
                   <div className="suggestion-dropdown" ref={suggestionDropdown}>
