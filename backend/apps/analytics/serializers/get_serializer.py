@@ -151,6 +151,7 @@ class ChatListSerializer(BaseSerializer):
     person = serializers.SerializerMethodField()
     latest_message = MessageChildSerializer()
     ad_image = serializers.SerializerMethodField("get_ad_image")
+    ad_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Chat
@@ -214,6 +215,9 @@ class ChatListSerializer(BaseSerializer):
             extra_data["phone"] = obj.ad.company.user.phone
 
         return extra_data
+
+    def get_ad_name(self, obj):
+        return obj.ad.name
 
     def to_representation(self, instance):
         # Call the parent class's to_representation method
