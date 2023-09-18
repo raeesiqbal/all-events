@@ -158,6 +158,7 @@ class ChatListSerializer(BaseSerializer):
         fields = [
             "id",
             "ad_image",
+            "ad_name",
             "event_date",
             "latest_message",
             "archived",
