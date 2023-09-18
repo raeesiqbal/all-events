@@ -1,3 +1,4 @@
+from rest_framework import serializers
 from apps.clients.models import Client
 from apps.users.models import User
 from apps.utils.serializers.base import BaseSerializer
@@ -11,6 +12,11 @@ class TestSerializer(BaseSerializer):
 
 
 class MySubscriptionsSerializer(BaseSerializer):
+    type = serializers.SerializerMethodField()
+
     class Meta:
         model = Subscription
-        fields = ["user"]
+        fields = "__all__"
+
+    def get_type(self, obj):
+        return obj.type.type

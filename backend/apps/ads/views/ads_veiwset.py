@@ -110,7 +110,7 @@ class AdViewSet(BaseViewset):
     user_role_queryset = {
         USER_ROLE_TYPES["VENDOR"]: lambda self: Ad.objects.filter(
             company__user_id=self.request.user.id
-        )
+        ) 
     }
 
     s3_service = S3Service()

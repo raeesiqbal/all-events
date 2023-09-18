@@ -42,6 +42,7 @@ class SubscriptionsViewSet(BaseViewset):
         "default": [],
         "create_subscription": [IsAuthenticated, IsVendorUser],
         "subscription_success": [IsAuthenticated, IsVendorUser],
+        "my_subscriptions": [IsAuthenticated, IsVendorUser],
     }
     stripe_service = StripeService()
 
@@ -95,20 +96,28 @@ class SubscriptionsViewSet(BaseViewset):
         else:
             customer = company.stripe_customer_id
 
-        if not Subscription.objects.filter(
+        user_subscription = Subscription.objects.filter(
             company__user__email=request.user.email
-        ).exists():
+        ).first()
+
+        if (
+            user_subscription.type.type == "free"
+            and user_subscription.subscription_id == ""
+        ):
             subscription = self.stripe_service.create_subscription(customer, price_id)
-            Subscription.objects.create(
-                company=company,
-                subscription_id=subscription.id,
-                stripe_customer_id=customer,
-                price_id=subscription["items"].data[0].price.id,
-                unit_amount=subscription["items"].data[0].price.unit_amount,
-                latest_invoice_id=subscription.latest_invoice.id,
-                client_secret=subscription.latest_invoice.payment_intent.client_secret,
-                status="inactive",
+
+            user_subscription.subscription_id = subscription.id
+            user_subscription.stripe_customer_id = customer
+            user_subscription.price_id = subscription["items"].data[0].price.id
+            user_subscription.unit_amount = (
+                subscription["items"].data[0].price.unit_amount
             )
+            user_subscription.latest_invoice_id = subscription.latest_invoice.id
+            user_subscription.client_secret = (
+                subscription.latest_invoice.payment_intent.client_secret
+            )
+            user_subscription.save()
+
             return Response(
                 status=status.HTTP_200_OK,
                 data=ResponseInfo().format_response(
@@ -120,43 +129,36 @@ class SubscriptionsViewSet(BaseViewset):
                     message="Subscription Created",
                 ),
             )
-
         else:
-            subscription = Subscription.objects.filter(
-                company__user__email=request.user.email, status="inactive"
-            ).first()
-            if price_id == subscription.price_id:
+            if price_id == user_subscription.price_id:
                 return Response(
                     status=status.HTTP_200_OK,
                     data=ResponseInfo().format_response(
                         data={
-                            "subscriptionId": subscription.subscription_id,
-                            "clientSecret": subscription.client_secret,
+                            "subscriptionId": user_subscription.subscription_id,
+                            "clientSecret": user_subscription.client_secret,
                         },
                         status_code=status.HTTP_200_OK,
                         message="Subscription info",
                     ),
                 )
             else:
-                stripe.Subscription.delete(subscription.subscription_id)
-                Subscription.objects.filter(
-                    company__user__email=request.user.email, status="inactive"
-                ).delete()
+                stripe.Subscription.delete(user_subscription.subscription_id)
                 subscription = self.stripe_service.create_subscription(
                     customer, price_id
                 )
-                print(subscription)
 
-                Subscription.objects.create(
-                    company=company,
-                    subscription_id=subscription.id,
-                    stripe_customer_id=customer,
-                    price_id=subscription["items"].data[0].price.id,
-                    unit_amount=subscription["items"].data[0].price.unit_amount,
-                    latest_invoice_id=subscription.latest_invoice.id,
-                    client_secret=subscription.latest_invoice.payment_intent.client_secret,
-                    status="inactive",
+                user_subscription.subscription_id = subscription.id
+                user_subscription.stripe_customer_id = customer
+                user_subscription.price_id = subscription["items"].data[0].price.id
+                user_subscription.unit_amount = (
+                    subscription["items"].data[0].price.unit_amount
                 )
+                user_subscription.latest_invoice_id = subscription.latest_invoice.id
+                user_subscription.client_secret = (
+                    subscription.latest_invoice.payment_intent.client_secret
+                )
+                user_subscription.save()
 
                 return Response(
                     status=status.HTTP_200_OK,
@@ -170,12 +172,12 @@ class SubscriptionsViewSet(BaseViewset):
                     ),
                 )
 
-    @action(detail=False, url_path="my-subscriptions", methods=["post"])
+    @action(detail=False, url_path="my-subscriptions", methods=["get"])
     def my_subscriptions(self, request, *args, **kwargs):
         my_subscriptions = Subscription.objects.filter(
             company__user__email=request.user.email
         )
-        serializer = self.get_serializer(my_subscriptions).data
+        serializer = self.get_serializer(my_subscriptions, many=True).data
         return Response(
             status=status.HTTP_200_OK,
             data=ResponseInfo().format_response(
@@ -188,7 +190,8 @@ class SubscriptionsViewSet(BaseViewset):
     @action(detail=False, url_path="webhook", methods=["post"])
     def webhook(self, request, *args, **kwargs):
         webhook_secret = settings.STRIPE_WEBHOOK_SECRET
-        request_data = json.loads(request.data)
+        request_data = request.data
+        print(request_data)
 
         if webhook_secret:
             # Retrieve the event by verifying the signature using the raw body and secret if webhook signing is configured.
@@ -209,6 +212,7 @@ class SubscriptionsViewSet(BaseViewset):
         data_object = data["object"]
 
         if event_type == "invoice.paid":
+            print("okkkkkkkkkkkkkkkk")
             # Used to provision services after the trial has ended.
             # The status of the invoice will show up as paid. Store the status in your
             # database to reference when a user accesses your service to avoid hitting rate
@@ -226,14 +230,7 @@ class SubscriptionsViewSet(BaseViewset):
             # handle subscription canceled automatically based
             # upon your subscription settings. Or if the user cancels it.
             print(data)
-        return Response(
-            status=status.HTTP_200_OK,
-            data=ResponseInfo().format_response(
-                data={},
-                status_code=status.HTTP_200_OK,
-                message="Webhook",
-            ),
-        )
+        return Response({"message": "Webhook received successfully"})
 
     # @action(detail=False, url_path="checkout", methods=["post"])
     # def create_subscription(self, request, *args, **kwargs):
