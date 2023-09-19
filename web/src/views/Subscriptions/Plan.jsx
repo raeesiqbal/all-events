@@ -45,7 +45,7 @@ const Plan = ({ plan, index }) => {
         style={{ backgroundColor: cardColors[index] }}
       >
         <Card.Body>
-          <h3 className="fw-bold">Free</h3>
+          <h3 className="fw-bold">{plan.name}</h3>
           <Card.Title className="mb-4">
             <span className="display-5 fw-bold">{plan.unit_price}</span>
             /mo

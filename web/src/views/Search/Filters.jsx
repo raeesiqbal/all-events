@@ -65,7 +65,7 @@ const Filters = () => {
   };
 
   useEffect(() => {
-    if (categories.length !== 0 || subcategories.length !== 0 || questions.length !== 0 || commercialName !== "") {
+    if (categories.length > 0 || subcategories.length > 0 || questions.length > 0) {
       dispatch(listAdsByFilter({
         data: {
           data: {
