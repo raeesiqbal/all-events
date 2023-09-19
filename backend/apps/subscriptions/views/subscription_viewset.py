@@ -224,11 +224,11 @@ class SubscriptionsViewSet(BaseViewset):
             )
             if s.status == "active":
                 if subscription.type.type == SUBSCRIPTION_TYPES["FREE"]:
-                    if s["items"].data[0].price.unit_amount == 10:
+                    if s["items"].data[0].price.unit_amount == 100:
                         updated_type = SUBSCRIPTION_TYPES["STANDARD"]
-                    elif s["items"].data[0].price.unit_amount == 20:
+                    elif s["items"].data[0].price.unit_amount == 200:
                         updated_type = SUBSCRIPTION_TYPES["ADVANCED"]
-                    elif s["items"].data[0].price.unit_amount == 30:
+                    elif s["items"].data[0].price.unit_amount == 300:
                         updated_type = SUBSCRIPTION_TYPES["FEATURED"]
                     updated_type = SubscriptionType.objects.filter(
                         type=updated_type
