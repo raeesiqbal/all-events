@@ -2,7 +2,7 @@ from django.conf import settings
 import stripe
 from rest_framework.permissions import IsAuthenticated
 from apps.companies.models import Company
-from apps.subscriptions.models import Subscription
+from apps.subscriptions.models import Subscription, SubscriptionType
 from apps.users.permissions import IsSuperAdmin, IsVendorUser
 
 from rest_framework.response import Response
@@ -24,6 +24,7 @@ from apps.utils.constants import PRODUCT_NAMES
 from apps.utils.views.base import BaseViewset, ResponseInfo
 from django.conf import settings
 import json
+from apps.subscriptions.constants import SUBSCRIPTION_STATUS, SUBSCRIPTION_TYPES
 
 
 class SubscriptionsViewSet(BaseViewset):
@@ -45,6 +46,8 @@ class SubscriptionsViewSet(BaseViewset):
         "my_subscriptions": [IsAuthenticated, IsVendorUser],
     }
     stripe_service = StripeService()
+    webhook_secret = settings.STRIPE_WEBHOOK_SECRET
+    stripe = stripe_service.get_stripe()
 
     @action(detail=False, url_path="products", methods=["get"])
     def public_products(self, request, *args, **kwargs):
@@ -86,11 +89,11 @@ class SubscriptionsViewSet(BaseViewset):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         price_id = serializer.validated_data.pop("price_id")
-        stripe = self.stripe_service.get_stripe()
+
         company = request.user.user_company
 
         if not company.stripe_customer_id:
-            customer = stripe.Customer.create(email=request.user.email).id
+            customer = self.stripe.Customer.create(email=request.user.email).id
             company.stripe_customer_id = customer
             company.save()
         else:
@@ -189,16 +192,15 @@ class SubscriptionsViewSet(BaseViewset):
 
     @action(detail=False, url_path="webhook", methods=["post"])
     def webhook(self, request, *args, **kwargs):
-        webhook_secret = settings.STRIPE_WEBHOOK_SECRET
-        request_data = request.data
-        print(request_data)
-
-        if webhook_secret:
+        payload = request.body.decode("utf-8")
+        if self.webhook_secret:
             # Retrieve the event by verifying the signature using the raw body and secret if webhook signing is configured.
             signature = request.headers.get("stripe-signature")
             try:
                 event = stripe.Webhook.construct_event(
-                    payload=request.data, sig_header=signature, secret=webhook_secret
+                    payload=payload,
+                    sig_header=signature,
+                    secret=self.webhook_secret,
                 )
                 data = event["data"]
             except Exception as e:
@@ -206,18 +208,39 @@ class SubscriptionsViewSet(BaseViewset):
             # Get the type of webhook event sent - used to check the status of PaymentIntents.
             event_type = event["type"]
         else:
-            data = request_data["data"]
-            event_type = request_data["type"]
+            data = payload["data"]
+            event_type = payload["type"]
 
         data_object = data["object"]
 
         if event_type == "invoice.paid":
-            print("okkkkkkkkkkkkkkkk")
-            # Used to provision services after the trial has ended.
-            # The status of the invoice will show up as paid. Store the status in your
-            # database to reference when a user accesses your service to avoid hitting rate
-            # limits.
-            print(data)
+            subscription = Subscription.objects.filter(
+                stripe_customer_id=data_object.customer
+            ).first()
+            if not subscription:
+                return Response({"message": "Webhook received successfully"})
+            s = stripe.Subscription.retrieve(
+                subscription.subscription_id,
+            )
+            if s.status == "active":
+                if subscription.type.type == SUBSCRIPTION_TYPES["FREE"]:
+                    if s["items"].data[0].price.unit_amount == 10:
+                        updated_type = SUBSCRIPTION_TYPES["STANDARD"]
+                    elif s["items"].data[0].price.unit_amount == 20:
+                        updated_type = SUBSCRIPTION_TYPES["ADVANCED"]
+                    elif s["items"].data[0].price.unit_amount == 30:
+                        updated_type = SUBSCRIPTION_TYPES["FEATURED"]
+                    updated_type = SubscriptionType.objects.filter(
+                        type=updated_type
+                    ).first()
+                    subscription.status = SUBSCRIPTION_STATUS["ACTIVE"]
+                    subscription.type = updated_type
+                    subscription.save()
+                subscription.latest_invoice_id = s.latest_invoice.id
+                subscription.client_secret = (
+                    s.latest_invoice.payment_intent.client_secret
+                )
+                subscription.save()
 
         if event_type == "invoice.payment_failed":
             # If the payment fails or the customer does not have a valid payment method,
