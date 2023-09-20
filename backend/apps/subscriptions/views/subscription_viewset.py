@@ -30,6 +30,7 @@ from apps.subscriptions.serializers.get_serializer import (
 
 from apps.subscriptions.serializers.update_serializer import (
     InputSubscriptionIdSerializer,
+    CancelSubscriptionSerializer,
 )
 
 
@@ -43,6 +44,7 @@ class SubscriptionsViewSet(BaseViewset):
         "default": TestSerializer,
         "create_subscription": CreateCustomerSerializer,
         "update_subscription": InputSubscriptionIdSerializer,
+        "cancel_subscription": CancelSubscriptionSerializer,
         "product_subscription_list": InputPriceIdSerializer,
         "my_subscriptions": MySubscriptionsSerializer,
     }
@@ -50,6 +52,7 @@ class SubscriptionsViewSet(BaseViewset):
         "default": [],
         "create_subscription": [IsAuthenticated, IsVendorUser],
         "update_subscription": [IsAuthenticated, IsVendorUser],
+        "cancel_subscription": [IsAuthenticated, IsVendorUser],
         "subscription_success": [IsAuthenticated, IsVendorUser],
         "my_subscriptions": [IsAuthenticated, IsVendorUser],
     }
@@ -225,7 +228,7 @@ class SubscriptionsViewSet(BaseViewset):
                 user_subscription.unit_amount = (
                     subscription["items"].data[0].price.unit_amount
                 )
-                user_subscription.latest_invoice_id = subscription.latest_invoice.id
+                user_subscription.latest_invoice_id = subscription.latest_invoice
                 user_subscription.client_secret = (
                     subscription.latest_invoice.payment_intent.client_secret
                 )
@@ -291,12 +294,14 @@ class SubscriptionsViewSet(BaseViewset):
             s = self.stripe.Subscription.retrieve(
                 subscription.subscription_id,
             )
+            print(s)
+
             if s.status == "active":
-                if s["items"].data[0].price.unit_amount == 100:
+                if s["items"].data[0].price.unit_amount == 1000:
                     updated_type = SUBSCRIPTION_TYPES["STANDARD"]
-                elif s["items"].data[0].price.unit_amount == 200:
+                elif s["items"].data[0].price.unit_amount == 2000:
                     updated_type = SUBSCRIPTION_TYPES["ADVANCED"]
-                elif s["items"].data[0].price.unit_amount == 300:
+                elif s["items"].data[0].price.unit_amount == 3000:
                     updated_type = SUBSCRIPTION_TYPES["FEATURED"]
                 updated_type = SubscriptionType.objects.filter(
                     type=updated_type
@@ -305,15 +310,12 @@ class SubscriptionsViewSet(BaseViewset):
                 subscription.type = updated_type
                 subscription.price_id = s["items"].data[0].price.id
                 subscription.unit_amount = s["items"].data[0].price.unit_amount
-                subscription.latest_invoice_id = s.latest_invoice.id
-                subscription.client_secret = (
-                    s.latest_invoice.payment_intent.client_secret
-                )
-                subscription.latest_invoice_id = s.latest_invoice.id
-                subscription.client_secret = (
-                    s.latest_invoice.payment_intent.client_secret
-                )
+                subscription.latest_invoice_id = s.latest_invoice
                 subscription.save()
+
+        if event_type == "customer.subscription.updated":
+            # handle subscription Update
+            pass
 
         if event_type == "invoice.payment_failed":
             # If the payment fails or the customer does not have a valid payment method,
@@ -334,19 +336,86 @@ class SubscriptionsViewSet(BaseViewset):
         serializer.is_valid(raise_exception=True)
         subscription_id = serializer.validated_data.pop("subscription_id")
         price_id = serializer.validated_data.pop("price_id")
-        update_subscription = self.stripe_service.update_subscription(
-            subscription_id, price_id
-        )
+        if Subscription.objects.filter(subscription_id=subscription_id).exists():
+            retrieved_subscription = self.stripe_service.retrieve_subscription(
+                subscription_id
+            )
+            item_id = retrieved_subscription["items"].data[0].id
+            update_subscription = self.stripe_service.update_subscription(
+                subscription_id, item_id, price_id
+            )
 
-        if update_subscription:
+            if update_subscription:
+                return Response(
+                    status=status.HTTP_200_OK,
+                    data=ResponseInfo().format_response(
+                        data={"updated": True},
+                        status_code=status.HTTP_200_OK,
+                        message="Your Subscription will be changed after invoice has been paid successfully",
+                    ),
+                )
             return Response(
                 status=status.HTTP_200_OK,
                 data=ResponseInfo().format_response(
-                    data={},
+                    data={"updated": False},
                     status_code=status.HTTP_200_OK,
-                    message="Your Subscription will be changed after invoice has been paid successfully",
+                    message="There is some error, please try again later.",
                 ),
             )
+        return Response(
+            status=status.HTTP_200_OK,
+            data=ResponseInfo().format_response(
+                data={"updated": None},
+                status_code=status.HTTP_200_OK,
+                message="Subscription does't exisit",
+            ),
+        )
+
+    @action(detail=False, url_path="cancel-subscription", methods=["post"])
+    def cancel_subscription(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        subscription_id = serializer.validated_data.pop("subscription_id")
+
+        if Subscription.objects.filter(subscription_id=subscription_id).exists():
+            canceled_subscription = self.stripe_service.cancel_subscription(
+                subscription_id
+            )
+
+            if canceled_subscription:
+                subscription_type = SubscriptionType.objects.filter(
+                    type=SUBSCRIPTION_TYPES["FREE"]
+                ).first()
+                Subscription.objects.filter(company=request.user.user_company).delete()
+                Subscription.objects.create(
+                    company=request.user.user_company,
+                    type=subscription_type,
+                    status=SUBSCRIPTION_STATUS["ACTIVE"],
+                )
+                return Response(
+                    status=status.HTTP_200_OK,
+                    data=ResponseInfo().format_response(
+                        data={"Canceled": True},
+                        status_code=status.HTTP_200_OK,
+                        message="Subscription has been cancelled",
+                    ),
+                )
+            return Response(
+                status=status.HTTP_200_OK,
+                data=ResponseInfo().format_response(
+                    data={"Canceled": False},
+                    status_code=status.HTTP_200_OK,
+                    message="Subscription has been cancelled",
+                ),
+            )
+        return Response(
+            status=status.HTTP_200_OK,
+            data=ResponseInfo().format_response(
+                data={"Canceled": None},
+                status_code=status.HTTP_200_OK,
+                message="Subscription does't exisit",
+            ),
+        )
 
     # @action(detail=False, url_path="checkout", methods=["post"])
     # def create_subscription(self, request, *args, **kwargs):
