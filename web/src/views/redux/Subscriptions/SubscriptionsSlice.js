@@ -37,9 +37,10 @@ export const createSubscription = createAsyncThunk(
 
 export const listPlans = createAsyncThunk(
   "Subscription/plansList",
-  async (data, { rejectWithValue }) => {
+  async (isLoggedIn, { rejectWithValue }) => {
     try {
-      const response = await instance.request({
+      const request = isLoggedIn ? secureInstance : instance;
+      const response = await request.request({
         url: "/api/subscriptions/products/",
         method: "Get",
       });
@@ -82,7 +83,7 @@ export const SubscriptionsSlice = createSlice({
       })
       .addCase(listPlans.fulfilled, (state, action) => {
         state.loading = false;
-        state.plans = action.payload.data;
+        state.plans = action.payload.data.data;
         // state.activeCount = action.payload.active_count;
         // state.expiredCount = action.payload.expired_count;
       })

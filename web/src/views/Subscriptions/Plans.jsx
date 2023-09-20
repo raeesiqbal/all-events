@@ -12,10 +12,11 @@ import Footer from "../../components/Footer/Footer";
 const Plans = () => {
   const dispatch = useDispatch();
   const plans = useSelector((state) => state.subscriptions.plans);
+  const user = useSelector((state) => state.auth.user);
 
   useEffect(() => {
-    dispatch(listPlans());
-  }, []);
+    dispatch(listPlans(user?.userId !== null));
+  }, [user]);
 
   return (
     <>

@@ -11,14 +11,16 @@ const Checkout = () => {
   const clientSecret = useSelector((state) => state.subscriptions.clientSecret);
   const subscriptionId = useSelector((state) => state.subscriptions.subscriptionId);
   // eslint-disable-next-line no-undef
-  const stripe = Stripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+  const [stripe, setStripe] = useState(Stripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY));
   const [elements, setElements] = useState();
 
-  const handleCheckout = async () => {
+  const handleCheckout = async (event) => {
+    event.preventDefault();
+
     const result = await stripe.confirmPayment({
       elements,
       confirmParams: {
-        return_url: `${window.location.host}/subscriptions`,
+        return_url: `${window.location.protocol}//${window.location.host}/`,
       },
     });
 
@@ -26,7 +28,7 @@ const Checkout = () => {
       const messageContainer = document.querySelector("#error-message");
       messageContainer.textContent = result.error.message;
     } else {
-      navigate("/subscriptions");
+      // navigate("/subscriptions");
     }
   };
 
@@ -35,7 +37,7 @@ const Checkout = () => {
   }, [clientSecret, subscriptionId]);
 
   useEffect(() => {
-    if (elements != null) {
+    if (elements) {
       const paymentElement = elements.create("payment");
       paymentElement.mount("#payment-element");
     }
@@ -46,6 +48,7 @@ const Checkout = () => {
       <Login />
       <Header />
       <Container className="py-5 my-5">
+        <h1>Checkout</h1>
         {
           clientSecret !== "" && (
             <Form id="payment-form" onSubmit={handleCheckout}>
