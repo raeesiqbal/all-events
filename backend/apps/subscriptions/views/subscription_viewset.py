@@ -96,6 +96,7 @@ class SubscriptionsViewSet(BaseViewset):
                 {"Limited Media Upload": "You can only post 1 photo and 1 video"},
             ],
         }
+        current_subscription = None
         if request.user.is_authenticated:
             free_subscription = SubscriptionType.objects.filter(
                 type=SUBSCRIPTION_TYPES["FREE"]
@@ -110,6 +111,33 @@ class SubscriptionsViewSet(BaseViewset):
                     if item["price_id"] == user_scription.price_id:
                         current_subscription = item
                         data.remove(item)
+            else:
+                current_subscription = {
+                    "name": "FREE",
+                    "validity": "90 days",
+                    "price": "free",
+                    "features": [
+                        {"Allowed ads 1": "You Can Post only 1 Ad with free plan"},
+                        {
+                            "Limited Access": "You will not have access to premium features like Analytics etc"
+                        },
+                        {
+                            "Limited Media Upload": "You can only post 1 photo and 1 video"
+                        },
+                    ],
+                }
+        free_plan = {
+            "name": "FREE",
+            "validity": "90 days",
+            "price": "free",
+            "features": [
+                {"Allowed ads 1": "You Can Post only 1 Ad with free plan"},
+                {
+                    "Limited Access": "You will not have access to premium features like Analytics etc"
+                },
+                {"Limited Media Upload": "You can only post 1 photo and 1 video"},
+            ],
+        }
 
         return Response(
             status=status.HTTP_200_OK,
@@ -117,6 +145,7 @@ class SubscriptionsViewSet(BaseViewset):
                 data={
                     "data": data,
                     "current_subscription": current_subscription,
+                    "free_plan": free_plan,
                 },
                 status_code=status.HTTP_200_OK,
                 message="Products List",
@@ -185,7 +214,7 @@ class SubscriptionsViewSet(BaseViewset):
                     ),
                 )
             else:
-                stripe.Subscription.delete(user_subscription.subscription_id)
+                self.stripe.Subscription.delete(user_subscription.subscription_id)
                 subscription = self.stripe_service.create_subscription(
                     customer, price_id
                 )
