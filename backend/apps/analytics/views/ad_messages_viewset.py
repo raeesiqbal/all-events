@@ -26,6 +26,10 @@ from rest_framework.decorators import action
 from django.shortcuts import get_object_or_404
 
 
+from django_filters.rest_framework.backends import DjangoFilterBackend
+from rest_framework.filters import OrderingFilter, SearchFilter
+
+
 class MessageViewSet(BaseViewset):
     """
     API endpoints that manages Ad Chat.
@@ -62,6 +66,21 @@ class MessageViewSet(BaseViewset):
         USER_ROLE_TYPES["CLIENT"]: lambda self: Chat.objects.filter(
             client__user_id=self.request.user.id, is_delete_client=False
         ).prefetch_related("chat_messages"),
+    }
+
+    filter_backends = [SearchFilter, OrderingFilter]
+    search_param = "search"
+    search_fields = [
+        "client__user.first_name",
+        "ad__name",
+        "event_date",
+    ]
+    ad_filterset_fields = ["sub_category__name", "site_question_id", "answer"]
+    ordering_fields = ["id"]
+    filterset_fields = {
+        "client__user.first_name": ["exact"],
+        "ad__name": ["exact"],
+        "event_date": ["exact"],
     }
 
     def perform_create(self, serializer):

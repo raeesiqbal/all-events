@@ -32,6 +32,12 @@ class SiteQuestionChildGetSerializer(BaseSerializer):
         fields = ["question"]
 
 
+class CountryGetSerializer(BaseSerializer):
+    class Meta:
+        model = Country
+        fields = "__all__"
+
+
 class SiteQuestionChildSerializer(BaseSerializer):
     class Meta:
         model = SiteQuestion
@@ -266,6 +272,7 @@ class AdPublicGetSerializer(BaseSerializer):
     def get_average_rating(self, obj):
         avg_rating = AdReview.objects.filter(ad=obj).aggregate(Avg("rating"))
         return avg_rating["rating__avg"]
+
 
 class SuggestionGetSerializer(BaseSerializer):
     name = serializers.CharField(max_length=100)
