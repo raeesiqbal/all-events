@@ -11,16 +11,22 @@ import {
   Row,
 } from "react-bootstrap";
 // import { useNavigate } from "react-router-dom";
-// import heroImg1 from "../../assets/images/harold.jpg";
-import heroImg1 from "../../assets/images/heroImg.svg";
-import { listAdsByKeyword, listSuggestions, setSearchKeyword } from "../redux/Search/SearchSlice";
+import heroImg1 from "../../assets/images/harold.jpg";
+// import heroImg1 from "../../assets/images/heroImg.svg";
+import {
+  listAdsByKeyword,
+  listSuggestions,
+  setSearchKeyword,
+} from "../redux/Search/SearchSlice";
 
 function HeroSection() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [showSuggestions, setShowSuggestions] = React.useState(false);
   const [isDisabled, setIsDisabled] = React.useState(true);
-  const suggestionsList = useSelector((state) => state.search.data.suggestionsList);
+  const suggestionsList = useSelector(
+    (state) => state.search.data.suggestionsList
+  );
   const keyword = useSelector((state) => state.search.data.keyword);
   const limit = useSelector((state) => state.search.data.pagination.limit);
   const offset = useSelector((state) => state.search.data.pagination.offset);
@@ -50,7 +56,8 @@ function HeroSection() {
 
   useEffect(() => {
     if (suggestionDropdown.current) {
-      suggestionDropdown.current.style.overflowY = suggestionDropdown.current.clientHeight > 400 ? "scroll" : "auto";
+      suggestionDropdown.current.style.overflowY =
+        suggestionDropdown.current.clientHeight > 400 ? "scroll" : "auto";
     }
   }, [suggestionsList]);
 
@@ -135,20 +142,21 @@ function HeroSection() {
                   </div>
                 </InputGroup>
               </div>
-              {
-                showSuggestions && (
-                  <div className="suggestion-dropdown" ref={suggestionDropdown}>
-                    {
-                      suggestionsList.map((suggestion) => (
-                        <div className="w-100 px-3 py-2" onClick={(e) => handleSuggestionClick(suggestion)}>
-                          <span className="my-auto px-2">{suggestion.name}</span>
-                          <div className="px-3 py-1 bg-secondary text-white my-auto">{suggestion.type}</div>
-                        </div>
-                      ))
-                    }
-                  </div>
-                )
-              }
+              {showSuggestions && (
+                <div className="suggestion-dropdown" ref={suggestionDropdown}>
+                  {suggestionsList.map((suggestion) => (
+                    <div
+                      className="w-100 px-3 py-2"
+                      onClick={(e) => handleSuggestionClick(suggestion)}
+                    >
+                      <span className="my-auto px-2">{suggestion.name}</span>
+                      <div className="px-3 py-1 bg-secondary text-white my-auto">
+                        {suggestion.type}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </Col>

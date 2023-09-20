@@ -252,10 +252,11 @@ function PostAd() {
         )
         .required("Required"),
       contact_number: Yup.string()
-        .max(10, "Must be at most 10 characters")
+        .min(2, "Must be at least 2 characters")
+        .max(40, "Must be at most 40 characters")
         .matches(
-          /^[a-zA-Z0-9\-/]+$/,
-          'Only digits, letters, "-" and "/" signs are allowed'
+          /^[a-zA-Z\s-]+$/,
+          'Only letters, spaces, and "-" signs are allowed'
         )
         .required("Required"),
       fullAddress: Yup.string()
@@ -627,6 +628,8 @@ function PostAd() {
             validationSchema={Schema}
             validate={validate}
             onSubmit={handleSubmitAllForms}
+            validateOnBlur={false}
+            validateOnChange={false}
           >
             {({
               values,

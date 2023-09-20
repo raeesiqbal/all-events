@@ -42,6 +42,7 @@ function EditAd() {
     setSelectedCountriesforContactInformation,
   ] = useState([]);
   const [currentAd, setCurrentAd] = useState(null);
+  const [imagesToPreview, setImagesToPreview] = useState(Array(5).fill(null));
   const [pdfsToUpload, setPdfsToUpload] = useState([]);
   const [pdfsError, setPdfsError] = useState(false);
   const [videoToUpload, setVideoToUpload] = useState([]);
@@ -179,11 +180,13 @@ function EditAd() {
           }),
       }),
       description: Yup.string()
-        .max(2000, "Must be at most 2000 characters")
+        .min(2, "Too short, minimum 5 characters")
+        .max(6667, "Must be at most 6667 characters")
         .matches(
           /^[a-zA-Z0-9.,;:'"/?!@&*()^+\-|\s]+$/,
           'Only letters, digits, ".,;:\'/?!@&*()^+-|" signs, and spaces are allowed'
-        ),
+        )
+        .required("Description is required"),
       // .required("Required"),
       country: Yup.mixed().required("This field is required"),
     }),
@@ -203,24 +206,28 @@ function EditAd() {
         )
         .required("Required"),
       street: Yup.string()
-        .max(35, "Must be at most 25 characters")
+        .min(3, "Too short, minimum 3 characters")
+        .max(27, "Must be at most 27 characters")
         .matches(
-          /^[a-zA-Z\s-]+$/,
-          'Only letters, spaces, and "-" sign are allowed'
+          /^[A-Za-z0-9\-,.\/\s]+$/,
+          'Only letters, digits, spaces, "-,./" signs are allowed'
         )
         .required("Required"),
       contact_number: Yup.string()
-        .max(10, "Must be at most 10 characters")
+        .min(2, "Must be at least 2 characters")
+        .max(40, "Must be at most 40 characters")
         .matches(
-          /^[a-zA-Z0-9\-/]+$/,
-          'Only digits, letters, "-" and "/" signs are allowed'
+          /^[a-zA-Z\s-]+$/,
+          'Only letters, spaces, and "-" signs are allowed'
         )
         .required("Required"),
       fullAddress: Yup.string()
-        .max(70, "Must be at most 70 characters")
+        .required("Required")
+        .min(5, "Too short, minimum 5 characters")
+        .max(80, "Must be at most 80 characters")
         .matches(
-          /^[a-zA-Z0-9",\-./\s]+$/,
-          'Only letters, ",-./" signs, spaces, and digits are allowed'
+          /^[A-Za-z0-9\s,.\-\/]+$/,
+          'Only letters, digits, spaces, ", .", "-", and "/" characters are allowed'
         ),
     }),
     SocialMedia: Yup.object().shape({
@@ -268,12 +275,17 @@ function EditAd() {
 
     // const isAnyValueNotNull = imagesToUpload.some((value) => value !== null);
 
+    // if (imagesToUpload.length === 0 && !imagesError) {
+    //   dispatch(setImagesError(true));
+    // }
+    // if (imagesError) {
+    //   dispatch(setImagesError(false));
+    // }
     if (imagesToUpload.length === 0 && !imagesError) {
+      // setImagesError(true);
       dispatch(setImagesError(true));
     }
-    if (imagesError) {
-      dispatch(setImagesError(false));
-    }
+
     if (
       !values.companyInformation.country ||
       values.companyInformation.country.length === 0
@@ -297,6 +309,10 @@ function EditAd() {
     // Add more validation rules as needed
 
     return errors;
+  };
+
+  const handleImageUpdates = (images) => {
+    setImagesToPreview(images);
   };
 
   const handlePdfsUpdates = (images) => {
@@ -466,7 +482,6 @@ function EditAd() {
           }))
         : [];
 
-
       const initialSelectedValues = request.data.data?.ad_faq_ad
         ? request.data.data?.ad_faq_ad.map((item) => [
             {
@@ -489,7 +504,6 @@ function EditAd() {
       console.log("test line --------------------------");
 
       setAdminServicesSelected(request.data.data.site_services);
-
 
       setLocalInitialValues({
         companyInformation: {
@@ -673,6 +687,8 @@ function EditAd() {
               validationSchema={Schema}
               validate={validate}
               onSubmit={handleSubmitAllForms}
+              validateOnBlur={false}
+              validateOnChange={false}
               enableReinitialize
             >
               {({
@@ -707,8 +723,13 @@ function EditAd() {
                   />
 
                   <ImageUploader
-                    setShowImagesModal={setShowImagesModal}
+                    // setShowImagesModal={setShowImagesModal}
+                    // imagesError={imagesError}
+                    // imagesToUpload={imagesToUpload}
+                    setparentImagesUploadedImages={handleImageUpdates}
+                    uploadedImages={imagesToPreview}
                     imagesError={imagesError}
+                    // setUploadingData={setUploadingData}
                     imagesToUpload={imagesToUpload}
                     editAd
                   />

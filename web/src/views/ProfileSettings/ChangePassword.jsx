@@ -185,6 +185,8 @@ function ChangePassword() {
               // onSubmit={handleNextStep}
               onSubmit={handleResetPassword}
               initialValues={initialValues}
+              validateOnBlur={false}
+              validateOnChange={false}
             >
               {({
                 handleSubmit,

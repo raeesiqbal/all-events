@@ -139,6 +139,8 @@ function ResetPassword() {
           // onSubmit={handleNextStep}
           onSubmit={handleResetPassword}
           initialValues={InitialValues}
+          validateOnBlur={false}
+          validateOnChange={false}
         >
           {({ handleSubmit, handleChange, values, touched, errors }) => (
             <Form noValidate onSubmit={handleSubmit}>

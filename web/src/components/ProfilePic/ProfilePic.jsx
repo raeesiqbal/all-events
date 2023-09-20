@@ -3,12 +3,14 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCamera } from "@fortawesome/fontawesome-free-solid";
 import { CircularProgress } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
-import defaultuserIcon from "../../assets/images/profile-settings/user.svg";
+// import defaultuserIcon from "../../assets/images/profile-settings/user.svg";
+import defaultuserIcon from "../../assets/images/user-icon.png";
 import {
   editCompanyInformation,
   setSelectedImage,
 } from "../../views/redux/Settings/SettingsSlice";
 import "./ProfilePic.css";
+import { secureInstance } from "../../axios/config";
 
 const ProfilePic = () => {
   const [loadingImage, setLoadingImage] = useState(false);
@@ -35,6 +37,7 @@ const ProfilePic = () => {
   //   );
   // };
   const updateNewProfilePic = (imageUrl) => {
+    console.log("imageUrlimageUrl", imageUrl);
     const updatedUser = {
       ...companyInformation.user,
       image: imageUrl,

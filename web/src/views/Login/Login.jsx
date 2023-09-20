@@ -25,6 +25,8 @@ import arrowBack from "../../assets/images/arrow-back.svg";
 import visibility from "../../assets/images/visibility.svg";
 import visibilityHide from "../../assets/images/visibility-hide.svg";
 import documentIcon from "../../assets/images/ep_document.svg";
+import vendorIcon from "../../assets/images/vendor-icon.svg";
+import userIcon from "../../assets/images/user-icon.png";
 import arctIcon from "../../assets/images/arcticons_samsung-shop.svg";
 import "./Login.css";
 import { toggleLoginModal, toggleLoginView } from "../redux/Login/loginSlice";
@@ -71,7 +73,7 @@ function Login() {
     bank_name: "",
     bank_iban: "",
     terms_acceptance: false,
-    newsletter: false,
+    newsletter: true,
   };
 
   const loginSchema = Yup.object().shape({
@@ -105,7 +107,7 @@ function Login() {
       .max(20, "Must be at most 20 characters")
       .matches(
         /^[a-zA-Z\s-]*$/,
-        "Must only contain letters, spaces, and hyphens",
+        "Must only contain letters, spaces, and hyphens"
       ),
     contact_person_last_name: Yup.string()
       .required("Last name is required")
@@ -113,7 +115,7 @@ function Login() {
       .max(20, "Must be at most 20 characters")
       .matches(
         /^[a-zA-Z\s-]*$/,
-        "Must only contain letters, spaces, and hyphens",
+        "Must only contain letters, spaces, and hyphens"
       ),
   });
 
@@ -121,11 +123,15 @@ function Login() {
     company_name: Yup.string()
       .required("Company Name is required")
       .min(6, "Must be at least 6 characters")
-      .max(25, "Must be at most 25 characters")
+      .max(50, "Must be at most 50 characters")
       .matches(
-        /^[a-zA-Z, .&\s]*$/,
-        'Must only contain letters, spaces ", . &" signs',
+        /^[a-zA-Z0-9, .&\s]*$/,
+        'Must only contain letters, numbers, spaces, ", . &" signs'
       ),
+    // .matches(
+    //   /^[a-zA-Z, .&\s]*$/,
+    //   'Must only contain letters, spaces ", . &" signs'
+    // ),
     county: Yup.string().required(),
     city: Yup.string()
       .required("City is required")
@@ -138,7 +144,7 @@ function Login() {
       .max(80, "Must be at most 80 characters")
       .matches(
         /^[a-zA-Z0-9, .\-/]*$/,
-        'Can only contain letters, digits, spaces, ",", ".", "-", and "/" signs',
+        'Can only contain letters, digits, spaces, ",", ".", "-", and "/" signs'
       ),
     postal_code: Yup.string()
       .min(5, "Must be at least 5 digits")
@@ -150,7 +156,7 @@ function Login() {
       .max(20, "Must be at most 20 characters")
       .matches(
         /^[a-zA-Z0-9\s]*$/,
-        "Can only contain letters, digits, and spaces",
+        "Can only contain letters, digits, and spaces"
       ),
     firm_number: Yup.string()
       .required("Firm number is required")
@@ -158,11 +164,14 @@ function Login() {
       .max(20, "Must be at most 20 characters")
       .matches(
         /^[a-zA-Z0-9/.]*$/,
-        'Can only contain letters, digits, "/", and "." signs',
+        'Can only contain letters, digits, "/", and "." signs'
       ),
     bank_name: Yup.string()
       .max(30, "Must be at most 30 characters")
-      .matches(/^[a-zA-Z0-9]*$/, "Can only contain letters and digits"),
+      .matches(
+        /^[a-zA-Z0-9\s]*$/,
+        "Can only contain letters, digits, and spaces"
+      ),
     bank_iban: Yup.string()
       .max(30, "Bank IBAN must be at most 30 characters")
       .matches(/^[a-zA-Z0-9]*$/, "Can only contain letters and digits"),
@@ -278,6 +287,7 @@ function Login() {
   };
 
   const handleRegisterationSubmit = (values, { resetForm }) => {
+    console.log("valuesvalues", values);
     let data = {
       user: {
         email: values.email,
@@ -286,7 +296,12 @@ function Login() {
         phone: values.phone_number,
         password: values.password,
         role: "vendor_user",
-        newsletter: values.newsletter,
+        // eslint-disable-next-line no-unneeded-ternary
+        newsletter:
+          // eslint-disable-next-line no-unneeded-ternary
+          values.newsletter === undefined || values.newsletter === true
+            ? true
+            : false,
         terms_acceptance: values.terms_acceptance,
       },
     };
@@ -321,7 +336,7 @@ function Login() {
       handleLogin({
         email: values.email,
         password: values.password,
-      }),
+      })
     );
   };
 
@@ -331,7 +346,7 @@ function Login() {
         handleLogin({
           email: tempCredentials.email,
           password: tempCredentials.password,
-        }),
+        })
       );
       dispatch(handleResgisterationStatus());
       setTimeout(() => {
@@ -384,27 +399,25 @@ function Login() {
         </div>
       </div>
 
-      {
-        selectedRole !== "client" && activeStep > 0 && (
-          <div
-            style={{
-              position: "absolute",
-              left: "0",
-              paddingTop: "18px",
-              paddingLeft: "24px",
-            }}
-          >
-            <div role="presentation" onClick={handleClickArrowBack}>
-              <img
-                src={arrowBack}
-                alt="arrowBack"
-                className="arrowBack-icon"
-                style={{ cursor: "pointer" }}
-              />
-            </div>
+      {selectedRole !== "client" && activeStep > 0 && (
+        <div
+          style={{
+            position: "absolute",
+            left: "0",
+            paddingTop: "18px",
+            paddingLeft: "24px",
+          }}
+        >
+          <div role="presentation" onClick={handleClickArrowBack}>
+            <img
+              src={arrowBack}
+              alt="arrowBack"
+              className="arrowBack-icon"
+              style={{ cursor: "pointer" }}
+            />
           </div>
-        )
-      }
+        </div>
+      )}
 
       {isLoginView && (
         <div
@@ -455,10 +468,10 @@ function Login() {
                   email: "",
                   password: "",
                 }}
+                validateOnBlur={false}
+                validateOnChange={false}
               >
-                {({
-                  handleSubmit, handleChange, values, touched, errors,
-                }) => (
+                {({ handleSubmit, handleChange, values, touched, errors }) => (
                   <Form noValidate onSubmit={handleSubmit}>
                     <Form.Group className="mb-4" controlId="form3Example3">
                       <Form.Control
@@ -536,7 +549,7 @@ function Login() {
                         }}
                       >
                         {loading ? (
-                        // "Loading…"
+                          // "Loading…"
                           <Spinner animation="border" size="sm" />
                         ) : (
                           "Login"
@@ -556,8 +569,7 @@ function Login() {
                       </h4>
                       <div className="row" style={{ textAlign: "center" }}>
                         <p className="roboto-regular-16px-information mt-2 mb-0 ">
-                          {" Don't have an account?"}
-                          {" "}
+                          {" Don't have an account?"}{" "}
                           <span
                             style={{
                               color: "#0558FF",
@@ -587,66 +599,107 @@ function Login() {
 
               {error && (
                 <Alert severity="error" style={{ marginBottom: "10px" }}>
-                  {error.user?.email && error.user.email.length > 0 ? error.user.email[0] : "Error"}
+                  {error.user?.email && error.user.email.length > 0
+                    ? error.user.email[0]
+                    : "Error"}
                 </Alert>
               )}
-              {
-                !hideRegisterStep1 && (
-                  <div className="w-100 pt-5">
-                    <div className="w-100 border border-dark pt-2 pb-3 px-3 mb-5 mt-2" style={{ borderRadius: "4px", cursor: "pointer" }} onClick={() => setSelectedRole("client")}>
-                      <div className="d-flex justify-content-between align-items-center mb-4">
-                        <img src={documentIcon} alt="Document Icon" />
-                        <input className="form-check-input" style={{ width: "1.5em", height: "1.5em" }} checked={selectedRole === "client"} type="radio" name="flexRadioDefault" value="client" />
-                      </div>
-                      <div style={{ fontSize: "20px", lineHeight: "24px", color: "#797979" }}>Are you looking for services for your projects?</div>
+              {!hideRegisterStep1 && (
+                <div className="w-100 pt-5">
+                  <div
+                    className="w-100 border border-dark pt-2 pb-3 px-3 mb-5 mt-2"
+                    style={{ borderRadius: "4px", cursor: "pointer" }}
+                    onClick={() => setSelectedRole("client")}
+                  >
+                    <div className="d-flex justify-content-between align-items-center mb-4">
+                      <img src={userIcon} alt="Document Icon" width="35" />
+                      <input
+                        className="form-check-input"
+                        style={{ width: "1.5em", height: "1.5em" }}
+                        checked={selectedRole === "client"}
+                        type="radio"
+                        name="flexRadioDefault"
+                        value="client"
+                      />
                     </div>
-                    <div className="w-100 border border-dark pt-2 pb-3 px-3 mb-5" style={{ borderRadius: "4px", cursor: "pointer" }} onClick={() => setSelectedRole("vendor")}>
-                      <div className="d-flex justify-content-between align-items-center mb-4">
-                        <img src={arctIcon} alt="Document Icon" />
-                        <input className="form-check-input" style={{ width: "1.5em", height: "1.5em" }} checked={selectedRole === "vendor"} type="radio" name="flexRadioDefault" value="vendor" />
-                      </div>
-                      <div style={{ fontSize: "20px", lineHeight: "24px", color: "#797979" }}>Are you looking to sell your services?</div>
+                    <div
+                      style={{
+                        fontSize: "20px",
+                        lineHeight: "24px",
+                        color: "#797979",
+                      }}
+                    >
+                      Are you looking for services for your projects?
                     </div>
-                    <Button className="btn-success w-100" onClick={() => setHideRegisterStep1(true)}>Next</Button>
                   </div>
-                )
-              }
-              {
-                hideRegisterStep1 && (
-                  selectedRole === "client" ? (
-                    <DynamicRegisterationView
-                      activeStep={activeStep}
-                      step1Schema={step1Schema}
-                      step1InitialValues={step1InitialValues}
-                      isShowPassword={isShowPassword}
-                      getVisibilityIcon={getVisibilityIcon}
-                      handleLoginClick={handleLoginClick}
-                      handleRegisterationSubmit={handleRegisterationSubmit}
-                      loading={loading}
-                      role={selectedRole}
-                    />
-                  ) : (
-                    <StepperForm
-                      componentToRender={() => (
-                        <DynamicRegisterationView
-                          activeStep={activeStep}
-                          step1Schema={step1Schema}
-                          handleStep1Submit={handleStep1Submit}
-                          step1InitialValues={step1InitialValues}
-                          isShowPassword={isShowPassword}
-                          getVisibilityIcon={getVisibilityIcon}
-                          handleLoginClick={handleLoginClick}
-                          step2Schema={step2Schema}
-                          handleRegisterationSubmit={handleRegisterationSubmit}
-                          step2InitialValues={step2InitialValues}
-                          countryOptions={countryOptions}
-                          loading={loading}
-                          role={selectedRole}
-                        />
-                      )}
-                    />)
-                )
-              }
+                  <div
+                    className="w-100 border border-dark pt-2 pb-3 px-3 mb-5"
+                    style={{ borderRadius: "4px", cursor: "pointer" }}
+                    onClick={() => setSelectedRole("vendor")}
+                  >
+                    <div className="d-flex justify-content-between align-items-center mb-4">
+                      <img src={vendorIcon} alt="Document Icon" width="35" />
+                      <input
+                        className="form-check-input"
+                        style={{ width: "1.5em", height: "1.5em" }}
+                        checked={selectedRole === "vendor"}
+                        type="radio"
+                        name="flexRadioDefault"
+                        value="vendor"
+                      />
+                    </div>
+                    <div
+                      style={{
+                        fontSize: "20px",
+                        lineHeight: "24px",
+                        color: "#797979",
+                      }}
+                    >
+                      Are you looking to sell your services?
+                    </div>
+                  </div>
+                  <Button
+                    className="btn-success w-100"
+                    onClick={() => setHideRegisterStep1(true)}
+                  >
+                    Next
+                  </Button>
+                </div>
+              )}
+              {hideRegisterStep1 &&
+                (selectedRole === "client" ? (
+                  <DynamicRegisterationView
+                    activeStep={activeStep}
+                    step1Schema={step1Schema}
+                    step1InitialValues={step1InitialValues}
+                    isShowPassword={isShowPassword}
+                    getVisibilityIcon={getVisibilityIcon}
+                    handleLoginClick={handleLoginClick}
+                    handleRegisterationSubmit={handleRegisterationSubmit}
+                    loading={loading}
+                    role={selectedRole}
+                  />
+                ) : (
+                  <StepperForm
+                    componentToRender={() => (
+                      <DynamicRegisterationView
+                        activeStep={activeStep}
+                        step1Schema={step1Schema}
+                        handleStep1Submit={handleStep1Submit}
+                        step1InitialValues={step1InitialValues}
+                        isShowPassword={isShowPassword}
+                        getVisibilityIcon={getVisibilityIcon}
+                        handleLoginClick={handleLoginClick}
+                        step2Schema={step2Schema}
+                        handleRegisterationSubmit={handleRegisterationSubmit}
+                        step2InitialValues={step2InitialValues}
+                        countryOptions={countryOptions}
+                        loading={loading}
+                        role={selectedRole}
+                      />
+                    )}
+                  />
+                ))}
             </Col>
           ) : forgotPassword ? (
             <ForgotPassword setForgotPassword={setForgotPassword} />

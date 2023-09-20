@@ -153,6 +153,8 @@ function DeleteAccount() {
               // onSubmit={handleNextStep}
               onSubmit={handleDeleteAccount}
               initialValues={initialValues}
+              validateOnBlur={false}
+              validateOnChange={false}
             >
               {({ handleSubmit, handleChange, values, touched, errors }) => (
                 <Form noValidate onSubmit={handleSubmit}>

@@ -46,13 +46,15 @@ export const setCompanyInformation = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  },
+  }
 );
 
 export const editCompanyInformation = createAsyncThunk(
   "settings/editCompanyInfo",
   async ({ data, id }, { rejectWithValue }) => {
     try {
+      console.log("imageUrlimageUrl", data);
+
       const response = await secureInstance.request({
         url: `/api/companies/${id}/`,
         method: "PATCH",
@@ -65,7 +67,7 @@ export const editCompanyInformation = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  },
+  }
 );
 
 // Create the loginSlice

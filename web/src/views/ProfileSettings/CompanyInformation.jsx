@@ -79,10 +79,10 @@ function CompanyInformationSettings() {
     name: Yup.string()
       .required("Company Name is required")
       .min(6, "Must be at least 6 characters")
-      .max(25, "Must be at most 25 characters")
+      .max(50, "Must be at most 50 characters")
       .matches(
-        /^[a-zA-Z, .&\s]*$/,
-        'Must only contain letters, spaces ", . &" signs'
+        /^[a-zA-Z0-9, .&\s]*$/,
+        'Must only contain letters, numbers, spaces and ", . &" signs'
       ),
     country: Yup.string().required("Country is required"),
     city: Yup.string()
@@ -262,6 +262,8 @@ function CompanyInformationSettings() {
               onSubmit={handleUpdateCompanyInfo}
               initialValues={initialValues}
               enableReinitialize
+              validateOnBlur={false}
+              validateOnChange={false}
             >
               {({ handleSubmit, handleChange, values, touched, errors }) => (
                 <Form noValidate onSubmit={handleSubmit}>
