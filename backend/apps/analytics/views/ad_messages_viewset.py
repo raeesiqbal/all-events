@@ -111,16 +111,16 @@ class MessageViewSet(BaseViewset):
         if request.user.role_type == USER_ROLE_TYPES["CLIENT"]:
             archived_count = queryset.filter(is_archived_client=True).count()
             inbox_count = queryset.filter(is_archived_client=False).count()
+            chats = queryset.filter(is_archived_client=archived)
 
         elif request.user.role_type == USER_ROLE_TYPES["VENDOR"]:
             archived_count = queryset.filter(is_archived_vendor=True).count()
             inbox_count = queryset.filter(is_archived_vendor=False).count()
+            chats = queryset.filter(is_archived_vendor=archived)
 
         list_data["inbox_count"] = inbox_count
         list_data["archived_count"] = archived_count
-        chats = queryset.filter(
-            Q(is_archived_vendor=archived) & Q(is_archived_client=archived)
-        )
+
         chats = self.get_serializer(chats, many=True).data
         list_data["data"] = chats
         return data
