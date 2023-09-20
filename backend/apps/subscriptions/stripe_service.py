@@ -20,6 +20,9 @@ class StripeService:
     def retrieve_product_price(self, default_price):
         return stripe.Price.retrieve(default_price)
 
+    def retrieve_subscription(self, subscription_id):
+        return stripe.Subscription.retrieve(subscription_id)
+
     def create_account(self, email, acc_type):
         try:
             response = stripe.Account.create(
@@ -105,18 +108,30 @@ class StripeService:
         except Exception as ex:
             return None
 
-    def update_subscription(self, subscription_id, price_id):
+    def update_subscription(self, subscription_id, item_id, price_id):
         try:
             updated_subscription = stripe.Subscription.modify(
                 subscription_id,
                 items=[
                     {
-                        "id": subscription_id,
+                        "id": item_id,
+                        "deleted": True,
+                    },
+                    {
                         "price": price_id,
-                    }
+                    },
                 ],
                 proration_behavior="always_invoice",
             )
             return updated_subscription
+        except Exception as ex:
+            return None
+
+    def cancel_subscription(self, subscription_id):
+        try:
+            cancel_subscription = stripe.Subscription.cancel(
+                subscription_id,
+            )
+            return cancel_subscription
         except Exception as ex:
             return None
