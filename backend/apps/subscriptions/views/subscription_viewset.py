@@ -1,30 +1,36 @@
+# imports
 from django.conf import settings
-import stripe
 from rest_framework.permissions import IsAuthenticated
-from apps.companies.models import Company
-from apps.subscriptions.models import Subscription, SubscriptionType
-from apps.users.permissions import IsSuperAdmin, IsVendorUser
-
 from rest_framework.response import Response
 from rest_framework import status
-from apps.clients.models import Client
 from rest_framework.decorators import action
+from apps.subscriptions.stripe_service import StripeService
+from apps.utils.views.base import BaseViewset, ResponseInfo
+from django.db.models import Q
+
+# permissions
+from apps.users.permissions import IsVendorUser
+
+# constants
+from apps.utils.constants import PRODUCT_NAMES
+from apps.subscriptions.constants import SUBSCRIPTION_STATUS, SUBSCRIPTION_TYPES
+
+# models
+from apps.subscriptions.models import Subscription, SubscriptionType
+
+# serializers
 from apps.subscriptions.serializers.create_serializer import (
     CreateCustomerSerializer,
     InputPriceIdSerializer,
 )
-
 from apps.subscriptions.serializers.get_serializer import (
     TestSerializer,
     MySubscriptionsSerializer,
 )
-from apps.subscriptions.stripe_service import StripeService
-from apps.utils.constants import PRODUCT_NAMES
 
-from apps.utils.views.base import BaseViewset, ResponseInfo
-from django.conf import settings
-import json
-from apps.subscriptions.constants import SUBSCRIPTION_STATUS, SUBSCRIPTION_TYPES
+from apps.subscriptions.serializers.update_serializer import (
+    InputSubscriptionIdSerializer,
+)
 
 
 class SubscriptionsViewSet(BaseViewset):
@@ -36,12 +42,14 @@ class SubscriptionsViewSet(BaseViewset):
     action_serializers = {
         "default": TestSerializer,
         "create_subscription": CreateCustomerSerializer,
+        "update_subscription": InputSubscriptionIdSerializer,
         "product_subscription_list": InputPriceIdSerializer,
         "my_subscriptions": MySubscriptionsSerializer,
     }
     action_permissions = {
         "default": [],
         "create_subscription": [IsAuthenticated, IsVendorUser],
+        "update_subscription": [IsAuthenticated, IsVendorUser],
         "subscription_success": [IsAuthenticated, IsVendorUser],
         "my_subscriptions": [IsAuthenticated, IsVendorUser],
     }
@@ -65,10 +73,10 @@ class SubscriptionsViewSet(BaseViewset):
                 {
                     "id": product.id,
                     "name": product.name,
-                    "object": product.object,
+                    # "object": product.object,
                     "description": product.description,
-                    "images": product.images,
-                    "recurring": price_data[product.default_price]["recurring"],
+                    # "images": product.images,
+                    # "recurring": price_data[product.default_price]["recurring"],
                     "unit_price": price_data[product.default_price]["unit_amount"]
                     / 100,
                     "currency": price_data[product.default_price]["currency"],
@@ -76,11 +84,42 @@ class SubscriptionsViewSet(BaseViewset):
                     "features": product.features,
                 }
             )
+        current_subscription = {
+            "name": "FREE",
+            "validity": "90 days",
+            "price": "free",
+            "features": [
+                {"Allowed ads 1": "You Can Post only 1 Ad with free plan"},
+                {
+                    "Limited Access": "You will not have access to premium features like Analytics etc"
+                },
+                {"Limited Media Upload": "You can only post 1 photo and 1 video"},
+            ],
+        }
+        if request.user.is_authenticated:
+            free_subscription = SubscriptionType.objects.filter(
+                type=SUBSCRIPTION_TYPES["FREE"]
+            ).first()
+            user_scription = (
+                Subscription.objects.filter(company__user__email=request.user.email)
+                .exclude(type=free_subscription)
+                .first()
+            )
+            if user_scription:
+                for item in data:
+                    if item["price_id"] == user_scription.price_id:
+                        current_subscription = item
+                        data.remove(item)
 
         return Response(
             status=status.HTTP_200_OK,
             data=ResponseInfo().format_response(
-                data=data, status_code=status.HTTP_200_OK, message="Products List"
+                data={
+                    "data": data,
+                    "current_subscription": current_subscription,
+                },
+                status_code=status.HTTP_200_OK,
+                message="Products List",
             ),
         )
 
@@ -178,7 +217,8 @@ class SubscriptionsViewSet(BaseViewset):
     @action(detail=False, url_path="my-subscriptions", methods=["get"])
     def my_subscriptions(self, request, *args, **kwargs):
         my_subscriptions = Subscription.objects.filter(
-            company__user__email=request.user.email
+            company__user__email=request.user.email,
+            status=SUBSCRIPTION_STATUS["ACTIVE"],
         )
         serializer = self.get_serializer(my_subscriptions, many=True).data
         return Response(
@@ -197,7 +237,7 @@ class SubscriptionsViewSet(BaseViewset):
             # Retrieve the event by verifying the signature using the raw body and secret if webhook signing is configured.
             signature = request.headers.get("stripe-signature")
             try:
-                event = stripe.Webhook.construct_event(
+                event = self.stripe.Webhook.construct_event(
                     payload=payload,
                     sig_header=signature,
                     secret=self.webhook_secret,
@@ -219,23 +259,27 @@ class SubscriptionsViewSet(BaseViewset):
             ).first()
             if not subscription:
                 return Response({"message": "Webhook received successfully"})
-            s = stripe.Subscription.retrieve(
+            s = self.stripe.Subscription.retrieve(
                 subscription.subscription_id,
             )
             if s.status == "active":
-                if subscription.type.type == SUBSCRIPTION_TYPES["FREE"]:
-                    if s["items"].data[0].price.unit_amount == 100:
-                        updated_type = SUBSCRIPTION_TYPES["STANDARD"]
-                    elif s["items"].data[0].price.unit_amount == 200:
-                        updated_type = SUBSCRIPTION_TYPES["ADVANCED"]
-                    elif s["items"].data[0].price.unit_amount == 300:
-                        updated_type = SUBSCRIPTION_TYPES["FEATURED"]
-                    updated_type = SubscriptionType.objects.filter(
-                        type=updated_type
-                    ).first()
-                    subscription.status = SUBSCRIPTION_STATUS["ACTIVE"]
-                    subscription.type = updated_type
-                    subscription.save()
+                if s["items"].data[0].price.unit_amount == 100:
+                    updated_type = SUBSCRIPTION_TYPES["STANDARD"]
+                elif s["items"].data[0].price.unit_amount == 200:
+                    updated_type = SUBSCRIPTION_TYPES["ADVANCED"]
+                elif s["items"].data[0].price.unit_amount == 300:
+                    updated_type = SUBSCRIPTION_TYPES["FEATURED"]
+                updated_type = SubscriptionType.objects.filter(
+                    type=updated_type
+                ).first()
+                subscription.status = SUBSCRIPTION_STATUS["ACTIVE"]
+                subscription.type = updated_type
+                subscription.price_id = s["items"].data[0].price.id
+                subscription.unit_amount = s["items"].data[0].price.unit_amount
+                subscription.latest_invoice_id = s.latest_invoice.id
+                subscription.client_secret = (
+                    s.latest_invoice.payment_intent.client_secret
+                )
                 subscription.latest_invoice_id = s.latest_invoice.id
                 subscription.client_secret = (
                     s.latest_invoice.payment_intent.client_secret
@@ -254,6 +298,26 @@ class SubscriptionsViewSet(BaseViewset):
             # upon your subscription settings. Or if the user cancels it.
             print(data)
         return Response({"message": "Webhook received successfully"})
+
+    @action(detail=False, url_path="update-subscription", methods=["post"])
+    def update_subscription(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        subscription_id = serializer.validated_data.pop("subscription_id")
+        price_id = serializer.validated_data.pop("price_id")
+        update_subscription = self.stripe_service.update_subscription(
+            subscription_id, price_id
+        )
+
+        if update_subscription:
+            return Response(
+                status=status.HTTP_200_OK,
+                data=ResponseInfo().format_response(
+                    data={},
+                    status_code=status.HTTP_200_OK,
+                    message="Your Subscription will be changed after invoice has been paid successfully",
+                ),
+            )
 
     # @action(detail=False, url_path="checkout", methods=["post"])
     # def create_subscription(self, request, *args, **kwargs):

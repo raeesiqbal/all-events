@@ -13,9 +13,5 @@ class CreateCustomerSerializer(BaseSerializer):
         fields = ["price_id"]
 
 
-class InputPriceIdSerializer(BaseSerializer):
+class InputPriceIdSerializer(serializers.Serializer):
     price_id = serializers.CharField()
-
-    class Meta:
-        model = Client
-        fields = ["price_id"]

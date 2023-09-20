@@ -104,3 +104,19 @@ class StripeService:
             return create_subscription
         except Exception as ex:
             return None
+
+    def update_subscription(self, subscription_id, price_id):
+        try:
+            updated_subscription = stripe.Subscription.modify(
+                subscription_id,
+                items=[
+                    {
+                        "id": subscription_id,
+                        "price": price_id,
+                    }
+                ],
+                proration_behavior="always_invoice",
+            )
+            return updated_subscription
+        except Exception as ex:
+            return None
