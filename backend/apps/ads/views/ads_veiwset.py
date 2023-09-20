@@ -13,6 +13,7 @@ from rest_framework.decorators import action
 # filters
 from rest_framework.filters import OrderingFilter, SearchFilter
 
+
 # permissions
 from apps.users.permissions import IsClient, IsSuperAdmin, IsVendorUser
 from apps.users.constants import USER_ROLE_TYPES
@@ -532,7 +533,7 @@ class AdViewSet(BaseViewset):
                 message="Premimun Vendor Ads List",
             ),
         )
-
+ 
     @action(detail=False, url_path="premium-venue-countries", methods=["get"])
     def premium_venue_countries(self, request, *args, **kwargs):
         subscription_type = SubscriptionType.objects.filter(

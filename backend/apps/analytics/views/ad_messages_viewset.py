@@ -1,11 +1,29 @@
-from rest_framework.permissions import IsAuthenticated
-from apps.analytics.models import Chat, Message
-from apps.analytics.serializers.create_serializer import (
-    AdChatCreateSerializer,
-    AdMessageCreateSerializer,
-)
+# imports
+from apps.utils.views.base import BaseViewset, ResponseInfo
+from rest_framework.decorators import action
+from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework import status
+from django.db.models import Q
+
+# filters
+from django_filters.rest_framework.backends import DjangoFilterBackend
+from rest_framework.filters import OrderingFilter, SearchFilter
+
+# permissions
+from apps.users.permissions import IsClient, IsVendorUser
+from rest_framework.permissions import IsAuthenticated
+
+
+# constants
+from apps.users.constants import USER_ROLE_TYPES
+
+# models
+from apps.analytics.models import Chat, Message
+from apps.clients.models import Client
+from apps.ads.models import Ad
+
+# serializers
 from apps.analytics.serializers.get_serializer import (
     ChatListSerializer,
     ChatMessageSerializer,
@@ -14,20 +32,10 @@ from apps.analytics.serializers.update_serializer import (
     ChatIsArchivedSerializer,
     MessageIsReadSerializer,
 )
-
-from apps.clients.models import Client
-
-# from apps.analytics.services import message_creation
-from apps.users.constants import USER_ROLE_TYPES
-from apps.users.models import User
-from apps.users.permissions import IsClient, IsSuperAdmin, IsVendorUser
-from apps.utils.views.base import BaseViewset, ResponseInfo
-from rest_framework.decorators import action
-from django.shortcuts import get_object_or_404
-
-
-from django_filters.rest_framework.backends import DjangoFilterBackend
-from rest_framework.filters import OrderingFilter, SearchFilter
+from apps.analytics.serializers.create_serializer import (
+    AdChatCreateSerializer,
+    AdMessageCreateSerializer,
+)
 
 
 class MessageViewSet(BaseViewset):
@@ -57,6 +65,7 @@ class MessageViewSet(BaseViewset):
         "chat_exist": [IsAuthenticated, IsClient],
         "chat_message": [IsAuthenticated, IsClient | IsVendorUser],
         "message_create": [IsAuthenticated, IsClient | IsVendorUser],
+        "chat_suggestion_list": [IsAuthenticated, IsClient | IsVendorUser],
     }
 
     user_role_queryset = {
@@ -68,17 +77,21 @@ class MessageViewSet(BaseViewset):
         ).prefetch_related("chat_messages"),
     }
 
-    filter_backends = [SearchFilter, OrderingFilter]
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     search_param = "search"
     search_fields = [
-        "client__user.first_name",
+        "client__user__first_name",
         "ad__name",
         "event_date",
     ]
-    ad_filterset_fields = ["sub_category__name", "site_question_id", "answer"]
+    chat_filterset_fields = [
+        "client__user__first_name",
+        "ad__name",
+        "event_date",
+    ]
     ordering_fields = ["id"]
     filterset_fields = {
-        "client__user.first_name": ["exact"],
+        "client__user__first_name": ["exact"],
         "ad__name": ["exact"],
         "event_date": ["exact"],
     }
@@ -93,16 +106,23 @@ class MessageViewSet(BaseViewset):
         list_data = data.data
         queryset = self.get_queryset()
         archived_count = None
+        archived = request.GET.get("archived")
 
         if request.user.role_type == USER_ROLE_TYPES["CLIENT"]:
             archived_count = queryset.filter(is_archived_client=True).count()
             inbox_count = queryset.filter(is_archived_client=False).count()
+
         elif request.user.role_type == USER_ROLE_TYPES["VENDOR"]:
             archived_count = queryset.filter(is_archived_vendor=True).count()
             inbox_count = queryset.filter(is_archived_vendor=False).count()
 
         list_data["inbox_count"] = inbox_count
         list_data["archived_count"] = archived_count
+        chats = queryset.filter(
+            Q(is_archived_vendor=archived) & Q(is_archived_client=archived)
+        )
+        chats = self.get_serializer(chats, many=True).data
+        list_data["data"] = chats
         return data
 
     @action(detail=False, url_path="start-chat", methods=["post"])
@@ -285,5 +305,41 @@ class MessageViewSet(BaseViewset):
                 data=serializer.data,
                 status_code=status.HTTP_201_CREATED,
                 message="Message Created",
+            ),
+        )
+
+    @action(detail=False, url_path="chat-suggestion-list", methods=["get"])
+    def chat_suggestion_list(self, request, *args, **kwargs):
+        keyword_type = request.GET.get("keyword_type")
+        keyword = request.GET.get("keyword")
+
+        sender_names = None
+        ad_names = None
+
+        chats = self.get_queryset()
+
+        if keyword_type == "ad_name":
+            ads_queryset = Ad.objects.filter(ad_chats__in=chats)
+            ad_names = list(
+                ads_queryset.filter(name__icontains=keyword)
+                .values_list("name", flat=True)
+                .distinct()
+            )
+        elif keyword_type == "sender_name":
+            sender_names = (
+                Client.objects.filter(my_chats__in=chats)
+                .prefetch_related("user")
+                .all()
+                .filter(user__first_name__icontains=keyword)
+                .values_list("user__first_name", flat=True)
+                .distinct()
+            )
+
+        return Response(
+            status=status.HTTP_200_OK,
+            data=ResponseInfo().format_response(
+                data={"sender_names": sender_names, "ad_names": ad_names},
+                status_code=status.HTTP_200_OK,
+                message="Chat Suggestions",
             ),
         )
