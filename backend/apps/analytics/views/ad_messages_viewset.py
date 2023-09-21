@@ -102,8 +102,8 @@ class MessageViewSet(BaseViewset):
             serializer.save(user=self.request.user)
 
     def list(self, request, *args, **kwargs):
-        data = super().list(request, *args, **kwargs)
-        list_data = data.data
+        # data = super().list(request, *args, **kwargs)
+        # list_data = data.data
         queryset = self.get_queryset()
         archived_count = None
         archived = request.GET.get("archived")
@@ -118,12 +118,34 @@ class MessageViewSet(BaseViewset):
             inbox_count = queryset.filter(is_archived_vendor=False).count()
             chats = queryset.filter(is_archived_vendor=archived)
 
-        list_data["inbox_count"] = inbox_count
-        list_data["archived_count"] = archived_count
+        inbox_count = inbox_count
+        archived_count = archived_count
 
-        chats = self.get_serializer(chats, many=True).data
-        list_data["data"] = chats
-        return data
+        page = self.paginate_queryset(chats)
+        if page != None:
+            serializer = self.get_serializer(page, many=True)
+        else:
+            serializer = self.get_serializer(
+                chats,
+                many=True,
+            )
+
+        data = serializer.data
+        if page != None:
+            data = self.get_paginated_response(data).data
+
+        return Response(
+            status=status.HTTP_200_OK,
+            data=ResponseInfo().format_response(
+                data={
+                    "chats": data,
+                    "inbox_count": inbox_count,
+                    "archived_count": archived_count,
+                },
+                status_code=status.HTTP_200_OK,
+                message="Chats List",
+            ),
+        )
 
     @action(detail=False, url_path="start-chat", methods=["post"])
     def start_chat(self, request, *args, **kwargs):
@@ -209,12 +231,24 @@ class MessageViewSet(BaseViewset):
                 }
 
             messages = Message.objects.filter(chat=chat).order_by("created_at")
-            data = self.get_serializer(messages, many=True)
+
+            page = self.paginate_queryset(messages)
+
+            if page != None:
+                serializer = self.get_serializer(page, many=True)
+            else:
+                serializer = self.get_serializer(
+                    messages,
+                    many=True,
+                )
+            data = serializer.data
+            if page != None:
+                data = self.get_paginated_response(data).data
 
             return Response(
                 status=status.HTTP_200_OK,
                 data=ResponseInfo().format_response(
-                    data={"messages": data.data, "additional_info": dic},
+                    data={"messages": data, "additional_info": dic},
                     status_code=status.HTTP_200_OK,
                     message="Success",
                 ),
@@ -320,6 +354,9 @@ class MessageViewSet(BaseViewset):
 
         if keyword_type == "ad_name":
             ads_queryset = Ad.objects.filter(ad_chats__in=chats)
+            print("keryyyyyyyy", keyword)
+            print("ssssssssssss", ads_queryset.filter(name__icontains=keyword))
+
             ad_names = list(
                 ads_queryset.filter(name__icontains=keyword)
                 .values_list("name", flat=True)
