@@ -325,6 +325,14 @@ class MessageViewSet(BaseViewset):
                 .values_list("name", flat=True)
                 .distinct()
             )
+            return Response(
+                status=status.HTTP_200_OK,
+                data=ResponseInfo().format_response(
+                    data=ad_names,
+                    status_code=status.HTTP_200_OK,
+                    message="Chat Suggestions",
+                ),
+            )
         elif keyword_type == "sender_name":
             sender_names = (
                 Client.objects.filter(my_chats__in=chats)
@@ -335,11 +343,11 @@ class MessageViewSet(BaseViewset):
                 .distinct()
             )
 
-        return Response(
-            status=status.HTTP_200_OK,
-            data=ResponseInfo().format_response(
-                data={"sender_names": sender_names, "ad_names": ad_names},
-                status_code=status.HTTP_200_OK,
-                message="Chat Suggestions",
-            ),
-        )
+            return Response(
+                status=status.HTTP_200_OK,
+                data=ResponseInfo().format_response(
+                    data=sender_names,
+                    status_code=status.HTTP_200_OK,
+                    message="Chat Suggestions",
+                ),
+            )

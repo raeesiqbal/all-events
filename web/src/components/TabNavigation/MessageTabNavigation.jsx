@@ -20,28 +20,28 @@ const MesssageTabNavigation = ({
 
   return (
     <div
-      className="d-flex"
+      className="d-flex border-bottom border-2"
       style={{ height: "45px", width: "100%" }}
     >
-      <div className="d-flex" style={{ width: "50vw" }}>
-        {tabs.map((tab, index) => (
+      {
+        tabs.map((tab, index) => (
           <div
-            key={index}
+            key={tab.label}
             className={`d-flex align-items-center ps-2 pe-3 me-3 ${
-              isActive(tab.label) && "message-tab-active"
+              isActive(tab.label) ? "message-tab-active" : ""
             }`}
             onClick={() => handleClickTabNav(index, tab.label)}
-            style={{ cursor: "pointer", borderBottom: "7px solid #fff" }}
+            style={{ cursor: "pointer", borderBottom: "7px solid transparent" }}
           >
             <span>{tab.label}</span>
             {
-              tab.count && (
-                <span className="ps-2 text-secondary">{`(${tab.count})`}</span>
+              tab.count !== null && (
+                <span className="ps-2 text-secondary">{`(${tab.count.toString()})`}</span>
               )
             }
           </div>
-        ))}
-      </div>
+        ))
+      }
     </div>
   );
 };

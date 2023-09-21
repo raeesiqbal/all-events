@@ -12,6 +12,7 @@ import Footer from "../../components/Footer/Footer";
 import noAds from "../../assets/images/post-ad/no-ads.svg";
 import gotoIcon from "../../assets/images/post-ad/goto.svg";
 import placeholderIcon from "../../assets/images/placeholder.jpg";
+import MapIcon from "../../assets/images/post-ad/map-outlined.svg";
 
 const FavoriteAds = () => {
   const dispatch = useDispatch();
@@ -83,7 +84,7 @@ const FavoriteAds = () => {
                                       fontWeight: "500",
                                     }}
                                   >
-                                    {ad.company}
+                                    {ad.sub_category}
                                   </div>
                                 </div>
 
@@ -119,12 +120,21 @@ const FavoriteAds = () => {
                               />
                               <div className="d-flex justify-content-between mt-3">
                                 <div className="roboto-regular-14px-information d-flex align-items-center">
-                                  {/* <img
-                                    src={MapIcon}
-                                    alt="MapIcon"
-                                    className="me-2"
-                                  />
-                                  {country.name} */}
+                                  <div className="me-4">
+                                    <img
+                                      src={MapIcon}
+                                      alt="MapIcon"
+                                      className="me-2"
+                                    />
+                                    {ad.country}
+                                  </div>
+                                  <div>
+                                    <span style={{ fontSize: "18px" }} className="star-filled">&#9733;</span>
+                                    <span style={{ fontSize: "14px" }}>
+                                      {" "}
+                                      {ad.average_rating || "No reviews"}
+                                    </span>
+                                  </div>
                                 </div>
                                 <div className="d-flex">
                                   <Link to={`/view-ad/${ad.id}`}>

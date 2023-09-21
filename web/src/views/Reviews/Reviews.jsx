@@ -86,7 +86,9 @@ const Reviews = ({ adId, adName }) => {
         }
         dispatch(setImagesToUpload(cloneImagesToUpload));
       }
-    } catch (err) {}
+    } catch (err) {
+      console.log(err.message);
+    }
 
     const imageIndex = postReview.photos.indexOf(image);
 

@@ -20,11 +20,6 @@ import { setImagesToUpload } from "../../views/redux/Posts/AdsSlice";
 
 const vendorTabs = [
   {
-    label: "Post an Ad",
-    icon: plusCircle,
-    path: "/post-ad",
-  },
-  {
     label: "Packages",
     icon: pieChart,
     // path: "/",

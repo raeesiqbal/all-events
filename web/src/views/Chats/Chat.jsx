@@ -18,7 +18,9 @@ import archiveIcon from "../../assets/images/ph_archive-box-light.svg";
 import gotoIcon from "../../assets/images/post-ad/goto.svg";
 import phoneIcon from "../../assets/images/fluent_call.svg";
 import defaultProfilePhoto from "../../assets/images/profile-settings/person.svg";
-import { archiveChat, deleteChat, listChats } from "../redux/Chats/ChatsSlice";
+import {
+  archiveChat, deleteChat, listChats, readChat,
+} from "../redux/Chats/ChatsSlice";
 import { listChatMessages, sendMessage } from "../redux/Messages/MessagesSlice";
 import "./Chats.css";
 import { secureInstance } from "../../axios/config";
@@ -37,6 +39,8 @@ const Chat = ({ chat, isOpenChat }) => {
   const [messageText, setMessageText] = React.useState("");
   const [attachment, setAttachment] = React.useState(null);
   const [isLoading, setIsLoading] = React.useState(false);
+  const [offset, setOffset] = React.useState(0);
+  const limit = 4;
 
   let dates = [];
 
@@ -45,13 +49,25 @@ const Chat = ({ chat, isOpenChat }) => {
     setModalShow(true);
   };
 
+  const handleScroll = (e) => {
+    const { scrollTop } = e.target;
+    if (scrollTop === 0) {
+      setOffset(offset + limit);
+      dispatch(listChatMessages({ id: chat.id, limit, offset }));
+    }
+  };
+
   const sendChatMessage = () => {
     if (messageText !== "" || attachment !== null) {
       dispatch(sendMessage({ id: chat.id, data: { text: messageText, attachments: attachment } }));
     }
     setMessageText("");
     setAttachment(null);
-    dispatch(listChatMessages(chat.id));
+    dispatch(listChatMessages({ id: chat.id, limit: 1, offset: 0 }));
+  };
+
+  const handleKeyPress = (event) => {
+    if (event.key === "Enter") sendChatMessage();
   };
 
   const uploadFileToCloud = async (uploadedVideo) => {
@@ -130,14 +146,12 @@ const Chat = ({ chat, isOpenChat }) => {
     date(d).getFullYear()}`}`;
 
   useEffect(() => {
-    if (modalShow) dispatch(listChatMessages(chat.id));
-  }, [modalShow]);
-
-  useEffect(() => {
-    if (messageBody.current) {
-      messageBody.current.scrollTop = messageBody.current.scrollHeight;
+    if (modalShow) {
+      dispatch(readChat(chat.id));
+      dispatch(listChatMessages({ id: chat.id, limit, offset }));
+      if (messageBody.current) messageBody.current.scrollTop = messageBody.current.scrollHeight;
     }
-  }, [messages]);
+  }, [modalShow]);
 
   return (
     <>
@@ -171,7 +185,7 @@ const Chat = ({ chat, isOpenChat }) => {
               Ad Details
             </Link>
           </div>
-          <div className="mb-3 message-body" ref={messageBody}>
+          <div className="mb-3 message-body" ref={messageBody} onScroll={handleScroll}>
             {
               messages.map((message) => {
                 const dateContent = (!dates.includes(formattedDate(message.created_at))) ? (
@@ -276,7 +290,14 @@ const Chat = ({ chat, isOpenChat }) => {
           </div>
           <div className="w-100 pt-3 border-top border-grey" style={{ height: "fit-content", display: "flex" }}>
             <div className="d-flex" style={{ width: "86%", height: "44px" }}>
-              <input type="text" className="send-message-input" placeholder="Type a message" value={messageText} onChange={(e) => setMessageText(e.target.value)} />
+              <input
+                type="text"
+                className="send-message-input"
+                placeholder="Type a message"
+                value={messageText}
+                onChange={(e) => setMessageText(e.target.value)}
+                onKeyUp={handleKeyPress}
+              />
               <button type="button" className="send-message-button" disabled={isLoading} onClick={sendChatMessage}>Send</button>
             </div>
             <div className="d-flex justify-content-center" style={{ width: "14%" }}>
@@ -346,7 +367,7 @@ const Chat = ({ chat, isOpenChat }) => {
               setDeleteModal(false);
               dispatch(deleteChat(chat.id));
               setTimeout(() => {
-                dispatch(listChats());
+                dispatch(listChats({ archive: "False", limit: 10, offset: 0 }));
               }, 2000);
             }}
           >
@@ -356,18 +377,19 @@ const Chat = ({ chat, isOpenChat }) => {
       </Modal>
 
       <Col lg={10} className="w-100 py-md-5 border-bottom border-2">
-        <Card className="shadow-none">
+        <Card className="shadow-none bg-transparent">
           <Row>
-            <Col lg={3} className="d-flex">
+            <Col lg={2} md={3} className="d-flex">
               <Card.Img
                 src={chat.ad_image}
                 alt="AdImage"
                 className="img-fluid h-100 object-fit-cover mx-auto"
-                style={{ maxHeight: "250px" }}
+                style={{ maxHeight: "180px" }}
               />
             </Col>
             <Col
-              lg={9}
+              lg={10}
+              md={9}
               className="d-flex justify-content-center align-items-center py-3"
             >
               <Card.Body className="ps-0" style={{ height: "100%" }}>
@@ -375,7 +397,7 @@ const Chat = ({ chat, isOpenChat }) => {
                   <Card.Title>
                     <div className="d-md-flex justify-content-between">
                       <div className="roboto-semi-bold-32px-h2 col-md-6">
-                        {chat.person.name}
+                        {currentUser && currentUser.role === "client" ? chat.ad_name : chat.person.name}
                       </div>
                       <div className="roboto-regular-14px-information d-flex align-items-center mt-2 pe-4">
                         <img

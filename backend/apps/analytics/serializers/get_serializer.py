@@ -193,7 +193,7 @@ class ChatListSerializer(BaseSerializer):
 
         return (
             gallery.media_urls.get("images")[0]
-            if gallery.media_urls.get("images")[0]
+            if gallery.media_urls.get("images") and gallery.media_urls.get("images")[0]
             else None
         )
 
