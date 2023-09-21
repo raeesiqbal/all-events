@@ -338,6 +338,8 @@ function PostAd() {
     },
   };
 
+  console.log("videoToUpload", videoToUpload);
+
   const validate = (values) => {
     const errors = {};
 
