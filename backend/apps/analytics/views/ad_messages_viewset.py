@@ -354,8 +354,6 @@ class MessageViewSet(BaseViewset):
 
         if keyword_type == "ad_name":
             ads_queryset = Ad.objects.filter(ad_chats__in=chats)
-            print("keryyyyyyyy", keyword)
-            print("ssssssssssss", ads_queryset.filter(name__icontains=keyword))
 
             ad_names = list(
                 ads_queryset.filter(name__icontains=keyword)
