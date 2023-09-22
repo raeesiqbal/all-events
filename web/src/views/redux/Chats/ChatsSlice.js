@@ -160,9 +160,13 @@ export const ChatsSlice = createSlice({
         state.archivedCount = action.payload.archived_count;
         state.isArchived = action.payload.archive;
       })
-      .addCase(chatsSuggestionList.rejected, (state, action) => {
+      .addCase(listChats.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+      .addCase(chatsSuggestionList.pending, (state) => {
+        state.loading = true;
+        state.error = null;
       })
       .addCase(chatsSuggestionList.fulfilled, (state, action) => {
         state.loading = false;
