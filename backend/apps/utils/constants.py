@@ -1,5 +1,6 @@
 from apps.ads.models import SubCategory, Category, Ad
-
+from django.utils import timezone
+from datetime import timedelta
 
 SUBSCRIPTION_TYPES = {
     "FREE": "free",
@@ -17,3 +18,8 @@ KEYWORD_MODEL_MAPPING = {
     "sub_category__category__name": Category,
     "commercial_name": Ad,
 }
+DATE_RANGE_MAPPING={
+"one_week_ago":timezone.now() - timedelta(days=7),
+"one_month_ago" : timezone.now() - timedelta(days=30)
+}
+  
