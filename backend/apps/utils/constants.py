@@ -20,6 +20,6 @@ KEYWORD_MODEL_MAPPING = {
 }
 
 DATE_RANGE_MAPPING = {
-    "one_week_ago": timezone.now() - timedelta(days=7),
-    "one_month_ago": timezone.now() - timedelta(days=30),
+    "last_week": timezone.now() - timedelta(days=7),
+    "last_month": timezone.now() - timedelta(days=30),
 }
