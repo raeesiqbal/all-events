@@ -53,6 +53,23 @@ export const listPlans = createAsyncThunk(
   },
 );
 
+export const listSubscriptions = createAsyncThunk(
+  "Subscription/list",
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await secureInstance.request({
+        url: "/api/subscriptions/my-subscriptions/",
+        method: "Get",
+      });
+      return response.data;
+    } catch (err) {
+      // Use `err.response.data` as `action.payload` for a `rejected` action,
+      // by explicitly returning it using the `rejectWithValue()` utility
+      return rejectWithValue(err.response.data);
+    }
+  },
+);
+
 // Create the SubscriptionsSlice
 export const SubscriptionsSlice = createSlice({
   name: "Subscriptions",
@@ -88,6 +105,18 @@ export const SubscriptionsSlice = createSlice({
         // state.expiredCount = action.payload.expired_count;
       })
       .addCase(listPlans.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(listSubscriptions.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(listSubscriptions.fulfilled, (state, action) => {
+        state.loading = false;
+        state.subscriptions = action.payload.data;
+      })
+      .addCase(listSubscriptions.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

@@ -9,14 +9,16 @@ import TabNavigation from "../../components/TabNavigation/TabNavigation";
 import MesssageTabNavigation from "../../components/TabNavigation/MessageTabNavigation";
 import "../Ads/Ads.css";
 import "./Subscriptions.css";
+import { listSubscriptions } from "../redux/Subscriptions/SubscriptionsSlice";
+import Subscription from "./Subscription";
 
 function Subscriptions() {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
   const subscriptions = useSelector((state) => state.subscriptions.subscriptions);
-  const activeCount = useSelector((state) => state.subscriptions.activeCount);
-  const expiredCount = useSelector((state) => state.subscriptions.expiredCount);
-  const [activeTab, setActiveTab] = React.useState("Inbox");
+  // const activeCount = useSelector((state) => state.subscriptions.activeCount);
+  // const expiredCount = useSelector((state) => state.subscriptions.expiredCount);
+  const [activeTab, setActiveTab] = React.useState("Active");
   const [activeTabSubscriptions, setActiveTabSubscriptions] = React.useState();
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
@@ -25,18 +27,21 @@ function Subscriptions() {
   const tabs = [
     {
       label: "Active",
-      count: activeCount,
+      count: subscriptions.length,
     },
-    {
-      label: "Expired",
-      count: expiredCount,
-    },
+    // {
+    //   label: "Expired",
+    //   count: expiredCount,
+    // },
   ];
 
   useEffect(() => {
-    const isActive = activeTab === "Active";
-    setActiveTabSubscriptions(subscriptions.filter((subscription) => subscription.active === isActive));
+    setActiveTabSubscriptions(subscriptions.filter((subscription) => subscription.status === activeTab.toLowerCase()));
   }, [activeTab, subscriptions]);
+
+  useEffect(() => {
+    dispatch(listSubscriptions());
+  }, []);
 
   return (
     <>
@@ -55,7 +60,11 @@ function Subscriptions() {
         className="pt-md-5"
       >
         <MesssageTabNavigation activeTab={activeTab} setActiveTab={setActiveTab} tabs={tabs} />
-        {activeTabSubscriptions && activeTabSubscriptions.map((chat) => <Chat chat={chat} key={chat.id} isOpenChat={chat.id.toString() === chatId} />)}
+        {
+          activeTabSubscriptions && activeTabSubscriptions.map(
+            (subscription) => <Subscription subscription={subscription} key={subscription.id} />,
+          )
+        }
       </Container>
 
       <Footer />
