@@ -363,3 +363,12 @@ class SubCategoryKeywordSerializer(BaseSerializer):
     class Meta:
         model = SubCategory
         fields = "__all__"
+
+
+class AdDashboardSerializer(BaseSerializer):
+    ad_media = GalleryChildSerializer(many=True)
+    sub_category = SubCategoryGetSerializer()
+
+    class Meta:
+        model = Ad
+        fields = ["name","description","ad_media","sub_category"]
