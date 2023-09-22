@@ -360,6 +360,8 @@ class MessageViewSet(BaseViewset):
                 .values_list("name", flat=True)
                 .distinct()
             )
+            ad_names = set(ad_names)
+            ad_names = list(ad_names)
             return Response(
                 status=status.HTTP_200_OK,
                 data=ResponseInfo().format_response(
@@ -377,6 +379,8 @@ class MessageViewSet(BaseViewset):
                 .values_list("user__first_name", flat=True)
                 .distinct()
             )
+            sender_names = set(sender_names)
+            sender_names = list(sender_names)
 
             return Response(
                 status=status.HTTP_200_OK,

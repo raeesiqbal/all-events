@@ -18,8 +18,8 @@ KEYWORD_MODEL_MAPPING = {
     "sub_category__category__name": Category,
     "commercial_name": Ad,
 }
-DATE_RANGE_MAPPING={
-"one_week_ago":timezone.now() - timedelta(days=7),
-"one_month_ago" : timezone.now() - timedelta(days=30)
+
+DATE_RANGE_MAPPING = {
+    "one_week_ago": timezone.now() - timedelta(days=7),
+    "one_month_ago": timezone.now() - timedelta(days=30),
 }
-  

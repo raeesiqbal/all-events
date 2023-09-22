@@ -242,3 +242,11 @@ class ChatMessageSerializer(BaseSerializer):
             "created_at",
             "sender",
         ]
+
+
+class AnalyticAdChildSerializer(BaseSerializer):
+    class Meta:
+        model = Ad
+        fields = [
+            "name",
+        ]
