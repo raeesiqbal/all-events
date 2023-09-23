@@ -12,7 +12,7 @@ import {
 import "./ProfilePic.css";
 import { secureInstance } from "../../axios/config";
 
-const ProfilePic = () => {
+const ProfilePic = (props) => {
   const [loadingImage, setLoadingImage] = useState(false);
   // const [selectedImage, setSelectedImage] = useState(null);
 
@@ -24,20 +24,7 @@ const ProfilePic = () => {
 
   const dispatch = useDispatch();
 
-  // const updateNewProfilePic = (imageUrl) => {
-  //   const updateCompanyWithNewProfilePic = {
-  //     ...companyInformation,
-  //     image: imageUrl,
-  //   };
-  //   dispatch(
-  //     editCompanyInformation({
-  //       data: updateCompanyWithNewProfilePic,
-  //       id: companyInformation.id,
-  //     })
-  //   );
-  // };
   const updateNewProfilePic = (imageUrl) => {
-    console.log("imageUrlimageUrl", imageUrl);
     const updatedUser = {
       ...companyInformation.user,
       image: imageUrl,
@@ -84,11 +71,23 @@ const ProfilePic = () => {
     e.target.value = "";
   };
   return (
-    <div className="d-flex profile-pic-container">
+    <div
+      className="d-flex profile-pic-container"
+      style={{
+        left: props.dashboard && "20px",
+        top: props.dashboard && "20px",
+      }}
+    >
       <label htmlFor="file-input" style={{ cursor: "pointer" }}>
         {loadingImage && (
           <>
-            <div className="d-flex justify-content-center align-items-center loading-image-container" />
+            <div
+              className="d-flex justify-content-center align-items-center loading-image-container"
+              style={{
+                left: props.dashboard && "0px",
+                top: props.dashboard && "0px",
+              }}
+            />
 
             <CircularProgress className="circular-loader" />
           </>
@@ -97,6 +96,10 @@ const ProfilePic = () => {
         {selectedImage !== null || userImage !== null ? (
           <img
             className="selected-image"
+            style={{
+              width: props.dashboard && "196px",
+              height: props.dashboard && "196px",
+            }}
             src={
               selectedImage === null
                 ? userImage
@@ -105,10 +108,21 @@ const ProfilePic = () => {
             alt=""
           />
         ) : (
-          <img className="selected-image" src={defaultuserIcon} alt="" />
+          <img
+            className="selected-image"
+            src={defaultuserIcon}
+            alt=""
+            style={{
+              width: props.dashboard && "196px",
+              height: props.dashboard && "196px",
+            }}
+          />
         )}
 
-        <div className="camera-icon-container">
+        <div
+          className="camera-icon-container"
+          style={{ left: props.dashboard && "142px" }}
+        >
           <FontAwesomeIcon
             icon={faCamera}
             style={{ color: "black" }}

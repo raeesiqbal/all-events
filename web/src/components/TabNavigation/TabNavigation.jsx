@@ -53,6 +53,11 @@ const vendorTabs = [
     icon: analytics,
     path: "/analytics",
   },
+  {
+    label: "Dashboard",
+    icon: analytics,
+    path: "/dashboard",
+  },
 ];
 
 const clientTabs = [

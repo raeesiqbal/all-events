@@ -13,6 +13,7 @@ import Chats from "./views/Chats/Chats";
 import FavoriteAds from "./views/Ads/FavoriteAds";
 import Analytics from "./views/Analytics/Analytics";
 import Search from "./views/Search/Search";
+import Dashboard from "./views/Dashboard/Dashboard";
 
 function App() {
   return (
@@ -21,67 +22,75 @@ function App() {
       <Route path="/search" element={<Search />} />
       <Route
         path="/post-ad"
-        element={(
+        element={
           <ProtectedRoute role="vendor">
             <PostAd />
           </ProtectedRoute>
-        )}
+        }
       />
       <Route
         path="/edit-ad/:id"
-        element={(
+        element={
           <ProtectedRoute role="vendor">
             <EditAd />
           </ProtectedRoute>
-        )}
+        }
       />
       <Route
         path="/profile-settings"
-        element={(
+        element={
           <ProtectedRoute>
             <ProfileView />
           </ProtectedRoute>
-        )}
+        }
       />
       <Route
         path="/my-ads"
-        element={(
+        element={
           <ProtectedRoute role="vendor">
             <MyAds />
           </ProtectedRoute>
-        )}
+        }
       />
       <Route
         path="/view-ad/:adId"
-        element={(
+        element={
           <ProtectedRoute>
             <ViewAd />
           </ProtectedRoute>
-        )}
+        }
       />
       <Route
         path="/messages"
-        element={(
+        element={
           <ProtectedRoute>
             <Chats />
           </ProtectedRoute>
-        )}
+        }
       />
       <Route
         path="/favorite-ads"
-        element={(
+        element={
           <ProtectedRoute>
             <FavoriteAds />
           </ProtectedRoute>
-        )}
+        }
       />
       <Route
         path="/analytics"
-        element={(
+        element={
           <ProtectedRoute>
             <Analytics />
           </ProtectedRoute>
-        )}
+        }
+      />
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        }
       />
       <Route path="/reset-password" element={<ResetPassword />} />
       {/* <Route
