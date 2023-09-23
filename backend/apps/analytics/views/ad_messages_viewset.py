@@ -102,20 +102,21 @@ class MessageViewSet(BaseViewset):
             serializer.save(user=self.request.user)
 
     def list(self, request, *args, **kwargs):
-        # data = super().list(request, *args, **kwargs)
-        # list_data = data.data
         queryset = self.get_queryset()
+
         archived_count = None
         archived = request.GET.get("archived")
 
         if request.user.role_type == USER_ROLE_TYPES["CLIENT"]:
             archived_count = queryset.filter(is_archived_client=True).count()
             inbox_count = queryset.filter(is_archived_client=False).count()
+            queryset = self.filter_queryset(self.get_queryset())
             chats = queryset.filter(is_archived_client=archived)
 
         elif request.user.role_type == USER_ROLE_TYPES["VENDOR"]:
             archived_count = queryset.filter(is_archived_vendor=True).count()
             inbox_count = queryset.filter(is_archived_vendor=False).count()
+            queryset = self.filter_queryset(self.get_queryset())
             chats = queryset.filter(is_archived_vendor=archived)
 
         inbox_count = inbox_count
@@ -230,7 +231,7 @@ class MessageViewSet(BaseViewset):
                     "image": chat.ad.company.user.image,
                 }
 
-            messages = Message.objects.filter(chat=chat).order_by("created_at")
+            messages = Message.objects.filter(chat=chat).order_by("-created_at")
 
             page = self.paginate_queryset(messages)
 
