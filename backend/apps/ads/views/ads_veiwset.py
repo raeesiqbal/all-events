@@ -45,6 +45,7 @@ from apps.ads.serializers.create_serializers import (
     DeleteUrlOnUpdateSerializer,
     DeleteUrlSerializer,
     GetUploadPresignedUrlSerializer,
+    URLListSerializer,
     SearchStringSerializer,
 )
 from apps.ads.serializers.get_serializers import (
@@ -72,6 +73,7 @@ class AdViewSet(BaseViewset):
         "create": AdCreateSerializer,
         "partial_update": AdUpdateSerializer,
         "get_upload_url": GetUploadPresignedUrlSerializer,
+        "delete_urls": URLListSerializer,
         "delete_url": DeleteUrlSerializer,
         "remove_url_on_update": DeleteUrlOnUpdateSerializer,
         "list": AdGetSerializer,
@@ -89,6 +91,7 @@ class AdViewSet(BaseViewset):
         "partial_update": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
         "destroy": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
         "get_upload_url": [],
+        "delete_urls": [],
         "remove_url_on_update": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
         "fetch_suggestion_list": [],
         "premium_venue_ads": [],
@@ -239,6 +242,21 @@ class AdViewSet(BaseViewset):
             status=status.HTTP_200_OK,
             data=ResponseInfo().format_response(
                 data={}, status_code=status.HTTP_200_OK, message="delete media"
+            ),
+        )
+
+    @action(detail=False, url_path="delete-urls", methods=["post"])
+    def delete_urls(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        urls = serializer.validated_data.get("urls")
+
+        for url in urls:
+            self.s3_service.delete_s3_object_by_url(url)
+        return Response(
+            status=status.HTTP_200_OK,
+            data=ResponseInfo().format_response(
+                data={}, status_code=status.HTTP_200_OK, message="delete media list"
             ),
         )
 
@@ -533,7 +551,7 @@ class AdViewSet(BaseViewset):
                 message="Premimun Vendor Ads List",
             ),
         )
- 
+
     @action(detail=False, url_path="premium-venue-countries", methods=["get"])
     def premium_venue_countries(self, request, *args, **kwargs):
         subscription_type = SubscriptionType.objects.filter(

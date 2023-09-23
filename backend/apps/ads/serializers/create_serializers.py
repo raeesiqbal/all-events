@@ -85,6 +85,10 @@ class GetUploadPresignedUrlSerializer(serializers.Serializer):
     content_type = serializers.CharField(required=True)
 
 
+class URLListSerializer(serializers.Serializer):
+    urls = serializers.ListField(child=serializers.CharField())
+
+
 class DeleteUrlSerializer(serializers.Serializer):
     url = serializers.CharField(required=True, max_length=1000)
 
