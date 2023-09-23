@@ -1,6 +1,41 @@
 from datetime import datetime
 from django.conf import settings
 import stripe
+from apps.subscriptions.models import Subscription
+
+
+class WebHookService:
+    def clear_subscription_model(self, subscription_id):
+        subscription = Subscription.objects.filter(
+            subscription_id=subscription_id
+        ).first()
+        subscription.subscription_id = None
+        subscription.stripe_customer_id = None
+        subscription.canceled_at = None
+        subscription.price_id = None
+        subscription.unit_amount = None
+        subscription.latest_invoice_id = None
+        subscription.client_secret = None
+        subscription.save()
+        return True
+
+    def update_subscription(
+        user_email,
+        subscription_id,
+        stripe_customer_id,
+        price_id,
+        unit_amount,
+        latest_invoice_id,
+        client_secret,
+    ):
+        Subscription.objects.filter(company__user__email=user_email).update(
+            subscription_id=subscription_id,
+            stripe_customer_id=stripe_customer_id,
+            price_id=price_id,
+            unit_amount=unit_amount,
+            latest_invoice_id=latest_invoice_id,
+            client_secret=client_secret,
+        )
 
 
 class StripeService:
