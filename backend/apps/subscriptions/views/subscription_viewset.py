@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import action
-from apps.subscriptions.stripe_service import StripeService
+from apps.subscriptions.stripe_service import StripeService, WebHookService
 from apps.utils.views.base import BaseViewset, ResponseInfo
 from django.db.models import Q
 
@@ -54,6 +54,7 @@ class SubscriptionsViewSet(BaseViewset):
         "my_subscriptions": [IsAuthenticated, IsVendorUser],
     }
     stripe_service = StripeService()
+    webhook_service = WebHookService()
     webhook_secret = settings.STRIPE_WEBHOOK_SECRET
     stripe = stripe_service.get_stripe()
 
@@ -157,9 +158,9 @@ class SubscriptionsViewSet(BaseViewset):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         price_id = serializer.validated_data.pop("price_id")
-
         company = request.user.user_company
 
+        # stripe customer
         if not company.stripe_customer_id:
             customer = self.stripe.Customer.create(email=request.user.email).id
             company.stripe_customer_id = customer
@@ -171,10 +172,7 @@ class SubscriptionsViewSet(BaseViewset):
             company__user__email=request.user.email
         ).first()
 
-        if (
-            user_subscription.type.type == "free"
-            and user_subscription.subscription_id == ""
-        ):
+        if not user_subscription.subscription_id:
             subscription = self.stripe_service.create_subscription(customer, price_id)
 
             user_subscription.subscription_id = subscription.id
@@ -320,12 +318,13 @@ class SubscriptionsViewSet(BaseViewset):
             # an invoice.payment_failed event is sent, the subscription becomes past_due.
             # Use this webhook to notify your user that their payment has
             # failed and to retrieve new card details.
-            print(data)
+            print(data_object)
 
-        if event_type == "customer.subscription.deleted":
-            # handle subscription canceled automatically based
-            # upon your subscription settings. Or if the user cancels it.
-            print(data)
+        if event_type == "customer.subscription.updated":
+            if Subscription.objects.filter(subscription_id=data_object.id).exists():
+                # if subscription expired without payment after 24 hrs, it will be removed
+                if data_object.status == "incomplete_expired":
+                    self.webhook_service.clear_subscription_model(data_object.id)
         return Response({"message": "Webhook received successfully"})
 
     @action(detail=False, url_path="update-subscription", methods=["post"])
