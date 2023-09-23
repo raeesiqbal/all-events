@@ -7,6 +7,7 @@ import { secureInstance } from "../../../axios/config";
 const initialState = {
   loading: false,
   error: null,
+  count: 0,
   messages: [],
   additionalInfo: null,
   MessageSuccessAlert: false,
@@ -51,7 +52,7 @@ export const listChatMessages = createAsyncThunk(
 
 // Create the MessagesSlice
 export const MessagesSlice = createSlice({
-  name: "Chats",
+  name: "Messages",
   initialState,
   reducers: {
     handleResgisterationStatus: (state) => {
@@ -78,8 +79,13 @@ export const MessagesSlice = createSlice({
       })
       .addCase(listChatMessages.fulfilled, (state, action) => {
         state.loading = false;
-        state.messages = action.payload.offset === 0 ? action.payload.data.messages : [...state.messages, ...action.payload.data.messages];
+        if (action.payload.offset === 0) {
+          state.messages = action.payload.data.messages.results;
+        } else {
+          state.messages = [...action.payload.data.messages.results, ...state.messages];
+        }
         state.additionalInfo = action.payload.data.additional_info;
+        state.count = action.payload.data.messages.count;
       })
       .addCase(listChatMessages.rejected, (state, action) => {
         state.loading = false;

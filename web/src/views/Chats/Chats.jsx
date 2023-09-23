@@ -2,7 +2,7 @@
 import React, { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { Container, FormControl, InputGroup } from "react-bootstrap";
+import { Container, FormControl, InputGroup, Row } from "react-bootstrap";
 import { chatsSuggestionList, listChats } from "../redux/Chats/ChatsSlice";
 import { listChatMessages } from "../redux/Messages/MessagesSlice";
 import Header from "../../components/Navbar/Navbar";
@@ -12,18 +12,20 @@ import MesssageTabNavigation from "../../components/TabNavigation/MessageTabNavi
 import Chat from "./Chat";
 import "../Ads/Ads.css";
 import "./Chats.css";
+import { CircularProgress } from "@mui/material";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 
 function Chats() {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
-  const chats = useSelector((state) => state.chats.chats);
-  const inboxCount = useSelector((state) => state.chats.inboxCount);
-  const archivedCount = useSelector((state) => state.chats.archivedCount);
-  const suggestionsList = useSelector((state) => state.chats.suggestionsList);
+  const {
+    chats, inboxCount, archivedCount, suggestionsList, loading,
+  } = useSelector((state) => state.chats);
 
-  const limit = 3;
-  const [activeTab, setActiveTab] = React.useState("Inbox");
+  const limit = 10;
   const [offset, setOffset] = React.useState(0);
+  const [activeTab, setActiveTab] = React.useState("Inbox");
   const [adName, setAdName] = React.useState("");
   const [senderName, setSenderName] = React.useState("");
   const [showSuggestions, setShowSuggestions] = React.useState("");
@@ -53,12 +55,17 @@ function Chats() {
   };
 
   const handleScroll = (e) => {
+    e.preventDefault();
     const { scrollTop, clientHeight, scrollHeight } = e.target;
-    if (scrollTop + clientHeight >= scrollHeight - 10) {
-      setOffset(limit + offset);
-      dispatch(listChats({
-        archive: activeTab === "Archived" ? "True" : "False", limit, offset,
-      }));
+
+    if (scrollTop >= scrollHeight - clientHeight && !loading) {
+      const count = activeTab === "Archived" ? archivedCount : inboxCount;
+      if (count > offset) {
+        setOffset(limit + offset);
+        dispatch(listChats({
+          archive: activeTab === "Archived" ? "True" : "False", limit, offset,
+        }));
+      }
     }
   };
 
@@ -91,7 +98,6 @@ function Chats() {
       <Container
         style={{ paddingBottom: "200px" }}
         className="pt-md-3"
-        onScroll={handleScroll}
       >
         {/* <div className="w-100 pb-4 d-md-flex justify-content-between">
           <div>
@@ -137,7 +143,14 @@ function Chats() {
           </Button>
         </div> */}
         <MesssageTabNavigation activeTab={activeTab} setActiveTab={setActiveTab} tabs={tabs} />
-        {chats && chats.map((chat) => <Chat chat={chat} key={chat.id} isOpenChat={chat.id.toString() === chatId} />)}
+        <Row className="chats-body" onScroll={handleScroll}>
+          {chats && !loading && chats.map((chat) => <Chat chat={chat} key={chat.id} isOpenChat={chat.id.toString() === chatId} />)}
+          {loading && (
+            <div className="loading-icon">
+              <FontAwesomeIcon icon={faSpinner} spin />
+            </div>
+          )}
+        </Row>
       </Container>
 
       <Footer />

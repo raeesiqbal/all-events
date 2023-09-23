@@ -77,6 +77,7 @@ export const readChat = createAsyncThunk(
       const response = await secureInstance.request({
         url: `/api/analytics/ad-chat/${id}/chat-read/`,
         method: "Patch",
+        data: { is_read: true },
       });
       return response.status_code;
     } catch (err) {
@@ -152,12 +153,12 @@ export const ChatsSlice = createSlice({
       .addCase(listChats.fulfilled, (state, action) => {
         state.loading = false;
         if (action.payload.offset === 0 || state.isArchived !== action.payload.archive) {
-          state.chats = action.payload.data;
+          state.chats = action.payload.data.chats.results;
         } else {
-          state.chats = [...state.chats, ...action.payload.data];
+          state.chats = [...state.chats, ...action.payload.data.chats.results];
         }
-        state.inboxCount = action.payload.inbox_count;
-        state.archivedCount = action.payload.archived_count;
+        state.inboxCount = action.payload.data.inbox_count;
+        state.archivedCount = action.payload.data.archived_count;
         state.isArchived = action.payload.archive;
       })
       .addCase(listChats.rejected, (state, action) => {

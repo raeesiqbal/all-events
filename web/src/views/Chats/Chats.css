@@ -124,6 +124,33 @@
   border: 1px solid white;
 }
 
+.chats-body {
+  /* position: relative; */
+  max-height: 850px;
+  overflow-y: scroll;
+}
+
+.chats-body::-webkit-scrollbar-thumb {
+  display: none;
+}
+
+.chats-body::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+.loading-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.loading-icon .svg-inline--fa {
+  font-size: 48px;
+  color: #A0C49D;
+}
+
 @media (max-width: 600px) {
   .chat-modal .modal-body {
     padding: 15px;

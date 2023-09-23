@@ -30,17 +30,18 @@ const Chat = ({ chat, isOpenChat }) => {
   const dispatch = useDispatch();
   const messageBody = useRef(null);
 
-  const messages = useSelector((state) => state.messages.messages);
-  const additionalInfo = useSelector((state) => state.messages.additionalInfo);
+  const {
+    messages, additionalInfo, count, loading,
+  } = useSelector((state) => state.messages);
   const currentUser = useSelector((state) => state.auth.user);
 
   const [modalShow, setModalShow] = React.useState(isOpenChat);
   const [deleteModal, setDeleteModal] = React.useState(false);
   const [messageText, setMessageText] = React.useState("");
   const [attachment, setAttachment] = React.useState(null);
-  const [isLoading, setIsLoading] = React.useState(false);
+  // const [isLoading, setIsLoading] = React.useState(false);
   const [offset, setOffset] = React.useState(0);
-  const limit = 4;
+  const limit = 20;
 
   let dates = [];
 
@@ -50,10 +51,13 @@ const Chat = ({ chat, isOpenChat }) => {
   };
 
   const handleScroll = (e) => {
-    const { scrollTop } = e.target;
-    if (scrollTop === 0) {
+    const { scrollTop, scrollHeight } = e.target;
+    if (scrollTop === 0 && count > offset) {
       setOffset(offset + limit);
       dispatch(listChatMessages({ id: chat.id, limit, offset }));
+      setTimeout(() => {
+        if (messageBody.current) messageBody.current.scrollTop = messageBody.current.scrollHeight - scrollHeight;
+      }, 500);
     }
   };
 
@@ -86,12 +90,10 @@ const Chat = ({ chat, isOpenChat }) => {
       // --------- WILL ROUTE ON SOME PAGE ON FAILURE ---------
       console.log("error", e);
     }
-    setIsLoading(false);
   };
 
   const handleAttachment = (event) => {
     event.preventDefault();
-    setIsLoading(true);
     const uploadedVideo = event.target.files[0];
 
     if (uploadedVideo && uploadedVideo.size <= 25000000) {
@@ -147,9 +149,11 @@ const Chat = ({ chat, isOpenChat }) => {
 
   useEffect(() => {
     if (modalShow) {
-      dispatch(readChat(chat.id));
       dispatch(listChatMessages({ id: chat.id, limit, offset }));
-      if (messageBody.current) messageBody.current.scrollTop = messageBody.current.scrollHeight;
+      // dispatch(readChat(chat.id));
+      setTimeout(() => {
+        if (messageBody.current) messageBody.current.scrollTop = messageBody.current.scrollHeight;
+      }, 500);
     }
   }, [modalShow]);
 
@@ -298,12 +302,12 @@ const Chat = ({ chat, isOpenChat }) => {
                 onChange={(e) => setMessageText(e.target.value)}
                 onKeyUp={handleKeyPress}
               />
-              <button type="button" className="send-message-button" disabled={isLoading} onClick={sendChatMessage}>Send</button>
+              <button type="button" className="send-message-button" disabled={loading} onClick={sendChatMessage}>Send</button>
             </div>
             <div className="d-flex justify-content-center" style={{ width: "14%" }}>
               <div className="upload-message-img">
                 {
-                  !isLoading && (
+                  !loading && (
                     attachment === null ? (
                       <>
                         <span>+</span>
@@ -319,7 +323,7 @@ const Chat = ({ chat, isOpenChat }) => {
                     )
                   )
                 }
-                {isLoading && (
+                {loading && (
                   <>
                     <div className="d-flex justify-content-center align-items-center loading-image-container" />
                     <CircularProgress className="attachment-loader" />
@@ -376,7 +380,7 @@ const Chat = ({ chat, isOpenChat }) => {
         </Modal.Footer>
       </Modal>
 
-      <Col lg={10} className="w-100 py-md-5 border-bottom border-2">
+      <Col lg={12} className="py-md-5 border-bottom border-2">
         <Card className="shadow-none bg-transparent">
           <Row>
             <Col lg={2} md={3} className="d-flex">

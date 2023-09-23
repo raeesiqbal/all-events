@@ -20,8 +20,8 @@ const MesssageTabNavigation = ({
 
   return (
     <div
-      className="d-flex border-bottom border-2"
-      style={{ height: "45px", width: "100%" }}
+      className="d-flex border-bottom border-2 w-100"
+      style={{ height: "45px" }}
     >
       {
         tabs.map((tab, index) => (
@@ -36,7 +36,7 @@ const MesssageTabNavigation = ({
             <span>{tab.label}</span>
             {
               tab.count !== null && (
-                <span className="ps-2 text-secondary">{`(${tab.count.toString()})`}</span>
+                <span className="ps-2 text-secondary">{`(${tab.count?.toString()})`}</span>
               )
             }
           </div>
