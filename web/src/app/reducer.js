@@ -11,6 +11,7 @@ import messagesReducer from "../views/redux/Messages/MessagesSlice";
 import reviewsReducer from "../views/redux/Reviews/ReviewsSlice";
 import searchReducer from "../views/redux/Search/SearchSlice";
 import subscriptionReducer from "../views/redux/Subscriptions/SubscriptionsSlice";
+import analyticsReducer from "../views/redux/Analytics/AnalyticsSlice";
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -25,6 +26,7 @@ const rootReducer = combineReducers({
   reviews: reviewsReducer,
   search: searchReducer,
   subscriptions: subscriptionReducer,
+  analytics: analyticsReducer,
 });
 
 export default rootReducer;

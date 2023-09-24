@@ -37,10 +37,15 @@ export const handleStartChat = createAsyncThunk(
 
 export const listChats = createAsyncThunk(
   "Chats/list",
-  async ({ archive, limit, offset }, { rejectWithValue }) => {
+  async ({
+    archive, limit, offset, adName, senderName,
+  }, { rejectWithValue }) => {
     try {
+      let url = `/api/analytics/ad-chat?archived=${archive}&limit=${limit}&offset=${offset}`;
+      if (adName !== null && adName !== "" && adName !== undefined) url += `&ad__name=${adName}`;
+      if (senderName !== null && senderName !== "" && senderName !== undefined) url += `&sender_name=${senderName}`;
       const response = await secureInstance.request({
-        url: `/api/analytics/ad-chat?archived=${archive}&limit=${limit}&offset=${offset}`,
+        url,
         method: "Get",
       });
       return { ...response.data, archive, offset }; // Assuming your loginAPI returns data with access_token, user_id, and role_id
@@ -96,7 +101,7 @@ export const chatsSuggestionList = createAsyncThunk(
         url: `/api/analytics/ad-chat/chat-suggestion-list?keyword=${keyword}&keyword_type=${keywordType}`,
         method: "Get",
       });
-      return response.status_code;
+      return response.data;
     } catch (err) {
       // Use `err.response.data` as `action.payload` for a `rejected` action,
       // by explicitly returning it using the `rejectWithValue()` utility

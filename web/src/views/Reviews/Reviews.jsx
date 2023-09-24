@@ -16,9 +16,10 @@ const Reviews = ({ adId, adName }) => {
   const user = useSelector((state) => state.auth.user);
   const reviews = useSelector((state) => state.reviews.reviews);
   const imagesToUpload = useSelector((state) => state.Ads.media_urls.images);
-  const [offset, setOffset] = useState(0);
+  const offset = 0;
+  const page = 1;
   const [limit, setLimit] = useState(10);
-  const [page, setPage] = useState(1);
+  const [isDisabled, setIsDisabled] = useState(true);
   const [postReview, setPostReview] = useState({
     name: "",
     title: "",
@@ -26,7 +27,7 @@ const Reviews = ({ adId, adName }) => {
     rating: 0,
   });
   const [isHide, setIsHide] = useState(true);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleImageUpload = (event) => {
     setIsLoading(true);
@@ -104,15 +105,38 @@ const Reviews = ({ adId, adName }) => {
     });
   };
 
+  const removeAllImages = async (images) => {
+    try {
+      const response = await secureInstance.request({
+        url: "/api/ads/delete-urls/",
+        method: "Post",
+        data: {
+          urls: images,
+        },
+      });
+      // ----------------do this inside redux
+      if (response.status === 200) {
+        setPostReview({
+          ...postReview,
+          photos: [],
+        });
+
+        dispatch(setImagesToUpload([]));
+      }
+    } catch (err) {
+      console.log(err.message);
+    }
+  };
+
   const resetForm = (isDelete = true) => {
-    if (isDelete) imagesToUpload.map((image, index) => removeImage(image, index));
-    dispatch(setImagesToUpload([]));
+    if (isDelete) removeAllImages(imagesToUpload);
     setPostReview({
       name: "",
       title: "",
       message: "",
       rating: 0,
     });
+    setIsDisabled(true);
   };
 
   const submitReview = () => {
@@ -143,6 +167,12 @@ const Reviews = ({ adId, adName }) => {
       }, 1000);
     }
   }, [isHide]);
+
+  useEffect(() => {
+    if (postReview.title !== "" && postReview.message !== "" && postReview.rating !== 0) {
+      setIsDisabled(user.userId === null ? postReview.name === "" : false);
+    }
+  }, [postReview]);
 
   useEffect(() => {
     dispatch(listAdReviews({
@@ -300,7 +330,7 @@ const Reviews = ({ adId, adName }) => {
             </div>
             <Row className="w-100 mx-0">
               <Col md={5}>
-                <Button variant="success" className="w-100" onClick={submitReview} disabled={isLoading}>Post Review</Button>
+                <Button variant="success" className="w-100" onClick={submitReview} disabled={isLoading || isDisabled}>Post Review</Button>
               </Col>
               <Col md={2}>
                 <Button

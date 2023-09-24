@@ -181,13 +181,18 @@ const Chat = ({ chat, isOpenChat }) => {
               />
               <h3 className="ms-2 ms-md-3 my-auto" style={{ color: "#797979" }}>{additionalInfo?.name}</h3>
             </div>
-            <Link
-              className="me-md-5 text-decoration-none"
-              style={{ color: "#A0C49D", fontSize: "19px" }}
-              to={`/view-ad/${additionalInfo?.ad}`}
-            >
-              Ad Details
-            </Link>
+            <div className="me-md-5 text-center">
+              <Link
+                className="text-decoration-none"
+                style={{ color: "#A0C49D", fontSize: "19px" }}
+                to={`/view-ad/${additionalInfo?.ad}`}
+              >
+                Ad Details
+              </Link>
+              <div className="mt-2" style={{ fontSize: "13px", color: "grey" }}>
+                {`Event Date: ${dayjs(chat.event_date).format("MMM D[th], YYYY").toString()}`}
+              </div>
+            </div>
           </div>
           <div className="mb-3 message-body" ref={messageBody} onScroll={handleScroll}>
             {
@@ -401,7 +406,7 @@ const Chat = ({ chat, isOpenChat }) => {
                   <Card.Title>
                     <div className="d-md-flex justify-content-between">
                       <div className="roboto-semi-bold-32px-h2 col-md-6">
-                        {currentUser && currentUser.role === "client" ? chat.ad_name : chat.person.name}
+                        {chat.ad_name}
                       </div>
                       <div className="roboto-regular-14px-information d-flex align-items-center mt-2 pe-4">
                         <img
@@ -411,6 +416,10 @@ const Chat = ({ chat, isOpenChat }) => {
                         />
                         {dayjs(chat.latest_message.created_at).format("MMM D[th], YYYY")}
                       </div>
+                    </div>
+
+                    <div className="roboto-light-16px-information">
+                      {`Client: ${chat.person.name}`}
                     </div>
 
                     <div className="row mx-0">
@@ -450,6 +459,22 @@ const Chat = ({ chat, isOpenChat }) => {
                       >
                         {chat.latest_message.text}
                       </Card.Text>
+                      {
+                        !chat.read && (
+                          <div
+                            className="roboto-regular-14px-information text-white mt-2 me-3"
+                            style={{
+                              borderRadius: "6px",
+                              background: "#A0C49D",
+                              padding: "2px 10px",
+                              fontWeight: "500",
+                              width: "fit-content",
+                            }}
+                          >
+                            Unread
+                          </div>
+                        )
+                      }
                     </div>
                     <div className="d-flex align-items-end pt-3">
                       <div

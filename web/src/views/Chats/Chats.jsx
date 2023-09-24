@@ -1,8 +1,12 @@
 /* eslint-disable camelcase */
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { Container, FormControl, InputGroup, Row } from "react-bootstrap";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSpinner } from "@fortawesome/free-solid-svg-icons";
+import {
+  Button, Container, FormControl, Row,
+} from "react-bootstrap";
 import { chatsSuggestionList, listChats } from "../redux/Chats/ChatsSlice";
 import { listChatMessages } from "../redux/Messages/MessagesSlice";
 import Header from "../../components/Navbar/Navbar";
@@ -12,9 +16,6 @@ import MesssageTabNavigation from "../../components/TabNavigation/MessageTabNavi
 import Chat from "./Chat";
 import "../Ads/Ads.css";
 import "./Chats.css";
-import { CircularProgress } from "@mui/material";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 
 function Chats() {
   const dispatch = useDispatch();
@@ -23,14 +24,17 @@ function Chats() {
     chats, inboxCount, archivedCount, suggestionsList, loading,
   } = useSelector((state) => state.chats);
 
-  const limit = 10;
+  const limit = 3;
   const [offset, setOffset] = React.useState(0);
   const [activeTab, setActiveTab] = React.useState("Inbox");
   const [adName, setAdName] = React.useState("");
   const [senderName, setSenderName] = React.useState("");
-  const [showSuggestions, setShowSuggestions] = React.useState("");
+  const [showAdSuggestions, setShowAdSuggestions] = React.useState(false);
+  const [showSenderList, setShowSenderList] = React.useState(false);
+  const [isDisabled, setIsDisabled] = React.useState(true);
 
   const location = useLocation();
+  const suggestionDropdown = useRef();
   const searchParams = new URLSearchParams(location.search);
   const chatId = searchParams.get("chatId");
 
@@ -45,13 +49,31 @@ function Chats() {
     },
   ];
 
-  const handleAdNameSuggestions = (e) => {
+  const handleSuggestions = (e, keywordType) => {
     e.preventDefault();
 
-    setAdName({ name: e.target.value });
+    dispatch(chatsSuggestionList({ keyword: e.target.value, keywordType }));
 
-    dispatch(chatsSuggestionList({ keyword: e.target.value, keywordType: "ad_name" }));
-    setShowSuggestions(e.target.value !== "");
+    if (keywordType === "ad_name") {
+      setAdName(e.target.value);
+      setShowAdSuggestions(e.target.value !== "");
+    } else {
+      setSenderName(e.target.value);
+      setShowSenderList(e.target.value !== "");
+    }
+  };
+
+  const handleSuggestionClick = (suggestion, type) => {
+    type === "ad_name" ? setAdName(suggestion) : setSenderName(suggestion);
+    setShowAdSuggestions(false);
+    setShowSenderList(false);
+    setIsDisabled(suggestion === "");
+  };
+
+  const handleSearchButton = () => {
+    dispatch(listChats({
+      archive: activeTab === "Archived" ? "True" : "False", limit, offset: 0, adName, senderName,
+    }));
   };
 
   const handleScroll = (e) => {
@@ -63,7 +85,7 @@ function Chats() {
       if (count > offset) {
         setOffset(limit + offset);
         dispatch(listChats({
-          archive: activeTab === "Archived" ? "True" : "False", limit, offset,
+          archive: activeTab === "Archived" ? "True" : "False", limit, offset, adName, senderName,
         }));
       }
     }
@@ -72,7 +94,7 @@ function Chats() {
   useEffect(() => {
     window.scrollTo(0, 0);
     dispatch(listChats({
-      archive: activeTab === "Archived" ? "True" : "False", limit, offset,
+      archive: activeTab === "Archived" ? "True" : "False", limit, offset, adName, senderName,
     }));
   }, [activeTab]);
 
@@ -82,6 +104,12 @@ function Chats() {
       dispatch(listChats({ archive: activeTab === "Archived" ? "True" : "False", limit, offset }));
     }
   }, [chatId]);
+
+  useEffect(() => {
+    if (suggestionDropdown.current) {
+      suggestionDropdown.current.style.overflowY = suggestionDropdown.current.clientHeight > 400 ? "scroll" : "auto";
+    }
+  }, [suggestionsList]);
 
   return (
     <>
@@ -99,30 +127,43 @@ function Chats() {
         style={{ paddingBottom: "200px" }}
         className="pt-md-3"
       >
-        {/* <div className="w-100 pb-4 d-md-flex justify-content-between">
-          <div>
-            <div className="position-relative">
+        <div className="w-100 pb-4 d-md-flex justify-content-between">
+          <div className="d-flex">
+            <div className="position-relative me-3">
               <FormControl
-                className="shadow-none roboto-regular-16px-information form-control"
+                className="shadow-none roboto-regular-16px-information border border-success"
                 placeholder="Select Ad"
-                style={{
-                  outline: 0,
-                  border: "none",
-                  paddingLeft: "60px",
-                  borderRadius: "0",
-                  borderRight: "1px solid #D9D9D9",
-                }}
                 value={adName}
-                onChange={handleAdNameSuggestions}
+                onChange={(e) => handleSuggestions(e, "ad_name")}
               />
               {
-                showSuggestions && (
+                showAdSuggestions && (
                   <div className="suggestion-dropdown" ref={suggestionDropdown}>
                     {
                       suggestionsList.map((suggestion) => (
-                        <div className="w-100 px-3 py-2" onClick={(e) => handleSuggestionClick(suggestion)}>
-                          <span className="my-auto px-2">{suggestion.name}</span>
-                          <div className="px-3 py-1 bg-secondary text-white my-auto">{suggestion.type}</div>
+                        <div className="w-100 px-3 py-2" onClick={() => handleSuggestionClick(suggestion, "ad_name")}>
+                          <span className="my-auto px-2">{suggestion}</span>
+                        </div>
+                      ))
+                    }
+                  </div>
+                )
+              }
+            </div>
+            <div className="position-relative">
+              <FormControl
+                className="shadow-none roboto-regular-16px-information border border-success"
+                placeholder="Select Sender Name"
+                value={senderName}
+                onChange={(e) => handleSuggestions(e, "sender_name")}
+              />
+              {
+                showSenderList && (
+                  <div className="suggestion-dropdown" ref={suggestionDropdown}>
+                    {
+                      suggestionsList.map((suggestion) => (
+                        <div className="w-100 px-3 py-2" onClick={() => handleSuggestionClick(suggestion, "sender_name")}>
+                          <span className="my-auto px-2">{suggestion}</span>
                         </div>
                       ))
                     }
@@ -134,14 +175,13 @@ function Chats() {
           <Button
             variant="success"
             size="lg"
-            className="roboto-semi-bold-16px-information"
-            style={{ height: "56px" }}
+            className="roboto-semi-bold-16px-information py-2 px-5 h-100"
             disabled={isDisabled}
             onClick={() => handleSearchButton()}
           >
             Search
           </Button>
-        </div> */}
+        </div>
         <MesssageTabNavigation activeTab={activeTab} setActiveTab={setActiveTab} tabs={tabs} />
         <Row className="chats-body" onScroll={handleScroll}>
           {chats && !loading && chats.map((chat) => <Chat chat={chat} key={chat.id} isOpenChat={chat.id.toString() === chatId} />)}
