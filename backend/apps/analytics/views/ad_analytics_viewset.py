@@ -224,7 +224,6 @@ class AnalyticViewSet(BaseViewset):
             "reviews_count": reviews_count,
             "vendor_ad_views": vendor_ad_views,
             "fav_ads_count": fav_ads_count,
-            "vendor_sub_detail": vendor_sub_detail,
             "my_ads": my_ads,
             "user_details": user_details,
         }
