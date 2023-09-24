@@ -1,6 +1,7 @@
 import React from "react";
 import { Card, Col, Row } from "react-bootstrap";
-import "./card.css"
+import "./card.css";
+
 const BillingCard = ({
   icon,
   headingText,
@@ -9,11 +10,18 @@ const BillingCard = ({
   backgroundColor,
   border,
   activeBillingCard,
-  setActiveBillingCard
+  setActiveBillingCard,
 }) => (
   <Col md={3}>
     <Card
-      style={{ backgroundColor,border:activeBillingCard === headingText.toLowerCase() ? "1px solid #5CC85C" : border, boxShadow: "0px 4px 4px 0px #00000040" }}
+      style={{
+        backgroundColor,
+        border:
+          activeBillingCard === headingText.toLowerCase()
+            ? "1px solid #5CC85C"
+            : border,
+        boxShadow: "0px 4px 4px 0px #00000040",
+      }}
       className="custom-card-billing"
       onClick={() => setActiveBillingCard(headingText.toLowerCase())}
     >

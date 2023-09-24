@@ -24,29 +24,19 @@ import BillingCard from "../../components/Card/BillingCard";
 import BillingTabNavigation from "../../components/TabNavigation/BillingTabNavigation";
 import MyAdsDashboard from "./MyAdsDashboard";
 import ProfilePic from "../../components/ProfilePic/ProfilePic";
+import { secureInstance } from "../../axios/config";
+import { useNavigate } from "react-router-dom";
 // import ProfilePic from "../../components/ProfilePic/ProfilePic";
 
 function Dashboard() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const user = useSelector((state) => state.auth.user);
 
-  const [selectionRange, setSelectionRange] = useState({
-    startDate: new Date(),
-    endDate: new Date(),
-    key: "selection",
-  });
   const [activeTab, setActiveTab] = React.useState("1 months");
   const [activeBillingCard, setActiveBillingCard] = React.useState("free");
-
-  const [showDatePicker, setShowDatePicker] = useState(false);
-
-  const [state, setState] = useState([
-    {
-      startDate: new Date(),
-      endDate: addDays(new Date(), 7),
-      key: "selection",
-    },
-  ]);
+  const [dashboardData, setDashboardData] = React.useState({});
+  // const [userAds, setUserAds] = React.useState([]);
 
   useEffect(() => {
     if (user.userCompanyId === null) {
@@ -58,34 +48,44 @@ function Dashboard() {
     dispatch(setCompanyInformation({ id: user.userCompanyId }));
   };
 
-  const handleSelect = (ranges) => {
-    setSelectionRange(ranges.selection);
-    // {
-    //   selection: {
-    //     startDate: [native Date Object],
-    //     endDate: [native Date Object],
-    //   }
-    // }
+  const handleProfileEdit = () => {
+    // dispatch(setCompanyInformation({ id: user.userCompanyId }));
+    navigate("/profile-settings");
+    setTimeout(() => {
+      dispatch(handleProfileSettingsCurrentView("PersonalInformation"));
+    }, 1);
   };
 
-  const handleDropdownClick = () => {
-    setShowDatePicker(!showDatePicker);
+  const getDashboardInfo = async () => {
+    // dispatch(setCompanyInformation({ id: user.userCompanyId }));
+    try {
+      const request = await secureInstance.request({
+        url: "/api/analytics/ad-analytics/dashboard/",
+        method: "Get",
+      });
+      console.log("request.data", request.data.data);
+      setDashboardData(request.data.data);
+      // setUserAds(request.data.data.my_ads)
+      // setparentImagesUploadedImages([
+      //   ...pdfsToUpload,
+      //   request.data.data.file_url,
+      // ]);
+    } catch (e) {
+      // setImageUrlToUpload(response.data.data);
+      // --------- WILL ROUTE ON SOME PAGE ON FAILURE ---------
+      console.log("error", e);
+    }
   };
-
-  // const selectionRange = {
-  //   startDate: new Date(),
-  //   endDate: new Date(),
-  //   key: "selection",
-  // };
 
   useEffect(() => {
     if (user.userCompanyId !== null) {
       getCompanyInfo();
+      getDashboardInfo();
     }
   }, [user]);
 
   return (
-    <div onClick={() => setShowDatePicker(false)}>
+    <div>
       <Header />
       <TabNavigation />
       <div className="profile-settings-banner d-flex align-items-center">
@@ -108,7 +108,7 @@ function Dashboard() {
                 className="d-flex align-items-center w-100"
                 style={{
                   position: "relative",
-                  // width: "80vw",
+                  // width: "100%",
                   background: "#FFF",
                   borderRadius: "5px",
                   minHeight: "237px",
@@ -118,7 +118,7 @@ function Dashboard() {
                 }}
               >
                 <Row className="d-flex justify-content-center">
-                  <Col xs={12} sm={5} md={5} lg={6} xl={6}>
+                  <Col xs={12} sm={5} md={6} lg={6} xl={9}>
                     <ProfilePic dashboard />
                   </Col>
                   <Col
@@ -128,6 +128,7 @@ function Dashboard() {
                     lg={6}
                     xl={6}
                     className="user-dashboard-info-container"
+                    // style={{ border: "solid" }}
                   >
                     {/* <div style={{ paddingLeft: "250px" }}> */}
                     <div>
@@ -135,19 +136,20 @@ function Dashboard() {
                         className="roboto-semi-bold-32px-h2"
                         style={{ color: "#212227" }}
                       >
-                        Michele Batal Wedding Services
+                        {dashboardData.user_details?.first_name +
+                          dashboardData.user_details?.last_name}
                       </div>
                       <div
                         className="roboto-semi-bold-24px-h3 mt-2 mb-2"
                         style={{ fontWeight: "400" }}
                       >
-                        michelebatal@wedding.com
+                        {dashboardData.user_details?.email}
                       </div>
                       <div
                         className="roboto-semi-bold-24px-h3"
                         style={{ fontWeight: "400" }}
                       >
-                        +447576898762
+                        {dashboardData.user_details?.phone}
                       </div>
                     </div>
                   </Col>
@@ -161,6 +163,7 @@ function Dashboard() {
                     top: "10px",
                     right: "10px",
                   }}
+                  onClick={handleProfileEdit}
                 />
               </div>
             </div>
@@ -219,7 +222,7 @@ function Dashboard() {
                         marginBottom: "8px",
                       }}
                     >
-                      347
+                      {dashboardData?.total_views}
                     </Card.Text>
                   </Card.Body>
                 </Card>
@@ -266,7 +269,7 @@ function Dashboard() {
                         marginBottom: "8px",
                       }}
                     >
-                      89
+                      {dashboardData?.total_saves}
                     </Card.Text>
                   </Card.Body>
                 </Card>
@@ -312,7 +315,7 @@ function Dashboard() {
                         marginBottom: "8px",
                       }}
                     >
-                      32
+                      {dashboardData?.total_reviews}
                     </Card.Text>
                   </Card.Body>
                 </Card>
@@ -356,7 +359,7 @@ function Dashboard() {
                         marginBottom: "8px",
                       }}
                     >
-                      437
+                      {dashboardData?.total_messages}
                     </Card.Text>
                   </Card.Body>
                 </Card>
@@ -389,7 +392,7 @@ function Dashboard() {
                 activeBillingCard={activeBillingCard}
                 setActiveBillingCard={setActiveBillingCard}
                 border="1px solid #E9EDF7"
-                />
+              />
               <BillingCard
                 icon={messagesIcon}
                 headingText="PRO"
@@ -399,7 +402,7 @@ function Dashboard() {
                 activeBillingCard={activeBillingCard}
                 setActiveBillingCard={setActiveBillingCard}
                 border="1px solid #E9EDF7"
-                />
+              />
               <BillingCard
                 icon={messagesIcon}
                 headingText="BUSINESS"
@@ -409,7 +412,7 @@ function Dashboard() {
                 activeBillingCard={activeBillingCard}
                 setActiveBillingCard={setActiveBillingCard}
                 border="1px solid #E9EDF7"
-                />
+              />
               <BillingCard
                 icon={messagesIcon}
                 headingText="TEAMS"
@@ -419,13 +422,13 @@ function Dashboard() {
                 activeBillingCard={activeBillingCard}
                 setActiveBillingCard={setActiveBillingCard}
                 border="1px solid #E9EDF7"
-                />
+              />
             </Row>
           </Col>
         </Row>
       </Container>
 
-      <MyAdsDashboard />
+      <MyAdsDashboard userAds={dashboardData.my_ads} />
 
       <Footer />
     </div>
