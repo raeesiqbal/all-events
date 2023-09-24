@@ -5,6 +5,17 @@
 .custom-card-analytics-dashboard {
   max-width: 256px;
 }
+.dashboard-analytics-container{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.dashboard-billing-container{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 @media only screen and (max-width: 570px) {
   .user-dashboard-info-container {
     margin-top: 250px;
@@ -14,5 +25,6 @@
 @media only screen and (max-width: 768px) {
   .custom-card-analytics-dashboard {
     max-width: 90vw;
+    margin-bottom: 20px;
   }
 }

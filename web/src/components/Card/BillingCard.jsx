@@ -7,11 +7,15 @@ const BillingCard = ({
   subText,
   duration,
   backgroundColor,
+  border,
+  activeBillingCard,
+  setActiveBillingCard
 }) => (
   <Col md={3}>
     <Card
-      style={{ maxWidth: "256px", backgroundColor }}
+      style={{ backgroundColor,border:activeBillingCard === headingText.toLowerCase() ? "1px solid #5CC85C" : border, boxShadow: "0px 4px 4px 0px #00000040" }}
       className="custom-card-analytics"
+      onClick={() => setActiveBillingCard(headingText.toLowerCase())}
     >
       <Card.Body>
         <div className="d-flex align-items-center">
