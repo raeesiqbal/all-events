@@ -53,6 +53,8 @@ const vendorTabs = [
     label: "Dashboard",
     icon: analytics,
     path: "/dashboard",
+  },
+  {
     label: "My Subscriptions",
     icon: dollar,
     path: "/subscriptions",
