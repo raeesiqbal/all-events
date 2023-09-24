@@ -89,7 +89,7 @@ function Dashboard() {
       <Header />
       <TabNavigation />
       <div className="profile-settings-banner d-flex align-items-center">
-        <div style={{ marginLeft: "100px" }}>
+        <div className="banner-text-heading">
           <div className="roboto-bold-36px-h1">Dashboard</div>
           <div className="roboto-regular-18px-body3">
             Your Ads performance overview, at a glance

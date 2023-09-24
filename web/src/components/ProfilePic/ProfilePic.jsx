@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCamera } from "@fortawesome/fontawesome-free-solid";
-import { CircularProgress } from "@mui/material";
+import { CircularProgress, useMediaQuery } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 // import defaultuserIcon from "../../assets/images/profile-settings/user.svg";
 import defaultuserIcon from "../../assets/images/user-icon.png";
@@ -19,10 +19,16 @@ const ProfilePic = (props) => {
   const { userImage } = useSelector((state) => state.auth.user);
   const selectedImage = useSelector((state) => state.settings.selectedImage);
   const companyInformation = useSelector(
-    (state) => state.settings.companyInformation,
+    (state) => state.settings.companyInformation
   );
 
   const dispatch = useDispatch();
+  // const media = useMediaQuery;
+  const matchesMobile = useMediaQuery("(min-width:475px)");
+
+  const isMobileAndDashboard = props.dashboard && !matchesMobile;
+
+  // console.log(useMediaQuery);
 
   const updateNewProfilePic = (imageUrl) => {
     const updatedUser = {
@@ -40,7 +46,7 @@ const ProfilePic = (props) => {
       editCompanyInformation({
         data: updateCompanyWithNewProfilePic,
         id: companyInformation.id,
-      }),
+      })
     );
   };
 
@@ -97,8 +103,12 @@ const ProfilePic = (props) => {
           <img
             className="selected-image"
             style={{
-              width: props.dashboard && "196px",
-              height: props.dashboard && "196px",
+              width: isMobileAndDashboard
+                ? "150px"
+                : props.dashboard && "196px",
+              height: isMobileAndDashboard
+                ? "150px"
+                : props.dashboard && "196px",
             }}
             src={
               selectedImage === null
@@ -113,20 +123,23 @@ const ProfilePic = (props) => {
             src={defaultuserIcon}
             alt=""
             style={{
-              width: props.dashboard && "196px",
-              height: props.dashboard && "196px",
+              width: isMobileAndDashboard
+                ? "150px"
+                : props.dashboard && "196px",
+              height: isMobileAndDashboard
+                ? "150px"
+                : props.dashboard && "196px",
             }}
           />
         )}
 
         <div
           className="camera-icon-container"
-          style={{ left: props.dashboard && "142px" }}
+          style={{
+            left: isMobileAndDashboard ? "110px" : props.dashboard && "142px",
+          }}
         >
-          <FontAwesomeIcon
-            icon={faCamera}
-            style={{ color: "black" }}
-          />
+          <FontAwesomeIcon icon={faCamera} style={{ color: "black" }} />
         </div>
       </label>
 
