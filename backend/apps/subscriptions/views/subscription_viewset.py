@@ -114,7 +114,7 @@ class SubscriptionsViewSet(BaseViewset):
             if user_scription:
                 for item in data:
                     for price in item["prices"]:
-                        if price.price_id == user_scription.price_id:
+                        if price["price_id"] == user_scription.price_id:
                             current_subscription_price = price
                             current_subscription_product = item
                             item["prices"].remove(price)
