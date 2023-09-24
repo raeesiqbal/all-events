@@ -331,7 +331,7 @@ class SubscriptionsViewSet(BaseViewset):
                     data=ResponseInfo().format_response(
                         data={"updated": False},
                         status_code=status.HTTP_200_OK,
-                        message=f"You cann't upgrade to this plan. Your Current Active Ad count is {vendor_ads}, while the plan you want to upgrade allow {allowed_ads} ads upload. Please delete your unwanted ads first.",
+                        message=f"You can't upgrade to this plan. Your Current Active Ad count is {vendor_ads}, while the plan you want to upgrade allow {allowed_ads} ads upload. Please delete your unwanted ads first.",
                     ),
                 )
 
@@ -343,7 +343,7 @@ class SubscriptionsViewSet(BaseViewset):
             return Response(
                 status=status.HTTP_200_OK,
                 data=ResponseInfo().format_response(
-                    data={},
+                    data={"updated": True},
                     status_code=status.HTTP_200_OK,
                     message="Your Subscription will be changed after invoice has been paid successfully",
                 ),
