@@ -36,6 +36,7 @@ function Dashboard() {
     key: "selection",
   });
   const [activeTab, setActiveTab] = React.useState("1 months");
+  const [activeBillingCard, setActiveBillingCard] = React.useState("free");
 
   const [showDatePicker, setShowDatePicker] = useState(false);
 
@@ -173,13 +174,13 @@ function Dashboard() {
         className=""
       >
         {/* <Row className="d-flex justify-content-center align-items-center"> */}
-        <Row>
-          <Col md={12} lg={12} xl={12}>
+        <Row className="dashboard-analytics-container">
+          <Col xs={10} md={12} lg={12} xl={12}>
             <Row className="mb-5 d-flex justify-content-center align-items-center">
               <div className="roboto-semi-bold-28px-h2 mb-5">Analytics</div>
               <Col md={3}>
                 <Card
-                  style={{ maxWidth: "256px" }}
+                  // style={{ maxWidth: "256px" }}
                   className="custom-card-analytics-dashboard"
                   onClick={() =>
                     dispatch(
@@ -225,7 +226,7 @@ function Dashboard() {
               </Col>
               <Col md={3}>
                 <Card
-                  style={{ maxWidth: "256px" }}
+                  // style={{ maxWidth: "256px" }}
                   className="custom-card-analytics-dashboard"
                   onClick={() =>
                     dispatch(
@@ -274,7 +275,7 @@ function Dashboard() {
               {/* <Row> */}
               <Col md={3}>
                 <Card
-                  style={{ maxWidth: "256px" }}
+                  // style={{ maxWidth: "256px" }}
                   className="custom-card-analytics-dashboard"
                   onClick={() =>
                     dispatch(handleProfileSettingsCurrentView("ChangePassword"))
@@ -318,7 +319,7 @@ function Dashboard() {
               </Col>
               <Col md={3}>
                 <Card
-                  style={{ maxWidth: "256px" }}
+                  // style={{ maxWidth: "256px" }}
                   className="custom-card-analytics-dashboard"
                   onClick={() =>
                     dispatch(handleProfileSettingsCurrentView("DeleteAccount"))
@@ -376,8 +377,8 @@ function Dashboard() {
           />
         </div>
 
-        <Row>
-          <Col md={12} lg={12} xl={12}>
+        <Row className="dashboard-billing-container">
+          <Col xs={10} md={12} lg={12} xl={12}>
             <Row className="mb-5 d-flex justify-content-center align-items-center">
               <BillingCard
                 icon={messagesIcon}
@@ -385,28 +386,40 @@ function Dashboard() {
                 subText="$10"
                 duration="mo"
                 backgroundColor="#F5F5F5"
-              />
+                activeBillingCard={activeBillingCard}
+                setActiveBillingCard={setActiveBillingCard}
+                border="1px solid #E9EDF7"
+                />
               <BillingCard
                 icon={messagesIcon}
                 headingText="PRO"
                 subText="$20"
                 duration="mo"
                 backgroundColor="#FFFAD6"
-              />
+                activeBillingCard={activeBillingCard}
+                setActiveBillingCard={setActiveBillingCard}
+                border="1px solid #E9EDF7"
+                />
               <BillingCard
                 icon={messagesIcon}
                 headingText="BUSINESS"
                 subText="$30"
                 duration="mo"
                 backgroundColor="#DBE5FF"
-              />
+                activeBillingCard={activeBillingCard}
+                setActiveBillingCard={setActiveBillingCard}
+                border="1px solid #E9EDF7"
+                />
               <BillingCard
                 icon={messagesIcon}
                 headingText="TEAMS"
                 subText="$100"
                 duration="mo"
                 backgroundColor="#D8FFFB"
-              />
+                activeBillingCard={activeBillingCard}
+                setActiveBillingCard={setActiveBillingCard}
+                border="1px solid #E9EDF7"
+                />
             </Row>
           </Col>
         </Row>
