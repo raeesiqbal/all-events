@@ -17,6 +17,7 @@ from apps.subscriptions.constants import SUBSCRIPTION_STATUS, SUBSCRIPTION_TYPES
 
 # models
 from apps.subscriptions.models import Subscription, SubscriptionType
+from apps.ads.models import Ad
 
 # serializers
 from apps.subscriptions.serializers.create_serializer import (
@@ -66,6 +67,7 @@ class SubscriptionsViewSet(BaseViewset):
             product_dic = {
                 "id": product.id,
                 "name": product.name,
+                "allowed_ads": product.metadata.allowed_ads,
                 "description": product.description,
                 "prices": [],
                 "features": product.features,
@@ -174,7 +176,6 @@ class SubscriptionsViewSet(BaseViewset):
 
         if not user_subscription.subscription_id:
             subscription = self.stripe_service.create_subscription(customer, price_id)
-
             user_subscription.subscription_id = subscription.id
             user_subscription.stripe_customer_id = customer
             user_subscription.price_id = subscription["items"].data[0].price.id
@@ -213,6 +214,7 @@ class SubscriptionsViewSet(BaseViewset):
                 )
             else:
                 self.stripe.Subscription.delete(user_subscription.subscription_id)
+
                 subscription = self.stripe_service.create_subscription(
                     customer, price_id
                 )
@@ -333,6 +335,28 @@ class SubscriptionsViewSet(BaseViewset):
         serializer.is_valid(raise_exception=True)
         subscription_id = serializer.validated_data.pop("subscription_id")
         price_id = serializer.validated_data.pop("price_id")
+        allowed_ads = serializer.validated_data.pop("allowed_ads")
+
+        retrieve_subscription = self.stripe_service.retrieve_subscription(
+            subscription_id
+        )
+
+        retrieve_old_product = self.stripe_service.retrieve_product(
+            retrieve_subscription["items"].data[0].price.product
+        )
+
+        if retrieve_old_product.metadata.allowed_ads > allowed_ads:
+            vendor_ads = Ad.objects.filter(company=request.user.user_company).count()
+            if vendor_ads > allowed_ads:
+                return Response(
+                    status=status.HTTP_200_OK,
+                    data=ResponseInfo().format_response(
+                        data={"updated": False},
+                        status_code=status.HTTP_200_OK,
+                        message=f"You cann't upgrade to this plan. Your Current Active Ad count is {vendor_ads}, while the plan you want to upgrade allow {allowed_ads} ads upload. Please delete your unwanted ads first.",
+                    ),
+                )
+
         update_subscription = self.stripe_service.update_subscription(
             subscription_id, price_id
         )

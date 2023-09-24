@@ -46,6 +46,9 @@ class StripeService:
     def get_stripe(self):
         return self.stripe
 
+    def retrieve_product(self, product_id):
+        return stripe.Product.retrieve(product_id)
+
     def list_products(self):
         return stripe.Product.list(
             active=True,
