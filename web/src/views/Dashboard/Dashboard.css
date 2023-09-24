@@ -1,0 +1,18 @@
+.user-dashboard-info-container {
+  padding-left: 30px;
+}
+
+.custom-card-analytics-dashboard {
+  max-width: 256px;
+}
+@media only screen and (max-width: 570px) {
+  .user-dashboard-info-container {
+    margin-top: 250px;
+    /* padding-left: 30px; */
+    padding-bottom: 20px;
+}
+@media only screen and (max-width: 768px) {
+  .custom-card-analytics-dashboard {
+    max-width: 90vw;
+  }
+}
