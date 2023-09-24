@@ -266,12 +266,16 @@ class SubscriptionsViewSet(BaseViewset):
             s = self.stripe.Subscription.retrieve(
                 subscription.subscription_id,
             )
+            retrieve_product = self.stripe_service.retrieve_product(
+                s["items"].data[0].price.product
+            )
+
             if s.status == "active":
-                if s["items"].data[0].price.unit_amount == 100:
+                if retrieve_product == 1:
                     updated_type = SUBSCRIPTION_TYPES["STANDARD"]
-                elif s["items"].data[0].price.unit_amount == 200:
+                elif retrieve_product == 2:
                     updated_type = SUBSCRIPTION_TYPES["ADVANCED"]
-                elif s["items"].data[0].price.unit_amount == 300:
+                if retrieve_product == 3:
                     updated_type = SUBSCRIPTION_TYPES["FEATURED"]
                 updated_type = SubscriptionType.objects.filter(
                     type=updated_type
