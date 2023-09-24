@@ -46,18 +46,18 @@ const Plan = ({
   }, [currentInterval]);
 
   const handlePlanSubscription = async () => {
-    if (user.userId !== null && currentSubscription.priceId !== currentPlanPrice.price_id) {
+    if (user.userId !== null && currentSubscription.priceId === "") {
+      dispatch(createSubscription({ price_id: currentPlanPrice?.price_id }));
+      setTimeout(() => {
+        navigate("/checkout");
+      }, 1000);
+    } else {
       const data = {
         subscription_id: currentSubscription.subscriptionId,
         price_id: currentPlanPrice.price_id,
         allowed_ads: plan.allowed_ads,
       };
       dispatch(updateSubscription(data));
-    } else {
-      dispatch(createSubscription({ price_id: currentPlanPrice?.price_id }));
-      setTimeout(() => {
-        navigate("/checkout");
-      }, 1000);
     }
   };
 
