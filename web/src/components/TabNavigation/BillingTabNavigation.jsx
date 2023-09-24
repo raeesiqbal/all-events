@@ -29,9 +29,9 @@ const BillingTabNavigation = ({ activeTab, setActiveTab }) => {
   return (
     <div className="d-flex justify-content-center" style={{ width: "100%" }}>
       <div
-        className="d-flex justify-content-around align-items-center"
+        className="d-flex justify-content-around align-items-center billing-tab-container"
         style={{
-          minWidth: "477px",
+          // width: "50vw",
           background: "#FFF",
           borderRadius: "5px",
           height: "56px",
@@ -43,7 +43,7 @@ const BillingTabNavigation = ({ activeTab, setActiveTab }) => {
         {tabs.map((tab, index) => (
           <div
             key={index}
-            className="d-flex justify-content-center align-items-center"
+            className="d-flex justify-content-center align-items-center billing-tab"
             onClick={() => handleClickTabNav(index, tab.label)}
             style={{
               cursor: "pointer",
@@ -51,7 +51,6 @@ const BillingTabNavigation = ({ activeTab, setActiveTab }) => {
               color: isActive(tab.label) && "white",
               fontWeight: isActive(tab.label) && "600",
               height: "34px",
-              padding: "0 12px",
               borderRadius: "5px",
               whiteSpace: "nowrap",
             }}
