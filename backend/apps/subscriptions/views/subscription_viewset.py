@@ -109,14 +109,11 @@ class SubscriptionsViewSet(BaseViewset):
 
         free_plan = {
             "name": "FREE",
-            "validity": "90 days",
-            "price": "free",
+            "unit_price": 0,
             "features": [
-                {"Allowed ads 1": "You Can Post only 1 Ad with free plan"},
-                {
-                    "Limited Access": "You will not have access to premium features like Analytics etc"
-                },
-                {"Limited Media Upload": "You can only post 1 photo and 1 video"},
+                {"name": "[sdsdsdd](sdsdsd sds ds dsdsd)"},
+                {"name": "[sdsdsdd](sdsdsd sds ds dsdsd)"},
+                {"name": "[sdsdsdd](sdsdsd sds ds dsdsd)"},
             ],
         }
 
