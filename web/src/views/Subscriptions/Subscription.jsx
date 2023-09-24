@@ -11,18 +11,16 @@ import { useDispatch, useSelector } from "react-redux";
 import timeIcon from "../../assets/images/post-ad/carbon_time.svg";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBan } from "@fortawesome/free-solid-svg-icons";
+import { cancelSubscription } from "../redux/Subscriptions/SubscriptionsSlice";
 // import cancelIcon from "../../assets/images/cancel.svg";
 
 const Subscription = ({ subscription }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // const messages = useSelector((state) => state.messages.messages);
-  // const additionalInfo = useSelector((state) => state.messages.additionalInfo);
-  // const currentUser = useSelector((state) => state.auth.user);
+  const [deleteModal, setDeleteModal] = React.useState(false);
 
   const date = (d) => new Date(d);
-  const getTime = (d) => date(d).toLocaleTimeString("en-US", { hour12: true });
 
   // Function to get the ordinal suffix for a day
   const getOrdinalSuffix = (day) => {
@@ -46,40 +44,90 @@ const Subscription = ({ subscription }) => {
     date(d).toLocaleString("en-US", { month: "long" })}, ${
     date(d).getFullYear()}`}`;
 
+  const handleCancelSubscription = async () => {
+    dispatch(cancelSubscription({ subscription_id: subscription.subscription_id }));
+    setDeleteModal(false);
+    setTimeout(() => {
+      dispatch(listChats({ archive: "False", limit: 10, offset: 0 }));
+    }, 2000);
+  };
+
   return (
-    <Row className="mx-0 mt-4 w-100 ps-2 p-3 subscription-free">
-      <h2>{subscription.type.type}</h2>
-      <div className="d-flex w-100">
-        <img src={timeIcon} alt="time icon" style={{ width: "20px", height: "20px" }} />
-        <div className="my-auto ms-1" style={{ fontSize: "14px" }}>{formattedDate(subscription.created_at)}</div>
-      </div>
-      <div className="mt-1" style={{ fontSize: "14px", fontWeight: "500" }}>
-        Validation: 12th Apr, 2024
-      </div>
-      <div className="d-sm-flex justify-content-between mt-3">
-        <div className="mb-3 my-sm-auto" style={{ fontSize: "13px" }}>Ads Posted: 1/3</div>
-        <div className="d-flex">
+    <>
+      <Modal
+        show={deleteModal}
+        onHide={() => {
+          setDeleteModal(false);
+        }}
+        size="md"
+        aria-labelledby="contained-modal-title-vcenter"
+        centered
+      >
+        <Modal.Header closeButton style={{ border: "none" }} />
+        <Modal.Body>
+          <h4>Do you really want to cancel this subscription?</h4>
+        </Modal.Body>
+        <Modal.Footer>
           <Button
-            type="button"
-            variant="success"
-            className="me-3 px-5 py-0"
-            style={{ fontSize: "12px !important", height: "32px" }}
-            onClick={() => navigate("/plans")}
-          >
-            Upgrade
-          </Button>
-          {/* <img src={cancelIcon} alt="cancel" /> */}
-          <div
-            className="d-flex"
-            style={{
-              borderRadius: "50%", height: "32px", width: "32px", backgroundColor: "rgba(217, 217, 217, 1)",
+            onClick={() => {
+              setDeleteModal(false);
             }}
+            variant="danger"
+            className="btn-md roboto-regular-16px-information text-white"
+            style={{
+              height: "44px",
+              fontWeight: "500",
+              paddingLeft: "32px",
+              paddingRight: "32px",
+            }}
+            // style={{ backgroundColor: "red" }}
           >
-            <FontAwesomeIcon className="mx-auto my-auto" icon={faBan} />
+            No
+          </Button>
+          <Button
+            variant="success"
+            onClick={handleCancelSubscription}
+          >
+            Yes
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <Row className="mx-0 mt-4 w-100 ps-2 p-3 subscription-free">
+        <h2>{subscription.type.type}</h2>
+        <div className="d-flex w-100">
+          <img src={timeIcon} alt="time icon" style={{ width: "20px", height: "20px" }} />
+          <div className="my-auto ms-1" style={{ fontSize: "14px" }}>{formattedDate(subscription.created_at)}</div>
+        </div>
+        {/* <div className="mt-1" style={{ fontSize: "14px", fontWeight: "500" }}>
+          Validation: 12th Apr, 2024
+        </div> */}
+        <div className="d-sm-flex justify-content-between mt-3">
+          <div className="mb-3 my-sm-auto" style={{ fontSize: "13px" }}>Allowed Ads: {subscription.type.allowed_ads}</div>
+          <div className="d-flex">
+            <Button
+              type="button"
+              variant="success"
+              className="me-3 px-5 py-0"
+              style={{ fontSize: "12px !important", height: "32px" }}
+              onClick={() => navigate("/plans")}
+            >
+              Upgrade
+            </Button>
+            {/* <img src={cancelIcon} alt="cancel" /> */}
+            <div
+              className="d-flex"
+              style={{
+                borderRadius: "50%", height: "32px", width: "32px", backgroundColor: "rgba(217, 217, 217, 1)", cursor: "pointer",
+              }}
+              onClick={() => setDeleteModal(true)}
+            >
+              <FontAwesomeIcon className="mx-auto my-auto" icon={faBan} />
+            </div>
           </div>
         </div>
-      </div>
-    </Row>
+      </Row>
+    </>
   );
 };
 

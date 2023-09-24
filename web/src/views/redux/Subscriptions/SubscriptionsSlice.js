@@ -58,6 +58,24 @@ export const updateSubscription = createAsyncThunk(
   },
 );
 
+export const cancelSubscription = createAsyncThunk(
+  "Subscription/cancel",
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await secureInstance.request({
+        url: "/api/subscriptions/cancel-subscription/",
+        method: "Post",
+        data,
+      });
+      return response.data;
+    } catch (err) {
+      // Use `err.response.data` as `action.payload` for a `rejected` action,
+      // by explicitly returning it using the `rejectWithValue()` utility
+      return rejectWithValue(err.response.data);
+    }
+  },
+);
+
 export const listPlans = createAsyncThunk(
   "Subscription/plansList",
   async (isLoggedIn, { rejectWithValue }) => {
@@ -130,6 +148,23 @@ export const SubscriptionsSlice = createSlice({
         state.error = action.payload.message;
       })
       .addCase(updateSubscription.rejected, (state, action) => {
+        state.loading = false;
+        state.SubscriptionErrorAlert = true;
+        state.error = action.payload;
+      })
+      .addCase(cancelSubscription.pending, (state) => {
+        state.loading = true;
+        state.SubscriptionSuccessAlert = false;
+        state.SubscriptionErrorAlert = false;
+        state.error = null;
+      })
+      .addCase(cancelSubscription.fulfilled, (state, action) => {
+        state.loading = false;
+        state.SubscriptionSuccessAlert = action.payload.data.cancelled || false;
+        state.SubscriptionErrorAlert = !(action.payload.data.cancelled || true);
+        state.error = action.payload.message;
+      })
+      .addCase(cancelSubscription.rejected, (state, action) => {
         state.loading = false;
         state.SubscriptionErrorAlert = true;
         state.error = action.payload;
