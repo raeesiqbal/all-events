@@ -96,56 +96,75 @@ function Dashboard() {
         </div>
       </div>
 
-      <Container>
-        <div
-          className="d-flex justify-content-center mt-5"
-          style={{ width: "100%" }}
-        >
-          <div
-            className="d-flex align-items-center"
-            style={{
-              position: "relative",
-              width: "80vw",
-              background: "#FFF",
-              borderRadius: "5px",
-              minHeight: "237px",
-              boxShadow: "0px 4px 4px 0px rgba(0, 0, 0, 0.25)",
-              border: "1px solid #E9EDF7",
-            }}
-          >
-            <ProfilePic dashboard />
-            <div style={{ paddingLeft: "250px" }}>
+      <Container fluid>
+        <Row className="d-flex justify-content-center">
+          <Col sm={10} md={10} lg={10} xl={10}>
+            <div
+              className="d-flex justify-content-center mt-5"
+              style={{ width: "100%" }}
+            >
               <div
-                className="roboto-semi-bold-32px-h2"
-                style={{ color: "#212227" }}
+                className="d-flex align-items-center w-100"
+                style={{
+                  position: "relative",
+                  // width: "80vw",
+                  background: "#FFF",
+                  borderRadius: "5px",
+                  minHeight: "237px",
+                  // height: "400",
+                  boxShadow: "0px 4px 4px 0px rgba(0, 0, 0, 0.25)",
+                  border: "1px solid #E9EDF7",
+                }}
               >
-                Michele Batal Wedding Services
-              </div>
-              <div
-                className="roboto-semi-bold-24px-h3 mt-2 mb-2"
-                style={{ fontWeight: "400" }}
-              >
-                michelebatal@wedding.com
-              </div>
-              <div
-                className="roboto-semi-bold-24px-h3"
-                style={{ fontWeight: "400" }}
-              >
-                +447576898762
+                <Row className="d-flex justify-content-center">
+                  <Col xs={12} sm={5} md={5} lg={6} xl={6}>
+                    <ProfilePic dashboard />
+                  </Col>
+                  <Col
+                    xs={12}
+                    sm={5}
+                    md={6}
+                    lg={6}
+                    xl={6}
+                    className="user-dashboard-info-container"
+                  >
+                    {/* <div style={{ paddingLeft: "250px" }}> */}
+                    <div>
+                      <div
+                        className="roboto-semi-bold-32px-h2"
+                        style={{ color: "#212227" }}
+                      >
+                        Michele Batal Wedding Services
+                      </div>
+                      <div
+                        className="roboto-semi-bold-24px-h3 mt-2 mb-2"
+                        style={{ fontWeight: "400" }}
+                      >
+                        michelebatal@wedding.com
+                      </div>
+                      <div
+                        className="roboto-semi-bold-24px-h3"
+                        style={{ fontWeight: "400" }}
+                      >
+                        +447576898762
+                      </div>
+                    </div>
+                  </Col>
+                </Row>
+                <img
+                  src={editIcon}
+                  alt="editIcon"
+                  style={{
+                    cursor: "pointer",
+                    position: "absolute",
+                    top: "10px",
+                    right: "10px",
+                  }}
+                />
               </div>
             </div>
-            <img
-              src={editIcon}
-              alt="editIcon"
-              style={{
-                cursor: "pointer",
-                position: "absolute",
-                top: "10px",
-                right: "10px",
-              }}
-            />
-          </div>
-        </div>
+          </Col>
+        </Row>
       </Container>
 
       <Container
@@ -155,13 +174,13 @@ function Dashboard() {
       >
         {/* <Row className="d-flex justify-content-center align-items-center"> */}
         <Row>
-          <Col md={11} lg={12} xl={12}>
+          <Col md={12} lg={12} xl={12}>
             <Row className="mb-5 d-flex justify-content-center align-items-center">
               <div className="roboto-semi-bold-28px-h2 mb-5">Analytics</div>
               <Col md={3}>
                 <Card
                   style={{ maxWidth: "256px" }}
-                  className="custom-card-analytics"
+                  className="custom-card-analytics-dashboard"
                   onClick={() =>
                     dispatch(
                       handleProfileSettingsCurrentView("PersonalInformation")
@@ -207,7 +226,7 @@ function Dashboard() {
               <Col md={3}>
                 <Card
                   style={{ maxWidth: "256px" }}
-                  className="custom-card-analytics"
+                  className="custom-card-analytics-dashboard"
                   onClick={() =>
                     dispatch(
                       handleProfileSettingsCurrentView("CompanyInformation")
@@ -256,7 +275,7 @@ function Dashboard() {
               <Col md={3}>
                 <Card
                   style={{ maxWidth: "256px" }}
-                  className="custom-card-analytics"
+                  className="custom-card-analytics-dashboard"
                   onClick={() =>
                     dispatch(handleProfileSettingsCurrentView("ChangePassword"))
                   }
@@ -300,7 +319,7 @@ function Dashboard() {
               <Col md={3}>
                 <Card
                   style={{ maxWidth: "256px" }}
-                  className="custom-card-analytics"
+                  className="custom-card-analytics-dashboard"
                   onClick={() =>
                     dispatch(handleProfileSettingsCurrentView("DeleteAccount"))
                   }
@@ -358,7 +377,7 @@ function Dashboard() {
         </div>
 
         <Row>
-          <Col md={11} lg={12} xl={12}>
+          <Col md={12} lg={12} xl={12}>
             <Row className="mb-5 d-flex justify-content-center align-items-center">
               <BillingCard
                 icon={messagesIcon}

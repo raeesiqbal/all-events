@@ -140,7 +140,7 @@ function Analytics() {
             <Row className="mb-5 d-flex justify-content-center align-items-center">
               <Col md={3}>
                 <Card
-                  style={{ maxWidth: "256px" }}
+                  // style={{ maxWidth: "256px" }}
                   className="custom-card-analytics"
                   onClick={() =>
                     dispatch(
@@ -186,7 +186,7 @@ function Analytics() {
               </Col>
               <Col md={3}>
                 <Card
-                  style={{ maxWidth: "256px" }}
+                  // style={{ maxWidth: "256px" }}
                   className="custom-card-analytics"
                   onClick={() =>
                     dispatch(
@@ -235,7 +235,7 @@ function Analytics() {
               {/* <Row> */}
               <Col md={3}>
                 <Card
-                  style={{ maxWidth: "256px" }}
+                  // style={{ maxWidth: "256px" }}
                   className="custom-card-analytics"
                   onClick={() =>
                     dispatch(handleProfileSettingsCurrentView("ChangePassword"))
@@ -279,7 +279,7 @@ function Analytics() {
               </Col>
               <Col md={3}>
                 <Card
-                  style={{ maxWidth: "256px" }}
+                  // style={{ maxWidth: "256px" }}
                   className="custom-card-analytics"
                   onClick={() =>
                     dispatch(handleProfileSettingsCurrentView("DeleteAccount"))

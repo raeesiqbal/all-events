@@ -12,12 +12,29 @@
 }
 
 .message-tab-active {
-  border-bottom: 7px solid #A0C49D !important;
+  border-bottom: 7px solid #a0c49d !important;
   height: 45px;
+}
+
+.billing-tab-container {
+  min-width: 477px;
+}
+
+.billing-tab {
+  padding: 0 12px;
 }
 
 @media only screen and (max-width: 850px) {
   .tab-label {
     display: none;
+  }
+}
+
+@media only screen and (max-width: 425px) {
+  .billing-tab-container {
+    min-width: 150px;
+  }
+  .billing-tab {
+    padding: 0 6px;
   }
 }
