@@ -144,12 +144,12 @@ class SubscriptionsViewSet(BaseViewset):
             status=status.HTTP_200_OK,
             data=ResponseInfo().format_response(
                 data={
-                    "plans": data,
+                    "products": data,
                     "current_subscription": current_subscription,
                     "free_plan": free_plan,
                 },
                 status_code=status.HTTP_200_OK,
-                message="Plans List",
+                message="Products List",
             ),
         )
 
