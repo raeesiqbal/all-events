@@ -366,9 +366,21 @@ class SubCategoryKeywordSerializer(BaseSerializer):
 
 
 class AdDashboardSerializer(BaseSerializer):
-    ad_media = GalleryChildSerializer(many=True)
-    sub_category = SubCategoryGetSerializer()
+    ad_image = serializers.SerializerMethodField("get_ad_image")
+    sub_category = serializers.SerializerMethodField()
+
+    def get_ad_image(self, obj):
+        gallery = Gallery.objects.filter(ad=obj).first()
+
+        return (
+            gallery.media_urls.get("images")[0]
+            if gallery.media_urls.get("images") and gallery.media_urls.get("images")[0]
+            else None
+        )
+
+    def get_sub_category(self, obj):
+        return obj.sub_category.name
 
     class Meta:
         model = Ad
-        fields = ["name","description","ad_media","sub_category"]
+        fields = ["name", "description", "ad_image", "sub_category"]
