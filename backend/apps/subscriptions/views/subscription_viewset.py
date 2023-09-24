@@ -100,6 +100,8 @@ class SubscriptionsViewSet(BaseViewset):
             ],
         }
         current_subscription = None
+        current_subscription_price = None
+        current_subscription_product = None
         if request.user.is_authenticated:
             free_subscription = SubscriptionType.objects.filter(
                 type=SUBSCRIPTION_TYPES["FREE"]
@@ -111,9 +113,13 @@ class SubscriptionsViewSet(BaseViewset):
             )
             if user_scription:
                 for item in data:
-                    if item["price_id"] == user_scription.price_id:
-                        current_subscription = item
-                        data.remove(item)
+                    for price in item.prices:
+                        if price.price_id == user_scription.price_id:
+                            current_subscription_price = price
+                            current_subscription_product = item
+                            item["prices"].remove(price)
+                current_subscription = current_subscription_product
+                current_subscription.prices = current_subscription_price
             else:
                 current_subscription = {
                     "name": "FREE",
