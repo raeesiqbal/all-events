@@ -15,6 +15,7 @@ const initialState = {
     video: [],
     pdf: [],
   },
+  count: 0,
   AdPostSuccessAlert: false,
   AdPostErrorAlert: false,
   imagesError: false,
@@ -130,13 +131,13 @@ export const listPublicAds = createAsyncThunk(
 
 export const listFavoriteAds = createAsyncThunk(
   "Ads/favoriteList",
-  async (data, { rejectWithValue }) => {
+  async ({ limit, offset }, { rejectWithValue }) => {
     try {
       const response = await secureInstance.request({
-        url: "/api/analytics/ad-fav/",
+        url: `/api/analytics/ad-fav?limit=${limit}&offset=${offset}`,
         method: "Get",
       });
-      return response.data;
+      return { ...response.data, offset };
     } catch (err) {
       // Use `err.response.data` as `action.payload` for a `rejected` action,
       // by explicitly returning it using the `rejectWithValue()` utility
@@ -269,7 +270,12 @@ export const AdsSlice = createSlice({
       })
       .addCase(listFavoriteAds.fulfilled, (state, action) => {
         state.loading = false;
-        state.favoriteAds = action.payload.data;
+        if (action.payload.offset === 0 || state.isArchived !== action.payload.archive) {
+          state.favoriteAds = action.payload.data.results;
+        } else {
+          state.favoriteAds = [...state.favoriteAds, ...action.payload.data.results];
+        }
+        state.count = action.payload.data.count;
       })
       .addCase(listFavoriteAds.rejected, (state, action) => {
         state.loading = false;

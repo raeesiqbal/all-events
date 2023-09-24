@@ -7,6 +7,7 @@ import { secureInstance } from "../../../axios/config";
 const initialState = {
   loading: false,
   error: null,
+  count: 0,
   messages: [],
   additionalInfo: null,
   MessageSuccessAlert: false,
@@ -34,13 +35,13 @@ export const sendMessage = createAsyncThunk(
 
 export const listChatMessages = createAsyncThunk(
   "Messages/list",
-  async (id, { rejectWithValue }) => {
+  async ({ id, limit, offset }, { rejectWithValue }) => {
     try {
       const response = await secureInstance.request({
-        url: `/api/analytics/ad-chat/${id}/chat-message/`,
+        url: `/api/analytics/ad-chat/${id}/chat-message?limit=${limit}&offset=${offset}`,
         method: "Get",
       });
-      return response.data;
+      return { ...response.data, offset };
     } catch (err) {
       // Use `err.response.data` as `action.payload` for a `rejected` action,
       // by explicitly returning it using the `rejectWithValue()` utility
@@ -51,7 +52,7 @@ export const listChatMessages = createAsyncThunk(
 
 // Create the MessagesSlice
 export const MessagesSlice = createSlice({
-  name: "Chats",
+  name: "Messages",
   initialState,
   reducers: {
     handleResgisterationStatus: (state) => {
@@ -78,8 +79,13 @@ export const MessagesSlice = createSlice({
       })
       .addCase(listChatMessages.fulfilled, (state, action) => {
         state.loading = false;
-        state.messages = action.payload.data.messages;
+        if (action.payload.offset === 0) {
+          state.messages = action.payload.data.messages.results;
+        } else {
+          state.messages = [...action.payload.data.messages.results, ...state.messages];
+        }
         state.additionalInfo = action.payload.data.additional_info;
+        state.count = action.payload.data.messages.count;
       })
       .addCase(listChatMessages.rejected, (state, action) => {
         state.loading = false;

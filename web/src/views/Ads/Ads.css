@@ -120,6 +120,20 @@
   resize: none;
 }
 
+.fav-ads-body {
+  max-height: 1000px;
+  overflow-y: scroll;
+}
+
+.fav-ads-body::-webkit-scrollbar-thumb {
+  display: none;
+}
+
+.fav-ads-body::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
 /* carousel ------------------------------------ */
 
 .carousel__container__view__ad {

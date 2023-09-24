@@ -9,6 +9,7 @@ import {
   setSelectedImage,
 } from "../../views/redux/Settings/SettingsSlice";
 import "./ProfilePic.css";
+import { secureInstance } from "../../axios/config";
 
 const ProfilePic = () => {
   const [loadingImage, setLoadingImage] = useState(false);
@@ -17,7 +18,7 @@ const ProfilePic = () => {
   const { userImage } = useSelector((state) => state.auth.user);
   const selectedImage = useSelector((state) => state.settings.selectedImage);
   const companyInformation = useSelector(
-    (state) => state.settings.companyInformation
+    (state) => state.settings.companyInformation,
   );
 
   const dispatch = useDispatch();
@@ -50,7 +51,7 @@ const ProfilePic = () => {
       editCompanyInformation({
         data: updateCompanyWithNewProfilePic,
         id: companyInformation.id,
-      })
+      }),
     );
   };
 
@@ -109,7 +110,6 @@ const ProfilePic = () => {
           <FontAwesomeIcon
             icon={faCamera}
             style={{ color: "black" }}
-            size="md"
           />
         </div>
       </label>

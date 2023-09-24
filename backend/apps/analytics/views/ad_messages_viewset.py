@@ -1,11 +1,29 @@
-from rest_framework.permissions import IsAuthenticated
-from apps.analytics.models import Chat, Message
-from apps.analytics.serializers.create_serializer import (
-    AdChatCreateSerializer,
-    AdMessageCreateSerializer,
-)
+# imports
+from apps.utils.views.base import BaseViewset, ResponseInfo
+from rest_framework.decorators import action
+from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework import status
+from django.db.models import Q
+
+# filters
+from django_filters.rest_framework.backends import DjangoFilterBackend
+from rest_framework.filters import OrderingFilter, SearchFilter
+
+# permissions
+from apps.users.permissions import IsClient, IsVendorUser
+from rest_framework.permissions import IsAuthenticated
+
+
+# constants
+from apps.users.constants import USER_ROLE_TYPES
+
+# models
+from apps.analytics.models import Chat, Message
+from apps.clients.models import Client
+from apps.ads.models import Ad
+
+# serializers
 from apps.analytics.serializers.get_serializer import (
     ChatListSerializer,
     ChatMessageSerializer,
@@ -14,20 +32,10 @@ from apps.analytics.serializers.update_serializer import (
     ChatIsArchivedSerializer,
     MessageIsReadSerializer,
 )
-
-from apps.clients.models import Client
-
-# from apps.analytics.services import message_creation
-from apps.users.constants import USER_ROLE_TYPES
-from apps.users.models import User
-from apps.users.permissions import IsClient, IsSuperAdmin, IsVendorUser
-from apps.utils.views.base import BaseViewset, ResponseInfo
-from rest_framework.decorators import action
-from django.shortcuts import get_object_or_404
-
-
-from django_filters.rest_framework.backends import DjangoFilterBackend
-from rest_framework.filters import OrderingFilter, SearchFilter
+from apps.analytics.serializers.create_serializer import (
+    AdChatCreateSerializer,
+    AdMessageCreateSerializer,
+)
 
 
 class MessageViewSet(BaseViewset):
@@ -57,6 +65,7 @@ class MessageViewSet(BaseViewset):
         "chat_exist": [IsAuthenticated, IsClient],
         "chat_message": [IsAuthenticated, IsClient | IsVendorUser],
         "message_create": [IsAuthenticated, IsClient | IsVendorUser],
+        "chat_suggestion_list": [IsAuthenticated, IsClient | IsVendorUser],
     }
 
     user_role_queryset = {
@@ -68,17 +77,21 @@ class MessageViewSet(BaseViewset):
         ).prefetch_related("chat_messages"),
     }
 
-    filter_backends = [SearchFilter, OrderingFilter]
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     search_param = "search"
     search_fields = [
-        "client__user.first_name",
+        "client__user__first_name",
         "ad__name",
         "event_date",
     ]
-    ad_filterset_fields = ["sub_category__name", "site_question_id", "answer"]
+    chat_filterset_fields = [
+        "client__user__first_name",
+        "ad__name",
+        "event_date",
+    ]
     ordering_fields = ["id"]
     filterset_fields = {
-        "client__user.first_name": ["exact"],
+        "client__user__first_name": ["exact"],
         "ad__name": ["exact"],
         "event_date": ["exact"],
     }
@@ -89,21 +102,51 @@ class MessageViewSet(BaseViewset):
             serializer.save(user=self.request.user)
 
     def list(self, request, *args, **kwargs):
-        data = super().list(request, *args, **kwargs)
-        list_data = data.data
         queryset = self.get_queryset()
+
         archived_count = None
+        archived = request.GET.get("archived")
 
         if request.user.role_type == USER_ROLE_TYPES["CLIENT"]:
             archived_count = queryset.filter(is_archived_client=True).count()
             inbox_count = queryset.filter(is_archived_client=False).count()
+            queryset = self.filter_queryset(self.get_queryset())
+            chats = queryset.filter(is_archived_client=archived)
+
         elif request.user.role_type == USER_ROLE_TYPES["VENDOR"]:
             archived_count = queryset.filter(is_archived_vendor=True).count()
             inbox_count = queryset.filter(is_archived_vendor=False).count()
+            queryset = self.filter_queryset(self.get_queryset())
+            chats = queryset.filter(is_archived_vendor=archived)
 
-        list_data["inbox_count"] = inbox_count
-        list_data["archived_count"] = archived_count
-        return data
+        inbox_count = inbox_count
+        archived_count = archived_count
+
+        page = self.paginate_queryset(chats)
+        if page != None:
+            serializer = self.get_serializer(page, many=True)
+        else:
+            serializer = self.get_serializer(
+                chats,
+                many=True,
+            )
+
+        data = serializer.data
+        if page != None:
+            data = self.get_paginated_response(data).data
+
+        return Response(
+            status=status.HTTP_200_OK,
+            data=ResponseInfo().format_response(
+                data={
+                    "chats": data,
+                    "inbox_count": inbox_count,
+                    "archived_count": archived_count,
+                },
+                status_code=status.HTTP_200_OK,
+                message="Chats List",
+            ),
+        )
 
     @action(detail=False, url_path="start-chat", methods=["post"])
     def start_chat(self, request, *args, **kwargs):
@@ -165,29 +208,48 @@ class MessageViewSet(BaseViewset):
             chat = Chat.objects.filter(id=kwargs.get("pk")).first()
             chat.is_delete_client = False
             chat.is_delete_vendor = False
+            chat.is_read_client = True
             chat.save()
 
             if request.user.role_type == USER_ROLE_TYPES["CLIENT"]:
+                chat.is_read_client = True
+                chat.save()
                 dic = {
+                    "event_date": chat.event_date,
                     "name": chat.ad.company.name,
                     "ad": chat.ad.id,
                     "image": chat.ad.company.user.image,
                 }
 
             elif request.user.role_type == USER_ROLE_TYPES["VENDOR"]:
+                chat.is_read_vendor = True
+                chat.save()
                 dic = {
+                    "event_date": chat.event_date,
                     "name": chat.client.user.first_name + chat.client.user.last_name,
                     "ad": chat.ad.id,
                     "image": chat.ad.company.user.image,
                 }
 
-            messages = Message.objects.filter(chat=chat).order_by("created_at")
-            data = self.get_serializer(messages, many=True)
+            messages = Message.objects.filter(chat=chat).order_by("-created_at")
+
+            page = self.paginate_queryset(messages)
+
+            if page != None:
+                serializer = self.get_serializer(page, many=True)
+            else:
+                serializer = self.get_serializer(
+                    messages,
+                    many=True,
+                )
+            data = serializer.data
+            if page != None:
+                data = self.get_paginated_response(data).data
 
             return Response(
                 status=status.HTTP_200_OK,
                 data=ResponseInfo().format_response(
-                    data={"messages": data.data, "additional_info": dic},
+                    data={"messages": data, "additional_info": dic},
                     status_code=status.HTTP_200_OK,
                     message="Success",
                 ),
@@ -280,3 +342,52 @@ class MessageViewSet(BaseViewset):
                 message="Message Created",
             ),
         )
+
+    @action(detail=False, url_path="chat-suggestion-list", methods=["get"])
+    def chat_suggestion_list(self, request, *args, **kwargs):
+        keyword_type = request.GET.get("keyword_type")
+        keyword = request.GET.get("keyword")
+
+        sender_names = None
+        ad_names = None
+
+        chats = self.get_queryset()
+
+        if keyword_type == "ad_name":
+            ads_queryset = Ad.objects.filter(ad_chats__in=chats)
+
+            ad_names = list(
+                ads_queryset.filter(name__icontains=keyword)
+                .values_list("name", flat=True)
+                .distinct()
+            )
+            ad_names = set(ad_names)
+            ad_names = list(ad_names)
+            return Response(
+                status=status.HTTP_200_OK,
+                data=ResponseInfo().format_response(
+                    data=ad_names,
+                    status_code=status.HTTP_200_OK,
+                    message="Chat Suggestions",
+                ),
+            )
+        elif keyword_type == "sender_name":
+            sender_names = (
+                Client.objects.filter(my_chats__in=chats)
+                .prefetch_related("user")
+                .all()
+                .filter(user__first_name__icontains=keyword)
+                .values_list("user__first_name", flat=True)
+                .distinct()
+            )
+            sender_names = set(sender_names)
+            sender_names = list(sender_names)
+
+            return Response(
+                status=status.HTTP_200_OK,
+                data=ResponseInfo().format_response(
+                    data=sender_names,
+                    status_code=status.HTTP_200_OK,
+                    message="Chat Suggestions",
+                ),
+            )
