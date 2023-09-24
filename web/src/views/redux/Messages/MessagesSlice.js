@@ -34,13 +34,13 @@ export const sendMessage = createAsyncThunk(
 
 export const listChatMessages = createAsyncThunk(
   "Messages/list",
-  async (id, { rejectWithValue }) => {
+  async ({ id, limit, offset }, { rejectWithValue }) => {
     try {
       const response = await secureInstance.request({
-        url: `/api/analytics/ad-chat/${id}/chat-message/`,
+        url: `/api/analytics/ad-chat/${id}/chat-message?limit=${limit}&offset=${offset}`,
         method: "Get",
       });
-      return response.data;
+      return { ...response.data, offset };
     } catch (err) {
       // Use `err.response.data` as `action.payload` for a `rejected` action,
       // by explicitly returning it using the `rejectWithValue()` utility
@@ -78,7 +78,7 @@ export const MessagesSlice = createSlice({
       })
       .addCase(listChatMessages.fulfilled, (state, action) => {
         state.loading = false;
-        state.messages = action.payload.data.messages;
+        state.messages = action.payload.offset === 0 ? action.payload.data.messages : [...state.messages, ...action.payload.data.messages];
         state.additionalInfo = action.payload.data.additional_info;
       })
       .addCase(listChatMessages.rejected, (state, action) => {

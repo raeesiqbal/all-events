@@ -24,7 +24,6 @@ const Search = () => {
   return (
     <>
       <Login />
-      <TopBanner />
       <Header />
       <HeroSection />
       <Row className="py-4 p-md-5 mx-md-5 mx-3">

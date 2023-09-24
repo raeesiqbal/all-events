@@ -10,6 +10,7 @@ import plusCircle from "../../assets/images/plus-circle.svg";
 import settings from "../../assets/images/settings.svg";
 import messages from "../../assets/images/mdi-light_message-text.svg";
 import analytics from "../../assets/images/uil_analytics.svg";
+import dollar from "../../assets/images/dollar.svg";
 import "./TabNavigation.css";
 import {
   handleClickTab,
@@ -18,11 +19,6 @@ import {
 import { setImagesToUpload } from "../../views/redux/Posts/AdsSlice";
 
 const vendorTabs = [
-  {
-    label: "Post an Ad",
-    icon: plusCircle,
-    path: "/post-ad",
-  },
   {
     label: "Packages",
     icon: pieChart,
@@ -57,6 +53,9 @@ const vendorTabs = [
     label: "Dashboard",
     icon: analytics,
     path: "/dashboard",
+    label: "My Subscriptions",
+    icon: dollar,
+    path: "/subscriptions",
   },
 ];
 

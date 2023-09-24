@@ -19,7 +19,7 @@ const ProfilePic = (props) => {
   const { userImage } = useSelector((state) => state.auth.user);
   const selectedImage = useSelector((state) => state.settings.selectedImage);
   const companyInformation = useSelector(
-    (state) => state.settings.companyInformation
+    (state) => state.settings.companyInformation,
   );
 
   const dispatch = useDispatch();
@@ -40,7 +40,7 @@ const ProfilePic = (props) => {
       editCompanyInformation({
         data: updateCompanyWithNewProfilePic,
         id: companyInformation.id,
-      })
+      }),
     );
   };
 
@@ -126,7 +126,6 @@ const ProfilePic = (props) => {
           <FontAwesomeIcon
             icon={faCamera}
             style={{ color: "black" }}
-            size="md"
           />
         </div>
       </label>

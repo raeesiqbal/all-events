@@ -7,18 +7,10 @@ import {
   handleClickTab,
 } from "../../views/redux/TabNavigation/TabNavigationSlice";
 
-const tabs = [
-  {
-    label: "Inbox",
-  },
-  {
-    label: "Archived",
-  },
-];
-
-const MesssageTabNavigation = ({ activeTab, setActiveTab, counts }) => {
+const MesssageTabNavigation = ({
+  activeTab, setActiveTab, tabs,
+}) => {
   const dispatch = useDispatch();
-
   const isActive = (label) => activeTab === label;
 
   const handleClickTabNav = (index, label) => {
@@ -28,24 +20,28 @@ const MesssageTabNavigation = ({ activeTab, setActiveTab, counts }) => {
 
   return (
     <div
-      className="d-flex"
+      className="d-flex border-bottom border-2"
       style={{ height: "45px", width: "100%" }}
     >
-      <div className="d-flex" style={{ width: "50vw" }}>
-        {tabs.map((tab, index) => (
+      {
+        tabs.map((tab, index) => (
           <div
-            key={index}
+            key={tab.label}
             className={`d-flex align-items-center ps-2 pe-3 me-3 ${
-              isActive(tab.label) && "message-tab-active"
+              isActive(tab.label) ? "message-tab-active" : ""
             }`}
             onClick={() => handleClickTabNav(index, tab.label)}
-            style={{ cursor: "pointer", borderBottom: "7px solid #fff" }}
+            style={{ cursor: "pointer", borderBottom: "7px solid transparent" }}
           >
             <span>{tab.label}</span>
-            <span className="ps-2 text-secondary">{`(${counts[index]})`}</span>
+            {
+              tab.count !== null && (
+                <span className="ps-2 text-secondary">{`(${tab.count.toString()})`}</span>
+              )
+            }
           </div>
-        ))}
-      </div>
+        ))
+      }
     </div>
   );
 };

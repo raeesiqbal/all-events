@@ -10,6 +10,7 @@ import chatsReducer from "../views/redux/Chats/ChatsSlice";
 import messagesReducer from "../views/redux/Messages/MessagesSlice";
 import reviewsReducer from "../views/redux/Reviews/ReviewsSlice";
 import searchReducer from "../views/redux/Search/SearchSlice";
+import subscriptionReducer from "../views/redux/Subscriptions/SubscriptionsSlice";
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -23,6 +24,7 @@ const rootReducer = combineReducers({
   messages: messagesReducer,
   reviews: reviewsReducer,
   search: searchReducer,
+  subscriptions: subscriptionReducer,
 });
 
 export default rootReducer;

@@ -32,6 +32,12 @@ class SiteQuestionChildGetSerializer(BaseSerializer):
         fields = ["question"]
 
 
+class CountryGetSerializer(BaseSerializer):
+    class Meta:
+        model = Country
+        fields = "__all__"
+
+
 class SiteQuestionChildSerializer(BaseSerializer):
     class Meta:
         model = SiteQuestion
@@ -267,6 +273,7 @@ class AdPublicGetSerializer(BaseSerializer):
         avg_rating = AdReview.objects.filter(ad=obj).aggregate(Avg("rating"))
         return avg_rating["rating__avg"]
 
+
 class SuggestionGetSerializer(BaseSerializer):
     name = serializers.CharField(max_length=100)
     type = serializers.CharField(max_length=100)
@@ -356,3 +363,12 @@ class SubCategoryKeywordSerializer(BaseSerializer):
     class Meta:
         model = SubCategory
         fields = "__all__"
+
+
+class AdDashboardSerializer(BaseSerializer):
+    ad_media = GalleryChildSerializer(many=True)
+    sub_category = SubCategoryGetSerializer()
+
+    class Meta:
+        model = Ad
+        fields = ["name","description","ad_media","sub_category"]

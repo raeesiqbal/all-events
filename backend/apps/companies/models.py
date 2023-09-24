@@ -1,12 +1,14 @@
 from django.db import models
 from apps.ads.models import Country
-from apps.subscriptions.models import Subscription
-from apps.utils.constants import SUBSCRIPTION_TYPES
+from apps.subscriptions.models import Subscription, SubscriptionType
+from apps.subscriptions.constants import SUBSCRIPTION_TYPES, SUBSCRIPTION_STATUS
 from apps.utils.models.base import NewAbstractModel
 from apps.users.models import User
 from django.utils.translation import gettext_lazy as _
 from django.db.models import DateTimeField
 from django.utils import timezone
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 
 class Company(NewAbstractModel):
@@ -37,14 +39,23 @@ class Company(NewAbstractModel):
     )
     image = models.TextField(null=True, blank=True)
     city = models.TextField(null=True, blank=True)
-
-    def save(self, *args, **kwargs):
-        super(Company, self).save(*args, **kwargs)
-        if not Subscription.objects.filter(company=self).exists():
-            Subscription.objects.create(
-                company=self, type=SUBSCRIPTION_TYPES["FEATURED"]
-            )
+    stripe_customer_id = models.TextField(
+        _("Stripe Customer Id"), null=True, blank=True
+    )
 
     class Meta:
         verbose_name = "Company"
         verbose_name_plural = "Companies"
+
+
+@receiver(post_save, sender=Company)
+def subscription_post_save(sender, instance, created, **kwargs):
+    if created:
+        subscription_type = SubscriptionType.objects.filter(
+            type=SUBSCRIPTION_TYPES["FREE"]
+        ).first()
+        Subscription.objects.create(
+            company=instance,
+            type=subscription_type,
+            status=SUBSCRIPTION_STATUS["ACTIVE"],
+        )

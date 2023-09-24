@@ -93,3 +93,18 @@ class ValidatePasswordSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["password"]
+
+
+class GetUserDashboardSerializer(serializers.ModelSerializer):
+
+
+    class Meta:
+        model = User
+        fields = [
+            
+            "email",
+            "first_name",
+            "last_name",
+            "phone",
+            "image"
+        ]

@@ -6,7 +6,6 @@ from apps.users.models import User
 from apps.utils.serializers.base import BaseSerializer
 
 
-
 class VendorUpdateSerializer(BaseSerializer):
     class Meta:
         model = Company
@@ -19,14 +18,14 @@ class VendorUpdateSerializer(BaseSerializer):
             "bank_name",
             "bank_iban",
             "country",
-            "city"
+            "city",
         ]
 
 
 class UserUpdateSerializer(BaseSerializer):
     class Meta:
         model = User
-        fields = ["first_name", "last_name", "phone",'image']
+        fields = ["first_name", "last_name", "phone"]
 
 
 class UserDeleteSerializer(BaseSerializer):
