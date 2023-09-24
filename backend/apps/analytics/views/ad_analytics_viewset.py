@@ -219,11 +219,10 @@ class AnalyticViewSet(BaseViewset):
         user_details = GetUserDashboardSerializer(request.user).data
 
         data = {
-            "messages_count": messages_count,
-            "unread_chats": unread_chats,
-            "reviews_count": reviews_count,
-            "vendor_ad_views": vendor_ad_views,
-            "fav_ads_count": fav_ads_count,
+            "total_messages": messages_count,
+            "total_reviews": reviews_count,
+            "total_views": vendor_ad_views,
+            "total_saves": fav_ads_count,
             "my_ads": my_ads,
             "user_details": user_details,
         }
