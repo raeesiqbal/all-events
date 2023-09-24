@@ -62,6 +62,7 @@ class SubscriptionsViewSet(BaseViewset):
     @action(detail=False, url_path="products", methods=["get"])
     def public_products(self, request, *args, **kwargs):
         data = []
+
         products = self.stripe_service.list_products()
         for product in products.data:
             product_dic = {
@@ -84,7 +85,6 @@ class SubscriptionsViewSet(BaseViewset):
                     "interval_count": p.recurring.interval_count,
                 }
                 product_dic["prices"].append(price_dic)
-
             data.append(product_dic)
 
         current_subscription = {
@@ -99,9 +99,7 @@ class SubscriptionsViewSet(BaseViewset):
                 {"Limited Media Upload": "You can only post 1 photo and 1 video"},
             ],
         }
-        current_subscription = None
-        current_subscription_price = None
-        current_subscription_product = None
+
         if request.user.is_authenticated:
             free_subscription = SubscriptionType.objects.filter(
                 type=SUBSCRIPTION_TYPES["FREE"]
@@ -116,25 +114,13 @@ class SubscriptionsViewSet(BaseViewset):
                     for price in item["prices"]:
                         if price["price_id"] == user_scription.price_id:
                             current_subscription_price = price
-                            current_subscription_product = item
+                            current_subscription_product = item.copy()
                             item["prices"].remove(price)
+                            break
+                    break
+                current_subscription_product["price"] = current_subscription_price
                 current_subscription = current_subscription_product
-                current_subscription["prices"] = current_subscription_price
-            else:
-                current_subscription = {
-                    "name": "FREE",
-                    "validity": "90 days",
-                    "price": "free",
-                    "features": [
-                        {"Allowed ads 1": "You Can Post only 1 Ad with free plan"},
-                        {
-                            "Limited Access": "You will not have access to premium features like Analytics etc"
-                        },
-                        {
-                            "Limited Media Upload": "You can only post 1 photo and 1 video"
-                        },
-                    ],
-                }
+
         free_plan = {
             "name": "FREE",
             "validity": "90 days",
