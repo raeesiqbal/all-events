@@ -1,19 +1,25 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Col, Card, Button, OverlayTrigger, Tooltip,
 } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheck, faInfo } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { createSubscription } from "../redux/Subscriptions/SubscriptionsSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { createSubscription, updateSubscription } from "../redux/Subscriptions/SubscriptionsSlice";
+import { secureInstance } from "../../axios/config";
 
-const Plan = ({ plan, index }) => {
+const Plan = ({
+  plan, index, currentInterval, currentSubscription,
+}) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const user = useSelector((state) => state.auth.user);
+
+  const [currentPlanPrice, setCurrentPlanPrice] = useState();
 
   const regex = /\[(.*?)\]\((.*?)\)/;
-  const cardColors = ["#F5F5F5", "#FFFAD6", "#D8FFFB", "#DBE5FF"];
+  const cardColors = ["#FFFAD6", "#D8FFFB", "#DBE5FF"];
   const checkStyle = {
     backgroundColor: "#A0C49D",
     color: "white",
@@ -31,24 +37,43 @@ const Plan = ({ plan, index }) => {
     height: "16px",
   };
 
-  const handlePlanSubscription = () => {
-    dispatch(createSubscription({ price_id: plan.price_id }));
-    setTimeout(() => {
-      navigate("/checkout");
-    }, 1000);
+  useEffect(() => {
+    setCurrentPlanPrice(
+      plan.prices.filter(
+        (price) => price.interval === currentInterval.interval && price.interval_count === currentInterval.intervalCount,
+      )[0],
+    );
+  }, [currentInterval]);
+
+  const handlePlanSubscription = async () => {
+    if (user.userId !== null && currentSubscription.priceId !== currentPlanPrice.price_id) {
+      const data = {
+        subscription_id: currentSubscription.subscriptionId,
+        price_id: currentPlanPrice.price_id,
+        allowed_ads: plan.allowed_ads,
+      };
+      dispatch(updateSubscription(data));
+    } else {
+      dispatch(createSubscription({ price_id: currentPlanPrice?.price_id }));
+      setTimeout(() => {
+        navigate("/checkout");
+      }, 1000);
+    }
   };
 
   return (
-    <Col key={index} className="mb-4" sm={12} md={6} lg={4} xl={3}>
+    <Col key={index} className="mb-4" sm={12} md={6} lg={4}>
       <Card
         className="p-sm-3 h-100"
-        style={{ backgroundColor: cardColors[index] }}
+        style={{ backgroundColor: cardColors[index % 3] }}
       >
         <Card.Body>
           <h3 className="fw-bold">{plan.name}</h3>
           <Card.Title className="mb-4">
-            <span className="display-5 fw-bold">{plan.unit_price}</span>
-            /mo
+            <span className="display-5 fw-bold">
+              $
+              {currentPlanPrice?.unit_price}
+            </span>
           </Card.Title>
           <ul style={{ listStyleType: "none", paddingLeft: 0 }}>
             <div className="fw-bold mb-2">Extra details</div>
@@ -87,8 +112,14 @@ const Plan = ({ plan, index }) => {
             variant="success"
             className="w-75"
             onClick={handlePlanSubscription}
+            disabled={user.userId !== null && currentSubscription.priceId === currentPlanPrice?.price_id}
           >
-            Subscribe
+            {
+              user.userId === null && "Subscribe"
+            }
+            {
+              user.userId !== null && (currentSubscription.priceId === currentPlanPrice?.price_id ? "Current Plan" : "Upgrade")
+            }
           </Button>
         </div>
       </Card>

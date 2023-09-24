@@ -242,7 +242,7 @@ function Header() {
             }
             id="navbarDropdown"
           >
-            <NavDropdown.Item href="#">Action</NavDropdown.Item>
+            <NavDropdown.Item href="/plans">Plans</NavDropdown.Item>
             <NavDropdown.Divider />
             <NavDropdown.Item href="#">Something else here</NavDropdown.Item>
           </NavDropdown>

@@ -105,7 +105,10 @@ class SubscriptionsViewSet(BaseViewset):
                             current_subscription_price = price
                             break
                     break
-                current_subscription = current_subscription_price["price_id"]
+                current_subscription = {
+                    "price_id": current_subscription_price["price_id"],
+                    "subscription_id": user_scription.subscription_id
+                }
 
         free_plan = {
             "name": "FREE",
@@ -324,7 +327,7 @@ class SubscriptionsViewSet(BaseViewset):
             retrieve_subscription["items"].data[0].price.product
         )
 
-        if retrieve_old_product.metadata.allowed_ads > allowed_ads:
+        if int(retrieve_old_product.metadata.allowed_ads) > allowed_ads:
             vendor_ads = Ad.objects.filter(company=request.user.user_company).count()
             if vendor_ads > allowed_ads:
                 return Response(

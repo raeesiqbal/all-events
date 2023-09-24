@@ -17,3 +17,13 @@
   background-color: rgb(219, 229, 255);
   color: rgba(121, 121, 121, 1);
 }
+
+.interval {
+  cursor: pointer;
+}
+
+.interval.active-interval {
+  color: white;
+  font-weight: 600;
+  background-color: #A0C49D;
+}

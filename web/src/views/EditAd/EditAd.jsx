@@ -58,7 +58,7 @@ function EditAd() {
   const loading = useSelector((state) => state.Ads.loading);
   const user = useSelector((state) => state.auth.user);
   const AdPostSuccessAlert = useSelector(
-    (state) => state.Ads.AdPostSuccessAlert
+    (state) => state.Ads.AdPostSuccessAlert,
   );
 
   const AdPostErrorAlert = useSelector((state) => state.Ads.AdPostErrorAlert);

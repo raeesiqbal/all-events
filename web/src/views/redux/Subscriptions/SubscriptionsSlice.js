@@ -13,6 +13,11 @@ const initialState = {
   subscriptionId: "",
   activeCount: 0,
   expiredCount: 0,
+  currentSubscription: {
+    priceId: "",
+    subscriptionId: "",
+  },
+  freePlan: "",
   SubscriptionSuccessAlert: false,
   SubscriptionErrorAlert: false,
 };
@@ -23,6 +28,24 @@ export const createSubscription = createAsyncThunk(
     try {
       const response = await secureInstance.request({
         url: "/api/subscriptions/create-subscription/",
+        method: "Post",
+        data,
+      });
+      return response.data;
+    } catch (err) {
+      // Use `err.response.data` as `action.payload` for a `rejected` action,
+      // by explicitly returning it using the `rejectWithValue()` utility
+      return rejectWithValue(err.response.data);
+    }
+  },
+);
+
+export const updateSubscription = createAsyncThunk(
+  "Subscription/update",
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await secureInstance.request({
+        url: "/api/subscriptions/update-subscription/",
         method: "Post",
         data,
       });
@@ -94,15 +117,37 @@ export const SubscriptionsSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+      .addCase(updateSubscription.pending, (state) => {
+        state.loading = true;
+        state.SubscriptionSuccessAlert = false;
+        state.SubscriptionErrorAlert = false;
+        state.error = null;
+      })
+      .addCase(updateSubscription.fulfilled, (state, action) => {
+        state.loading = false;
+        state.SubscriptionSuccessAlert = action.payload.data.updated;
+        state.SubscriptionErrorAlert = !action.payload.data.updated;
+        state.error = action.payload.message;
+      })
+      .addCase(updateSubscription.rejected, (state, action) => {
+        state.loading = false;
+        state.SubscriptionErrorAlert = true;
+        state.error = action.payload;
+      })
       .addCase(listPlans.pending, (state) => {
         state.loading = true;
+        state.SubscriptionSuccessAlert = false;
+        state.SubscriptionErrorAlert = false;
         state.error = null;
       })
       .addCase(listPlans.fulfilled, (state, action) => {
         state.loading = false;
-        state.plans = action.payload.data.data;
-        // state.activeCount = action.payload.active_count;
-        // state.expiredCount = action.payload.expired_count;
+        state.plans = action.payload.data.products;
+        if (action.payload.data.current_subscription !== null) {
+          state.currentSubscription.priceId = action.payload.data.current_subscription.price_id;
+          state.currentSubscription.subscriptionId = action.payload.data.current_subscription.subscription_id;
+        }
+        state.freePlan = action.payload.data.free_plan;
       })
       .addCase(listPlans.rejected, (state, action) => {
         state.loading = false;
@@ -110,6 +155,8 @@ export const SubscriptionsSlice = createSlice({
       })
       .addCase(listSubscriptions.pending, (state) => {
         state.loading = true;
+        state.SubscriptionSuccessAlert = false;
+        state.SubscriptionErrorAlert = false;
         state.error = null;
       })
       .addCase(listSubscriptions.fulfilled, (state, action) => {
