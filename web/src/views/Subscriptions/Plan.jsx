@@ -115,10 +115,13 @@ const Plan = ({
             disabled={user.userId !== null && currentSubscription.priceId === currentPlanPrice?.price_id}
           >
             {
-              user.userId === null && "Subscribe"
+              (user.userId === null) && "Subscribe"
             }
             {
-              user.userId !== null && (currentSubscription.priceId === currentPlanPrice?.price_id ? "Current Plan" : "Upgrade")
+              user.userId !== null && currentSubscription.priceId === currentPlanPrice?.price_id && "Current Plan"
+            }
+            {
+              (user.userId !== null && currentSubscription.priceId === "") ? "Subscribe" : "Upgrade"
             }
           </Button>
         </div>
