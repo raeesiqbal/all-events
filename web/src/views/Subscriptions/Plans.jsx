@@ -10,10 +10,12 @@ import Login from "../Login/Login";
 import Header from "../../components/Navbar/Navbar";
 import Footer from "../../components/Footer/Footer";
 import { Alert } from "@mui/material";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 
 const Plans = () => {
   const dispatch = useDispatch();
-  const { plans, currentSubscription, SubscriptionSuccessAlert, SubscriptionErrorAlert, error } = useSelector((state) => state.subscriptions);
+  const { plans, currentSubscription, SubscriptionSuccessAlert, SubscriptionErrorAlert, error, loading } = useSelector((state) => state.subscriptions);
   const user = useSelector((state) => state.auth.user);
 
   const [currentInterval, setCurrentInterval] = useState({
@@ -91,9 +93,24 @@ const Plans = () => {
           </Col>
         </Row>
         <Row className="my-5 mx-0">
-          {plans.slice().reverse().map((plan, index) => (
-            <Plan plan={plan} index={index + 1} currentInterval={currentInterval} currentSubscription={currentSubscription} />
-          ))}
+          {
+            loading && (
+              <div className="loading-icon">
+                <FontAwesomeIcon icon={faSpinner} spin />
+              </div>
+            )
+          }
+          {
+            !loading && plans.slice().reverse().map((plan, index) => (
+              <Plan
+                plan={plan}
+                index={index + 1}
+                currentInterval={currentInterval}
+                currentSubscription={currentSubscription}
+                setCurrentInterval={setCurrentInterval}
+              />
+            ))
+          }
         </Row>
       </Container>
       <Footer />

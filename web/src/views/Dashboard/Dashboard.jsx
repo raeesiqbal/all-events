@@ -1,13 +1,9 @@
 import React, { useEffect, useState } from "react";
 import "react-date-range/dist/styles.css"; // main style file
 import "react-date-range/dist/theme/default.css"; // theme css file
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowRight } from "@fortawesome/fontawesome-free-solid";
 import { Card, Col, Container, Row } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
-import { DateRangePicker, defaultInputRanges } from "react-date-range";
-import { addDays } from "date-fns";
-import Dropdown from "react-bootstrap/Dropdown";
+import { useNavigate } from "react-router-dom";
 import Header from "../../components/Navbar/Navbar";
 import viewsIcon from "../../assets/images/views.svg";
 import savesIcon from "../../assets/images/saves.svg";
@@ -25,21 +21,24 @@ import BillingTabNavigation from "../../components/TabNavigation/BillingTabNavig
 import MyAdsDashboard from "./MyAdsDashboard";
 import ProfilePic from "../../components/ProfilePic/ProfilePic";
 import { secureInstance } from "../../axios/config";
-import { useNavigate } from "react-router-dom";
+import { listPlans } from "../redux/Subscriptions/SubscriptionsSlice";
 // import ProfilePic from "../../components/ProfilePic/ProfilePic";
 
 function Dashboard() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const user = useSelector((state) => state.auth.user);
+  const { plans, currentSubscription } = useSelector((state) => state.subscriptions);
 
-  const [activeTab, setActiveTab] = React.useState("1 months");
-  const [activeBillingCard, setActiveBillingCard] = React.useState("free");
-  const [dashboardData, setDashboardData] = React.useState({});
-  // const [userAds, setUserAds] = React.useState([]);
+  const [dashboardData, setDashboardData] = useState({});
+  const [currentInterval, setCurrentInterval] = useState({
+    interval: "month",
+    intervalCount: 1,
+  });
+  // const [userAds, setUserAds] = useState([]);
 
   useEffect(() => {
-    if (user.userCompanyId === null) {
+    if (user?.userCompanyId === null) {
       dispatch(getAuthenticatedUser());
     }
   }, []);
@@ -77,12 +76,38 @@ function Dashboard() {
     }
   };
 
+  const intervals = [{
+    interval: "month",
+    intervalCount: 1,
+  }, {
+    interval: "month",
+    intervalCount: 3,
+  }, {
+    interval: "month",
+    intervalCount: 6,
+  }, {
+    interval: "year",
+    intervalCount: 1,
+  }];
+
+  const isCurrentInterval = (interval) => (
+    interval.interval === currentInterval.interval && interval.intervalCount === currentInterval.intervalCount
+  );
+
+  const handleInterval = (interval) => {
+    setCurrentInterval({
+      interval: interval.interval,
+      intervalCount: interval.intervalCount,
+    });
+  };
+
   useEffect(() => {
     if (user.userCompanyId !== null) {
       getCompanyInfo();
       getDashboardInfo();
     }
-  }, [user]);
+    dispatch(listPlans(user?.userId !== null));
+  }, [user?.userId]);
 
   return (
     <div>
@@ -370,40 +395,87 @@ function Dashboard() {
       </Container>
 
       <Container>
-        {/* <BillingTabNavigation /> */}
         <div className="roboto-semi-bold-28px-h2 mb-5">My Subscriptions</div>
 
-        <div className="mb-5">
-          <BillingTabNavigation
-            activeTab={activeTab}
-            setActiveTab={setActiveTab}
-          />
-        </div>
+        <Row className="mx-0 mb-5">
+          <Col md={9} lg={5} className="mx-auto">
+            <Row className="mx-0 bg-white rounded">
+              {
+                intervals.map((interval) => (
+                  <Col sm={3} className="p-2 text-center" style={{ height: "56px" }}>
+                    <div
+                      className={`p-2 rounded interval ${isCurrentInterval(interval) ? "active-interval" : ""}`}
+                      onClick={() => handleInterval(interval)}
+                    >
+                      {`${interval.intervalCount} ${interval.interval}`}
+                    </div>
+                  </Col>
+                ))
+              }
+            </Row>
+          </Col>
+        </Row>
 
         <Row className="dashboard-billing-container">
           <Col xs={10} md={12} lg={12} xl={12}>
             <Row className="mb-5 d-flex justify-content-center align-items-center">
-              <BillingCard
-                icon={messagesIcon}
-                headingText="FREE"
-                subText="$10"
-                duration="mo"
-                backgroundColor="#F5F5F5"
-                activeBillingCard={activeBillingCard}
-                setActiveBillingCard={setActiveBillingCard}
-                border="1px solid #E9EDF7"
-              />
-              <BillingCard
-                icon={messagesIcon}
-                headingText="PRO"
-                subText="$20"
-                duration="mo"
-                backgroundColor="#FFFAD6"
-                activeBillingCard={activeBillingCard}
-                setActiveBillingCard={setActiveBillingCard}
-                border="1px solid #E9EDF7"
-              />
-              <BillingCard
+              <Col md={6} lg={3}>
+                <Card
+                  style={{
+                    backgroundColor: "#F5F5F5",
+                    border: "1px solid #E9EDF7",
+                    boxShadow: "0px 4px 4px 0px #00000040",
+                  }}
+                  className="custom-card-billing"
+                >
+                  <Card.Body>
+                    <div className="d-flex align-items-center">
+                      <div
+                        style={{
+                          width: "40px",
+                          height: "40px",
+                          backgroundColor: "rgb(234,121,186,0.1)",
+                          borderRadius: "50%",
+                          marginRight: "16px",
+                        }}
+                        className="d-flex justify-content-center align-items-center"
+                      >
+                        <img
+                          src={messagesIcon}
+                          alt="personalInfo"
+                          className="mb-4"
+                          style={{ marginTop: "24px" }}
+                        />
+                      </div>
+                      <div>FREE</div>
+                    </div>
+                    <Card.Text
+                      className="roboto-bold-36px-h1"
+                      style={{
+                        marginTop: "36px",
+                        fontSize: "32px",
+                        fontWeight: "400",
+                        marginBottom: "8px",
+                      }}
+                    >
+                      $0
+                    </Card.Text>
+                  </Card.Body>
+                </Card>
+              </Col>
+              {
+                plans.slice().reverse().map((plan, index) => (
+                  <BillingCard
+                    plan={plan}
+                    index={index + 1}
+                    currentInterval={currentInterval}
+                    currentSubscription={currentSubscription}
+                    setCurrentInterval={setCurrentInterval}
+                    icon={messagesIcon}
+                  />
+                ))
+              }
+              {/* <BillingCard
                 icon={messagesIcon}
                 headingText="BUSINESS"
                 subText="$30"
@@ -422,7 +494,7 @@ function Dashboard() {
                 activeBillingCard={activeBillingCard}
                 setActiveBillingCard={setActiveBillingCard}
                 border="1px solid #E9EDF7"
-              />
+              /> */}
             </Row>
           </Col>
         </Row>

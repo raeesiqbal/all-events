@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { createSubscription, updateSubscription } from "../redux/Subscriptions/SubscriptionsSlice";
 
 const Plan = ({
-  plan, index, currentInterval, currentSubscription,
+  plan, index, currentInterval, currentSubscription, setCurrentInterval,
 }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -36,14 +36,6 @@ const Plan = ({
     height: "16px",
   };
 
-  useEffect(() => {
-    setCurrentPlanPrice(
-      plan.prices.filter(
-        (price) => price.interval === currentInterval.interval && price.interval_count === currentInterval.intervalCount,
-      )[0],
-    );
-  }, [currentInterval]);
-
   const handlePlanSubscription = async () => {
     if (user.userId === null || (user.userId !== null && currentSubscription.priceId === "")) {
       dispatch(createSubscription({ price_id: currentPlanPrice?.price_id }));
@@ -57,6 +49,9 @@ const Plan = ({
         allowed_ads: plan.allowed_ads,
       };
       dispatch(updateSubscription(data));
+      setTimeout(() => {
+        navigate("/subscriptions");
+      }, 1000);
     }
   };
 
@@ -66,6 +61,23 @@ const Plan = ({
 
     return "Upgrade";
   };
+
+  useEffect(() => {
+    setCurrentPlanPrice(
+      plan.prices.filter(
+        (price) => price.interval === currentInterval.interval && price.interval_count === currentInterval.intervalCount,
+      )[0],
+    );
+  }, [currentInterval]);
+
+  useEffect(() => {
+    if (user?.userId !== null && currentSubscription.priceId === currentPlanPrice?.price_id) {
+      setCurrentInterval({
+        interval: currentPlanPrice.interval,
+        intervalCount: currentPlanPrice.interval_count,
+      });
+    }
+  }, [user?.userId, currentSubscription.priceId, currentPlanPrice]);
 
   return (
     currentPlanPrice?.unit_price && (
