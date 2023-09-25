@@ -73,11 +73,11 @@ const Plans = () => {
         <h1 className="mb-5 fw-bold ps-2">Plans</h1>
         <h3 className="mb-4 fw-bold w-100 text-center">Please select the subscription period</h3>
         <Row className="mx-0">
-          <Col md={4} className="mx-auto">
-            <Row className="mx-0 bg-white rounded" style={{ height: "56px" }}>
+          <Col md={9} lg={5} className="mx-auto">
+            <Row className="mx-0 bg-white rounded">
               {
                 intervals.map((interval) => (
-                  <Col sm={3} className="p-2 text-center">
+                  <Col sm={3} className="p-2 text-center" style={{ height: "56px" }}>
                     <div
                       className={`p-2 rounded interval ${isCurrentInterval(interval) ? "active-interval" : ""}`}
                       onClick={() => handleInterval(interval)}
@@ -92,7 +92,7 @@ const Plans = () => {
         </Row>
         <Row className="my-5 mx-0">
           {plans.slice().reverse().map((plan, index) => (
-            <Plan plan={plan} index={index} currentInterval={currentInterval} currentSubscription={currentSubscription} />
+            <Plan plan={plan} index={index + 1} currentInterval={currentInterval} currentSubscription={currentSubscription} />
           ))}
         </Row>
       </Container>
