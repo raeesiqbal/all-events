@@ -35,7 +35,7 @@ function ContactInformationForm({ values, errors, touched, handleChange }) {
 
       <Row className="mb-3">
         <Col lg={4}>
-          <Form.Group className="mb-4" controlId="form3Example3">
+          <Form.Group className="mb-4" controlId="form4Example9">
             <Form.Label
               className="roboto-medium-20px-body1"
               style={{ marginBottom: "20px" }}
@@ -45,7 +45,7 @@ function ContactInformationForm({ values, errors, touched, handleChange }) {
                 alt="commercialName"
                 style={{ marginRight: "16px" }}
               />
-              Number
+              Contact Person
             </Form.Label>
             <Form.Control
               style={{ height: "56px" }}
@@ -65,7 +65,7 @@ function ContactInformationForm({ values, errors, touched, handleChange }) {
           </Form.Group>
         </Col>
         <Col lg={4}>
-          <Form.Group className="mb-4" controlId="form3Example3">
+          <Form.Group className="mb-4" controlId="form4Example10">
             <Form.Label
               className="roboto-medium-20px-body1"
               style={{ marginBottom: "20px" }}
@@ -97,7 +97,7 @@ function ContactInformationForm({ values, errors, touched, handleChange }) {
       </Row>
       <Row className="mb-3">
         <Col lg={4}>
-          <Form.Group className="form-group mb-3" controlId="form3Example6">
+          <Form.Group className="form-group mb-3" controlId="form4Example5">
             <Form.Label
               className="roboto-medium-20px-body1"
               style={{ marginBottom: "20px" }}
@@ -137,7 +137,7 @@ function ContactInformationForm({ values, errors, touched, handleChange }) {
           </Form.Group>
         </Col>
         <Col lg={4}>
-          <Form.Group className="mb-4" controlId="form3Example3">
+          <Form.Group className="mb-4" controlId="form4Example6">
             <Form.Label
               className="roboto-medium-20px-body1"
               style={{ marginBottom: "20px" }}
@@ -169,7 +169,7 @@ function ContactInformationForm({ values, errors, touched, handleChange }) {
       </Row>
       <Row className="mb-3">
         <Col lg={4}>
-          <Form.Group className="mb-4" controlId="form3Example3">
+          <Form.Group className="mb-4" controlId="form4Example7">
             <Form.Label
               className="roboto-medium-20px-body1"
               style={{ marginBottom: "20px" }}
@@ -201,7 +201,7 @@ function ContactInformationForm({ values, errors, touched, handleChange }) {
       </Row>
       <Row className="mb-3">
         <Col lg={8}>
-          <Form.Group className="mb-4" controlId="form3Example3">
+          <Form.Group className="mb-4" controlId="form4Example8">
             <Form.Label
               className="roboto-medium-20px-body1"
               style={{ marginBottom: "20px" }}

@@ -6,6 +6,7 @@ import { Button, Card, Col, Container, Modal, Row } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import dayjs from "dayjs";
+import { Tooltip } from "@mui/material";
 import Header from "../../components/Navbar/Navbar";
 import placeholderIcon from "../../assets/images/placeholder.jpg";
 import TimeIcon from "../../assets/images/post-ad/carbon_time.svg";
@@ -123,6 +124,7 @@ function MyAds() {
             sortedAdvertisements.map((product) => {
               const {
                 id,
+                name,
                 sub_category,
                 created_at,
                 country,
@@ -141,7 +143,11 @@ function MyAds() {
                               : placeholderIcon
                           }
                           alt="AdTemp"
-                          style={{ height: "100%", maxHeight: "330px", objectFit: "cover" }}
+                          style={{
+                            height: "100%",
+                            maxHeight: "330px",
+                            objectFit: "cover",
+                          }}
                         />
                       </Col>
                       <Col
@@ -155,7 +161,7 @@ function MyAds() {
                               <Card.Title style={{ marginBottom: "8px" }}>
                                 <div className="d-flex justify-content-between">
                                   <div className="roboto-semi-bold-28px-h2">
-                                    Ad Category
+                                    {name}
                                   </div>
                                   <div
                                     className="roboto-regular-14px-information text-white"
@@ -187,9 +193,10 @@ function MyAds() {
                                   maxWidth: "70%",
                                 }}
                               >
-                                {
-                                  description && (description.length > 200 ? `${description.slice(0, 200)}...` : description)
-                                }
+                                {description &&
+                                  (description.length > 200
+                                    ? `${description.slice(0, 200)}...`
+                                    : description)}
                               </Card.Text>
                             </div>
 
@@ -210,30 +217,38 @@ function MyAds() {
                                   {country.name}
                                 </div>
                                 <div>
-                                  <img
-                                    src={editIcon}
-                                    alt="editIcon"
-                                    className="me-3"
-                                    onClick={() => navigate(`/edit-ad/${id}`)}
-                                    style={{ cursor: "pointer" }}
-                                  />
-                                  <img
-                                    src={deleteIcon}
-                                    alt="deleteIcon"
-                                    className="me-3"
-                                    onClick={() => {
-                                      setModalShow(true);
-                                      setCurrentAdId(id);
-                                    }}
-                                    style={{ cursor: "pointer" }}
-                                  />
-                                  <img
-                                    src={gotoIcon}
-                                    alt="gotoIcon"
-                                    className="me-3"
-                                    onClick={() => navigate(`/view-ad/${id}`)}
-                                    style={{ cursor: "pointer" }}
-                                  />
+                                  <Tooltip title="Edit" placement="top">
+                                    <img
+                                      src={editIcon}
+                                      alt="editIcon"
+                                      className="me-3"
+                                      onClick={() => navigate(`/edit-ad/${id}`)}
+                                      style={{ cursor: "pointer" }}
+                                    />
+                                  </Tooltip>
+
+                                  <Tooltip title="Delete" placement="top">
+                                    <img
+                                      src={deleteIcon}
+                                      alt="deleteIcon"
+                                      className="me-3"
+                                      onClick={() => {
+                                        setModalShow(true);
+                                        setCurrentAdId(id);
+                                      }}
+                                      style={{ cursor: "pointer" }}
+                                    />
+                                  </Tooltip>
+
+                                  <Tooltip title="View" placement="top">
+                                    <img
+                                      src={gotoIcon}
+                                      alt="gotoIcon"
+                                      className="me-3"
+                                      onClick={() => navigate(`/view-ad/${id}`)}
+                                      style={{ cursor: "pointer" }}
+                                    />
+                                  </Tooltip>
                                   {/* {
                                     user.role === "client" && (
                                       <img

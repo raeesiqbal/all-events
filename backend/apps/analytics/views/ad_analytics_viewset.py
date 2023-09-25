@@ -1,4 +1,10 @@
 # imports
+from apps.ads.serializers.get_serializers import AdDashboardSerializer
+from apps.subscriptions.models import Subscription
+from apps.subscriptions.serializers.get_serializer import (
+    SubscriptionDashboardSerializer,
+)
+from apps.users.serializers import GetUserDashboardSerializer
 from apps.utils.constants import DATE_RANGE_MAPPING
 from apps.utils.views.base import BaseViewset, ResponseInfo
 from rest_framework.decorators import action
@@ -11,6 +17,7 @@ from datetime import timedelta
 from django.db.models.functions import TruncDate
 from django.utils import timezone
 from datetime import timedelta
+from django.db.models import Sum, F
 
 # filters
 from django_filters.rest_framework.backends import DjangoFilterBackend
@@ -51,6 +58,7 @@ class AnalyticViewSet(BaseViewset):
         "fetch_fav_analytics": [IsAuthenticated, IsVendorUser],
         "fetch_review_analytics": [IsAuthenticated, IsVendorUser],
         "fetch_messages_analytics": [IsAuthenticated, IsVendorUser],
+        "vendor_dashboard": [IsAuthenticated, IsVendorUser],
     }
 
     @action(detail=False, url_path="home", methods=["get"])
@@ -185,6 +193,44 @@ class AnalyticViewSet(BaseViewset):
                     "start_period": DATE_RANGE_MAPPING[date_range],
                     "end_period": timezone.now(),
                 },
+                status_code=status.HTTP_200_OK,
+                message="Message Analytics",
+            ),
+        )
+
+    @action(detail=False, url_path="dashboard", methods=["get"])
+    def vendor_dashboard(self, request, *args, **kwargs):
+        messages_count = Message.objects.filter(
+            chat__ad__company__user=request.user
+        ).count()
+        vendor_chats = Chat.objects.filter(ad__company__user=request.user)
+        unread_chats = vendor_chats.filter(is_read_vendor=False).count()
+        reviews_count = AdReview.objects.filter(ad__company__user=request.user).count()
+        vendor_ads = Ad.objects.filter(company__user=request.user)
+        vendor_ad_views = vendor_ads.aggregate(ads_total_views=Sum(F("total_views")))[
+            "ads_total_views"
+        ]
+        fav_ads_count = FavouriteAd.objects.filter(
+            ad__company__user=request.user
+        ).count()
+        sub = Subscription.objects.filter(company__user=request.user).first()
+        vendor_sub_detail = SubscriptionDashboardSerializer(sub).data
+        my_ads = AdDashboardSerializer(vendor_ads, many=True).data
+        user_details = GetUserDashboardSerializer(request.user).data
+
+        data = {
+            "total_messages": messages_count,
+            "total_reviews": reviews_count,
+            "total_views": vendor_ad_views,
+            "total_saves": fav_ads_count,
+            "my_ads": my_ads,
+            "user_details": user_details,
+        }
+
+        return Response(
+            status=status.HTTP_200_OK,
+            data=ResponseInfo().format_response(
+                data=data,
                 status_code=status.HTTP_200_OK,
                 message="Message Analytics",
             ),

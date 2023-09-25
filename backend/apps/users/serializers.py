@@ -31,8 +31,7 @@ class UpdateProfileSerializer(serializers.ModelSerializer):
 
 
 class GetUserSerializer(serializers.ModelSerializer):
-
-    user_company=CompanyListSerializer()
+    user_company = CompanyListSerializer()
 
     class Meta:
         model = User
@@ -45,7 +44,7 @@ class GetUserSerializer(serializers.ModelSerializer):
             "role_type",
             "date_joined",
             "phone",
-            'user_company'
+            "user_company",
         ]
 
 
@@ -86,10 +85,15 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         return data
 
 
-
 class ValidatePasswordSerializer(serializers.ModelSerializer):
     password = serializers.CharField()
 
     class Meta:
         model = User
         fields = ["password"]
+
+
+class GetUserDashboardSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["email", "first_name", "last_name", "phone", "image"]

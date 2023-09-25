@@ -363,3 +363,33 @@ class SubCategoryKeywordSerializer(BaseSerializer):
     class Meta:
         model = SubCategory
         fields = "__all__"
+
+
+class AdDashboardSerializer(BaseSerializer):
+    ad_image = serializers.SerializerMethodField("get_ad_image")
+    sub_category = serializers.SerializerMethodField()
+    status = serializers.SerializerMethodField()
+
+    def get_ad_image(self, obj):
+        gallery = Gallery.objects.filter(ad=obj).first()
+
+        return (
+            gallery.media_urls.get("images")[0]
+            if gallery.media_urls.get("images") and gallery.media_urls.get("images")[0]
+            else None
+        )
+
+    def get_sub_category(self, obj):
+        return obj.sub_category.name
+
+    def get_status(self, obj):
+        return "Active"
+
+    class Meta:
+        model = Ad
+        fields = [
+            "name",
+            "ad_image",
+            "sub_category",
+            "status",
+        ]

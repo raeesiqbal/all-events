@@ -32,7 +32,7 @@ export const handleStartChat = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  },
+  }
 );
 
 export const listChats = createAsyncThunk(
@@ -54,7 +54,7 @@ export const listChats = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  },
+  }
 );
 
 export const archiveChat = createAsyncThunk(
@@ -72,7 +72,7 @@ export const archiveChat = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  },
+  }
 );
 
 export const readChat = createAsyncThunk(
@@ -90,7 +90,7 @@ export const readChat = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  },
+  }
 );
 
 export const chatsSuggestionList = createAsyncThunk(
@@ -107,7 +107,7 @@ export const chatsSuggestionList = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  },
+  }
 );
 
 export const deleteChat = createAsyncThunk(
@@ -125,7 +125,7 @@ export const deleteChat = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  },
+  }
 );
 
 // Create the ChatsSlice
@@ -221,9 +221,7 @@ export const ChatsSlice = createSlice({
   },
 });
 
-export const {
-  handleResgisterationStatus,
-} = ChatsSlice.actions;
+export const { handleResgisterationStatus } = ChatsSlice.actions;
 
 // Export the reducer and actions
 export default ChatsSlice.reducer;

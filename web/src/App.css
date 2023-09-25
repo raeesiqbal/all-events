@@ -93,16 +93,13 @@
   border: 1px solid #797979;
 }
 .form-control:focus {
-  /* border-color: rgba(103, 80, 164, 1); */
-  border-color: rgba(151, 71, 255, 1);
-  /* box-shadow: none; */
-  box-shadow: 0 0 3px rgba(151, 71, 255, 1);
+  border-color: #76af71;
+  box-shadow: 0 0 3px #76af71;
 }
 
 .form-select:focus {
-  border-color: rgba(151, 71, 255, 1);
-  /* box-shadow: none; */
-  box-shadow: 0 0 3px rgba(151, 71, 255, 1);
+  border-color: #76af71;
+  box-shadow: 0 0 3px #76af71;
 }
 
 .card {

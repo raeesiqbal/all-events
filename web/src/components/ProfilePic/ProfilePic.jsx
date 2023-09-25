@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCamera } from "@fortawesome/fontawesome-free-solid";
-import { CircularProgress } from "@mui/material";
+import { CircularProgress, useMediaQuery } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
-import defaultuserIcon from "../../assets/images/profile-settings/user.svg";
+// import defaultuserIcon from "../../assets/images/profile-settings/user.svg";
+import defaultuserIcon from "../../assets/images/user-icon.png";
 import {
   editCompanyInformation,
   setSelectedImage,
@@ -11,30 +12,24 @@ import {
 import "./ProfilePic.css";
 import { secureInstance } from "../../axios/config";
 
-const ProfilePic = () => {
+const ProfilePic = (props) => {
   const [loadingImage, setLoadingImage] = useState(false);
   // const [selectedImage, setSelectedImage] = useState(null);
 
   const { userImage } = useSelector((state) => state.auth.user);
   const selectedImage = useSelector((state) => state.settings.selectedImage);
   const companyInformation = useSelector(
-    (state) => state.settings.companyInformation,
+    (state) => state.settings.companyInformation
   );
 
   const dispatch = useDispatch();
+  // const media = useMediaQuery;
+  const matchesMobile = useMediaQuery("(min-width:475px)");
 
-  // const updateNewProfilePic = (imageUrl) => {
-  //   const updateCompanyWithNewProfilePic = {
-  //     ...companyInformation,
-  //     image: imageUrl,
-  //   };
-  //   dispatch(
-  //     editCompanyInformation({
-  //       data: updateCompanyWithNewProfilePic,
-  //       id: companyInformation.id,
-  //     })
-  //   );
-  // };
+  const isMobileAndDashboard = props.dashboard && !matchesMobile;
+
+  // console.log(useMediaQuery);
+
   const updateNewProfilePic = (imageUrl) => {
     const updatedUser = {
       ...companyInformation.user,
@@ -51,7 +46,7 @@ const ProfilePic = () => {
       editCompanyInformation({
         data: updateCompanyWithNewProfilePic,
         id: companyInformation.id,
-      }),
+      })
     );
   };
 
@@ -82,11 +77,23 @@ const ProfilePic = () => {
     e.target.value = "";
   };
   return (
-    <div className="d-flex profile-pic-container">
+    <div
+      className="d-flex profile-pic-container"
+      style={{
+        left: props.dashboard && "20px",
+        top: props.dashboard && "20px",
+      }}
+    >
       <label htmlFor="file-input" style={{ cursor: "pointer" }}>
         {loadingImage && (
           <>
-            <div className="d-flex justify-content-center align-items-center loading-image-container" />
+            <div
+              className="d-flex justify-content-center align-items-center loading-image-container"
+              style={{
+                left: props.dashboard && "0px",
+                top: props.dashboard && "0px",
+              }}
+            />
 
             <CircularProgress className="circular-loader" />
           </>
@@ -95,6 +102,14 @@ const ProfilePic = () => {
         {selectedImage !== null || userImage !== null ? (
           <img
             className="selected-image"
+            style={{
+              width: isMobileAndDashboard
+                ? "150px"
+                : props.dashboard && "196px",
+              height: isMobileAndDashboard
+                ? "150px"
+                : props.dashboard && "196px",
+            }}
             src={
               selectedImage === null
                 ? userImage
@@ -103,14 +118,28 @@ const ProfilePic = () => {
             alt=""
           />
         ) : (
-          <img className="selected-image" src={defaultuserIcon} alt="" />
+          <img
+            className="selected-image"
+            src={defaultuserIcon}
+            alt=""
+            style={{
+              width: isMobileAndDashboard
+                ? "150px"
+                : props.dashboard && "196px",
+              height: isMobileAndDashboard
+                ? "150px"
+                : props.dashboard && "196px",
+            }}
+          />
         )}
 
-        <div className="camera-icon-container">
-          <FontAwesomeIcon
-            icon={faCamera}
-            style={{ color: "black" }}
-          />
+        <div
+          className="camera-icon-container"
+          style={{
+            left: isMobileAndDashboard ? "110px" : props.dashboard && "142px",
+          }}
+        >
+          <FontAwesomeIcon icon={faCamera} style={{ color: "black" }} />
         </div>
       </label>
 
