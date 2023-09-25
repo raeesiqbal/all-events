@@ -104,19 +104,30 @@ class SubscriptionsViewSet(BaseViewset):
                         if price["price_id"] == user_scription.price_id:
                             current_subscription_price = price
                             break
-                    break
                 current_subscription = {
                     "price_id": current_subscription_price["price_id"],
-                    "subscription_id": user_scription.subscription_id
+                    "subscription_id": user_scription.subscription_id,
                 }
 
         free_plan = {
+            "id": "freeplan",
             "name": "FREE",
-            "unit_price": 0,
+            "allowed_ads": "1",
+            "description": "I am Free Plan",
+            "prices": [
+                {
+                    "unit_price": 0,
+                    "currency": "usd",
+                    "interval": "month",
+                    "interval_count": 3,
+                }
+            ],
             "features": [
-                {"name": "[sdsdsdd](sdsdsd sds ds dsdsd)"},
-                {"name": "[sdsdsdd](sdsdsd sds ds dsdsd)"},
-                {"name": "[sdsdsdd](sdsdsd sds ds dsdsd)"},
+                {"name": "[Validity 90 Days](This plan is valid for 90 days)"},
+                {"name": "[Ads Allowed 1](You can post only ad)"},
+                {
+                    "name": "[Limited Access](This plan supports very limited access to our premium features)"
+                },
             ],
         }
 
@@ -274,11 +285,11 @@ class SubscriptionsViewSet(BaseViewset):
             )
 
             if s.status == "active":
-                if retrieve_product == 1:
+                if int(retrieve_product.metadata.allowed_ads) == 1:
                     updated_type = SUBSCRIPTION_TYPES["STANDARD"]
-                elif retrieve_product == 2:
+                elif int(retrieve_product.metadata.allowed_ads) == 2:
                     updated_type = SUBSCRIPTION_TYPES["ADVANCED"]
-                if retrieve_product == 3:
+                if int(retrieve_product.metadata.allowed_ads) == 3:
                     updated_type = SUBSCRIPTION_TYPES["FEATURED"]
                 updated_type = SubscriptionType.objects.filter(
                     type=updated_type
@@ -287,14 +298,6 @@ class SubscriptionsViewSet(BaseViewset):
                 subscription.type = updated_type
                 subscription.price_id = s["items"].data[0].price.id
                 subscription.unit_amount = s["items"].data[0].price.unit_amount
-                subscription.latest_invoice_id = s.latest_invoice.id
-                subscription.client_secret = (
-                    s.latest_invoice.payment_intent.client_secret
-                )
-                subscription.latest_invoice_id = s.latest_invoice.id
-                subscription.client_secret = (
-                    s.latest_invoice.payment_intent.client_secret
-                )
                 subscription.save()
 
         if event_type == "invoice.payment_failed":
@@ -315,6 +318,7 @@ class SubscriptionsViewSet(BaseViewset):
     def update_subscription(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+
         subscription_id = serializer.validated_data.pop("subscription_id")
         price_id = serializer.validated_data.pop("price_id")
         allowed_ads = serializer.validated_data.pop("allowed_ads")
@@ -329,6 +333,7 @@ class SubscriptionsViewSet(BaseViewset):
 
         if int(retrieve_old_product.metadata.allowed_ads) > allowed_ads:
             vendor_ads = Ad.objects.filter(company=request.user.user_company).count()
+
             if vendor_ads > allowed_ads:
                 return Response(
                     status=status.HTTP_200_OK,
@@ -340,7 +345,7 @@ class SubscriptionsViewSet(BaseViewset):
                 )
 
         update_subscription = self.stripe_service.update_subscription(
-            subscription_id, price_id
+            subscription_id, retrieve_subscription["items"].data[0].id, price_id
         )
 
         if update_subscription:
