@@ -24,7 +24,7 @@ function Chats() {
     chats, inboxCount, archivedCount, suggestionsList, loading,
   } = useSelector((state) => state.chats);
 
-  const limit = 3;
+  const limit = 10;
   const [offset, setOffset] = React.useState(0);
   const [activeTab, setActiveTab] = React.useState("Inbox");
   const [adName, setAdName] = React.useState("");

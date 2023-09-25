@@ -67,7 +67,7 @@ const Chat = ({ chat, isOpenChat }) => {
     }
     setMessageText("");
     setAttachment(null);
-    dispatch(listChatMessages({ id: chat.id, limit: 1, offset: 0 }));
+    dispatch(listChatMessages({ id: chat.id, limit: 10, offset: 0 }));
   };
 
   const handleKeyPress = (event) => {

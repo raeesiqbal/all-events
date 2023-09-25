@@ -19,7 +19,7 @@ const initialState = {
       count: 0,
       offset: 0,
       page: 1,
-      limit: 1,
+      limit: 10,
       next: null,
       previous: null,
     },
