@@ -255,15 +255,20 @@ class SubscriptionsViewSet(BaseViewset):
                 company__user__email=request.user.email,
                 status=SUBSCRIPTION_STATUS["ACTIVE"],
             ).first()
-            retrive_subscription = self.stripe_service.retrieve_subscription(
-                my_subscriptions.subscription_id
-            )
             cancel_date = None
-            if retrive_subscription.cancel_at_period_end:
-                dt_object = datetime.datetime.utcfromtimestamp(
-                    retrive_subscription.cancel_at
+            cancel_at_period_end = None
+
+            if my_subscriptions.subscription_id:
+                retrive_subscription = self.stripe_service.retrieve_subscription(
+                    my_subscriptions.subscription_id
                 )
-                cancel_date = dt_object.strftime("%Y-%m-%d %H:%M:%S UTC")
+                if retrive_subscription.cancel_at_period_end:
+                    dt_object = datetime.datetime.utcfromtimestamp(
+                        retrive_subscription.cancel_at
+                    )
+                    cancel_date = dt_object.strftime("%Y-%m-%d %H:%M:%S UTC")
+                    cancel_at_period_end = retrive_subscription.cancel_at_period_end
+
             serializer = self.get_serializer(my_subscriptions).data
 
             return Response(
@@ -271,7 +276,7 @@ class SubscriptionsViewSet(BaseViewset):
                 data=ResponseInfo().format_response(
                     data={
                         "current_subscription": serializer,
-                        "cancel_at_period_end": retrive_subscription.cancel_at_period_end,
+                        "cancel_at_period_end": cancel_at_period_end,
                         "cancel_at": cancel_date,
                     },
                     status_code=status.HTTP_200_OK,
@@ -334,28 +339,31 @@ class SubscriptionsViewSet(BaseViewset):
                     type=updated_type
                 ).first()
 
-            if Subscription.objects.filter(company=company).exists():
-                subscription = Subscription.objects.filter(company=company).first()
-                subscription.subscription_id = retrieve_subscription.id
-                subscription.stripe_customer_id = data_object.customer
-                subscription.status = SUBSCRIPTION_STATUS["ACTIVE"]
-                subscription.type = updated_type
-                subscription.price_id = retrieve_subscription["items"].data[0].price.id
-                subscription.unit_amount = (
-                    retrieve_subscription["items"].data[0].price.unit_amount
-                )
-                subscription.save()
-            else:
-                Subscription.objects.create(
-                    subscription_id=retrieve_subscription.id,
-                    stripe_customer_id=data_object.customer,
-                    status=SUBSCRIPTION_STATUS["ACTIVE"],
-                    type=updated_type,
-                    unit_amount=(
+                if Subscription.objects.filter(company=company).exists():
+                    subscription = Subscription.objects.filter(company=company).first()
+                    subscription.subscription_id = retrieve_subscription.id
+                    subscription.stripe_customer_id = data_object.customer
+                    subscription.status = SUBSCRIPTION_STATUS["ACTIVE"]
+                    subscription.type = updated_type
+                    subscription.price_id = (
+                        retrieve_subscription["items"].data[0].price.id
+                    )
+                    subscription.unit_amount = (
                         retrieve_subscription["items"].data[0].price.unit_amount
-                    ),
-                    price_id=retrieve_subscription["items"].data[0].price.id,
-                )
+                    )
+                    subscription.save()
+                else:
+                    Subscription.objects.create(
+                        company=company,
+                        subscription_id=retrieve_subscription.id,
+                        stripe_customer_id=data_object.customer,
+                        status=SUBSCRIPTION_STATUS["ACTIVE"],
+                        type=updated_type,
+                        unit_amount=(
+                            retrieve_subscription["items"].data[0].price.unit_amount
+                        ),
+                        price_id=retrieve_subscription["items"].data[0].price.id,
+                    )
 
         if event_type == "invoice.payment_failed":
             # If the payment fails or the customer does not have a valid payment method,
