@@ -67,6 +67,13 @@ class StripeService:
         # except Exception as ex:
         #     return None
 
+    def list_subscriptions_all(self, customer_id):
+        # try:
+        subscriptions = stripe.Subscription.list(customer=customer_id)
+        return subscriptions
+        # except Exception as ex:
+        #     return None
+
     def retrieve_subscription(self, subscription_id):
         return stripe.Subscription.retrieve(subscription_id)
 

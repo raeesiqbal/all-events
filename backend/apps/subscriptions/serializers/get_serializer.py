@@ -3,6 +3,7 @@ from apps.clients.models import Client
 from apps.users.models import User
 from apps.utils.serializers.base import BaseSerializer
 from apps.subscriptions.models import Subscription, SubscriptionType
+from apps.subscriptions.stripe_service import StripeService
 
 
 class TestSerializer(BaseSerializer):
@@ -17,7 +18,7 @@ class SubscriptionTypeChildSerializer(BaseSerializer):
         fields = "__all__"
 
 
-class MySubscriptionsSerializer(BaseSerializer):
+class CurrentSubscriptionSerializer(BaseSerializer):
     type = SubscriptionTypeChildSerializer()
 
     class Meta:

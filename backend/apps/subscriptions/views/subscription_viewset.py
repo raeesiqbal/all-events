@@ -29,7 +29,7 @@ from apps.subscriptions.serializers.create_serializer import (
 )
 from apps.subscriptions.serializers.get_serializer import (
     TestSerializer,
-    MySubscriptionsSerializer,
+    CurrentSubscriptionSerializer,
 )
 
 from apps.subscriptions.serializers.update_serializer import (
@@ -51,7 +51,7 @@ class SubscriptionsViewSet(BaseViewset):
         "cancel_subscription": CancelSubscriptionSerializer,
         "resume_subscription": CancelSubscriptionSerializer,
         "product_subscription_list": InputPriceIdSerializer,
-        "my_subscriptions": MySubscriptionsSerializer,
+        "current_subscription": CurrentSubscriptionSerializer,
     }
     action_permissions = {
         "default": [],
@@ -61,6 +61,7 @@ class SubscriptionsViewSet(BaseViewset):
         "resume_subscription": [IsAuthenticated, IsVendorUser],
         "subscription_success": [IsAuthenticated, IsVendorUser],
         "my_subscriptions": [IsAuthenticated, IsVendorUser],
+        "current_subscription": [IsAuthenticated, IsVendorUser],
     }
     stripe_service = StripeService()
     webhook_service = WebHookService()
@@ -247,6 +248,59 @@ class SubscriptionsViewSet(BaseViewset):
 
     @action(detail=False, url_path="my-subscriptions", methods=["get"])
     def my_subscriptions(self, request, *args, **kwargs):
+        data = []
+        subscriptions = self.stripe_service.list_subscriptions_all(
+            request.user.user_company.stripe_customer_id
+        )
+        if subscriptions:
+            for i in subscriptions:
+                if i.status == "active" or i.status == "canceled":
+                    if i.cancel_at:
+                        cancel_date = datetime.datetime.utcfromtimestamp(
+                            i.cancel_at
+                        ).strftime("%Y-%m-%d %H:%M:%S UTC")
+                    else:
+                        cancel_date = None
+                    amount = i["items"].data[0].price.unit_amount / 100
+                    if i.current_period_end:
+                        next_payment_date = datetime.datetime.utcfromtimestamp(
+                            i.current_period_end
+                        ).strftime("%Y-%m-%d %H:%M:%S UTC")
+                    else:
+                        next_payment_date = None
+                    dic = {
+                        "subscription_id": i.id,
+                        "amount": amount,
+                        "next_payment": next_payment_date,
+                        "price_id": i["items"].data[0].price.id,
+                        "interval": i["items"].data[0].price.recurring.interval,
+                        "interval_count": i["items"]
+                        .data[0]
+                        .price.recurring.interval_count,
+                        "cancel_at_period_end": i.cancel_at_period_end,
+                        "cancel_date": cancel_date,
+                        "status": i.status,
+                    }
+                    data.append(dic)
+            return Response(
+                status=status.HTTP_200_OK,
+                data=ResponseInfo().format_response(
+                    data=data,
+                    status_code=status.HTTP_200_OK,
+                    message="My subscriptions",
+                ),
+            )
+        return Response(
+            status=status.HTTP_200_OK,
+            data=ResponseInfo().format_response(
+                data=None,
+                status_code=status.HTTP_200_OK,
+                message="My subscriptions",
+            ),
+        )
+
+    @action(detail=False, url_path="current-subscription", methods=["get"])
+    def current_subscription(self, request, *args, **kwargs):
         if Subscription.objects.filter(
             company__user__email=request.user.email,
             status=SUBSCRIPTION_STATUS["ACTIVE"],
@@ -255,32 +309,14 @@ class SubscriptionsViewSet(BaseViewset):
                 company__user__email=request.user.email,
                 status=SUBSCRIPTION_STATUS["ACTIVE"],
             ).first()
-            cancel_date = None
-            cancel_at_period_end = None
-
-            if my_subscriptions.subscription_id:
-                retrive_subscription = self.stripe_service.retrieve_subscription(
-                    my_subscriptions.subscription_id
-                )
-                if retrive_subscription.cancel_at_period_end:
-                    dt_object = datetime.datetime.utcfromtimestamp(
-                        retrive_subscription.cancel_at
-                    )
-                    cancel_date = dt_object.strftime("%Y-%m-%d %H:%M:%S UTC")
-                    cancel_at_period_end = retrive_subscription.cancel_at_period_end
-
             serializer = self.get_serializer(my_subscriptions).data
 
             return Response(
                 status=status.HTTP_200_OK,
                 data=ResponseInfo().format_response(
-                    data={
-                        "current_subscription": serializer,
-                        "cancel_at_period_end": cancel_at_period_end,
-                        "cancel_at": cancel_date,
-                    },
+                    data=serializer,
                     status_code=status.HTTP_200_OK,
-                    message="My subscriptions",
+                    message="Current subscription",
                 ),
             )
         return Response(
