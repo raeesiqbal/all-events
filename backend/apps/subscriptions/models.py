@@ -49,17 +49,11 @@ class Subscription(NewAbstractModel):
         on_delete=models.CASCADE,
     )
     subscription_id = models.TextField(_("Subscription Id"), null=True, blank=True)
-    # customer
-    stripe_customer_id = models.TextField(null=True, blank=True)
-    # cancellation
-    canceled_at = models.TextField(_("Canceled At"), null=True, blank=True)
-    # price
-    price_id = models.TextField(_("Plan Id"), null=True, blank=True)
+    stripe_customer_id = models.TextField(
+        _("Stripe Customer Id"), null=True, blank=True
+    )
+    price_id = models.TextField(_("Price Id"), null=True, blank=True)
     unit_amount = models.TextField(_("Unit Amount"), null=True, blank=True)
-    # Invoice
-    latest_invoice_id = models.TextField(_("Latest Invoice Id"), null=True, blank=True)
-    client_secret = models.TextField(_("Client Secret"), null=True, blank=True)
-    # status
     status = models.CharField(
         _("Status"), choices=SUBSCRIPTION_STATUS, max_length=50, null=True, blank=True
     )

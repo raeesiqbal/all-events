@@ -24,8 +24,10 @@ class MySubscriptionsSerializer(BaseSerializer):
         model = Subscription
         fields = "__all__"
 
+
 class SubscriptionDashboardSerializer(BaseSerializer):
     type = SubscriptionTypeChildSerializer()
+
     class Meta:
         model = Subscription
         fields = "__all__"

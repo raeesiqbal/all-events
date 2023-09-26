@@ -58,6 +58,15 @@ class StripeService:
     def retrieve_product_price(self, default_price):
         return stripe.Price.retrieve(default_price)
 
+    def list_subscriptions(self, customer_id):
+        # try:
+        subscriptions = stripe.Subscription.list(
+            customer=customer_id, status="incomplete"
+        )
+        return subscriptions
+        # except Exception as ex:
+        #     return None
+
     def retrieve_subscription(self, subscription_id):
         return stripe.Subscription.retrieve(subscription_id)
 
@@ -167,9 +176,20 @@ class StripeService:
 
     def cancel_subscription(self, subscription_id):
         try:
-            cancel_subscription = stripe.Subscription.cancel(
+            cancel_subscription = stripe.Subscription.modify(
                 subscription_id,
+                cancel_at_period_end=True,
             )
             return cancel_subscription
+        except Exception as ex:
+            return None
+
+    def resume_subscription(self, subscription_id):
+        try:
+            resume_subscription = stripe.Subscription.modify(
+                subscription_id,
+                cancel_at_period_end=False,
+            )
+            return resume_subscription
         except Exception as ex:
             return None
