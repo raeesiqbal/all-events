@@ -29,4 +29,3 @@ class NewAbstractModel(Model):
 
     class Meta:
         abstract = True
-        ordering = ["-id"]

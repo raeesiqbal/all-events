@@ -89,7 +89,7 @@ class MessageViewSet(BaseViewset):
         "ad__name",
         "event_date",
     ]
-    ordering_fields = ["id"]
+    # ordering_fields = ["id"]
     filterset_fields = {
         "client__user__first_name": ["exact"],
         "ad__name": ["exact"],
@@ -208,7 +208,6 @@ class MessageViewSet(BaseViewset):
             chat = Chat.objects.filter(id=kwargs.get("pk")).first()
             chat.is_delete_client = False
             chat.is_delete_vendor = False
-            chat.is_read_client = True
             chat.save()
 
             if request.user.role_type == USER_ROLE_TYPES["CLIENT"]:
@@ -231,7 +230,7 @@ class MessageViewSet(BaseViewset):
                     "image": chat.ad.company.user.image,
                 }
 
-            messages = Message.objects.filter(chat=chat).order_by("-created_at")
+            messages = Message.objects.filter(chat=chat)
 
             page = self.paginate_queryset(messages)
 
@@ -328,12 +327,21 @@ class MessageViewSet(BaseViewset):
     @action(detail=True, url_path="message-create", methods=["post"])
     def message_create(self, request, *args, **kwargs):
         chat = Chat.objects.filter(id=kwargs.get("pk")).first()
+
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         message = Message.objects.create(
             **serializer.validated_data, chat=chat, sender=request.user
         )
+        if request.user.role_type == USER_ROLE_TYPES["CLIENT"]:
+            chat.is_read_vendor = False
+        elif request.user.role_type == USER_ROLE_TYPES["VENDOR"]:
+            chat.is_read_client = False
+        chat.latest_message = message
+        chat.save()
+
         serializer = ChatMessageSerializer(message)
+
         return Response(
             status=status.HTTP_201_CREATED,
             data=ResponseInfo().format_response(

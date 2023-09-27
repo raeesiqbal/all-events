@@ -101,7 +101,6 @@ class Message(NewAbstractModel):
         return f"{self.id}"
 
     class Meta:
-        ordering = ["-id"]
         verbose_name = "Message"
         verbose_name_plural = "Messages"
 
