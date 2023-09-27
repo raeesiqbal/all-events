@@ -19,6 +19,7 @@ const initialState = {
     priceId: "",
     subscriptionId: "",
   },
+  currentSubscriptionDetails: null,
   freePlan: null,
   SubscriptionSuccessAlert: false,
   SubscriptionErrorAlert: false,
@@ -32,6 +33,23 @@ export const createSubscription = createAsyncThunk(
         url: "/api/subscriptions/create-subscription/",
         method: "Post",
         data,
+      });
+      return response.data;
+    } catch (err) {
+      // Use `err.response.data` as `action.payload` for a `rejected` action,
+      // by explicitly returning it using the `rejectWithValue()` utility
+      return rejectWithValue(err.response.data);
+    }
+  },
+);
+
+export const currentSubscriptionDetails = createAsyncThunk(
+  "Subscription/details",
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await secureInstance.request({
+        url: "/api/subscriptions/current-subscription/",
+        method: "Get",
       });
       return response.data;
     } catch (err) {
@@ -66,6 +84,24 @@ export const cancelSubscription = createAsyncThunk(
     try {
       const response = await secureInstance.request({
         url: "/api/subscriptions/cancel-subscription/",
+        method: "Post",
+        data,
+      });
+      return response.data;
+    } catch (err) {
+      // Use `err.response.data` as `action.payload` for a `rejected` action,
+      // by explicitly returning it using the `rejectWithValue()` utility
+      return rejectWithValue(err.response.data);
+    }
+  },
+);
+
+export const resumeSubscription = createAsyncThunk(
+  "Subscription/resume",
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await secureInstance.request({
+        url: "/api/subscriptions/resume-subscription/",
         method: "Post",
         data,
       });
@@ -137,6 +173,18 @@ export const SubscriptionsSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+      .addCase(currentSubscriptionDetails.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(currentSubscriptionDetails.fulfilled, (state, action) => {
+        state.loading = false;
+        state.currentSubscriptionDetails = action.payload.data;
+      })
+      .addCase(currentSubscriptionDetails.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
       .addCase(updateSubscription.pending, (state) => {
         state.loading = true;
         state.SubscriptionSuccessAlert = false;
@@ -167,6 +215,23 @@ export const SubscriptionsSlice = createSlice({
         state.error = action.payload.message;
       })
       .addCase(cancelSubscription.rejected, (state, action) => {
+        state.loading = false;
+        state.SubscriptionErrorAlert = true;
+        state.error = action.payload;
+      })
+      .addCase(resumeSubscription.pending, (state) => {
+        state.loading = true;
+        state.SubscriptionSuccessAlert = false;
+        state.SubscriptionErrorAlert = false;
+        state.error = null;
+      })
+      .addCase(resumeSubscription.fulfilled, (state, action) => {
+        state.loading = false;
+        state.SubscriptionSuccessAlert = action.payload.data.resumed || false;
+        state.SubscriptionErrorAlert = !(action.payload.data.resumed || true);
+        state.error = action.payload.message;
+      })
+      .addCase(resumeSubscription.rejected, (state, action) => {
         state.loading = false;
         state.SubscriptionErrorAlert = true;
         state.error = action.payload;

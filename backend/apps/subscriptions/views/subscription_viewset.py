@@ -257,6 +257,12 @@ class SubscriptionsViewSet(BaseViewset):
         if subscriptions:
             for i in subscriptions:
                 if i.status == "active" or i.status == "canceled":
+                    if i.created:
+                        created_date = datetime.datetime.utcfromtimestamp(
+                            i.created
+                        ).strftime("%Y-%m-%d %H:%M:%S UTC")
+                    else:
+                        created_date = None
                     if i.cancel_at:
                         cancel_date = datetime.datetime.utcfromtimestamp(
                             i.cancel_at
@@ -270,6 +276,14 @@ class SubscriptionsViewSet(BaseViewset):
                         ).strftime("%Y-%m-%d %H:%M:%S UTC")
                     else:
                         next_payment_date = None
+
+                    if int(i.metadata.allowed_ads) == 1:
+                        updated_type = SUBSCRIPTION_TYPES["STANDARD"]
+                    elif int(i.metadata.allowed_ads) == 2:
+                        updated_type = SUBSCRIPTION_TYPES["ADVANCED"]
+                    if int(i.metadata.allowed_ads) == 3:
+                        updated_type = SUBSCRIPTION_TYPES["FEATURED"]
+
                     dic = {
                         "subscription_id": i.id,
                         "amount": amount,
@@ -282,6 +296,11 @@ class SubscriptionsViewSet(BaseViewset):
                         "cancel_at_period_end": i.cancel_at_period_end,
                         "cancel_date": cancel_date,
                         "status": i.status,
+                        "type": {
+                            "type": updated_type,
+                            "allowed_ads": i.metadata.allowed_ads,
+                        },
+                        "created_at": created_date,
                     }
                     data.append(dic)
             return Response(

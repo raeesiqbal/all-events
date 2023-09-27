@@ -26,14 +26,15 @@ function Subscriptions() {
       label: "Active",
       count: subscriptions.length,
     },
-    // {
-    //   label: "Expired",
-    //   count: expiredCount,
-    // },
+    {
+      label: "Expired",
+      count: 0,
+    },
   ];
 
   useEffect(() => {
-    setActiveTabSubscriptions(subscriptions.filter((subscription) => subscription.status === activeTab.toLowerCase()));
+    const status = activeTab === "Active" ? "active" : "canceled";
+    setActiveTabSubscriptions(subscriptions.filter((subscription) => subscription.status === status));
   }, [activeTab, subscriptions]);
 
   useEffect(() => {

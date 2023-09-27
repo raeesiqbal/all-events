@@ -1,6 +1,8 @@
 /* eslint-disable camelcase */
 import React, { useEffect } from "react";
-import { Button, Card, Col, Container, Modal, Row } from "react-bootstrap";
+import {
+  Button, Card, Col, Container, Modal, Row,
+} from "react-bootstrap";
 // import * as formik from "formik";
 // import * as Yup from "yup";
 import { useNavigate } from "react-router-dom";
@@ -21,6 +23,7 @@ import { secureInstance } from "../../axios/config";
 import "./Ads.css";
 import { handleUpdateAds, listVendorAds } from "../redux/Posts/AdsSlice";
 import useWindowDimensions from "../../utilities/hooks/useWindowDimension";
+import { currentSubscriptionDetails } from "../redux/Subscriptions/SubscriptionsSlice";
 
 function MyAds() {
   const navigate = useNavigate();
@@ -31,6 +34,7 @@ function MyAds() {
 
   const user = useSelector((state) => state.auth.user);
   const vendorAds = useSelector((state) => state.Ads.vendorAds);
+  const currentSubscription = useSelector((state) => state.subscriptions.currentSubscriptionDetails);
   const { width } = useWindowDimensions();
 
   const handleDeleteAd = async () => {
@@ -55,11 +59,12 @@ function MyAds() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    dispatch(currentSubscriptionDetails());
     dispatch(listVendorAds());
   }, []);
 
   const sortedAdvertisements = [...vendorAds].sort(
-    (a, b) => new Date(b.created_at) - new Date(a.created_at)
+    (a, b) => new Date(b.created_at) - new Date(a.created_at),
   );
 
   return (
@@ -115,9 +120,9 @@ function MyAds() {
           className="justify-content-center"
           style={{
             flexDirection:
-              sortedAdvertisements.length === 0 &&
-              width <= 768 &&
-              "column-reverse",
+              sortedAdvertisements.length === 0
+              && width <= 768
+              && "column-reverse",
           }}
         >
           {sortedAdvertisements.length > 0 ? (
@@ -193,8 +198,8 @@ function MyAds() {
                                   maxWidth: "70%",
                                 }}
                               >
-                                {description &&
-                                  (description.length > 200
+                                {description
+                                  && (description.length > 200
                                     ? `${description.slice(0, 200)}...`
                                     : description)}
                               </Card.Text>
@@ -325,19 +330,29 @@ function MyAds() {
         </Row>
 
         {vendorAds.length > 0 && (
-          <div className="d-flex justify-content-end mt-5">
-            <Col xs={12} md={7} lg={6}>
-              <Button
-                variant="success"
-                type="submit"
-                className="roboto-semi-bold-16px-information btn btn-height w-100"
-                onClick={() => navigate("/post-ad")}
-              >
-                Post another Ad
-              </Button>
-            </Col>
-            <Col lg={1} sm={0} />
-          </div>
+          <Container className="d-flex justify-content-end mt-5">
+            <Row className="d-flex justify-content-end">
+              {
+                (currentSubscription === null || (currentSubscription && vendorAds.length < currentSubscription.type.allowed_ads)) && (
+                  <Button
+                    variant="success"
+                    type="submit"
+                    className="roboto-semi-bold-16px-information btn btn-height w-100"
+                    onClick={() => navigate("/post-ad")}
+                  >
+                    Post another Ad
+                  </Button>
+                )
+              }
+              {
+                currentSubscription && vendorAds.length >= currentSubscription.type.allowed_ads && (
+                  <h5 className="text-danger">
+                    You have posted maximum allowed ads. If you want to post more ads, please update your subscription package.
+                  </h5>
+                )
+              }
+            </Row>
+          </Container>
         )}
       </Container>
 
