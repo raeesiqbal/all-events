@@ -1,8 +1,8 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import home from "../../assets/images/home.svg";
 import list from "../../assets/images/list.svg";
 import pieChart from "../../assets/images/pie-chart.svg";
@@ -45,11 +45,6 @@ const vendorTabs = [
     path: "/profile-settings",
   },
   {
-    label: "Analytics",
-    icon: analytics,
-    path: "/analytics",
-  },
-  {
     label: "Dashboard",
     icon: analytics,
     path: "/dashboard",
@@ -84,7 +79,9 @@ const TabNavigation = ({ role }) => {
   const navigate = useNavigate();
 
   const isActive = (path) => window.location.pathname === path;
-  const tabs = role === "client" ? clientTabs : vendorTabs;
+  const currentSubscription = useSelector((state) => state.subscriptions.currentSubscriptionDetails);
+
+  let tabs = role === "client" ? clientTabs : vendorTabs;
 
   const handleClickTabNav = (index, path) => {
     if (path === "/post-ad") {
@@ -96,6 +93,16 @@ const TabNavigation = ({ role }) => {
     navigate(path);
     dispatch(handleClickTab(index));
   };
+
+  useEffect(() => {
+    if (role === "vendor" && currentSubscription.type.analytics) {
+      tabs = [...tabs, {
+        label: "Analytics",
+        icon: analytics,
+        path: "/analytics",
+      }];
+    }
+  }, [currentSubscription]);
 
   return (
     <div

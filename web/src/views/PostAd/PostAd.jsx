@@ -26,6 +26,7 @@ import {
   handleCreateNewAd,
   handleUpdateAdPostErrorAlerting,
   handleUpdateAdPostSuccessAlerting,
+  listVendorAds,
   setImagesError,
   setMediaError,
 } from "../redux/Posts/AdsSlice";
@@ -61,7 +62,7 @@ function PostAd() {
   const currentSubscription = useSelector((state) => state.subscriptions.currentSubscriptionDetails);
   const imagesToUpload = useSelector((state) => state.Ads.media_urls.images);
   const {
-    AdPostErrorAlert, imagesError, isMediaUploading, mediaError, AdPostSuccessAlert, loading,
+    AdPostErrorAlert, imagesError, isMediaUploading, mediaError, AdPostSuccessAlert, loading, vendorAds,
   } = useSelector((state) => state.Ads);
 
   const handleSubmitAllForms = (values) => {
@@ -491,7 +492,12 @@ function PostAd() {
 
   useEffect(() => {
     dispatch(currentSubscriptionDetails());
+    dispatch(listVendorAds());
   }, []);
+
+  useEffect(() => {
+    if (currentSubscription && vendorAds.length > 0 && currentSubscription.type.allowed_ads <= vendorAds.length) navigate("/my-ads");
+  }, [currentSubscription, vendorAds]);
 
   return (
     <div style={{ position: "relative", overflowX: "hidden" }}>
