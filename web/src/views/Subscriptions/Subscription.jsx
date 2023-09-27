@@ -106,7 +106,7 @@ const Subscription = ({ subscription }) => {
       </Modal>
 
       <Row className="mx-0 mt-4 w-100 ps-2 p-3 subscription-free">
-        <h2>{subscription.type.type}</h2>
+        <h2>{subscription.name}</h2>
         <div className="d-flex w-100">
           <img src={timeIcon} alt="time icon" style={{ width: "20px", height: "20px" }} />
           <div className="my-auto ms-1" style={{ fontSize: "14px" }}>{formattedDate(subscription.created_at)}</div>
@@ -124,7 +124,7 @@ const Subscription = ({ subscription }) => {
           <div className="mb-3 my-sm-auto" style={{ fontSize: "13px" }}>
             Allowed Ads:
             {" "}
-            {subscription.type.allowed_ads}
+            {subscription.allowed_ads}
           </div>
           <div className="d-flex">
             {

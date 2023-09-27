@@ -5,7 +5,6 @@ import React, { useEffect, useState } from "react";
 import { Col, Container, Row } from "react-bootstrap";
 import { PhotoProvider, PhotoView } from "react-photo-view";
 import { useDispatch, useSelector } from "react-redux";
-import InfoIcon from "../../assets/images/gg_info.svg";
 import "./ImageUploader.css";
 import { secureInstance } from "../../axios/config";
 import {
@@ -17,6 +16,7 @@ import "react-photo-view/dist/react-photo-view.css";
 function ImageUploader({ imagesError }) {
   const [images, setImages] = useState([]);
   const imagesToUpload = useSelector((state) => state.Ads.media_urls.images);
+  const currentSubscription = useSelector((state) => state.subscriptions.currentSubscriptionDetails);
 
   const dispatch = useDispatch();
 
@@ -113,7 +113,11 @@ function ImageUploader({ imagesError }) {
             className="roboto-regular-16px-information"
             style={{ color: "#A9A8AA", lineHeight: "22px" }}
           >
-            Upload 5 of the best images that describe your service
+            Upload
+            {" "}
+            {currentSubscription?.type?.allowed_ad_photos || 1}
+            {" "}
+            of the best images that describe your service
           </li>
           <li
             className="roboto-regular-16px-information"
@@ -177,54 +181,48 @@ function ImageUploader({ imagesError }) {
                   </div>
                 </Col>
               ))}
-              <div
-                style={{
-                  border: "2px dashed #A0C49D",
-                  width: "141px",
-                  height: "122px",
-                }}
-              >
-                <label
-                  htmlFor="file-input"
-                  className="d-flex align-items-center justify-content-center"
-                  style={{
-                    width: "141px",
-                    height: "122px",
-                    cursor: "pointer",
-                  }}
-                >
-                  <FontAwesomeIcon
-                    icon={faAdd}
+              {
+                currentSubscription && currentSubscription.type.allowed_ad_photos > images.length && (
+                  <div
                     style={{
-                      color: "#A0C49D",
-                      width: "40px",
-                      height: "40px",
-                      marginRight: "10px",
-                      marginBottom: "8px",
+                      border: "2px dashed #A0C49D",
+                      width: "141px",
+                      height: "122px",
                     }}
-                  />
-                </label>
-                <input
-                  id="file-input"
-                  type="file"
-                  accept="image/*"
-                  onChange={(event) => handleImageUpload(event)}
-                  style={{ display: "none", border: "1px solid red" }}
-                />
-              </div>
+                  >
+                    <label
+                      htmlFor="file-input"
+                      className="d-flex align-items-center justify-content-center"
+                      style={{
+                        width: "141px",
+                        height: "122px",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <FontAwesomeIcon
+                        icon={faAdd}
+                        style={{
+                          color: "#A0C49D",
+                          width: "40px",
+                          height: "40px",
+                          marginRight: "10px",
+                          marginBottom: "8px",
+                        }}
+                      />
+                    </label>
+                    <input
+                      id="file-input"
+                      type="file"
+                      accept="image/*"
+                      onChange={(event) => handleImageUpload(event)}
+                      style={{ display: "none", border: "1px solid red" }}
+                    />
+                  </div>
+                )
+              }
             </div>
           </PhotoProvider>
         </Row>
-
-        <div className="d-flex align-items-center">
-          <img src={InfoIcon} alt={InfoIcon} />
-          <span
-            className="mx-1 roboto-regular-14px-information"
-            style={{ color: "#A9A8AA", margin: "15px 0" }}
-          >
-            Click on “View All” to preview all images
-          </span>
-        </div>
       </div>
     </Container>
   );

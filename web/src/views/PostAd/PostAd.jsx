@@ -6,7 +6,7 @@ import {
 } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { Alert } from "@mui/material";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Header from "../../components/Navbar/Navbar";
 import TopBanner from "../../components/TopBanner";
 import postAdBanner1 from "../../assets/images/post-ad-banner-1.svg";
@@ -38,20 +38,15 @@ import { currentSubscriptionDetails } from "../redux/Subscriptions/Subscriptions
 
 function PostAd() {
   const { Formik } = formik;
-  // const { state } = useLocation();
-  // const { welcomeAlert } = state; // Read values passed on state
 
   const [selectedCountries, setSelectedCountries] = useState([]);
   const [
     selectedCountriesforContactInformation,
     setSelectedCountriesforContactInformation,
   ] = useState([]);
-  const [imagesToPreview, setImagesToPreview] = useState(Array(5).fill(null));
   const [pdfsToUpload, setPdfsToUpload] = useState([]);
   const [pdfsError, setPdfsError] = useState(false);
-  const [videoToPreview, setVideoToPreview] = useState([]);
   const [videoToUpload, setVideoToUpload] = useState([]);
-  const [uploadingData, setUploadingData] = useState(false);
   const [relatedSubCategoryId, setRelatedSubCategoryId] = useState(null);
   const [isMultipleCountries, setIsMultipleCountries] = useState(false);
   const [adminServicesSelected, setAdminServicesSelected] = useState([]);
@@ -59,7 +54,6 @@ function PostAd() {
   const [preDefinedFAQs, setPreDefinedFAQs] = useState([]);
   const [selectedValuesServerFAQ, setSelectedValuesServerFAQ] = useState([]);
 
-  // const [isWelcomeAlert, setIsWelcomeAlert] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -99,27 +93,10 @@ function PostAd() {
       })),
     );
 
-    // return;
-    // const addSubCategoryToFaqs = values.FAQ.faqs.map((faq) => {
-    //   faq,
-    //     (faq.sub_category = parseInt(
-    //       values.companyInformation.sub_category,
-    //       10
-    //     ));
-    // });
     const FAQsMap = values.FAQ.faqs.map((faq) => ({
       question: faq.question,
       answer: faq.answer,
     }));
-
-    // const serverFAQsMap = selectedValuesServerFAQ.map((faq) => ({
-    //   site_question: faq.question,
-    //   answer: faq.value,
-    // }));
-
-    // const adminServicesMap = adminServicesSelected.map(
-    //   (service) => service.label
-    // );
 
     const objToSubmit = {
       media_urls: {
@@ -139,7 +116,6 @@ function PostAd() {
       youtube: values.SocialMedia.youtubeURL,
       tiktok: values.SocialMedia.tiktokURL,
       twitter: values.SocialMedia.twitterURL,
-      // others: values.SocialMedia.othersURL,
       offered_services: values.servicesOffered.services,
       site_services: adminServicesSelected,
       sub_category: parseInt(values.companyInformation.sub_category, 10),
@@ -336,8 +312,6 @@ function PostAd() {
   const validate = (values) => {
     const errors = {};
 
-    // const isAnyValueNotNull = imagesToUpload.some((value) => value !== null);
-
     if (imagesToUpload.length === 0 && !imagesError) {
       // setImagesError(true);
       dispatch(setImagesError(true));
@@ -353,10 +327,6 @@ function PostAd() {
       };
     }
     return errors;
-  };
-
-  const handleImageUpdates = (images) => {
-    setImagesToPreview(images);
   };
 
   const handlePdfsUpdates = (images) => {
@@ -659,16 +629,9 @@ function PostAd() {
                   handleCategoryClicked={handleCategoryClicked}
                 />
 
-                <ImageUploader
-                  setparentImagesUploadedImages={handleImageUpdates}
-                  uploadedImages={imagesToPreview}
-                  imagesError={imagesError}
-                  setUploadingData={setUploadingData}
-                  imagesToUpload={imagesToUpload}
-                />
+                <ImageUploader imagesError={imagesError} />
 
                 <VideoUploader
-                  videoToPreview={videoToPreview}
                   videoToUpload={videoToUpload}
                   setVideoToUpload={setVideoToUpload}
                 />
@@ -692,33 +655,45 @@ function PostAd() {
                   handleChange={handleChange}
                 />
 
-                <ServicesOffered
-                  values={values}
-                  handleChange={handleChange}
-                  handleAddServices={(currentService) => handleAddServices(currentService, values, setValues)}
-                  handleRemoveService={(index) => handleRemoveService(index, values, setValues)}
-                  adminServices={adminServices}
-                  adminServicesSelected={adminServicesSelected}
-                  setAdminServicesSelected={setAdminServicesSelected}
-                />
+                {
+                  currentSubscription && currentSubscription.type.offered_services && (
+                    <ServicesOffered
+                      values={values}
+                      handleChange={handleChange}
+                      handleAddServices={(currentService) => handleAddServices(currentService, values, setValues)}
+                      handleRemoveService={(index) => handleRemoveService(index, values, setValues)}
+                      adminServices={adminServices}
+                      adminServicesSelected={adminServicesSelected}
+                      setAdminServicesSelected={setAdminServicesSelected}
+                    />
+                  )
+                }
 
-                <PdfUploader
-                  setparentImagesUploadedImages={handlePdfsUpdates}
-                  pdfsToUpload={pdfsToUpload}
-                  imagesError={pdfsError}
-                  setImagesError={setPdfsError}
-                />
+                {
+                  currentSubscription && currentSubscription.type.pdf_upload && (
+                    <PdfUploader
+                      setparentImagesUploadedImages={handlePdfsUpdates}
+                      pdfsToUpload={pdfsToUpload}
+                      imagesError={pdfsError}
+                      setImagesError={setPdfsError}
+                    />
+                  )
+                }
 
-                <FAQs
-                  values={values}
-                  errors={errors.FAQ ?? errors}
-                  touched={touched.FAQ ?? touched}
-                  handleChange={handleChange}
-                  handleAddFieldsForFAQ={() => handleAddFAQsFields(values, setValues)}
-                  handleAddFAQ={(index) => handleAddFAQ(index, values, setValues)}
-                  handleRemoveFAQ={(index) => handleRemoveFAQ(index, values, setValues)}
-                  handleEditFAQ={(index) => handleEditFAQ(index, values, setValues)}
-                />
+                {
+                  currentSubscription && currentSubscription.type.faq && (
+                    <FAQs
+                      values={values}
+                      errors={errors.FAQ ?? errors}
+                      touched={touched.FAQ ?? touched}
+                      handleChange={handleChange}
+                      handleAddFieldsForFAQ={() => handleAddFAQsFields(values, setValues)}
+                      handleAddFAQ={(index) => handleAddFAQ(index, values, setValues)}
+                      handleRemoveFAQ={(index) => handleRemoveFAQ(index, values, setValues)}
+                      handleEditFAQ={(index) => handleEditFAQ(index, values, setValues)}
+                    />
+                  )
+                }
 
                 {preDefinedFAQs.length > 0 && (
                   <ServerFAQs

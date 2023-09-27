@@ -2,7 +2,9 @@
 import { faAdd, faClose } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect, useState } from "react";
-import { Button, Col, Container, Row } from "react-bootstrap";
+import {
+  Button, Col, Container, Row,
+} from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { CircularProgress } from "@mui/material";
 import { secureInstance } from "../../axios/config";
@@ -16,6 +18,8 @@ function VideoUploader({ setVideoToUpload, videoToUpload }) {
 
   const dispatch = useDispatch();
   const isMediaUploading = useSelector((state) => state.Ads.isMediaUploading);
+  const currentSubscription = useSelector((state) => state.subscriptions.currentSubscriptionDetails);
+
   const fileInputRef = React.createRef();
 
   // const uploadFileToCloud = async (uploadedVideo) => {
@@ -127,13 +131,9 @@ function VideoUploader({ setVideoToUpload, videoToUpload }) {
 
       try {
         await uploadFileToCloud(uploadedVideo);
-        setVideos((prevVideos) =>
-          prevVideos.map((video) =>
-            video.file === uploadedVideo
-              ? { ...video, uploading: false } // Mark the uploaded video as not uploading
-              : video
-          )
-        );
+        setVideos((prevVideos) => prevVideos.map((video) => (video.file === uploadedVideo
+          ? { ...video, uploading: false } // Mark the uploaded video as not uploading
+          : video)));
       } catch (error) {
         console.error("Video upload failed", error);
         // Handle error if needed
@@ -214,31 +214,12 @@ function VideoUploader({ setVideoToUpload, videoToUpload }) {
                 <div className="mb-5">
                   {video !== null && (
                     <div
-                      key={index}
                       style={{
                         position: "relative",
                         width: "145px",
                         height: "126px",
                       }}
                     >
-                      {/* {video.uploading ? (
-                    <div
-                      style={{
-                        position: "relative",
-                        width: "145px",
-                        height: "126px",
-                      }}
-                    >
-                      <CircularProgress
-                        style={{
-                          position: "absolute",
-                          top: "30px",
-                          left: "60px",
-                          color: "#51f742",
-                        }}
-                      />
-                    </div>
-                  ) */}
                       {video.uploading && (
                         <>
                           <div
@@ -303,7 +284,7 @@ function VideoUploader({ setVideoToUpload, videoToUpload }) {
               </Col>
             ))}
 
-            {!isMediaUploading && (
+            {!isMediaUploading && currentSubscription && currentSubscription.type.allowed_ad_videos > videoToUpload.length && (
               <div
                 style={{
                   border: "2px dashed #A0C49D",
