@@ -277,12 +277,9 @@ class SubscriptionsViewSet(BaseViewset):
                     else:
                         next_payment_date = None
 
-                    if int(i.metadata.allowed_ads) == 1:
-                        updated_type = SUBSCRIPTION_TYPES["STANDARD"]
-                    elif int(i.metadata.allowed_ads) == 2:
-                        updated_type = SUBSCRIPTION_TYPES["ADVANCED"]
-                    if int(i.metadata.allowed_ads) == 3:
-                        updated_type = SUBSCRIPTION_TYPES["FEATURED"]
+                    product = self.stripe_service.retrieve_product(
+                        i["items"].data[0].price.product
+                    )
 
                     dic = {
                         "subscription_id": i.id,
@@ -296,10 +293,8 @@ class SubscriptionsViewSet(BaseViewset):
                         "cancel_at_period_end": i.cancel_at_period_end,
                         "cancel_date": cancel_date,
                         "status": i.status,
-                        "type": {
-                            "type": updated_type,
-                            "allowed_ads": i.metadata.allowed_ads,
-                        },
+                        "name": product.name,
+                        "allowed_ads": product.metadata.allowed_ads,
                         "created_at": created_date,
                     }
                     data.append(dic)
