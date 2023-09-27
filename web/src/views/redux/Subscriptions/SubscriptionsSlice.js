@@ -14,10 +14,12 @@ const initialState = {
   activeCount: 0,
   expiredCount: 0,
   currentSubscription: {
+    intervalCount: "1",
+    interval: "month",
     priceId: "",
     subscriptionId: "",
   },
-  freePlan: "",
+  freePlan: null,
   SubscriptionSuccessAlert: false,
   SubscriptionErrorAlert: false,
 };
@@ -180,6 +182,8 @@ export const SubscriptionsSlice = createSlice({
         state.plans = action.payload.data.products;
         if (action.payload.data.current_subscription !== null) {
           state.currentSubscription.priceId = action.payload.data.current_subscription.price_id;
+          state.currentSubscription.interval = action.payload.data.current_subscription.interval;
+          state.currentSubscription.intervalCount = action.payload.data.current_subscription.interval_count;
           state.currentSubscription.subscriptionId = action.payload.data.current_subscription.subscription_id;
         }
         state.freePlan = action.payload.data.free_plan;

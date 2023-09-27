@@ -23,10 +23,6 @@ const BillingCard = ({
 
   useEffect(() => {
     if (user?.userId !== null && currentSubscription.priceId === currentPlanPrice?.price_id) {
-      setCurrentInterval({
-        interval: currentPlanPrice.interval,
-        intervalCount: currentPlanPrice.interval_count,
-      });
       setBorder("2px solid #5CC85C");
     } else {
       setBorder("1px solid #E9EDF7");

@@ -115,6 +115,8 @@ class SubscriptionsViewSet(BaseViewset):
                             break
                 current_subscription = {
                     "price_id": current_subscription_price["price_id"],
+                    "interval": current_subscription_price["interval"],
+                    "interval_count": current_subscription_price["interval_count"],
                     "subscription_id": user_scription.subscription_id,
                 }
 

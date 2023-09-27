@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { createSubscription, updateSubscription } from "../redux/Subscriptions/SubscriptionsSlice";
 
 const Plan = ({
-  plan, index, currentInterval, currentSubscription, setCurrentInterval,
+  plan, index, currentInterval, currentSubscription,
 }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -70,17 +70,8 @@ const Plan = ({
     );
   }, [currentInterval]);
 
-  useEffect(() => {
-    if (user?.userId !== null && currentSubscription.priceId === currentPlanPrice?.price_id) {
-      setCurrentInterval({
-        interval: currentPlanPrice.interval,
-        intervalCount: currentPlanPrice.interval_count,
-      });
-    }
-  }, [user?.userId, currentSubscription.priceId, currentPlanPrice]);
-
   return (
-    currentPlanPrice?.unit_price && (
+    (currentPlanPrice?.unit_price || plan.name === "FREE") && (
       <Col key={index} className="mb-4" sm={12} md={6} lg={3}>
         <Card
           className="p-sm-3 h-100"
@@ -91,7 +82,7 @@ const Plan = ({
             <Card.Title className="mb-4">
               <span className="display-5 fw-bold">
                 $
-                {currentPlanPrice?.unit_price}
+                {currentPlanPrice?.unit_price || 0}
               </span>
             </Card.Title>
             <ul style={{ listStyleType: "none", paddingLeft: 0 }}>
@@ -126,18 +117,22 @@ const Plan = ({
               })}
             </ul>
           </Card.Body>
-          <div className="text-center mb-3">
-            <Button
-              variant="success"
-              className="w-75"
-              onClick={handlePlanSubscription}
-              disabled={user.userId !== null && currentSubscription.priceId === currentPlanPrice?.price_id}
-            >
-              {
-                getSubscribeButtonText()
-              }
-            </Button>
-          </div>
+          {
+            plan.name !== "FREE" && (
+              <div className="text-center mb-3">
+                <Button
+                  variant="success"
+                  className="w-75"
+                  onClick={handlePlanSubscription}
+                  disabled={user.userId !== null && currentSubscription.priceId === currentPlanPrice?.price_id}
+                >
+                  {
+                    getSubscribeButtonText()
+                  }
+                </Button>
+              </div>
+            )
+          }
         </Card>
       </Col>
     )

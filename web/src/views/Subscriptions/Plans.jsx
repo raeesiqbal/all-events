@@ -4,23 +4,25 @@ import {
   Col,
   Container, Row,
 } from "react-bootstrap";
+import { Alert } from "@mui/material";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { listPlans } from "../redux/Subscriptions/SubscriptionsSlice";
 import Plan from "./Plan";
 import Login from "../Login/Login";
 import Header from "../../components/Navbar/Navbar";
 import Footer from "../../components/Footer/Footer";
-import { Alert } from "@mui/material";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 
 const Plans = () => {
   const dispatch = useDispatch();
-  const { plans, currentSubscription, SubscriptionSuccessAlert, SubscriptionErrorAlert, error, loading } = useSelector((state) => state.subscriptions);
+  const {
+    plans, freePlan, currentSubscription, SubscriptionSuccessAlert, SubscriptionErrorAlert, error, loading,
+  } = useSelector((state) => state.subscriptions);
   const user = useSelector((state) => state.auth.user);
 
   const [currentInterval, setCurrentInterval] = useState({
-    interval: "month",
-    intervalCount: 1,
+    interval: currentSubscription.interval,
+    intervalCount: currentSubscription.intervalCount,
   });
 
   const intervals = [{
@@ -51,6 +53,13 @@ const Plans = () => {
   useEffect(() => {
     dispatch(listPlans(user?.userId !== null));
   }, [user?.userId]);
+
+  useEffect(() => {
+    setCurrentInterval({
+      interval: currentSubscription.interval,
+      intervalCount: currentSubscription.intervalCount,
+    });
+  }, [currentSubscription]);
 
   return (
     <>
@@ -101,13 +110,22 @@ const Plans = () => {
             )
           }
           {
+            !loading && freePlan && (
+              <Plan
+                plan={freePlan}
+                index={0}
+                currentInterval={currentInterval}
+                currentSubscription={currentSubscription}
+              />
+            )
+          }
+          {
             !loading && plans.slice().reverse().map((plan, index) => (
               <Plan
                 plan={plan}
                 index={index + 1}
                 currentInterval={currentInterval}
                 currentSubscription={currentSubscription}
-                setCurrentInterval={setCurrentInterval}
               />
             ))
           }

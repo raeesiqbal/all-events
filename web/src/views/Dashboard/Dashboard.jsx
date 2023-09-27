@@ -17,7 +17,6 @@ import { handleProfileSettingsCurrentView } from "../redux/TabNavigation/TabNavi
 import { getAuthenticatedUser } from "../redux/Auth/authSlice";
 import { setCompanyInformation } from "../redux/Settings/SettingsSlice";
 import BillingCard from "../../components/Card/BillingCard";
-import BillingTabNavigation from "../../components/TabNavigation/BillingTabNavigation";
 import MyAdsDashboard from "./MyAdsDashboard";
 import ProfilePic from "../../components/ProfilePic/ProfilePic";
 import { secureInstance } from "../../axios/config";
@@ -32,10 +31,9 @@ function Dashboard() {
 
   const [dashboardData, setDashboardData] = useState({});
   const [currentInterval, setCurrentInterval] = useState({
-    interval: "month",
-    intervalCount: 1,
+    interval: currentSubscription.interval,
+    intervalCount: currentSubscription.intervalCount,
   });
-  // const [userAds, setUserAds] = useState([]);
 
   useEffect(() => {
     if (user?.userCompanyId === null) {
@@ -108,6 +106,13 @@ function Dashboard() {
     }
     dispatch(listPlans(user?.userId !== null));
   }, [user?.userId]);
+
+  useEffect(() => {
+    setCurrentInterval({
+      interval: currentSubscription.interval,
+      intervalCount: currentSubscription.intervalCount,
+    });
+  }, [currentSubscription]);
 
   return (
     <div>
