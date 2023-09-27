@@ -10,12 +10,14 @@ import Rating from "../../components/Rating/Rating";
 import titleIcon from "../../assets/images/title_icon.svg";
 import Review from "./Review";
 import "./Reviews.css";
+import { CircularProgress } from "@mui/material";
 
 const Reviews = ({ adId, adName }) => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
   const reviews = useSelector((state) => state.reviews.reviews);
   const imagesToUpload = useSelector((state) => state.Ads.media_urls.images);
+  const loading = useSelector((state) => state.Ads.loading);
   const offset = 0;
   const page = 1;
   const [limit, setLimit] = useState(10);
@@ -30,7 +32,6 @@ const Reviews = ({ adId, adName }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleImageUpload = (event) => {
-    setIsLoading(true);
     event.preventDefault();
     const uploadedImage = event.target.files[0];
     const updatedImages = [...postReview.photos];
@@ -53,6 +54,7 @@ const Reviews = ({ adId, adName }) => {
   };
 
   const removeImage = async (image, index) => {
+    setIsLoading(true);
     const urlToDelete = imagesToUpload[index];
 
     try {
@@ -103,6 +105,8 @@ const Reviews = ({ adId, adName }) => {
       ...postReview,
       photos: cloneImages,
     });
+
+    setIsLoading(false);
   };
 
   const removeAllImages = async (images) => {
@@ -128,8 +132,8 @@ const Reviews = ({ adId, adName }) => {
     }
   };
 
-  const resetForm = (isDelete = true) => {
-    if (isDelete) removeAllImages(imagesToUpload);
+  const resetForm = () => {
+    removeAllImages(imagesToUpload);
     setPostReview({
       name: "",
       title: "",
@@ -142,7 +146,6 @@ const Reviews = ({ adId, adName }) => {
   const submitReview = () => {
     dispatch(addReview({ id: adId, data: postReview }));
     setIsHide(true);
-    resetForm(false);
   };
 
   const viewMoreReviews = () => {
@@ -165,6 +168,9 @@ const Reviews = ({ adId, adName }) => {
           page,
         }));
       }, 1000);
+      setTimeout(() => {
+        resetForm();
+      }, 2000);
     }
   }, [isHide]);
 
@@ -188,7 +194,6 @@ const Reviews = ({ adId, adName }) => {
       ...postReview,
       photos: imagesToUpload,
     });
-    setIsLoading(false);
   }, [imagesToUpload]);
 
   return (
@@ -321,8 +326,19 @@ const Reviews = ({ adId, adName }) => {
                 {
                   imagesToUpload.length < 5 && (
                     <div className="upload-review-img me-2">
-                      <span>+</span>
-                      <input type="file" accept="image/*" onChange={handleImageUpload} />
+                      {
+                        (loading) ? (
+                          <>
+                            <div className="d-flex justify-content-center align-items-center loading-image-container" />
+                            <CircularProgress className="attachment-loader" />
+                          </>
+                        ) : (
+                          <>
+                            <span>+</span>
+                            <input type="file" accept="image/*" onChange={handleImageUpload} />
+                          </>
+                        )
+                      }
                     </div>
                   )
                 }
@@ -330,7 +346,7 @@ const Reviews = ({ adId, adName }) => {
             </div>
             <Row className="w-100 mx-0">
               <Col md={5}>
-                <Button variant="success" className="w-100" onClick={submitReview} disabled={isLoading || isDisabled}>Post Review</Button>
+                <Button variant="success" className="w-100" onClick={submitReview} disabled={loading || isDisabled}>Post Review</Button>
               </Col>
               <Col md={2}>
                 <Button

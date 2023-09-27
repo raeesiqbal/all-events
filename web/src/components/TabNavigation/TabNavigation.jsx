@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import home from "../../assets/images/home.svg";
@@ -17,18 +17,9 @@ import {
   handleProfileSettingsCurrentView,
 } from "../../views/redux/TabNavigation/TabNavigationSlice";
 import { setImagesToUpload } from "../../views/redux/Posts/AdsSlice";
+import { currentSubscriptionDetails } from "../../views/redux/Subscriptions/SubscriptionsSlice";
 
 const vendorTabs = [
-  {
-    label: "Packages",
-    icon: pieChart,
-    // path: "/",
-  },
-  {
-    label: "Home",
-    icon: home,
-    path: "/",
-  },
   {
     label: "My Ads",
     icon: list,
@@ -78,10 +69,10 @@ const TabNavigation = ({ role }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const [tabs, setTabs] = useState(role === "client" ? clientTabs : vendorTabs);
+
   const isActive = (path) => window.location.pathname === path;
   const currentSubscription = useSelector((state) => state.subscriptions.currentSubscriptionDetails);
-
-  let tabs = role === "client" ? clientTabs : vendorTabs;
 
   const handleClickTabNav = (index, path) => {
     if (path === "/post-ad") {
@@ -95,12 +86,18 @@ const TabNavigation = ({ role }) => {
   };
 
   useEffect(() => {
-    if (role === "vendor" && currentSubscription.type.analytics) {
-      tabs = [...tabs, {
+    if (currentSubscription === null) {
+      dispatch(currentSubscriptionDetails());
+    }
+  }, []);
+
+  useEffect(() => {
+    if (currentSubscription && role === "vendor" && currentSubscription.type.analytics && tabs.length < 7) {
+      setTabs([...tabs, {
         label: "Analytics",
         icon: analytics,
         path: "/analytics",
-      }];
+      }]);
     }
   }, [currentSubscription]);
 

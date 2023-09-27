@@ -48,10 +48,7 @@ const Plan = ({
         price_id: currentPlanPrice.price_id,
         allowed_ads: plan.allowed_ads,
       };
-      dispatch(updateSubscription(data));
-      setTimeout(() => {
-        navigate("/subscriptions");
-      }, 1000);
+      dispatch(updateSubscription({ data, navigate }));
     }
   };
 

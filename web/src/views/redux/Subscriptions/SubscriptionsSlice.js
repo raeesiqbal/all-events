@@ -62,14 +62,14 @@ export const currentSubscriptionDetails = createAsyncThunk(
 
 export const updateSubscription = createAsyncThunk(
   "Subscription/update",
-  async (data, { rejectWithValue }) => {
+  async ({ data, navigate }, { rejectWithValue }) => {
     try {
       const response = await secureInstance.request({
         url: "/api/subscriptions/update-subscription/",
         method: "Post",
         data,
       });
-      return response.data;
+      return { ...response.data, navigate };
     } catch (err) {
       // Use `err.response.data` as `action.payload` for a `rejected` action,
       // by explicitly returning it using the `rejectWithValue()` utility
@@ -154,8 +154,9 @@ export const SubscriptionsSlice = createSlice({
   name: "Subscriptions",
   initialState,
   reducers: {
-    handleResgisterationStatus: (state) => {
-      state.isRegistered = false;
+    handleMessageAlerts: (state) => {
+      state.SubscriptionSuccessAlert = false;
+      state.SubscriptionErrorAlert = false;
     },
   },
   extraReducers: (builder) => {
@@ -196,6 +197,9 @@ export const SubscriptionsSlice = createSlice({
         state.SubscriptionSuccessAlert = action.payload.data.updated;
         state.SubscriptionErrorAlert = !action.payload.data.updated;
         state.error = action.payload.message;
+        if (action.payload.data.updated) {
+          action.payload.navigate("/subscriptions");
+        }
       })
       .addCase(updateSubscription.rejected, (state, action) => {
         state.loading = false;
@@ -275,7 +279,7 @@ export const SubscriptionsSlice = createSlice({
 });
 
 export const {
-  handleResgisterationStatus,
+  handleMessageAlerts,
 } = SubscriptionsSlice.actions;
 
 // Export the reducer and actions

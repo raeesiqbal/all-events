@@ -230,7 +230,7 @@ class MessageViewSet(BaseViewset):
                     "image": chat.ad.company.user.image,
                 }
 
-            messages = Message.objects.filter(chat=chat)
+            messages = Message.objects.filter(chat=chat).order_by("-created_at")
 
             page = self.paginate_queryset(messages)
 

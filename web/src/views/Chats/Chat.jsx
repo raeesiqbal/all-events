@@ -19,7 +19,7 @@ import gotoIcon from "../../assets/images/post-ad/goto.svg";
 import phoneIcon from "../../assets/images/fluent_call.svg";
 import defaultProfilePhoto from "../../assets/images/profile-settings/person.svg";
 import {
-  archiveChat, deleteChat, listChats, readChat,
+  archiveChat, deleteChat, listChats,
 } from "../redux/Chats/ChatsSlice";
 import { listChatMessages, sendMessage } from "../redux/Messages/MessagesSlice";
 import "./Chats.css";
@@ -39,7 +39,6 @@ const Chat = ({ chat, isOpenChat }) => {
   const [deleteModal, setDeleteModal] = React.useState(false);
   const [messageText, setMessageText] = React.useState("");
   const [attachment, setAttachment] = React.useState(null);
-  // const [isLoading, setIsLoading] = React.useState(false);
   const [offset, setOffset] = React.useState(0);
   const limit = 20;
 
@@ -196,7 +195,7 @@ const Chat = ({ chat, isOpenChat }) => {
           </div>
           <div className="mb-3 message-body" ref={messageBody} onScroll={handleScroll}>
             {
-              messages.map((message) => {
+              messages.slice().reverse().map((message) => {
                 const dateContent = (!dates.includes(formattedDate(message.created_at))) ? (
                   <div
                     className="mx-auto text-white px-2 py-1 mb-4"

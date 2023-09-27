@@ -21,13 +21,15 @@ import MyAdsDashboard from "./MyAdsDashboard";
 import ProfilePic from "../../components/ProfilePic/ProfilePic";
 import { secureInstance } from "../../axios/config";
 import { listPlans } from "../redux/Subscriptions/SubscriptionsSlice";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 // import ProfilePic from "../../components/ProfilePic/ProfilePic";
 
 function Dashboard() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const user = useSelector((state) => state.auth.user);
-  const { plans, currentSubscription } = useSelector((state) => state.subscriptions);
+  const { plans, currentSubscription, loading } = useSelector((state) => state.subscriptions);
 
   const [dashboardData, setDashboardData] = useState({});
   const [currentInterval, setCurrentInterval] = useState({
@@ -60,7 +62,6 @@ function Dashboard() {
         url: "/api/analytics/ad-analytics/dashboard/",
         method: "Get",
       });
-      console.log("request.data", request.data.data);
       setDashboardData(request.data.data);
       // setUserAds(request.data.data.my_ads)
       // setparentImagesUploadedImages([
@@ -117,7 +118,7 @@ function Dashboard() {
   return (
     <div>
       <Header />
-      <TabNavigation />
+      <TabNavigation role={user?.role} />
       <div className="profile-settings-banner d-flex align-items-center">
         <div className="banner-text-heading">
           <div className="roboto-bold-36px-h1">Dashboard</div>
@@ -424,52 +425,63 @@ function Dashboard() {
         <Row className="dashboard-billing-container">
           <Col xs={10} md={12} lg={12} xl={12}>
             <Row className="mb-5 d-flex justify-content-center align-items-center">
-              <Col md={6} lg={3}>
-                <Card
-                  style={{
-                    backgroundColor: "#F5F5F5",
-                    border: "1px solid #E9EDF7",
-                    boxShadow: "0px 4px 4px 0px #00000040",
-                  }}
-                  className="custom-card-billing"
-                >
-                  <Card.Body>
-                    <div className="d-flex align-items-center">
-                      <div
-                        style={{
-                          width: "40px",
-                          height: "40px",
-                          backgroundColor: "rgb(234,121,186,0.1)",
-                          borderRadius: "50%",
-                          marginRight: "16px",
-                        }}
-                        className="d-flex justify-content-center align-items-center"
-                      >
-                        <img
-                          src={messagesIcon}
-                          alt="personalInfo"
-                          className="mb-4"
-                          style={{ marginTop: "24px" }}
-                        />
-                      </div>
-                      <div>FREE</div>
-                    </div>
-                    <Card.Text
-                      className="roboto-bold-36px-h1"
-                      style={{
-                        marginTop: "36px",
-                        fontSize: "32px",
-                        fontWeight: "400",
-                        marginBottom: "8px",
-                      }}
-                    >
-                      $0
-                    </Card.Text>
-                  </Card.Body>
-                </Card>
-              </Col>
               {
-                plans.slice().reverse().map((plan, index) => (
+                !loading && plans.length > 0 && (
+                  <Col md={6} lg={3}>
+                    <Card
+                      style={{
+                        backgroundColor: "#F5F5F5",
+                        border: "1px solid #E9EDF7",
+                        boxShadow: "0px 4px 4px 0px #00000040",
+                      }}
+                      className="custom-card-billing"
+                    >
+                      <Card.Body>
+                        <div className="d-flex align-items-center">
+                          <div
+                            style={{
+                              width: "40px",
+                              height: "40px",
+                              backgroundColor: "rgb(234,121,186,0.1)",
+                              borderRadius: "50%",
+                              marginRight: "16px",
+                            }}
+                            className="d-flex justify-content-center align-items-center"
+                          >
+                            <img
+                              src={messagesIcon}
+                              alt="personalInfo"
+                              className="mb-4"
+                              style={{ marginTop: "24px" }}
+                            />
+                          </div>
+                          <div>FREE</div>
+                        </div>
+                        <Card.Text
+                          className="roboto-bold-36px-h1"
+                          style={{
+                            marginTop: "36px",
+                            fontSize: "32px",
+                            fontWeight: "400",
+                            marginBottom: "8px",
+                          }}
+                        >
+                          $0
+                        </Card.Text>
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                )
+              }
+              {
+                (loading || plans.length === 0) && (
+                  <div className="loading-icon">
+                    <FontAwesomeIcon icon={faSpinner} spin />
+                  </div>
+                )
+              }
+              {
+                !loading && plans.slice().reverse().map((plan, index) => (
                   <BillingCard
                     plan={plan}
                     index={index + 1}
@@ -480,26 +492,6 @@ function Dashboard() {
                   />
                 ))
               }
-              {/* <BillingCard
-                icon={messagesIcon}
-                headingText="BUSINESS"
-                subText="$30"
-                duration="mo"
-                backgroundColor="#DBE5FF"
-                activeBillingCard={activeBillingCard}
-                setActiveBillingCard={setActiveBillingCard}
-                border="1px solid #E9EDF7"
-              />
-              <BillingCard
-                icon={messagesIcon}
-                headingText="TEAMS"
-                subText="$100"
-                duration="mo"
-                backgroundColor="#D8FFFB"
-                activeBillingCard={activeBillingCard}
-                setActiveBillingCard={setActiveBillingCard}
-                border="1px solid #E9EDF7"
-              /> */}
             </Row>
           </Col>
         </Row>

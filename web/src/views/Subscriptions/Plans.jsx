@@ -7,7 +7,7 @@ import {
 import { Alert } from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
-import { listPlans } from "../redux/Subscriptions/SubscriptionsSlice";
+import { handleMessageAlerts, listPlans } from "../redux/Subscriptions/SubscriptionsSlice";
 import Plan from "./Plan";
 import Login from "../Login/Login";
 import Header from "../../components/Navbar/Navbar";
@@ -21,8 +21,8 @@ const Plans = () => {
   const user = useSelector((state) => state.auth.user);
 
   const [currentInterval, setCurrentInterval] = useState({
-    interval: currentSubscription.interval,
-    intervalCount: currentSubscription.intervalCount,
+    interval: "month",
+    intervalCount: 1,
   });
 
   const intervals = [{
@@ -55,11 +55,21 @@ const Plans = () => {
   }, [user?.userId]);
 
   useEffect(() => {
-    setCurrentInterval({
-      interval: currentSubscription.interval,
-      intervalCount: currentSubscription.intervalCount,
-    });
+    if (currentSubscription.priceId !== "") {
+      setCurrentInterval({
+        interval: currentSubscription.interval,
+        intervalCount: currentSubscription.intervalCount,
+      });
+    }
   }, [currentSubscription]);
+
+  useEffect(() => {
+    if (SubscriptionSuccessAlert || SubscriptionErrorAlert) {
+      setTimeout(() => {
+        dispatch(handleMessageAlerts());
+      }, 4000);
+    }
+  }, [SubscriptionSuccessAlert, SubscriptionErrorAlert]);
 
   return (
     <>

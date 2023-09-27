@@ -18,6 +18,7 @@ import LineChart from "./LineChart";
 
 function Analytics() {
   const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
   const {
     vendorAds, totalAdFavourite, totalAdReviews, totalAdMessages, favAdsAnalytics, reviewsAdsAnalytics, messagesAdsAnalytics, period,
   } = useSelector((state) => state.analytics);
@@ -116,7 +117,7 @@ function Analytics() {
   return (
     <div>
       <Header />
-      <TabNavigation />
+      <TabNavigation role={user?.role} />
       <div className="profile-settings-banner d-flex align-items-center">
         <div style={{ marginLeft: "100px" }}>
           <div className="roboto-bold-36px-h1">Analytics</div>

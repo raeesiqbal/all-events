@@ -82,7 +82,7 @@ export const MessagesSlice = createSlice({
         if (action.payload.offset === 0) {
           state.messages = action.payload.data.messages.results;
         } else {
-          state.messages = [...action.payload.data.messages.results, ...state.messages];
+          state.messages = [...state.messages, ...action.payload.data.messages.results];
         }
         state.additionalInfo = action.payload.data.additional_info;
         state.count = action.payload.data.messages.count;

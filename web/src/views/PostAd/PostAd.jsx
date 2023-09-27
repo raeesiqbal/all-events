@@ -427,24 +427,29 @@ function PostAd() {
 
   const handleIsSubCategoryChanged = async (id) => {
     try {
-      const request = await secureInstance.request({
-        url: `api/ads/service/${id}/get-services/`,
-        method: "Get",
-      });
+      if (currentSubscription.type.offered_services) {
+        const request = await secureInstance.request({
+          url: `api/ads/service/${id}/get-services/`,
+          method: "Get",
+        });
 
-      const responseSiteQuestions = await secureInstance.request({
-        url: `api/ads/site/${id}/site-questions/`,
-        method: "Get",
-      });
-      setPreDefinedFAQs(responseSiteQuestions.data.data);
-      if (
-        request.data.data[0] !== undefined
-        && Object.prototype.hasOwnProperty.call(request.data.data[0], "service")
-      ) {
-        setAdminServices(request.data.data[0].service);
-      } else {
-        // alert("emptyyyyyyyyy");
-        setAdminServices([]);
+        if (
+          request.data.data[0] !== undefined
+          && Object.prototype.hasOwnProperty.call(request.data.data[0], "service")
+        ) {
+          setAdminServices(request.data.data[0].service);
+        } else {
+          // alert("emptyyyyyyyyy");
+          setAdminServices([]);
+        }
+      }
+
+      if (currentSubscription.type.faq) {
+        const responseSiteQuestions = await secureInstance.request({
+          url: `api/ads/site/${id}/site-questions/`,
+          method: "Get",
+        });
+        setPreDefinedFAQs(responseSiteQuestions.data.data);
       }
     } catch (err) {
       // Handle login error here if needed

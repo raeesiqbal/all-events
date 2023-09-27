@@ -8,14 +8,18 @@ import TabNavigation from "../../components/TabNavigation/TabNavigation";
 import MesssageTabNavigation from "../../components/TabNavigation/MessageTabNavigation";
 import "../Ads/Ads.css";
 import "./Subscriptions.css";
-import { listSubscriptions } from "../redux/Subscriptions/SubscriptionsSlice";
+import { handleMessageAlerts, listSubscriptions } from "../redux/Subscriptions/SubscriptionsSlice";
 import Subscription from "./Subscription";
 import { Alert } from "@mui/material";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 
 function Subscriptions() {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
-  const { subscriptions, SubscriptionSuccessAlert, SubscriptionErrorAlert, error } = useSelector((state) => state.subscriptions);
+  const {
+    subscriptions, SubscriptionSuccessAlert, SubscriptionErrorAlert, error, loading,
+  } = useSelector((state) => state.subscriptions);
   // const activeCount = useSelector((state) => state.subscriptions.activeCount);
   // const expiredCount = useSelector((state) => state.subscriptions.expiredCount);
   const [activeTab, setActiveTab] = React.useState("Active");
@@ -40,6 +44,14 @@ function Subscriptions() {
   useEffect(() => {
     dispatch(listSubscriptions());
   }, []);
+
+  useEffect(() => {
+    if (SubscriptionSuccessAlert || SubscriptionErrorAlert) {
+      setTimeout(() => {
+        dispatch(handleMessageAlerts());
+      }, 5000);
+    }
+  }, [SubscriptionSuccessAlert, SubscriptionErrorAlert]);
 
   return (
     <>
@@ -75,7 +87,14 @@ function Subscriptions() {
       >
         <MesssageTabNavigation activeTab={activeTab} setActiveTab={setActiveTab} tabs={tabs} />
         {
-          activeTabSubscriptions && activeTabSubscriptions.map(
+          loading && (
+            <div className="loading-icon">
+              <FontAwesomeIcon icon={faSpinner} spin />
+            </div>
+          )
+        }
+        {
+          !loading && activeTabSubscriptions && activeTabSubscriptions.map(
             (subscription) => <Subscription subscription={subscription} key={subscription.id} />,
           )
         }
