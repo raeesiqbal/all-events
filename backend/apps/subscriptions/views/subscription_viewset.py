@@ -18,7 +18,7 @@ from apps.utils.constants import PRODUCT_NAMES
 from apps.subscriptions.constants import SUBSCRIPTION_STATUS, SUBSCRIPTION_TYPES
 
 # models
-from apps.subscriptions.models import Subscription, SubscriptionType
+from apps.subscriptions.models import Subscription, SubscriptionType, PaymentMethod
 from apps.ads.models import Ad
 from apps.companies.models import Company
 
@@ -30,6 +30,7 @@ from apps.subscriptions.serializers.create_serializer import (
 from apps.subscriptions.serializers.get_serializer import (
     TestSerializer,
     CurrentSubscriptionSerializer,
+    GetPaymentMethodSerializer,
 )
 
 from apps.subscriptions.serializers.update_serializer import (
@@ -50,9 +51,9 @@ class SubscriptionsViewSet(BaseViewset):
         "update_subscription": InputSubscriptionIdSerializer,
         "cancel_subscription": CancelSubscriptionSerializer,
         "resume_subscription": CancelSubscriptionSerializer,
-        # "update_payment_method": CancelSubscriptionSerializer,
         "product_subscription_list": InputPriceIdSerializer,
         "current_subscription": CurrentSubscriptionSerializer,
+        "get_payment_method": GetPaymentMethodSerializer,
     }
     action_permissions = {
         "default": [],
@@ -60,10 +61,11 @@ class SubscriptionsViewSet(BaseViewset):
         "update_subscription": [IsAuthenticated, IsVendorUser],
         "cancel_subscription": [IsAuthenticated, IsVendorUser],
         "resume_subscription": [IsAuthenticated, IsVendorUser],
-        "update_payment_method": [IsAuthenticated, IsVendorUser],
         "subscription_success": [IsAuthenticated, IsVendorUser],
         "my_subscriptions": [IsAuthenticated, IsVendorUser],
         "current_subscription": [IsAuthenticated, IsVendorUser],
+        "update_payment_method": [IsAuthenticated, IsVendorUser],
+        "get_payment_method": [IsAuthenticated, IsVendorUser],
     }
     stripe_service = StripeService()
     webhook_service = WebHookService()
@@ -457,6 +459,51 @@ class SubscriptionsViewSet(BaseViewset):
             # Use this webhook to notify your user that their payment has
             # failed and to retrieve new card details.
             print(data_object)
+        if event_type == "customer.updated":
+            company = Company.objects.filter(
+                stripe_customer_id=data_object.customer
+            ).first()
+
+            if PaymentMethod.objects.filter(company=company).exists():
+                payment_method = PaymentMethod.objects.filter(company=company).first()
+                if (
+                    not payment_method.payment_method_id
+                    == data_object.invoice_settings.default_payment_method
+                ):
+                    retrieve_payment_method = self.stripe.PaymentMethod.retrieve(
+                        data_object.invoice_settings.default_payment_method
+                    )
+                    payment_method.payment_method_id = retrieve_payment_method.id
+                    payment_method.brand = data_object.card.brand
+                    payment_method.last_4 = data_object.card.last4
+                    payment_method.save()
+
+            PaymentMethod.objects.create(
+                company=company,
+                payment_method_id=data_object.id,
+                brand=data_object.card.brand,
+                last_4=data_object.card.last4,
+            )
+
+        if event_type == "payment_method.attached":
+            company = Company.objects.filter(
+                stripe_customer_id=data_object.customer
+            ).first()
+            if PaymentMethod.objects.filter(company=company).exists():
+                PaymentMethod.objects.filter(company=company).update(
+                    payment_method_id=data_object.id,
+                    brand=data_object.card.brand,
+                    last_4=data_object.card.last4,
+                )
+            else:
+                PaymentMethod.objects.create(
+                    company=company,
+                    payment_method_id=data_object.id,
+                    brand=data_object.card.brand,
+                    last_4=data_object.card.last4,
+                )
+
+            print(data_object)
 
         if event_type == "checkout.session.completed":
             session_id = data_object.id
@@ -579,7 +626,7 @@ class SubscriptionsViewSet(BaseViewset):
                 ),
             )
 
-    @action(detail=False, url_path="update-payment-method", methods=["post"])
+    @action(detail=False, url_path="update-payment-method", methods=["get"])
     def update_payment_method(self, request, *args, **kwargs):
         subscription = Subscription.objects.filter(
             company=request.user.user_company, subscription_id__isnull=False
@@ -606,5 +653,20 @@ class SubscriptionsViewSet(BaseViewset):
                 data=session,
                 status_code=status.HTTP_200_OK,
                 message="Checkout session",
+            ),
+        )
+
+    @action(detail=False, url_path="get-payment-method", methods=["get"])
+    def get_payment_method(self, request, *args, **kwargs):
+        payment_method = PaymentMethod.objects.filter(
+            company=request.user.user_company
+        ).first()
+        data = self.get_serializer(payment_method).data
+        return Response(
+            status=status.HTTP_200_OK,
+            data=ResponseInfo().format_response(
+                data=data,
+                status_code=status.HTTP_200_OK,
+                message="Payment method",
             ),
         )

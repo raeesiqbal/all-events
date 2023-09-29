@@ -2,7 +2,7 @@ from rest_framework import serializers
 from apps.clients.models import Client
 from apps.users.models import User
 from apps.utils.serializers.base import BaseSerializer
-from apps.subscriptions.models import Subscription, SubscriptionType
+from apps.subscriptions.models import Subscription, SubscriptionType, PaymentMethod
 from apps.subscriptions.stripe_service import StripeService
 
 
@@ -31,4 +31,10 @@ class SubscriptionDashboardSerializer(BaseSerializer):
 
     class Meta:
         model = Subscription
+        fields = "__all__"
+
+
+class GetPaymentMethodSerializer(BaseSerializer):
+    class Meta:
+        model = PaymentMethod
         fields = "__all__"
