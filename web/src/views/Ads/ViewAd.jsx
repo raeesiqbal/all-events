@@ -10,9 +10,9 @@ import {
 // import * as Yup from "yup";
 import { useNavigate, useParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faStar } from "@fortawesome/fontawesome-free-solid";
 import useEmblaCarousel from "embla-carousel-react";
 import { useDispatch, useSelector } from "react-redux";
+import { faHeart } from "@fortawesome/free-regular-svg-icons";
 import Header from "../../components/Navbar/Navbar";
 // import FbIcon from "../../assets/images/post-ad/fb-outlined.svg";
 // import InstaIcon from "../../assets/images/post-ad/insta-outlined.svg";
@@ -37,11 +37,16 @@ import { handleStartContact } from "../redux/Contacts/ContactsSlice";
 // import profile_bg from "../../assets/images/profile-settings/profile-bg.svg";
 // import "./ProfileSettings.css";
 import Footer from "../../components/Footer/Footer";
-import { secureInstance } from "../../axios/config";
+import { instance, secureInstance } from "../../axios/config";
 import "./Ads.css";
 import { handleStartChat } from "../redux/Chats/ChatsSlice";
 import Reviews from "../Reviews/Reviews";
 import useWindowDimensions from "../../utilities/hooks/useWindowDimension";
+import { favoriteAd } from "../redux/Posts/AdsSlice";
+import Rating from "../../components/Rating/Rating";
+import StarRating from "../../components/Rating/StarRating";
+import { faFacebook, faInstagram, faTiktok, faTwitter, faYoutube } from "@fortawesome/free-brands-svg-icons";
+import { faLink } from "@fortawesome/free-solid-svg-icons";
 
 export function PrevButton(props) {
   const { enabled, onClick } = props;
@@ -149,15 +154,17 @@ function ViewAd() {
   const getAdInfo = async () => {
     try {
       // setLoading(true);
-      const request = await secureInstance.request({
-        url: `/api/ads/${params.adId}/${user?.role ? "public-get/" : ""}`,
+      const request = user?.role === "client" ? secureInstance : instance;
+      const response = await request.request({
+        url: `/api/ads/${params.adId}/public-get/`,
         method: "Get",
       });
-      setCurrentAd(request.data.data);
+      setCurrentAd(response.data.data);
       // handleAlert();
       // setPersonalInfo(request.data.data);
       // setLoading(false);
     } catch (error) {
+      navigate("/");
       // handleFailedAlert();
       // setLoading(false);
     }
@@ -226,11 +233,30 @@ function ViewAd() {
       >
         <Row>
           <div className="d-flex align-items-center justify-content-between">
-            <div className="roboto-bold-36px-h1">{currentAd?.name}</div>
+            <div className="roboto-bold-36px-h1 ps-4">
+              {
+                currentAd && user?.role && (
+                  <FontAwesomeIcon
+                    icon={currentAd.fav ? "fa-heart fa-solid" : faHeart}
+                    style={{ color: "#A0C49D", cursor: "pointer" }}
+                    className="me-2"
+                    onClick={() => {
+                      dispatch(favoriteAd(currentAd.id));
+                      setTimeout(() => {
+                        getAdInfo();
+                      }, 100);
+                    }}
+                  />
+                )
+              }
+              {currentAd?.name}
+            </div>
 
             <div>
               <img src={MapIcon} alt="MapIcon" className="me-2" />
               <span className="roboto-regular-16px-information">
+                {currentAd?.city}
+                {", "}
                 {currentAd?.country.name}
               </span>
             </div>
@@ -327,6 +353,18 @@ function ViewAd() {
           <Col lg={4}>
             <div className="d-flex justify-content-between flex-column h-100">
               <div className="d-flex flex-column">
+                <div className="d-flex w-100 align-items-center pt-3">
+                  <StarRating
+                    averageRating={currentAd?.average_rating?.toFixed(1) || 0}
+                    style={{ width: "fit-content", fontSize: "18px", marginRight: "7px" }}
+                  />
+                  <strong>{currentAd?.average_rating?.toFixed(1) || "0.0"}</strong>
+                  <div className="ms-2" style={{ color: "#797979" }}>
+                    {currentAd?.total_reviews || 0}
+                    {" "}
+                    Reviews
+                  </div>
+                </div>
                 {(currentAd?.facebook !== ""
                   || currentAd?.instagram !== ""
                   || currentAd?.youtube !== ""
@@ -335,76 +373,134 @@ function ViewAd() {
                   || currentAd?.others !== null) && (
                   <div className="d-flex align-items-center justify-content-between mt-2">
                     <div className="roboto-regular-16px-information">
-                      Follow us on
+                      Follow
+                      {" "}
+                      {currentAd?.name}
+                      {" "}
+                      on
                     </div>
 
-                    <div>
+                    <div className="d-flex">
                       {currentAd?.facebook !== "" && (
-                        <img
-                          src={FbIcon}
-                          alt="FbIcon"
-                          className="me-1"
-                          style={{ cursor: "pointer" }}
-                          onClick={() => window.open(`/${currentAd?.facebook}`, "_blank")}
-                          // onClick={() => navigate(`/${currentAd?.facebook}`)}
-                        />
+                        <a
+                          className="d-flex align-items-center justify-content-center me-1"
+                          style={{
+                            border: "1px solid #A0C49D",
+                            background: "#A0C49D30",
+                            width: "32px",
+                            height: "32px",
+                            borderRadius: "50%",
+                            cursor: "pointer",
+                            color: "#A0C49D",
+                          }}
+                          href={currentAd?.facebook}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <FontAwesomeIcon icon={faFacebook} />
+                        </a>
                       )}
                       {currentAd?.instagram !== "" && (
-                        <img
-                          src={InstaIcon}
-                          alt="InstaIcon"
-                          className="me-1"
-                          style={{ cursor: "pointer" }}
-                          // onClick={() => navigate(`/${currentAd?.instagram}`)}
-                          onClick={() => window.open(`/${currentAd?.instagram}`, "_blank")}
-                        />
+                        <a
+                          className="d-flex align-items-center justify-content-center me-1"
+                          style={{
+                            border: "1px solid #A0C49D",
+                            background: "#A0C49D30",
+                            width: "32px",
+                            height: "32px",
+                            borderRadius: "50%",
+                            cursor: "pointer",
+                            color: "#A0C49D",
+                          }}
+                          href={currentAd?.instagram}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <FontAwesomeIcon icon={faInstagram} />
+                        </a>
                       )}
                       {currentAd?.youtube !== "" && (
-                        <img
-                          src={youtubeIcon}
-                          className="me-1"
-                          alt="youtubeIcon"
-                          style={{ cursor: "pointer" }}
-                          // onClick={() => navigate(`/${currentAd?.youtube}`)}
-                          onClick={() => window.open(`/${currentAd?.youtube}`, "_blank")}
-                        />
+                        <a
+                          className="d-flex align-items-center justify-content-center me-1"
+                          style={{
+                            border: "1px solid #A0C49D",
+                            background: "#A0C49D30",
+                            width: "32px",
+                            height: "32px",
+                            borderRadius: "50%",
+                            cursor: "pointer",
+                            color: "#A0C49D",
+                          }}
+                          href={currentAd?.youtube}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <FontAwesomeIcon icon={faYoutube} />
+                        </a>
                       )}
                       {currentAd?.tiktok !== "" && (
-                        <img
-                          src={tiktokIcon}
-                          className="me-1"
-                          alt="tiktokIcon"
-                          style={{ cursor: "pointer" }}
-                          // onClick={() => navigate(`/${currentAd?.tiktok}`)}
-                          onClick={() => window.open(`/${currentAd?.tiktok}`, "_blank")}
-                        />
+                        <a
+                          className="d-flex align-items-center justify-content-center me-1"
+                          style={{
+                            border: "1px solid #A0C49D",
+                            background: "#A0C49D30",
+                            width: "32px",
+                            height: "32px",
+                            borderRadius: "50%",
+                            cursor: "pointer",
+                            color: "#A0C49D",
+                          }}
+                          href={currentAd?.tiktok}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <FontAwesomeIcon icon={faTiktok} />
+                        </a>
                       )}
                       {currentAd?.twitter !== "" && (
-                        <img
-                          src={twitterIcon}
-                          className="me-1"
-                          alt="twitterIcon"
-                          style={{ cursor: "pointer" }}
-                          // onClick={() => navigate(`/${currentAd?.twitter}`)}
-                          onClick={() => window.open(`/${currentAd?.twitter}`, "_blank")}
-                        />
+                        <a
+                          className="d-flex align-items-center justify-content-center me-1"
+                          style={{
+                            border: "1px solid #A0C49D",
+                            background: "#A0C49D30",
+                            width: "32px",
+                            height: "32px",
+                            borderRadius: "50%",
+                            cursor: "pointer",
+                            color: "#A0C49D",
+                          }}
+                          href={currentAd?.twitter}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <FontAwesomeIcon icon={faTwitter} />
+                        </a>
                       )}
-                      {currentAd?.others !== null && (
-                        <img
-                          src={otherIcon}
-                          className="me-1"
-                          alt="otherIcon"
-                          style={{ cursor: "pointer" }}
-                          // onClick={() => navigate(`/${currentAd?.others}`)}
-                          onClick={() => window.open(`/${currentAd?.others}`, "_blank")}
-                        />
+                      {currentAd?.others !== "" && (
+                        <a
+                          className="d-flex align-items-center justify-content-center me-1"
+                          style={{
+                            border: "1px solid #A0C49D",
+                            background: "#A0C49D30",
+                            width: "32px",
+                            height: "32px",
+                            borderRadius: "50%",
+                            cursor: "pointer",
+                            color: "#A0C49D",
+                          }}
+                          href={currentAd?.others}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <FontAwesomeIcon icon={faLink} />
+                        </a>
                       )}
                     </div>
                   </div>
                 )}
               </div>
 
-              <div className="d-flex">
+              {/* <div className="d-flex">
                 <Button
                   type="submit"
                   // onClick={() => navigate("/post-ad")}
@@ -414,7 +510,7 @@ function ViewAd() {
                 >
                   Request pricing
                 </Button>
-              </div>
+              </div> */}
             </div>
           </Col>
         </Row>
@@ -422,12 +518,11 @@ function ViewAd() {
         <Row className="mt-5">
           <Col lg={8}>
             <div
-              className="d-flex align-items-center"
+              className="d-flex align-items-center px-4"
               style={{
                 height: "50px",
                 width: "100%",
                 background: "#F4F4F4",
-                padding: "0px 20px",
               }}
             >
               <div
@@ -457,11 +552,11 @@ function ViewAd() {
             </div>
 
             {currentTab === 1 && currentAd?.description !== null && (
-              <div className="d-flex flex-column">
+              <div className="d-flex flex-column ps-4 my-4">
                 <div className="d-flex roboto-semi-bold-24px-h3">About</div>
 
                 <div
-                  className="roboto-regular-16px-information mt-4"
+                  className="roboto-regular-16px-information mt-2"
                   style={{ overflowWrap: "break-word" }}
                 >
                   {currentAd?.description}
@@ -470,16 +565,23 @@ function ViewAd() {
             )}
 
             {currentTab === 1 && currentAd?.offered_services.length > 0 && (
-              <div className="d-flex flex-column">
+              <div className="d-flex flex-column ps-4 my-4">
                 <div className="d-flex roboto-semi-bold-24px-h3">
                   Offered services
                 </div>
 
-                <Row className="mt-3">
+                <Row className="mt-2">
                   {currentAd.offered_services.map((service, index) => (
                     <Col key={index} lg={4}>
                       <ul className="custom-lists roboto-regular-16px-information">
-                        <li>{service}</li>
+                        <li className="ps-2">{service}</li>
+                      </ul>
+                    </Col>
+                  ))}
+                  {currentAd.site_services.map((service, index) => (
+                    <Col key={index} lg={4}>
+                      <ul className="custom-lists roboto-regular-16px-information">
+                        <li className="ps-2">{service}</li>
                       </ul>
                     </Col>
                   ))}
@@ -488,7 +590,7 @@ function ViewAd() {
             )}
 
             {currentTab === 2 && currentAd?.ad_faqs.length > 0 && (
-              <div className="d-flex flex-column">
+              <div className="d-flex flex-column ps-4 my-4">
                 <div className="d-flex roboto-semi-bold-24px-h3">
                   Frequently Asked Questions
                 </div>
@@ -510,9 +612,41 @@ function ViewAd() {
                       </ul> */}
                         <div
                           className="roboto-regular-18px-body3 mb-2"
-                          style={{ fontWeight: "700" }}
                         >
-                          {faq.answer_input}
+                          {faq.answer}
+                        </div>
+                      </Col>
+                    </Row>
+
+                    <div
+                      style={{
+                        border: "1px solid #D9D9D9",
+                        width: "100%",
+                        marginTop: "10px",
+                      }}
+                    />
+                  </div>
+                ))}
+
+                {currentAd?.ad_faq_ad.map((faq, index) => (
+                  <div>
+                    <div
+                      className="d-flex roboto-regular-18px-body3 mt-4"
+                      style={{ fontWeight: "700" }}
+                    >
+                      {faq.site_question.question}
+                    </div>
+                    <Row className="mt-3">
+                      <Col key={index} lg={4}>
+                        {/* ----------- FOR THE CHECKBOX TYPE ANSWERS, USE THIS LI UL ELEMENT----------- */}
+                        {/* <li>{faq.question}</li> */}
+                        {/* <ul className="custom-lists-tick-icon roboto-regular-16px-information">
+                        <li>{faq.question}</li>
+                      </ul> */}
+                        <div
+                          className="roboto-regular-18px-body3 mb-2"
+                        >
+                          {faq.answer}
                         </div>
                       </Col>
                     </Row>

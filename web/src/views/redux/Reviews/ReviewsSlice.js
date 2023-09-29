@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 /* eslint-disable no-useless-catch */
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { secureInstance } from "../../../axios/config";
+import { instance, secureInstance } from "../../../axios/config";
 
 // Create an initial state for the auth slice
 const initialState = {
@@ -40,7 +40,7 @@ export const listAdReviews = createAsyncThunk(
   "Reviews/list",
   async (data, { rejectWithValue }) => {
     try {
-      const response = await secureInstance.request({
+      const response = await instance.request({
         url: `/api/analytics/ad-review/${data.id}/list?limit=${data.limit}&offset=${data.offset}&page=${data.page}`,
         method: "Get",
       });

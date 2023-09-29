@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 // import './Navbar';
-import { Button, Col, Form, Row } from "react-bootstrap"; // Import Bootstrap components
+import {
+  Button, Col, Form, Row,
+} from "react-bootstrap"; // Import Bootstrap components
 import { useDispatch, useSelector } from "react-redux";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
@@ -26,26 +28,25 @@ function Header() {
   const dispatch = useDispatch();
   const [navbarToggler, setNavbarToggler] = useState(false);
   const isRegisterView = useSelector((state) => state.register.isRegisterView);
-  const isLoginView = useSelector((state) => state.login.isLoginView);
-  const user = useSelector((state) => state.auth.user);
+  const { isLoginView } = useSelector((state) => state.login);
+  const { user } = useSelector((state) => state.auth);
   const navigate = useNavigate();
 
   useEffect(() => {
     const refreshTokenValue = getCookie("refresh_token");
-    if (refreshTokenValue && user.accessToken === null) {
+    if (refreshTokenValue && user?.accessToken === null) {
       dispatch(refreshToken());
     }
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     if (
-      user.userId === null &&
-      user.accessToken !== null &&
-      window.location.pathname === "/"
+      user?.userId === null
+      && user?.accessToken !== null
     ) {
       dispatch(getAuthenticatedUser());
     }
-  }, [user, user.accessToken]);
+  }, [user, user?.accessToken]);
 
   const handleLoginClick = (e) => {
     e.preventDefault();
@@ -189,7 +190,7 @@ function Header() {
             // title="For him"
             id="navbarDropdown"
             // style={{ borderBottom: "1px solid #1A1A1A", opacity: "0.1" }}
-            title={
+            title={(
               <>
                 <div className="nav-mobile">
                   <div className="d-flex align-items-center">For him </div>
@@ -200,7 +201,7 @@ function Header() {
                 </div>
                 <div className="mobile-border-nav" />
               </>
-            }
+            )}
           >
             <NavDropdown.Item href="#">Action</NavDropdown.Item>
             <NavDropdown.Divider />
@@ -208,7 +209,7 @@ function Header() {
           </NavDropdown>
 
           <NavDropdown
-            title={
+            title={(
               <>
                 <div className="nav-mobile">
                   <div className="d-flex align-items-center"> For her </div>
@@ -219,7 +220,7 @@ function Header() {
                 </div>
                 <div className="mobile-border-nav" />
               </>
-            }
+            )}
             id="navbarDropdown"
           >
             <NavDropdown.Item href="#">Action</NavDropdown.Item>
@@ -228,7 +229,7 @@ function Header() {
           </NavDropdown>
 
           <NavDropdown
-            title={
+            title={(
               <>
                 <div className="nav-mobile">
                   <div className="d-flex align-items-center"> Vendors </div>
@@ -239,7 +240,7 @@ function Header() {
                 </div>
                 <div className="mobile-border-nav" />
               </>
-            }
+            )}
             id="navbarDropdown"
           >
             <NavDropdown.Item href="/plans">Plans</NavDropdown.Item>
@@ -248,7 +249,7 @@ function Header() {
           </NavDropdown>
 
           <NavDropdown
-            title={
+            title={(
               <>
                 <div className="nav-mobile">
                   <div className="d-flex align-items-center"> Venues </div>
@@ -259,7 +260,7 @@ function Header() {
                 </div>
                 <div className="mobile-border-nav" />
               </>
-            }
+            )}
             id="navbarDropdown"
           >
             <NavDropdown.Item href="#">Action</NavDropdown.Item>
@@ -268,12 +269,13 @@ function Header() {
           </NavDropdown>
 
           <NavDropdown
-            title={
+            title={(
               <>
                 <div className="nav-mobile">
                   <div className="d-flex align-items-center">
                     {" "}
-                    Planning tools{" "}
+                    Planning tools
+                    {" "}
                   </div>
                   <FontAwesomeIcon
                     icon={faAngleDown}
@@ -282,7 +284,7 @@ function Header() {
                 </div>
                 <div className="mobile-border-nav" />
               </>
-            }
+            )}
             id="navbarDropdown"
           >
             <NavDropdown.Item href="#">Action</NavDropdown.Item>

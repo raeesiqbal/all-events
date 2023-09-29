@@ -32,7 +32,7 @@ function StarRating({ averageRating, style }) {
   }
 
   return (
-    <div className="star-rating w-100" style={style}>
+    <div className="star-rating" style={style}>
       {stars}
     </div>
   );

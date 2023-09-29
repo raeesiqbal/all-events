@@ -10,7 +10,7 @@ function Rating({ averageRating }) {
     >
       <h1 className="mb-0 line-height-1" style={{ fontWeight: "900" }}>{averageRating}</h1>
       <p>out of 5.0</p>
-      <StarRating averageRating={averageRating} />
+      <StarRating averageRating={averageRating} style={{ width: "100%" }} />
     </div>
   );
 }

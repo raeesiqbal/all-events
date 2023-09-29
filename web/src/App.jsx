@@ -60,11 +60,7 @@ function App() {
       />
       <Route
         path="/view-ad/:adId"
-        element={(
-          <ProtectedRoute>
-            <ViewAd />
-          </ProtectedRoute>
-        )}
+        element={(<ViewAd />)}
       />
       <Route
         path="/messages"

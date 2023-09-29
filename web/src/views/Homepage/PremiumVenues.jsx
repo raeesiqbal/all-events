@@ -58,7 +58,7 @@ function PremiumVenues() {
                   <FontAwesomeIcon
                     icon={slide.fav ? "fa-heart fa-solid" : faHeart}
                     size="lg"
-                    style={{ color: "#fff", cursor: "pointer" }}
+                    style={{ color: "#A0C49D", cursor: "pointer" }}
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
