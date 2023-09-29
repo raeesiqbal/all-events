@@ -64,3 +64,22 @@ class Subscription(NewAbstractModel):
 
     def __str__(self):
         return f"{self.id}"
+
+
+class PaymentMethod(NewAbstractModel):
+    company = models.OneToOneField(
+        "companies.Company",
+        verbose_name=_("Company"),
+        on_delete=models.CASCADE,
+        related_name="payment_method_company",
+    )
+    payment_method_id = models.TextField(_("Payment Method Id"))
+    brand = models.TextField(_("Brand"))
+    last_4 = models.TextField(_("Last 4"))
+
+    class Meta:
+        verbose_name = "PaymentMethod"
+        verbose_name_plural = "PaymentMethods"
+
+    def __str__(self):
+        return f"{self.id}"

@@ -50,6 +50,7 @@ class SubscriptionsViewSet(BaseViewset):
         "update_subscription": InputSubscriptionIdSerializer,
         "cancel_subscription": CancelSubscriptionSerializer,
         "resume_subscription": CancelSubscriptionSerializer,
+        # "update_payment_method": CancelSubscriptionSerializer,
         "product_subscription_list": InputPriceIdSerializer,
         "current_subscription": CurrentSubscriptionSerializer,
     }
@@ -59,6 +60,7 @@ class SubscriptionsViewSet(BaseViewset):
         "update_subscription": [IsAuthenticated, IsVendorUser],
         "cancel_subscription": [IsAuthenticated, IsVendorUser],
         "resume_subscription": [IsAuthenticated, IsVendorUser],
+        "update_payment_method": [IsAuthenticated, IsVendorUser],
         "subscription_success": [IsAuthenticated, IsVendorUser],
         "my_subscriptions": [IsAuthenticated, IsVendorUser],
         "current_subscription": [IsAuthenticated, IsVendorUser],
@@ -456,8 +458,24 @@ class SubscriptionsViewSet(BaseViewset):
             # failed and to retrieve new card details.
             print(data_object)
 
+        if event_type == "checkout.session.completed":
+            session_id = data_object.id
+            session = self.stripe.checkout.Session.retrieve(session_id)
+            setup_intent_id = session.setup_intent
+            setup_intent = self.stripe.SetupIntent.retrieve(setup_intent_id)
+            customer_id = setup_intent.customer
+            subscription_id = setup_intent.metadata.subscription_id
+            payment_method_id = setup_intent.payment_method
+            self.stripe.Customer.modify(
+                customer_id,
+                invoice_settings={"default_payment_method": payment_method_id},
+            )
+            self.stripe.Subscription.modify(
+                subscription_id,
+                default_payment_method=payment_method_id,
+            )
+
         if event_type == "customer.subscription.updated":
-            pass
             if Subscription.objects.filter(subscription_id=data_object.id).exists():
                 if data_object.status == "canceled":
                     Subscription.objects.filter(subscription_id=data_object.id).delete()
@@ -560,3 +578,33 @@ class SubscriptionsViewSet(BaseViewset):
                     message="Try again, there are some error",
                 ),
             )
+
+    @action(detail=False, url_path="update-payment-method", methods=["post"])
+    def update_payment_method(self, request, *args, **kwargs):
+        subscription = Subscription.objects.filter(
+            company=request.user.user_company, subscription_id__isnull=False
+        ).first()
+        session = None
+
+        if subscription:
+            session = self.stripe.checkout.Session.create(
+                payment_method_types=["card"],
+                mode="setup",
+                customer=subscription.stripe_customer_id,
+                setup_intent_data={
+                    "metadata": {
+                        "subscription_id": subscription.subscription_id,
+                    },
+                },
+                success_url="https://example.com/success?session_id={CHECKOUT_SESSION_ID}",
+                cancel_url="https://example.com/cancel",
+            )
+
+        return Response(
+            status=status.HTTP_200_OK,
+            data=ResponseInfo().format_response(
+                data=session,
+                status_code=status.HTTP_200_OK,
+                message="Checkout session",
+            ),
+        )

@@ -337,8 +337,10 @@ class MessageViewSet(BaseViewset):
             chat.is_read_vendor = False
         elif request.user.role_type == USER_ROLE_TYPES["VENDOR"]:
             chat.is_read_client = False
+
         chat.latest_message = message
         chat.save()
+        print("latest message ha", chat.latest_message)
 
         serializer = ChatMessageSerializer(message)
 
