@@ -82,6 +82,7 @@ class AdViewSet(BaseViewset):
         "premium_venue_ads": PremiumAdGetSerializer,
         "premium_vendor_ads": PremiumAdGetSerializer,
         "premium_venue_countries": CountryGetSerializer,
+        "public_ad_retrieve": AdPublicGetSerializer,
     }
     action_permissions = {
         "default": [],
@@ -336,13 +337,16 @@ class AdViewSet(BaseViewset):
 
     @action(detail=True, url_path="public-get", methods=["get"])
     def public_ad_retrieve(self, request, *args, **kwargs):
+        data = None
         obj = self.queryset.filter(id=kwargs["pk"]).first()
-        serializer = self.get_serializer(obj)
+        serializer = self.get_serializer(obj).data
+        if obj:
+            data = serializer
 
         return Response(
             status=status.HTTP_200_OK,
             data=ResponseInfo().format_response(
-                data=serializer.data, status_code=status.HTTP_200_OK, message="Ads Get"
+                data=data, status_code=status.HTTP_200_OK, message="Ads Get"
             ),
         )
 

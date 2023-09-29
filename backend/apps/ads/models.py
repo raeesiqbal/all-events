@@ -72,7 +72,6 @@ class Ad(NewAbstractModel):
         "ads.Country",
         related_name="country_ads",
         verbose_name=_("Judete in care oferiti serviciile mentionate"),
-        null=True,
         blank=True,
     )
     # contact information
