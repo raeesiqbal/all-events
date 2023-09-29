@@ -5,10 +5,9 @@ import { useSelector } from "react-redux";
 
 const Checkout = () => {
   // const navigate = useNavigate();
-  const clientSecret = useSelector((state) => state.subscriptions.clientSecret);
-  const subscriptionId = useSelector((state) => state.subscriptions.subscriptionId);
+  const { clientSecret, subscriptionId } = useSelector((state) => state.subscriptions);
   // eslint-disable-next-line no-undef
-  const [stripe, setStripe] = useState(Stripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY));
+  const [stripe, setStripe] = useState();
   const [elements, setElements] = useState();
 
   useEffect(() => {
@@ -32,7 +31,7 @@ const Checkout = () => {
     const result = await stripe.confirmPayment({
       elements,
       confirmParams: {
-        return_url: `${window.location.protocol}//${window.location.host}/`,
+        return_url: `${window.location.protocol}//${window.location.host}/subscriptions`,
       },
     });
 

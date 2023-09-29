@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import {
   Col,
   Container, Row,
@@ -12,6 +13,7 @@ import Plan from "./Plan";
 
 const Plans = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const {
     plans, freePlan, currentSubscription, SubscriptionSuccessAlert, SubscriptionErrorAlert, error, loading,
   } = useSelector((state) => state.subscriptions);
@@ -48,6 +50,7 @@ const Plans = () => {
   };
 
   useEffect(() => {
+    if (user?.role === "client") navigate("/");
     dispatch(listPlans(user?.userId !== null));
   }, [user?.userId]);
 

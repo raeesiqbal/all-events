@@ -461,17 +461,17 @@ class SubscriptionsViewSet(BaseViewset):
             print(data_object)
         if event_type == "customer.updated":
             company = Company.objects.filter(
-                stripe_customer_id=data_object.customer
+                stripe_customer_id=data_object["customer"]
             ).first()
 
             if PaymentMethod.objects.filter(company=company).exists():
                 payment_method = PaymentMethod.objects.filter(company=company).first()
                 if (
                     not payment_method.payment_method_id
-                    == data_object.invoice_settings.default_payment_method
+                    == data_object["id"]
                 ):
                     retrieve_payment_method = self.stripe.PaymentMethod.retrieve(
-                        data_object.invoice_settings.default_payment_method
+                        data_object["id"]
                     )
                     payment_method.payment_method_id = retrieve_payment_method.id
                     payment_method.brand = data_object.card.brand

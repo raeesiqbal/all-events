@@ -89,7 +89,7 @@ function ProfileSettings() {
               {user?.role !== "client" && (
                 <Col md={6} className="mb-5">
                   <Card
-                    style={{ width: "21rem" }}
+                    style={{ minHeight: "180px" }}
                     className="custom-card"
                     onClick={() =>
                       dispatch(
