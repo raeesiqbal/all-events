@@ -14,7 +14,6 @@ const initialState = {
   favAdsAnalytics: [],
   reviewsAdsAnalytics: [],
   messagesAdsAnalytics: [],
-  period: "last_month",
   AnalyticSuccessAlert: false,
   AnalyticErrorAlert: false,
 };
@@ -40,14 +39,13 @@ export const getFavAdsAnalytics = createAsyncThunk(
   "Analytics/fav-ads",
   async ({ adId, dateRange }, { rejectWithValue }) => {
     try {
-      const period = dateRange || "last_month";
-      let url = `/api/analytics/ad-analytics/favourites?date_range=${period}`;
+      let url = `/api/analytics/ad-analytics/favourites?date_range=${dateRange || "last_month"}`;
       if (adId !== "0") url += `&ad=${adId}`;
 
       const response = await secureInstance.request({
         url, method: "Get",
       });
-      return { ...response.data, period };
+      return { ...response.data };
     } catch (err) {
       // Use `err.response.data` as `action.payload` for a `rejected` action,
       // by explicitly returning it using the `rejectWithValue()` utility
@@ -60,14 +58,13 @@ export const getReviewsAdsAnalytics = createAsyncThunk(
   "Analytics/ad-reviews",
   async ({ adId, dateRange }, { rejectWithValue }) => {
     try {
-      const period = dateRange || "last_month";
-      let url = `/api/analytics/ad-analytics/reviews?date_range=${period}`;
+      let url = `/api/analytics/ad-analytics/reviews?date_range=${dateRange || "last_month"}`;
       if (adId !== "0") url += `&ad=${adId}`;
 
       const response = await secureInstance.request({
         url, method: "Get",
       });
-      return { ...response.data, period };
+      return { ...response.data };
     } catch (err) {
       // Use `err.response.data` as `action.payload` for a `rejected` action,
       // by explicitly returning it using the `rejectWithValue()` utility
@@ -80,14 +77,13 @@ export const getMessagesAdsAnalytics = createAsyncThunk(
   "Analytics/ad-messages",
   async ({ adId, dateRange }, { rejectWithValue }) => {
     try {
-      const period = dateRange || "last_month";
-      let url = `/api/analytics/ad-analytics/messages?date_range=${period}`;
+      let url = `/api/analytics/ad-analytics/messages?date_range=${dateRange || "last_month"}`;
       if (adId !== "0") url += `&ad=${adId}`;
 
       const response = await secureInstance.request({
         url, method: "Get",
       });
-      return { ...response.data, period };
+      return { ...response.data };
     } catch (err) {
       // Use `err.response.data` as `action.payload` for a `rejected` action,
       // by explicitly returning it using the `rejectWithValue()` utility
@@ -100,11 +96,7 @@ export const getMessagesAdsAnalytics = createAsyncThunk(
 export const AnalyticsSlice = createSlice({
   name: "Analytics",
   initialState,
-  reducers: {
-    handlePeriod: (state, action) => {
-      state.period = action.payload;
-    },
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(analyticsHome.pending, (state) => {
@@ -129,7 +121,6 @@ export const AnalyticsSlice = createSlice({
       .addCase(getFavAdsAnalytics.fulfilled, (state, action) => {
         state.loading = false;
         state.favAdsAnalytics = action.payload.data.result;
-        state.period = action.payload.period;
       })
       .addCase(getFavAdsAnalytics.rejected, (state, action) => {
         state.loading = false;
@@ -142,7 +133,6 @@ export const AnalyticsSlice = createSlice({
       .addCase(getReviewsAdsAnalytics.fulfilled, (state, action) => {
         state.loading = false;
         state.reviewsAdsAnalytics = action.payload.data.result;
-        state.period = action.payload.period;
       })
       .addCase(getReviewsAdsAnalytics.rejected, (state, action) => {
         state.loading = false;
@@ -155,7 +145,6 @@ export const AnalyticsSlice = createSlice({
       .addCase(getMessagesAdsAnalytics.fulfilled, (state, action) => {
         state.loading = false;
         state.messagesAdsAnalytics = action.payload.data.result;
-        state.period = action.payload.period;
       })
       .addCase(getMessagesAdsAnalytics.rejected, (state, action) => {
         state.loading = false;
@@ -163,10 +152,6 @@ export const AnalyticsSlice = createSlice({
       });
   },
 });
-
-export const {
-  handlePeriod,
-} = AnalyticsSlice.actions;
 
 // Export the reducer and actions
 export default AnalyticsSlice.reducer;

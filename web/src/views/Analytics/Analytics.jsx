@@ -13,106 +13,28 @@ import messagesIcon from "../../assets/images/messages.svg";
 import "./Analytics.css";
 import Footer from "../../components/Footer/Footer";
 import TabNavigation from "../../components/TabNavigation/TabNavigation";
-import { analyticsHome, getFavAdsAnalytics, getMessagesAdsAnalytics, getReviewsAdsAnalytics, handlePeriod } from "../redux/Analytics/AnalyticsSlice";
+import { analyticsHome } from "../redux/Analytics/AnalyticsSlice";
 import LineChart from "./LineChart";
 
 function Analytics() {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const {
-    vendorAds, totalAdFavourite, totalAdReviews, totalAdMessages, favAdsAnalytics, reviewsAdsAnalytics, messagesAdsAnalytics, period,
+    vendorAds, totalAdFavourite, totalAdReviews, totalAdMessages,
   } = useSelector((state) => state.analytics);
 
-  const initialData = { labels: [], data: [] };
-
   const [selectedAd, setSelectedAd] = useState("0");
-  const [favChartData, setFavChartData] = useState(initialData);
-  const [reviewsChartData, setReviewsChartData] = useState(initialData);
-  const [messagesChartData, setMessagesChartData] = useState(initialData);
 
   const handleSelectedAd = (e) => {
     e.preventDefault();
 
     setSelectedAd(e.target.value);
     dispatch(analyticsHome(e.target.value));
-    dispatch(getFavAdsAnalytics({ adId: e.target.value, dateRange: period }));
-    dispatch(getReviewsAdsAnalytics({ adId: e.target.value, dateRange: period }));
-    dispatch(getMessagesAdsAnalytics({ adId: e.target.value, dateRange: period }));
   };
-
-  const formatDateToMonthDay = (date) => {
-    const months = [
-      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-    ];
-
-    return `${months[date.getMonth()]} ${date.getDate()}`;
-  };
-
-  const getLastDates = () => {
-    const today = new Date();
-    const dates = [];
-
-    if (period === "last_week") {
-      const lastWeekStart = new Date(today);
-      lastWeekStart.setDate(today.getDate() - 6); // Start from 6 days ago
-
-      // Generate day names for the last week
-      while (lastWeekStart <= today) {
-        const dayName = lastWeekStart.toLocaleDateString("en-US", { weekday: "long" });
-        dates.push(dayName);
-        lastWeekStart.setDate(lastWeekStart.getDate() + 1); // Increment by 1 day
-      }
-    } else if (period === "last_month") {
-      const lastMonthStart = new Date(today);
-      lastMonthStart.setMonth(today.getMonth() - 1); // Start from 1 month ago
-      lastMonthStart.setDate(lastMonthStart.getDate() + 1);
-
-      // Generate dates for the last month
-      while (lastMonthStart <= today) {
-        dates.push(formatDateToMonthDay(new Date(lastMonthStart))); // Clone the date to avoid reference issues
-        lastMonthStart.setDate(lastMonthStart.getDate() + 1); // Increment by 1 day
-      }
-    } else {
-      throw new Error("Invalid period. Use 'last_week' or 'last_month'.");
-    }
-
-    return dates;
-  };
-
-  const labels = getLastDates(period);
-  const data = new Array(labels.length).fill(0);
 
   useEffect(() => {
     dispatch(analyticsHome("0"));
-    dispatch(getFavAdsAnalytics({ adId: "0", dateRange: period }));
-    dispatch(getReviewsAdsAnalytics({ adId: "0", dateRange: period }));
-    dispatch(getMessagesAdsAnalytics({ adId: "0", dateRange: period }));
   }, []);
-
-  const getChartData = (analytics, l, d) => {
-    Object.entries(analytics).forEach((value) => {
-      const dataDate = new Date(Object.keys((value[1]))[0]);
-      const val = period === "last_week"
-        ? dataDate.toLocaleDateString("en-US", { weekday: "long" }) : formatDateToMonthDay(dataDate);
-      const index = l.indexOf(val);
-      if (index !== -1) d[index] = Object.values(value[1])[0];
-    });
-
-    return { labels, data };
-  };
-
-  useEffect(() => {
-    setFavChartData(getChartData(favAdsAnalytics, labels, data));
-  }, [favAdsAnalytics, period]);
-
-  useEffect(() => {
-    setReviewsChartData(getChartData(reviewsAdsAnalytics, labels, data));
-  }, [reviewsAdsAnalytics, period]);
-
-  useEffect(() => {
-    setMessagesChartData(getChartData(messagesAdsAnalytics, labels, data));
-  }, [messagesAdsAnalytics, period]);
 
   return (
     <div>
@@ -132,7 +54,9 @@ function Analytics() {
         style={{ marginTop: "48px" }}
       >
         <Form.Select
+          className="px-5"
           style={{ width: "fit-content" }}
+          size="lg"
           defaultValue={selectedAd}
           onChange={handleSelectedAd}
         >
@@ -154,7 +78,7 @@ function Analytics() {
         <Row>
           <Col md={11} lg={12} xl={12}>
             <Row className="mb-5 d-flex justify-content-center align-items-center">
-              <Col md={3}>
+              <Col md={3} className="mb-3">
                 <Card
                   // style={{ maxWidth: "256px" }}
                   className="custom-card-analytics"
@@ -195,7 +119,7 @@ function Analytics() {
                   </Card.Body>
                 </Card>
               </Col>
-              <Col md={3}>
+              <Col md={3} className="mb-3">
                 <Card
                   // style={{ maxWidth: "256px" }}
                   className="custom-card-analytics"
@@ -239,7 +163,7 @@ function Analytics() {
               </Col>
 
               {/* <Row> */}
-              <Col md={3}>
+              <Col md={3} className="mb-3">
                 <Card
                   // style={{ maxWidth: "256px" }}
                   className="custom-card-analytics"
@@ -280,7 +204,7 @@ function Analytics() {
                   </Card.Body>
                 </Card>
               </Col>
-              <Col md={3}>
+              <Col md={3} className="mb-3">
                 <Card
                   // style={{ maxWidth: "256px" }}
                   className="custom-card-analytics"
@@ -324,32 +248,9 @@ function Analytics() {
             </Row>
           </Col>
         </Row>
-        <div className="w-100 d-flex justify-content-end">
-          {/* <p className="me-2 my-auto">Period: </p> */}
-          <Form.Select
-            style={{ width: "fit-content" }}
-            defaultValue={period}
-            onChange={(e) => dispatch(handlePeriod(e.target.value))}
-          >
-            <option value="last_month">Last Month</option>
-            <option value="last_week">Last Week</option>
-          </Form.Select>
-        </div>
-        {
-          favChartData.labels.length > 0 && (
-            <LineChart chartData={favChartData} label="Favourite Ads Analytics" period={period} />
-          )
-        }
-        {
-          reviewsChartData.labels.length > 0 && (
-            <LineChart chartData={reviewsChartData} label="Ad Reviews Analytics" period={period} />
-          )
-        }
-        {
-          messagesChartData.labels.length > 0 && (
-            <LineChart chartData={messagesChartData} label="Ad Messages Analytics" period={period} />
-          )
-        }
+        <LineChart label="Favourite Ads Analytics" selectedAd={selectedAd} />
+        <LineChart label="Ad Reviews Analytics" selectedAd={selectedAd} />
+        <LineChart label="Ad Messages Analytics" selectedAd={selectedAd} />
       </Container>
 
       <Footer />
