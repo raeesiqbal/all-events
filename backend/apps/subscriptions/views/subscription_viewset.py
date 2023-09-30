@@ -460,30 +460,33 @@ class SubscriptionsViewSet(BaseViewset):
             # failed and to retrieve new card details.
             print(data_object)
         if event_type == "customer.updated":
-            company = Company.objects.filter(
-                stripe_customer_id=data_object["customer"]
-            ).first()
+            pass
+            # company = Company.objects.filter(stripe_customer_id=data_object.id).first()
+            # retrieve_payment_method = self.stripe.PaymentMethod.retrieve(
+            #     data_object.invoice_settings.default_payment_method
+            # )
 
-            if PaymentMethod.objects.filter(company=company).exists():
-                payment_method = PaymentMethod.objects.filter(company=company).first()
-                if (
-                    not payment_method.payment_method_id
-                    == data_object["id"]
-                ):
-                    retrieve_payment_method = self.stripe.PaymentMethod.retrieve(
-                        data_object["id"]
-                    )
-                    payment_method.payment_method_id = retrieve_payment_method.id
-                    payment_method.brand = data_object.card.brand
-                    payment_method.last_4 = data_object.card.last4
-                    payment_method.save()
+            # if PaymentMethod.objects.filter(company=company).exists():
+            #     payment_method = PaymentMethod.objects.filter(company=company).first()
+            #     if (
+            #         not payment_method.payment_method_id
+            #         == data_object.invoice_settings.default_payment_method
+            #     ):
+            #         retrieve_payment_method = self.stripe.PaymentMethod.retrieve(
+            #             data_object.invoice_settings.default_payment_method
+            #         )
 
-            PaymentMethod.objects.create(
-                company=company,
-                payment_method_id=data_object.id,
-                brand=data_object.card.brand,
-                last_4=data_object.card.last4,
-            )
+            #         payment_method.payment_method_id = retrieve_payment_method.id
+            #         payment_method.brand = data_object.card.brand
+            #         payment_method.last_4 = data_object.card.last4
+            #         payment_method.save()
+            # else:
+            #     PaymentMethod.objects.create(
+            #         company=company,
+            #         payment_method_id=data_object.id,
+            #         brand=data_object.card.brand,
+            #         last_4=data_object.card.last4,
+            #     )
 
         if event_type == "payment_method.attached":
             company = Company.objects.filter(
@@ -502,8 +505,6 @@ class SubscriptionsViewSet(BaseViewset):
                     brand=data_object.card.brand,
                     last_4=data_object.card.last4,
                 )
-
-            print(data_object)
 
         if event_type == "checkout.session.completed":
             session_id = data_object.id
@@ -643,8 +644,8 @@ class SubscriptionsViewSet(BaseViewset):
                         "subscription_id": subscription.subscription_id,
                     },
                 },
-                success_url="https://example.com/success?session_id={CHECKOUT_SESSION_ID}",
-                cancel_url="https://example.com/cancel",
+                success_url="http://localhost:5173/subscriptions",
+                cancel_url="http://localhost:5173/subscriptions",
             )
 
         return Response(
