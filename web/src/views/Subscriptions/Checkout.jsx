@@ -1,15 +1,30 @@
 import React, { useEffect, useState } from "react";
 import { Button, Container, Form } from "react-bootstrap";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 
 const Checkout = () => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const clientSecret = useSelector((state) => state.subscriptions.clientSecret);
   const subscriptionId = useSelector((state) => state.subscriptions.subscriptionId);
   // eslint-disable-next-line no-undef
   const [stripe, setStripe] = useState(Stripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY));
   const [elements, setElements] = useState();
+
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://js.stripe.com/v3/";
+    script.async = true;
+    script.onload = () => {
+      setStripe(window.Stripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY));
+    };
+
+    document.head.appendChild(script);
+
+    return () => {
+      document.head.removeChild(script);
+    };
+  }, []);
 
   const handleCheckout = async (event) => {
     event.preventDefault();
