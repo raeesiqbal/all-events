@@ -3,6 +3,8 @@ import {
   Button, Col, Form, Modal, Row,
 } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { secureInstance } from "../../axios/config";
 import { setImagesToUpload, uploadImagesToCloud } from "../redux/Posts/AdsSlice";
 import { addReview, listAdReviews } from "../redux/Reviews/ReviewsSlice";
@@ -10,12 +12,11 @@ import Rating from "../../components/Rating/Rating";
 import titleIcon from "../../assets/images/title_icon.svg";
 import Review from "./Review";
 import "./Reviews.css";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSpinner } from "@fortawesome/free-solid-svg-icons";
+import { setScreenLoading } from "../redux/Auth/authSlice";
 
 const Reviews = ({ adId, adName }) => {
   const dispatch = useDispatch();
-  const user = useSelector((state) => state.auth.user);
+  const { user } = useSelector((state) => state.auth);
   const reviews = useSelector((state) => state.reviews.reviews);
   const imagesToUpload = useSelector((state) => state.Ads.media_urls.images);
   const loading = useSelector((state) => state.Ads.loading);
@@ -34,7 +35,6 @@ const Reviews = ({ adId, adName }) => {
     loading: false,
     index: -1,
   });
-  const [screenLoad, setScreenLoad] = useState(false);
 
   const handleImageUpload = (event) => {
     event.preventDefault();
@@ -121,7 +121,7 @@ const Reviews = ({ adId, adName }) => {
   };
 
   const removeAllImages = async (images) => {
-    setScreenLoad(true);
+    dispatch(setScreenLoading(true));
     try {
       const response = await secureInstance.request({
         url: "/api/ads/delete-urls/",
@@ -142,11 +142,20 @@ const Reviews = ({ adId, adName }) => {
     } catch (err) {
       console.log(err.message);
     }
-    setScreenLoad(false);
+    dispatch(setScreenLoading(false));
   };
 
-  const resetForm = () => {
-    removeAllImages(imagesToUpload);
+  const resetForm = (isDelete) => {
+    if (isDelete) {
+      removeAllImages(imagesToUpload);
+    } else {
+      dispatch(setImagesToUpload([]));
+      setPostReview({
+        ...postReview,
+        photos: [],
+      });
+    }
+
     setPostReview({
       name: "",
       title: "",
@@ -159,6 +168,7 @@ const Reviews = ({ adId, adName }) => {
   const submitReview = () => {
     dispatch(addReview({ id: adId, data: postReview }));
     setIsHide(true);
+    resetForm(false);
   };
 
   const viewMoreReviews = () => {
@@ -181,9 +191,6 @@ const Reviews = ({ adId, adName }) => {
           page,
         }));
       }, 1000);
-      setTimeout(() => {
-        resetForm();
-      }, 2000);
     }
   }, [isHide]);
 
@@ -211,17 +218,12 @@ const Reviews = ({ adId, adName }) => {
 
   return (
     <>
-      {
-        screenLoad && (
-          <div className="screen-loader">
-            <FontAwesomeIcon icon={faSpinner} spin color="#A0C49D" fontSize="70px" className="mx-auto my-auto" />
-          </div>
-        )
-      }
-
       <Modal
         show={!isHide}
-        onHide={() => setIsHide(true)}
+        onHide={() => {
+          setIsHide(true);
+          resetForm(true);
+        }}
         dialogClassName="modal-90w"
         aria-labelledby="example-custom-modal-styling-title"
         centered="true"
@@ -235,7 +237,14 @@ const Reviews = ({ adId, adName }) => {
             zIndex: "20",
           }}
         >
-          <div role="presentation" onClick={() => setIsHide(true)} className="close-icon">
+          <div
+            role="presentation"
+            onClick={() => {
+              setIsHide(true);
+              resetForm(true);
+            }}
+            className="close-icon"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="18"
@@ -379,7 +388,7 @@ const Reviews = ({ adId, adName }) => {
                   variant="light"
                   className="w-100"
                   style={{ fontSize: "16px", fontWeight: "600", color: "#a0c49d" }}
-                  onClick={() => resetForm()}
+                  onClick={() => resetForm(true)}
                 >
                   Clear all
                 </Button>

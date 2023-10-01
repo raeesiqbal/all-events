@@ -3,6 +3,8 @@ import {
   Route, Routes, useLocation,
 } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import Homepage from "./views/Homepage/Homepage";
 import PostAd from "./views/PostAd/PostAd";
 import ProfileView from "./views/ProfileSettings/ProfileView";
@@ -28,7 +30,7 @@ import "./App.css";
 
 function App() {
   const location = useLocation();
-  const { user } = useSelector((state) => state.auth);
+  const { user, screenLoading } = useSelector((state) => state.auth);
 
   // Define an array of routes where you want to hide the navigation bar
   const routesWithTabNavigation = [
@@ -58,6 +60,13 @@ function App() {
       {
         shouldRenderTabNavigation && user?.role && (
           <TabNavigation role={user.role} />
+        )
+      }
+      {
+        screenLoading && (
+          <div className="screen-loader">
+            <FontAwesomeIcon icon={faSpinner} spin color="#A0C49D" fontSize="70px" className="mx-auto my-auto" />
+          </div>
         )
       }
       <Routes>

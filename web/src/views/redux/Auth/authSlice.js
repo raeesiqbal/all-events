@@ -14,6 +14,7 @@ const initialState = {
     first_name: null,
     last_name: null,
   },
+  screenLoading: false,
   isRegistered: false,
   isLoggedInState: false,
   isWelcomeUserAlert: false,
@@ -99,6 +100,9 @@ export const authSlice = createSlice({
     handleWelcomeUserAlert: (state, action) => {
       state.isWelcomeUserAlert = action.payload;
     },
+    setScreenLoading: (state, action) => {
+      state.screenLoading = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -165,6 +169,7 @@ export const {
   handleResgisterationStatus,
   handleLoginStatusFalse,
   handleWelcomeUserAlert,
+  setScreenLoading,
 } = authSlice.actions;
 
 // Export the reducer and actions
