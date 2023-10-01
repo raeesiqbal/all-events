@@ -92,7 +92,8 @@ const TabNavigation = ({ role }) => {
   }, []);
 
   useEffect(() => {
-    if (currentSubscription && role === "vendor" && currentSubscription.type.analytics && tabs.length < 7) {
+    const hasAnalyticsTab = tabs.filter((tab) => tab.label === "Analytics");
+    if (currentSubscription && role === "vendor" && currentSubscription.type.analytics && hasAnalyticsTab.length === 0) {
       setTabs([...tabs, {
         label: "Analytics",
         icon: analytics,

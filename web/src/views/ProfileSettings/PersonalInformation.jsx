@@ -6,7 +6,6 @@ import {
   Col,
   Container,
   Form,
-  Modal,
   Row,
   Spinner,
 } from "react-bootstrap";
@@ -14,15 +13,11 @@ import * as formik from "formik";
 import * as Yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
 import { Alert } from "@mui/material";
-import Header from "../../components/Navbar/Navbar";
-import userIcon from "../../assets/images/profile-settings/user.svg";
 import personIcon from "../../assets/images/profile-settings/person.svg";
 import contactIcon from "../../assets/images/post-ad/contact.svg";
 
 // import profile_bg from "../../assets/images/profile-settings/profile-bg.svg";
 import "./ProfileSettings.css";
-import Footer from "../../components/Footer/Footer";
-import TabNavigation from "../../components/TabNavigation/TabNavigation";
 import { secureInstance } from "../../axios/config";
 import { handleProfileSettingsCurrentView } from "../redux/TabNavigation/TabNavigationSlice";
 import ProfilePic from "../../components/ProfilePic/ProfilePic";
@@ -116,9 +111,6 @@ function PersonalInformation() {
 
   return (
     <>
-      <Header />
-      <TabNavigation role={user.role} />
-
       <div className="profile-settings-banner d-flex align-items-center justify-content-between">
         <div className="banner-text-heading">
           <div className="roboto-bold-36px-h1">Personal Information</div>
@@ -304,8 +296,6 @@ function PersonalInformation() {
           </Col>
         </Row>
       </Container>
-
-      <Footer />
     </>
   );
 }

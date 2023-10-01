@@ -37,7 +37,7 @@ function HeroSection() {
 
     dispatch(setSearchKeyword({ name: e.target.value }));
 
-    dispatch(listSuggestions({ search_string: e.target.value }));
+    if (e.target.value !== "") dispatch(listSuggestions({ search_string: e.target.value }));
     setShowSuggestions(e.target.value !== "");
   };
 
@@ -151,7 +151,7 @@ function HeroSection() {
                     >
                       <span className="my-auto px-2">{suggestion.name}</span>
                       <div className="px-3 py-1 bg-secondary text-white my-auto">
-                        {suggestion.type}
+                        {suggestion.type.replace(/_/g, " ")}
                       </div>
                     </div>
                   ))}

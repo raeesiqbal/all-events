@@ -136,7 +136,7 @@ function Header() {
       ) : (
         <Button
           type="button"
-          className="btn-danger-custom text-danger login-button-mobile roboto-semi-bold-16px-information me-5"
+          className="btn-logout text-secondary login-button-mobile roboto-semi-bold-16px-information me-5"
           style={{
             fontSize: "16px",
             fontWeight: "700",
@@ -331,7 +331,7 @@ function Header() {
               <Col lg={3}>
                 <Button
                   type="button"
-                  className="btn-danger-custom login-button text-danger roboto-semi-bold-16px-information"
+                  className="btn-logout login-button text-secondary roboto-semi-bold-16px-information"
                   style={{
                     fontSize: "16px",
                     fontWeight: "700",

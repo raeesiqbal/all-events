@@ -13,30 +13,9 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import useEmblaCarousel from "embla-carousel-react";
 import { useDispatch, useSelector } from "react-redux";
 import { faHeart } from "@fortawesome/free-regular-svg-icons";
-import Header from "../../components/Navbar/Navbar";
-// import FbIcon from "../../assets/images/post-ad/fb-outlined.svg";
-// import InstaIcon from "../../assets/images/post-ad/insta-outlined.svg";
-import FbIcon from "../../assets/images/post-ad/facebook.svg";
-import InstaIcon from "../../assets/images/post-ad/insta.svg";
-import youtubeIcon from "../../assets/images/post-ad/youtube.svg";
-import tiktokIcon from "../../assets/images/post-ad/tiktok.svg";
-import twitterIcon from "../../assets/images/post-ad/twitter.svg";
-import otherIcon from "../../assets/images/post-ad/sub-category.svg";
 import MapIcon from "../../assets/images/post-ad/map-outlined.svg";
 import { handleStartContact } from "../redux/Contacts/ContactsSlice";
 
-// import deleteIcon from "../../assets/images/post-ad/delete.svg";
-// import editIcon from "../../assets/images/post-ad/edit.svg";
-// import gotoIcon from "../../assets/images/post-ad/goto.svg";
-// import noAds from "../../assets/images/post-ad/no-ads.svg";
-
-// import bannerBackgroundImg from "../../assets/images/profile-settings/ads-bg.svg";
-// import confirmPasswordIcon from "../../assets/images/profile-settings/confirm-password.svg";
-// import questionIcon from "../../assets/images/profile-settings/question.svg";
-
-// import profile_bg from "../../assets/images/profile-settings/profile-bg.svg";
-// import "./ProfileSettings.css";
-import Footer from "../../components/Footer/Footer";
 import { instance, secureInstance } from "../../axios/config";
 import "./Ads.css";
 import { handleStartChat } from "../redux/Chats/ChatsSlice";
@@ -224,560 +203,555 @@ function ViewAd() {
   };
 
   return (
-    <>
-      <Header />
-      <Container
-        // fluid
-        style={{ marginTop: "40px", marginBottom: "200px" }}
-        className=""
-      >
-        <Row>
-          <div className="d-flex align-items-center justify-content-between">
-            <div className="roboto-bold-36px-h1 ps-4">
-              {
-                currentAd && user?.role && (
-                  <FontAwesomeIcon
-                    icon={currentAd.fav ? "fa-heart fa-solid" : faHeart}
-                    style={{ color: "#A0C49D", cursor: "pointer" }}
-                    className="me-2"
-                    onClick={() => {
-                      dispatch(favoriteAd(currentAd.id));
-                      setTimeout(() => {
-                        getAdInfo();
-                      }, 100);
-                    }}
-                  />
-                )
-              }
-              {currentAd?.name}
+    <Container
+      // fluid
+      style={{ marginTop: "40px", marginBottom: "200px" }}
+      className=""
+    >
+      <Row>
+        <div className="d-flex align-items-center justify-content-between">
+          <div className="roboto-bold-36px-h1 ps-4">
+            {
+              currentAd && user?.role && (
+                <FontAwesomeIcon
+                  icon={currentAd.fav ? "fa-heart fa-solid" : faHeart}
+                  style={{ color: "#A0C49D", cursor: "pointer" }}
+                  className="me-2"
+                  onClick={() => {
+                    dispatch(favoriteAd(currentAd.id));
+                    setTimeout(() => {
+                      getAdInfo();
+                    }, 100);
+                  }}
+                />
+              )
+            }
+            {currentAd?.name}
+          </div>
+
+          <div>
+            <img src={MapIcon} alt="MapIcon" className="me-2" />
+            <span className="roboto-regular-16px-information">
+              {currentAd?.city}
+              {", "}
+              {currentAd?.country.name}
+            </span>
+          </div>
+        </div>
+        <Col lg={8}>
+          <Row>
+            <div className="carousel__container__view__ad">
+              <div className="embla__view__ad">
+                <div className="embla__viewport__view__ad" ref={emblaRef}>
+                  {mediaQuery.width > 441 ? (
+                    <div className="embla__container__view__ad">
+                      {slidesModified.map((slide, index) => (
+                        <div key={index} className="carousel-slide">
+                          <Row>
+                            <Col
+                              sm={6}
+                              md={6}
+                              lg={
+                                slide[`image${index * 3 + 2}`]
+                                || slide[`image${index * 3 + 3}`]
+                                  ? 6
+                                  : 12
+                              }
+                              xl={
+                                slide[`image${index * 3 + 2}`]
+                                || slide[`image${index * 3 + 3}`]
+                                  ? 6
+                                  : 12
+                              }
+                              className="main-image-container"
+                            >
+                              <img
+                                src={slide[`image${index * 3 + 1}`]}
+                                alt={`image${index * 3 + 1}`}
+                                className="main-image"
+                              />
+                            </Col>
+
+                            <Col
+                              sm={6}
+                              md={6}
+                              lg={6}
+                              xl={6}
+                              className="image-stack"
+                            >
+                              {slide[`image${index * 3 + 2}`] && (
+                                <img
+                                  src={slide[`image${index * 3 + 2}`]}
+                                  alt={`image${index * 3 + 2}`}
+                                  className="stacked-image"
+                                  style={{
+                                    minHeight: slide[`image${index * 3 + 3}`]
+                                      ? "100%"
+                                      : "464px",
+                                  }}
+                                />
+                              )}
+                              {slide[`image${index * 3 + 3}`] && (
+                                <img
+                                  src={slide[`image${index * 3 + 3}`]}
+                                  alt={`image${index * 3 + 3}`}
+                                  className="stacked-image"
+                                />
+                              )}
+                            </Col>
+                          </Row>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="embla__container__view__ad">
+                      {imageLinks?.map((slide, index) => (
+                        <div key={index} className="carousel-slide">
+                          <Row>
+                            <Col>
+                              <img
+                                src={slide}
+                                alt={index}
+                                className="main-image"
+                              />
+                            </Col>
+                          </Row>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <PrevButton onClick={scrollPrev} enabled={prevBtnEnabled} />
+                <NextButton onClick={scrollNext} enabled={nextBtnEnabled} />
+              </div>
+            </div>
+          </Row>
+        </Col>
+        <Col lg={4}>
+          <div className="d-flex justify-content-between flex-column h-100">
+            <div className="d-flex flex-column">
+              <div className="d-flex w-100 align-items-center pt-3">
+                <StarRating
+                  averageRating={currentAd?.average_rating?.toFixed(1) || 0}
+                  style={{ width: "fit-content", fontSize: "18px", marginRight: "7px" }}
+                />
+                <strong>{currentAd?.average_rating?.toFixed(1) || "0.0"}</strong>
+                <div className="ms-2" style={{ color: "#797979" }}>
+                  {currentAd?.total_reviews || 0}
+                  {" "}
+                  Reviews
+                </div>
+              </div>
+              {(currentAd?.facebook !== ""
+                || currentAd?.instagram !== ""
+                || currentAd?.youtube !== ""
+                || currentAd?.tiktok !== ""
+                || currentAd?.twitter !== ""
+                || currentAd?.others !== null) && (
+                <div className="d-flex align-items-center justify-content-between mt-2">
+                  <div className="roboto-regular-16px-information">
+                    Follow
+                    {" "}
+                    {currentAd?.name}
+                    {" "}
+                    on
+                  </div>
+
+                  <div className="d-flex">
+                    {currentAd?.facebook !== "" && (
+                      <a
+                        className="d-flex align-items-center justify-content-center me-1"
+                        style={{
+                          border: "1px solid #A0C49D",
+                          background: "#A0C49D30",
+                          width: "32px",
+                          height: "32px",
+                          borderRadius: "50%",
+                          cursor: "pointer",
+                          color: "#A0C49D",
+                        }}
+                        href={currentAd?.facebook}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <FontAwesomeIcon icon={faFacebook} />
+                      </a>
+                    )}
+                    {currentAd?.instagram !== "" && (
+                      <a
+                        className="d-flex align-items-center justify-content-center me-1"
+                        style={{
+                          border: "1px solid #A0C49D",
+                          background: "#A0C49D30",
+                          width: "32px",
+                          height: "32px",
+                          borderRadius: "50%",
+                          cursor: "pointer",
+                          color: "#A0C49D",
+                        }}
+                        href={currentAd?.instagram}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <FontAwesomeIcon icon={faInstagram} />
+                      </a>
+                    )}
+                    {currentAd?.youtube !== "" && (
+                      <a
+                        className="d-flex align-items-center justify-content-center me-1"
+                        style={{
+                          border: "1px solid #A0C49D",
+                          background: "#A0C49D30",
+                          width: "32px",
+                          height: "32px",
+                          borderRadius: "50%",
+                          cursor: "pointer",
+                          color: "#A0C49D",
+                        }}
+                        href={currentAd?.youtube}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <FontAwesomeIcon icon={faYoutube} />
+                      </a>
+                    )}
+                    {currentAd?.tiktok !== "" && (
+                      <a
+                        className="d-flex align-items-center justify-content-center me-1"
+                        style={{
+                          border: "1px solid #A0C49D",
+                          background: "#A0C49D30",
+                          width: "32px",
+                          height: "32px",
+                          borderRadius: "50%",
+                          cursor: "pointer",
+                          color: "#A0C49D",
+                        }}
+                        href={currentAd?.tiktok}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <FontAwesomeIcon icon={faTiktok} />
+                      </a>
+                    )}
+                    {currentAd?.twitter !== "" && (
+                      <a
+                        className="d-flex align-items-center justify-content-center me-1"
+                        style={{
+                          border: "1px solid #A0C49D",
+                          background: "#A0C49D30",
+                          width: "32px",
+                          height: "32px",
+                          borderRadius: "50%",
+                          cursor: "pointer",
+                          color: "#A0C49D",
+                        }}
+                        href={currentAd?.twitter}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <FontAwesomeIcon icon={faTwitter} />
+                      </a>
+                    )}
+                    {currentAd?.others !== "" && (
+                      <a
+                        className="d-flex align-items-center justify-content-center me-1"
+                        style={{
+                          border: "1px solid #A0C49D",
+                          background: "#A0C49D30",
+                          width: "32px",
+                          height: "32px",
+                          borderRadius: "50%",
+                          cursor: "pointer",
+                          color: "#A0C49D",
+                        }}
+                        href={currentAd?.others}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <FontAwesomeIcon icon={faLink} />
+                      </a>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
 
-            <div>
-              <img src={MapIcon} alt="MapIcon" className="me-2" />
-              <span className="roboto-regular-16px-information">
-                {currentAd?.city}
-                {", "}
-                {currentAd?.country.name}
-              </span>
+            {/* <div className="d-flex">
+              <Button
+                type="submit"
+                // onClick={() => navigate("/post-ad")}
+                className="btn btn-success roboto-semi-bold-16px-information w-100 mt-5"
+                style={{}}
+                // style={{ padding: "0 100px" }}
+              >
+                Request pricing
+              </Button>
+            </div> */}
+          </div>
+        </Col>
+      </Row>
+
+      <Row className="mt-5">
+        <Col lg={8}>
+          <div
+            className="d-flex align-items-center px-4"
+            style={{
+              height: "50px",
+              width: "100%",
+              background: "#F4F4F4",
+            }}
+          >
+            <div
+              className={`${
+                currentTab === 1 && "active-tab"
+              } roboto-regular-16px-information tab me-1`}
+              onClick={() => setCurrentTab(1)}
+            >
+              About
+            </div>
+            <div
+              className={`${
+                currentTab === 2 && "active-tab"
+              } roboto-regular-16px-information tab`}
+              onClick={() => setCurrentTab(2)}
+            >
+              FAQs
+            </div>
+            <div
+              className={`${
+                currentTab === 3 && "active-tab"
+              } roboto-regular-16px-information tab`}
+              onClick={() => setCurrentTab(3)}
+            >
+              Reviews
             </div>
           </div>
-          <Col lg={8}>
-            <Row>
-              <div className="carousel__container__view__ad">
-                <div className="embla__view__ad">
-                  <div className="embla__viewport__view__ad" ref={emblaRef}>
-                    {mediaQuery.width > 441 ? (
-                      <div className="embla__container__view__ad">
-                        {slidesModified.map((slide, index) => (
-                          <div key={index} className="carousel-slide">
-                            <Row>
-                              <Col
-                                sm={6}
-                                md={6}
-                                lg={
-                                  slide[`image${index * 3 + 2}`]
-                                  || slide[`image${index * 3 + 3}`]
-                                    ? 6
-                                    : 12
-                                }
-                                xl={
-                                  slide[`image${index * 3 + 2}`]
-                                  || slide[`image${index * 3 + 3}`]
-                                    ? 6
-                                    : 12
-                                }
-                                className="main-image-container"
-                              >
-                                <img
-                                  src={slide[`image${index * 3 + 1}`]}
-                                  alt={`image${index * 3 + 1}`}
-                                  className="main-image"
-                                />
-                              </Col>
 
-                              <Col
-                                sm={6}
-                                md={6}
-                                lg={6}
-                                xl={6}
-                                className="image-stack"
-                              >
-                                {slide[`image${index * 3 + 2}`] && (
-                                  <img
-                                    src={slide[`image${index * 3 + 2}`]}
-                                    alt={`image${index * 3 + 2}`}
-                                    className="stacked-image"
-                                    style={{
-                                      minHeight: slide[`image${index * 3 + 3}`]
-                                        ? "100%"
-                                        : "464px",
-                                    }}
-                                  />
-                                )}
-                                {slide[`image${index * 3 + 3}`] && (
-                                  <img
-                                    src={slide[`image${index * 3 + 3}`]}
-                                    alt={`image${index * 3 + 3}`}
-                                    className="stacked-image"
-                                  />
-                                )}
-                              </Col>
-                            </Row>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="embla__container__view__ad">
-                        {imageLinks?.map((slide, index) => (
-                          <div key={index} className="carousel-slide">
-                            <Row>
-                              <Col>
-                                <img
-                                  src={slide}
-                                  alt={index}
-                                  className="main-image"
-                                />
-                              </Col>
-                            </Row>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                  <PrevButton onClick={scrollPrev} enabled={prevBtnEnabled} />
-                  <NextButton onClick={scrollNext} enabled={nextBtnEnabled} />
-                </div>
-              </div>
-            </Row>
-          </Col>
-          <Col lg={4}>
-            <div className="d-flex justify-content-between flex-column h-100">
-              <div className="d-flex flex-column">
-                <div className="d-flex w-100 align-items-center pt-3">
-                  <StarRating
-                    averageRating={currentAd?.average_rating?.toFixed(1) || 0}
-                    style={{ width: "fit-content", fontSize: "18px", marginRight: "7px" }}
-                  />
-                  <strong>{currentAd?.average_rating?.toFixed(1) || "0.0"}</strong>
-                  <div className="ms-2" style={{ color: "#797979" }}>
-                    {currentAd?.total_reviews || 0}
-                    {" "}
-                    Reviews
-                  </div>
-                </div>
-                {(currentAd?.facebook !== ""
-                  || currentAd?.instagram !== ""
-                  || currentAd?.youtube !== ""
-                  || currentAd?.tiktok !== ""
-                  || currentAd?.twitter !== ""
-                  || currentAd?.others !== null) && (
-                  <div className="d-flex align-items-center justify-content-between mt-2">
-                    <div className="roboto-regular-16px-information">
-                      Follow
-                      {" "}
-                      {currentAd?.name}
-                      {" "}
-                      on
-                    </div>
+          {currentTab === 1 && currentAd?.description !== null && (
+            <div className="d-flex flex-column ps-4 my-4">
+              <div className="d-flex roboto-semi-bold-24px-h3">About</div>
 
-                    <div className="d-flex">
-                      {currentAd?.facebook !== "" && (
-                        <a
-                          className="d-flex align-items-center justify-content-center me-1"
-                          style={{
-                            border: "1px solid #A0C49D",
-                            background: "#A0C49D30",
-                            width: "32px",
-                            height: "32px",
-                            borderRadius: "50%",
-                            cursor: "pointer",
-                            color: "#A0C49D",
-                          }}
-                          href={currentAd?.facebook}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          <FontAwesomeIcon icon={faFacebook} />
-                        </a>
-                      )}
-                      {currentAd?.instagram !== "" && (
-                        <a
-                          className="d-flex align-items-center justify-content-center me-1"
-                          style={{
-                            border: "1px solid #A0C49D",
-                            background: "#A0C49D30",
-                            width: "32px",
-                            height: "32px",
-                            borderRadius: "50%",
-                            cursor: "pointer",
-                            color: "#A0C49D",
-                          }}
-                          href={currentAd?.instagram}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          <FontAwesomeIcon icon={faInstagram} />
-                        </a>
-                      )}
-                      {currentAd?.youtube !== "" && (
-                        <a
-                          className="d-flex align-items-center justify-content-center me-1"
-                          style={{
-                            border: "1px solid #A0C49D",
-                            background: "#A0C49D30",
-                            width: "32px",
-                            height: "32px",
-                            borderRadius: "50%",
-                            cursor: "pointer",
-                            color: "#A0C49D",
-                          }}
-                          href={currentAd?.youtube}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          <FontAwesomeIcon icon={faYoutube} />
-                        </a>
-                      )}
-                      {currentAd?.tiktok !== "" && (
-                        <a
-                          className="d-flex align-items-center justify-content-center me-1"
-                          style={{
-                            border: "1px solid #A0C49D",
-                            background: "#A0C49D30",
-                            width: "32px",
-                            height: "32px",
-                            borderRadius: "50%",
-                            cursor: "pointer",
-                            color: "#A0C49D",
-                          }}
-                          href={currentAd?.tiktok}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          <FontAwesomeIcon icon={faTiktok} />
-                        </a>
-                      )}
-                      {currentAd?.twitter !== "" && (
-                        <a
-                          className="d-flex align-items-center justify-content-center me-1"
-                          style={{
-                            border: "1px solid #A0C49D",
-                            background: "#A0C49D30",
-                            width: "32px",
-                            height: "32px",
-                            borderRadius: "50%",
-                            cursor: "pointer",
-                            color: "#A0C49D",
-                          }}
-                          href={currentAd?.twitter}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          <FontAwesomeIcon icon={faTwitter} />
-                        </a>
-                      )}
-                      {currentAd?.others !== "" && (
-                        <a
-                          className="d-flex align-items-center justify-content-center me-1"
-                          style={{
-                            border: "1px solid #A0C49D",
-                            background: "#A0C49D30",
-                            width: "32px",
-                            height: "32px",
-                            borderRadius: "50%",
-                            cursor: "pointer",
-                            color: "#A0C49D",
-                          }}
-                          href={currentAd?.others}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          <FontAwesomeIcon icon={faLink} />
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* <div className="d-flex">
-                <Button
-                  type="submit"
-                  // onClick={() => navigate("/post-ad")}
-                  className="btn btn-success roboto-semi-bold-16px-information w-100 mt-5"
-                  style={{}}
-                  // style={{ padding: "0 100px" }}
-                >
-                  Request pricing
-                </Button>
-              </div> */}
-            </div>
-          </Col>
-        </Row>
-
-        <Row className="mt-5">
-          <Col lg={8}>
-            <div
-              className="d-flex align-items-center px-4"
-              style={{
-                height: "50px",
-                width: "100%",
-                background: "#F4F4F4",
-              }}
-            >
               <div
-                className={`${
-                  currentTab === 1 && "active-tab"
-                } roboto-regular-16px-information tab me-1`}
-                onClick={() => setCurrentTab(1)}
+                className="roboto-regular-16px-information mt-2"
+                style={{ overflowWrap: "break-word" }}
               >
-                About
-              </div>
-              <div
-                className={`${
-                  currentTab === 2 && "active-tab"
-                } roboto-regular-16px-information tab`}
-                onClick={() => setCurrentTab(2)}
-              >
-                FAQs
-              </div>
-              <div
-                className={`${
-                  currentTab === 3 && "active-tab"
-                } roboto-regular-16px-information tab`}
-                onClick={() => setCurrentTab(3)}
-              >
-                Reviews
+                {currentAd?.description}
               </div>
             </div>
+          )}
 
-            {currentTab === 1 && currentAd?.description !== null && (
-              <div className="d-flex flex-column ps-4 my-4">
-                <div className="d-flex roboto-semi-bold-24px-h3">About</div>
-
-                <div
-                  className="roboto-regular-16px-information mt-2"
-                  style={{ overflowWrap: "break-word" }}
-                >
-                  {currentAd?.description}
-                </div>
+          {currentTab === 1 && currentAd?.offered_services.length > 0 && (
+            <div className="d-flex flex-column ps-4 my-4">
+              <div className="d-flex roboto-semi-bold-24px-h3">
+                Offered services
               </div>
-            )}
 
-            {currentTab === 1 && currentAd?.offered_services.length > 0 && (
-              <div className="d-flex flex-column ps-4 my-4">
-                <div className="d-flex roboto-semi-bold-24px-h3">
-                  Offered services
-                </div>
-
-                <Row className="mt-2">
-                  {currentAd.offered_services.map((service, index) => (
-                    <Col key={index} lg={4}>
-                      <ul className="custom-lists roboto-regular-16px-information">
-                        <li className="ps-2">{service}</li>
-                      </ul>
-                    </Col>
-                  ))}
-                  {currentAd.site_services.map((service, index) => (
-                    <Col key={index} lg={4}>
-                      <ul className="custom-lists roboto-regular-16px-information">
-                        <li className="ps-2">{service}</li>
-                      </ul>
-                    </Col>
-                  ))}
-                </Row>
-              </div>
-            )}
-
-            {currentTab === 2 && currentAd?.ad_faqs.length > 0 && (
-              <div className="d-flex flex-column ps-4 my-4">
-                <div className="d-flex roboto-semi-bold-24px-h3">
-                  Frequently Asked Questions
-                </div>
-
-                {currentAd?.ad_faqs.map((faq, index) => (
-                  <div>
-                    <div
-                      className="d-flex roboto-regular-18px-body3 mt-4"
-                      style={{ fontWeight: "700" }}
-                    >
-                      {faq.question}
-                    </div>
-                    <Row className="mt-3">
-                      <Col key={index} lg={4}>
-                        {/* ----------- FOR THE CHECKBOX TYPE ANSWERS, USE THIS LI UL ELEMENT----------- */}
-                        {/* <li>{faq.question}</li> */}
-                        {/* <ul className="custom-lists-tick-icon roboto-regular-16px-information">
-                        <li>{faq.question}</li>
-                      </ul> */}
-                        <div
-                          className="roboto-regular-18px-body3 mb-2"
-                        >
-                          {faq.answer}
-                        </div>
-                      </Col>
-                    </Row>
-
-                    <div
-                      style={{
-                        border: "1px solid #D9D9D9",
-                        width: "100%",
-                        marginTop: "10px",
-                      }}
-                    />
-                  </div>
+              <Row className="mt-2">
+                {currentAd.offered_services.map((service, index) => (
+                  <Col key={index} lg={4}>
+                    <ul className="custom-lists roboto-regular-16px-information">
+                      <li className="ps-2">{service}</li>
+                    </ul>
+                  </Col>
                 ))}
-
-                {currentAd?.ad_faq_ad.map((faq, index) => (
-                  <div>
-                    <div
-                      className="d-flex roboto-regular-18px-body3 mt-4"
-                      style={{ fontWeight: "700" }}
-                    >
-                      {faq.site_question.question}
-                    </div>
-                    <Row className="mt-3">
-                      <Col key={index} lg={4}>
-                        {/* ----------- FOR THE CHECKBOX TYPE ANSWERS, USE THIS LI UL ELEMENT----------- */}
-                        {/* <li>{faq.question}</li> */}
-                        {/* <ul className="custom-lists-tick-icon roboto-regular-16px-information">
-                        <li>{faq.question}</li>
-                      </ul> */}
-                        <div
-                          className="roboto-regular-18px-body3 mb-2"
-                        >
-                          {faq.answer}
-                        </div>
-                      </Col>
-                    </Row>
-
-                    <div
-                      style={{
-                        border: "1px solid #D9D9D9",
-                        width: "100%",
-                        marginTop: "10px",
-                      }}
-                    />
-                  </div>
+                {currentAd.site_services.map((service, index) => (
+                  <Col key={index} lg={4}>
+                    <ul className="custom-lists roboto-regular-16px-information">
+                      <li className="ps-2">{service}</li>
+                    </ul>
+                  </Col>
                 ))}
-              </div>
-            )}
+              </Row>
+            </div>
+          )}
 
-            {currentTab === 3 && (
-              <Reviews adId={currentAd?.id} adName={currentAd?.name} />
-            )}
-          </Col>
-          <Col lg={4}>
-            {user?.userId === null
-            || (user?.userId !== null && user?.role === "client") ? (
-                chatId !== null ? (
-                  <Button variant="success" className="w-100" onClick={() => navigate(`/messages?chatId=${chatId}`)}>Go to Chat</Button>
-                ) : (
-                  <Form
-                    className="message-vendor-form"
+          {currentTab === 2 && currentAd?.ad_faqs.length > 0 && (
+            <div className="d-flex flex-column ps-4 my-4">
+              <div className="d-flex roboto-semi-bold-24px-h3">
+                Frequently Asked Questions
+              </div>
+
+              {currentAd?.ad_faqs.map((faq, index) => (
+                <div>
+                  <div
+                    className="d-flex roboto-regular-18px-body3 mt-4"
+                    style={{ fontWeight: "700" }}
                   >
-                    <div
-                      className="d-flex justify-content-center align-items-center roboto-semi-bold-28px-h2"
-                      style={{ marginBottom: "26px" }}
-                    >
-                      {user.userId === null ? "Contact" : "Message"}
-                      {" "}
-                      Vendor
-                    </div>
+                    {faq.question}
+                  </div>
+                  <Row className="mt-3">
+                    <Col key={index} lg={4}>
+                      {/* ----------- FOR THE CHECKBOX TYPE ANSWERS, USE THIS LI UL ELEMENT----------- */}
+                      {/* <li>{faq.question}</li> */}
+                      {/* <ul className="custom-lists-tick-icon roboto-regular-16px-information">
+                      <li>{faq.question}</li>
+                    </ul> */}
+                      <div
+                        className="roboto-regular-18px-body3 mb-2"
+                      >
+                        {faq.answer}
+                      </div>
+                    </Col>
+                  </Row>
 
-                    <Form.Control
-                      style={{ minHeight: "120px" }}
-                      className="lg-input-small-text mb-4"
-                      name="message.text"
-                      as="textarea"
-                      rows={3}
-                      type="text"
-                      size="lg"
-                      placeholder="Message"
-                      value={text || ""}
-                      onChange={(e) => setText(e.target.value)}
-                    />
+                  <div
+                    style={{
+                      border: "1px solid #D9D9D9",
+                      width: "100%",
+                      marginTop: "10px",
+                    }}
+                  />
+                </div>
+              ))}
 
-                    {user?.userId === null ? (
-                      <>
-                        <Form.Control
-                          style={{ height: "56px" }}
-                          className="lg-input-small-text mb-4"
-                          type="text"
-                          name="message.full_name"
-                          size="sm"
-                          placeholder="First and Last Name"
-                          value={name || ""}
-                          onChange={(e) => setName(e.target.value)}
-                        />
+              {currentAd?.ad_faq_ad.map((faq, index) => (
+                <div>
+                  <div
+                    className="d-flex roboto-regular-18px-body3 mt-4"
+                    style={{ fontWeight: "700" }}
+                  >
+                    {faq.site_question.question}
+                  </div>
+                  <Row className="mt-3">
+                    <Col key={index} lg={4}>
+                      {/* ----------- FOR THE CHECKBOX TYPE ANSWERS, USE THIS LI UL ELEMENT----------- */}
+                      {/* <li>{faq.question}</li> */}
+                      {/* <ul className="custom-lists-tick-icon roboto-regular-16px-information">
+                      <li>{faq.question}</li>
+                    </ul> */}
+                      <div
+                        className="roboto-regular-18px-body3 mb-2"
+                      >
+                        {faq.answer}
+                      </div>
+                    </Col>
+                  </Row>
 
-                        <Form.Control
-                          style={{ height: "56px" }}
-                          className="lg-input-small-text mb-4"
-                          type="email"
-                          name="message.email"
-                          size="sm"
-                          placeholder="Email"
-                          value={email || ""}
-                          onChange={(e) => setEmail(e.target.value)}
-                        />
+                  <div
+                    style={{
+                      border: "1px solid #D9D9D9",
+                      width: "100%",
+                      marginTop: "10px",
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
 
-                        <Form.Control
-                          style={{ height: "56px" }}
-                          className="lg-input-small-text mb-4"
-                          type="text"
-                          name="message.phone"
-                          size="sm"
-                          placeholder="Phone"
-                          value={phone || ""}
-                          onChange={(e) => setPhone(e.target.value)}
-                        />
-                      </>
-                    ) : (
-                      ""
-                    )}
+          {currentTab === 3 && (
+            <Reviews adId={currentAd?.id} adName={currentAd?.name} />
+          )}
+        </Col>
+        <Col lg={4}>
+          {user?.userId === null
+          || (user?.userId !== null && user?.role === "client") ? (
+              chatId !== null ? (
+                <Button variant="success" className="w-100" onClick={() => navigate(`/messages?chatId=${chatId}`)}>Go to Chat</Button>
+              ) : (
+                <Form
+                  className="message-vendor-form"
+                >
+                  <div
+                    className="d-flex justify-content-center align-items-center roboto-semi-bold-28px-h2"
+                    style={{ marginBottom: "26px" }}
+                  >
+                    {user.userId === null ? "Contact" : "Message"}
+                    {" "}
+                    Vendor
+                  </div>
 
-                    <Form.Control
-                      style={{ height: "56px" }}
-                      className="lg-input-small-text mb-4"
-                      type="date"
-                      name="message.event_date"
-                      size="sm"
-                      placeholder="Event date"
-                      value={eventDate || ""}
-                      onChange={(e) => setEventDate(e.target.value)}
-                    />
+                  <Form.Control
+                    style={{ minHeight: "120px" }}
+                    className="lg-input-small-text mb-4"
+                    name="message.text"
+                    as="textarea"
+                    rows={3}
+                    type="text"
+                    size="lg"
+                    placeholder="Message"
+                    value={text || ""}
+                    onChange={(e) => setText(e.target.value)}
+                  />
 
-                    <p className="roboto-regular-14px-information">
-                      By clicking ‘Send’, I agree to Allevents
-                      {" "}
-                      <a className="roboto-regular-14px-information" href="#">
-                        Privacy Policy
-                      </a>
-                      , and
-                      {" "}
-                      <a className="roboto-regular-14px-information" href="#">
-                        Terms of Use
-                      </a>
-                    </p>
+                  {user?.userId === null ? (
+                    <>
+                      <Form.Control
+                        style={{ height: "56px" }}
+                        className="lg-input-small-text mb-4"
+                        type="text"
+                        name="message.full_name"
+                        size="sm"
+                        placeholder="First and Last Name"
+                        value={name || ""}
+                        onChange={(e) => setName(e.target.value)}
+                      />
 
-                    <Button
-                      type="button"
-                      className="btn btn-success roboto-semi-bold-16px-information w-100"
-                      onClick={submitVendorRequestForm}
-                    >
-                      Send
-                    </Button>
-                  </Form>
-                )) : (
-                ""
-              )}
-          </Col>
-        </Row>
-      </Container>
+                      <Form.Control
+                        style={{ height: "56px" }}
+                        className="lg-input-small-text mb-4"
+                        type="email"
+                        name="message.email"
+                        size="sm"
+                        placeholder="Email"
+                        value={email || ""}
+                        onChange={(e) => setEmail(e.target.value)}
+                      />
 
-      <Footer />
-    </>
+                      <Form.Control
+                        style={{ height: "56px" }}
+                        className="lg-input-small-text mb-4"
+                        type="text"
+                        name="message.phone"
+                        size="sm"
+                        placeholder="Phone"
+                        value={phone || ""}
+                        onChange={(e) => setPhone(e.target.value)}
+                      />
+                    </>
+                  ) : (
+                    ""
+                  )}
+
+                  <Form.Control
+                    style={{ height: "56px" }}
+                    className="lg-input-small-text mb-4"
+                    type="date"
+                    name="message.event_date"
+                    size="sm"
+                    placeholder="Event date"
+                    value={eventDate || ""}
+                    onChange={(e) => setEventDate(e.target.value)}
+                  />
+
+                  <p className="roboto-regular-14px-information">
+                    By clicking ‘Send’, I agree to Allevents
+                    {" "}
+                    <a className="roboto-regular-14px-information" href="#">
+                      Privacy Policy
+                    </a>
+                    , and
+                    {" "}
+                    <a className="roboto-regular-14px-information" href="#">
+                      Terms of Use
+                    </a>
+                  </p>
+
+                  <Button
+                    type="button"
+                    className="btn btn-success roboto-semi-bold-16px-information w-100"
+                    onClick={submitVendorRequestForm}
+                  >
+                    Send
+                  </Button>
+                </Form>
+              )) : (
+              ""
+            )}
+        </Col>
+      </Row>
+    </Container>
   );
 }
 

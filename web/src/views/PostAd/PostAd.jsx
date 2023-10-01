@@ -7,8 +7,6 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { Alert } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import Header from "../../components/Navbar/Navbar";
-import TopBanner from "../../components/TopBanner";
 import postAdBanner1 from "../../assets/images/post-ad-banner-1.svg";
 import postAdBanner2 from "../../assets/images/post-ad-banner-2.svg";
 import postAdBanner3 from "../../assets/images/post-ad-banner-3.svg";
@@ -21,7 +19,6 @@ import ServicesOffered from "./ServicesOffered";
 import CompanyInformation from "./CompanyInformation";
 import FAQs from "./FAQs";
 import PdfUploader from "../../components/PdfUploader/PdfUploader";
-import TabNavigation from "../../components/TabNavigation/TabNavigation";
 import {
   handleCreateNewAd,
   handleUpdateAdPostErrorAlerting,
@@ -506,9 +503,6 @@ function PostAd() {
 
   return (
     <div style={{ position: "relative", overflowX: "hidden" }}>
-      <TopBanner />
-      <Header />
-      <TabNavigation role={user.role} />
       <Alert
         severity="info"
         variant="filled"

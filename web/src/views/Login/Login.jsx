@@ -287,7 +287,6 @@ function Login() {
   };
 
   const handleRegisterationSubmit = (values, { resetForm }) => {
-    console.log("valuesvalues", values);
     let data = {
       user: {
         email: values.email,

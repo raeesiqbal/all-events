@@ -53,8 +53,6 @@ export const editCompanyInformation = createAsyncThunk(
   "settings/editCompanyInfo",
   async ({ data, id }, { rejectWithValue }) => {
     try {
-      console.log("imageUrlimageUrl", data);
-
       const response = await secureInstance.request({
         url: `/api/companies/${id}/`,
         method: "PATCH",

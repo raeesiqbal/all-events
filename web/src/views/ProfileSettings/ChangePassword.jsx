@@ -13,8 +13,6 @@ import * as Yup from "yup";
 import { Alert } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import Header from "../../components/Navbar/Navbar";
-import user from "../../assets/images/profile-settings/user.svg";
 import oldPasswordIcon from "../../assets/images/profile-settings/old-password.svg";
 import newPasswordIcon from "../../assets/images/profile-settings/new-password.svg";
 import confirmPasswordIcon from "../../assets/images/profile-settings/confirm-password.svg";
@@ -22,8 +20,6 @@ import confirmPasswordIcon from "../../assets/images/profile-settings/confirm-pa
 
 // import profile_bg from "../../assets/images/profile-settings/profile-bg.svg";
 import "./ProfileSettings.css";
-import Footer from "../../components/Footer/Footer";
-import TabNavigation from "../../components/TabNavigation/TabNavigation";
 import { secureInstance } from "../../axios/config";
 import { deleteCookie } from "../../utilities/utils";
 import { handleProfileSettingsCurrentView } from "../redux/TabNavigation/TabNavigationSlice";
@@ -101,9 +97,6 @@ function ChangePassword() {
 
   return (
     <>
-      <Header />
-      <TabNavigation role={user.role} />
-
       <div className="profile-settings-banner d-flex align-items-center justify-content-between">
         <div className="banner-text-heading">
           <div className="roboto-bold-36px-h1">Change Password</div>
@@ -329,8 +322,6 @@ function ChangePassword() {
           </Col>
         </Row>
       </Container>
-
-      <Footer />
     </>
   );
 }

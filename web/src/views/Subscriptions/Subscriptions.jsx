@@ -2,21 +2,17 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Container } from "react-bootstrap";
-import Header from "../../components/Navbar/Navbar";
-import Footer from "../../components/Footer/Footer";
-import TabNavigation from "../../components/TabNavigation/TabNavigation";
+import { Alert } from "@mui/material";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import MesssageTabNavigation from "../../components/TabNavigation/MessageTabNavigation";
 import "../Ads/Ads.css";
 import "./Subscriptions.css";
 import { handleMessageAlerts, listSubscriptions } from "../redux/Subscriptions/SubscriptionsSlice";
 import Subscription from "./Subscription";
-import { Alert } from "@mui/material";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 
 function Subscriptions() {
   const dispatch = useDispatch();
-  const user = useSelector((state) => state.auth.user);
   const {
     subscriptions, SubscriptionSuccessAlert, SubscriptionErrorAlert, error, loading,
   } = useSelector((state) => state.subscriptions);
@@ -55,9 +51,6 @@ function Subscriptions() {
 
   return (
     <>
-      <Header />
-      <TabNavigation role={user.role} />
-
       <Alert
         severity={SubscriptionErrorAlert ? "error" : "success"}
         variant="filled"
@@ -99,8 +92,6 @@ function Subscriptions() {
           )
         }
       </Container>
-
-      <Footer />
     </>
   );
 }

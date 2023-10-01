@@ -11,7 +11,7 @@ import dayjs from "dayjs";
 // import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { CircularProgress } from "@mui/material";
+import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import deleteIcon from "../../assets/images/post-ad/delete.svg";
 import timeIcon from "../../assets/images/post-ad/carbon_time.svg";
 import archiveIcon from "../../assets/images/ph_archive-box-light.svg";
@@ -31,12 +31,14 @@ const Chat = ({ chat, isOpenChat }) => {
   const messageBody = useRef(null);
 
   const {
-    messages, additionalInfo, count, loading,
+    messages, additionalInfo, count,
   } = useSelector((state) => state.messages);
   const currentUser = useSelector((state) => state.auth.user);
 
   const [modalShow, setModalShow] = React.useState(isOpenChat);
   const [deleteModal, setDeleteModal] = React.useState(false);
+  const [isRead, setIsRead] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
   const [messageText, setMessageText] = React.useState("");
   const [attachment, setAttachment] = React.useState(null);
   const [offset, setOffset] = React.useState(0);
@@ -74,6 +76,7 @@ const Chat = ({ chat, isOpenChat }) => {
   };
 
   const uploadFileToCloud = async (uploadedVideo) => {
+    setLoading(true);
     const formData = new FormData(); // pass in the form
     formData.append("file", uploadedVideo);
     formData.append("content_type", uploadedVideo.type);
@@ -89,6 +92,7 @@ const Chat = ({ chat, isOpenChat }) => {
       // --------- WILL ROUTE ON SOME PAGE ON FAILURE ---------
       console.log("error", e);
     }
+    setLoading(false);
   };
 
   const handleAttachment = (event) => {
@@ -104,6 +108,7 @@ const Chat = ({ chat, isOpenChat }) => {
   };
 
   const removeImage = async () => {
+    setLoading(true);
     try {
       const response = await secureInstance.request({
         url: "/api/ads/delete-url/",
@@ -119,6 +124,7 @@ const Chat = ({ chat, isOpenChat }) => {
     } catch (e) {
       // Image is not deleted
     }
+    setLoading(false);
   };
 
   const date = (d) => new Date(d);
@@ -149,10 +155,10 @@ const Chat = ({ chat, isOpenChat }) => {
   useEffect(() => {
     if (modalShow) {
       dispatch(listChatMessages({ id: chat.id, limit, offset }));
-      // dispatch(readChat(chat.id));
       setTimeout(() => {
         if (messageBody.current) messageBody.current.scrollTop = messageBody.current.scrollHeight;
       }, 500);
+      setIsRead(true);
     }
   }, [modalShow]);
 
@@ -328,10 +334,7 @@ const Chat = ({ chat, isOpenChat }) => {
                   )
                 }
                 {loading && (
-                  <>
-                    <div className="d-flex justify-content-center align-items-center loading-image-container" />
-                    <CircularProgress className="attachment-loader" />
-                  </>
+                  <FontAwesomeIcon icon={faSpinner} spin color="#A0C49D" className="mx-auto my-auto" size="lg" />
                 )}
               </div>
             </div>
@@ -459,7 +462,7 @@ const Chat = ({ chat, isOpenChat }) => {
                         {chat.latest_message.text}
                       </Card.Text>
                       {
-                        !chat.read && (
+                        !(chat.read || isRead) && (
                           <div
                             className="roboto-regular-14px-information text-white mt-2 me-3"
                             style={{

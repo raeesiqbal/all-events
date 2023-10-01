@@ -5,14 +5,11 @@ import {
   Card, Col, Container, Form, Row,
 } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
-import Header from "../../components/Navbar/Navbar";
 import viewsIcon from "../../assets/images/views.svg";
 import savesIcon from "../../assets/images/saves.svg";
 import reviewsIcon from "../../assets/images/reviews.svg";
 import messagesIcon from "../../assets/images/messages.svg";
 import "./Analytics.css";
-import Footer from "../../components/Footer/Footer";
-import TabNavigation from "../../components/TabNavigation/TabNavigation";
 import { analyticsHome } from "../redux/Analytics/AnalyticsSlice";
 import LineChart from "./LineChart";
 
@@ -38,8 +35,6 @@ function Analytics() {
 
   return (
     <div>
-      <Header />
-      <TabNavigation role={user?.role} />
       <div className="profile-settings-banner d-flex align-items-center">
         <div style={{ marginLeft: "100px" }}>
           <div className="roboto-bold-36px-h1">Analytics</div>
@@ -252,8 +247,6 @@ function Analytics() {
         <LineChart label="Ad Reviews Analytics" selectedAd={selectedAd} />
         <LineChart label="Ad Messages Analytics" selectedAd={selectedAd} />
       </Container>
-
-      <Footer />
     </div>
   );
 }

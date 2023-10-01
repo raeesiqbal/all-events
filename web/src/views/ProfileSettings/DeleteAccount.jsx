@@ -4,20 +4,15 @@ import {
   Col,
   Container,
   Form,
-  Modal,
   Row,
   Spinner,
 } from "react-bootstrap";
 import * as formik from "formik";
 import * as Yup from "yup";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { Alert } from "@mui/material";
-import { useNavigate } from "react-router-dom";
-import Header from "../../components/Navbar/Navbar";
 import oldPasswordIcon from "../../assets/images/profile-settings/old-password.svg";
 import "./ProfileSettings.css";
-import Footer from "../../components/Footer/Footer";
-import TabNavigation from "../../components/TabNavigation/TabNavigation";
 import { secureInstance } from "../../axios/config";
 import { deleteCookie } from "../../utilities/utils";
 import { handleProfileSettingsCurrentView } from "../redux/TabNavigation/TabNavigationSlice";
@@ -30,8 +25,6 @@ function DeleteAccount() {
   const [isFailedAlert, setIsFailedAlert] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isFailedAlertMessage, setIsFailedAlertMessage] = useState(null);
-
-  const user = useSelector((state) => state.auth.user);
 
   const initialValues = {
     password: "",
@@ -86,9 +79,6 @@ function DeleteAccount() {
 
   return (
     <>
-      <Header />
-      <TabNavigation role={user.role} />
-
       <div className="profile-settings-banner d-flex align-items-center justify-content-between">
         <div className="banner-text-heading">
           <div className="roboto-bold-36px-h1">Delete Account</div>
@@ -292,8 +282,6 @@ function DeleteAccount() {
           </Col>
         </Row>
       </Container>
-
-      <Footer />
     </>
   );
 }

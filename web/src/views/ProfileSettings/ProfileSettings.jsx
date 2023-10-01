@@ -1,16 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight } from "@fortawesome/fontawesome-free-solid";
 import { Card, Col, Container, Row } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
-import Header from "../../components/Navbar/Navbar";
 import personalInfo from "../../assets/images/profile-settings/personal-info.svg";
 import companyInfo from "../../assets/images/profile-settings/company-info.svg";
 import changePass from "../../assets/images/profile-settings/change-pass.svg";
 import deleteIcon from "../../assets/images/profile-settings/delete.svg";
 import "./ProfileSettings.css";
-import Footer from "../../components/Footer/Footer";
-import TabNavigation from "../../components/TabNavigation/TabNavigation";
 import { handleProfileSettingsCurrentView } from "../redux/TabNavigation/TabNavigationSlice";
 import { getAuthenticatedUser } from "../redux/Auth/authSlice";
 import { setCompanyInformation } from "../redux/Settings/SettingsSlice";
@@ -38,8 +35,6 @@ function ProfileSettings() {
 
   return (
     <>
-      <Header />
-      <TabNavigation role={user.role} />
       <div className="profile-settings-banner d-flex align-items-center justify-content-between">
         <div className="banner-text-heading">
           <div className="roboto-bold-36px-h1">Profile Settings</div>
@@ -181,8 +176,6 @@ function ProfileSettings() {
           </Col>
         </Row>
       </Container>
-
-      <Footer />
     </>
   );
 }

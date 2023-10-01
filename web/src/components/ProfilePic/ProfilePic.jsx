@@ -19,7 +19,7 @@ const ProfilePic = (props) => {
   const { userImage } = useSelector((state) => state.auth.user);
   const selectedImage = useSelector((state) => state.settings.selectedImage);
   const companyInformation = useSelector(
-    (state) => state.settings.companyInformation
+    (state) => state.settings.companyInformation,
   );
 
   const dispatch = useDispatch();
@@ -27,8 +27,6 @@ const ProfilePic = (props) => {
   const matchesMobile = useMediaQuery("(min-width:475px)");
 
   const isMobileAndDashboard = props.dashboard && !matchesMobile;
-
-  // console.log(useMediaQuery);
 
   const updateNewProfilePic = (imageUrl) => {
     const updatedUser = {

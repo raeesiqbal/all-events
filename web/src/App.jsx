@@ -1,6 +1,8 @@
 import React from "react";
-import { Route, Routes } from "react-router-dom";
-import "./App.css";
+import {
+  Route, Routes, useLocation,
+} from "react-router-dom";
+import { useSelector } from "react-redux";
 import Homepage from "./views/Homepage/Homepage";
 import PostAd from "./views/PostAd/PostAd";
 import ProfileView from "./views/ProfileSettings/ProfileView";
@@ -17,113 +19,151 @@ import Dashboard from "./views/Dashboard/Dashboard";
 import Subscriptions from "./views/Subscriptions/Subscriptions";
 import Plans from "./views/Subscriptions/Plans";
 import Checkout from "./views/Subscriptions/Checkout";
+import Login from "./views/Login/Login";
+import Header from "./components/Navbar/Navbar";
+import TabNavigation from "./components/TabNavigation/TabNavigation";
+import Footer from "./components/Footer/Footer";
+import TopBanner from "./components/TopBanner";
+import "./App.css";
 
 function App() {
+  const location = useLocation();
+  const { user } = useSelector((state) => state.auth);
+
+  // Define an array of routes where you want to hide the navigation bar
+  const routesWithTabNavigation = [
+    "/post-ad",
+    "/edit-ad/:id",
+    "/profile-settings",
+    "/my-ads",
+    "/messages",
+    "/favorite-ads",
+    "/analytics",
+    "/dashboard",
+    "/subscriptions",
+  ];
+
+  // Check if the current route is in the array of routes to hide the navigation bar
+  const shouldRenderTabNavigation = routesWithTabNavigation.includes(location.pathname);
+
   return (
-    <Routes>
-      <Route path="/" element={<Homepage />} />
-      <Route
-        path="/search"
-        element={<Search />}
-      />
-      <Route
-        path="/post-ad"
-        element={(
-          <ProtectedRoute role="vendor">
-            <PostAd />
-          </ProtectedRoute>
-        )}
-      />
-      <Route
-        path="/edit-ad/:id"
-        element={(
-          <ProtectedRoute role="vendor">
-            <EditAd />
-          </ProtectedRoute>
-        )}
-      />
-      <Route
-        path="/profile-settings"
-        element={(
-          <ProtectedRoute>
-            <ProfileView />
-          </ProtectedRoute>
-        )}
-      />
-      <Route
-        path="/my-ads"
-        element={(
-          <ProtectedRoute role="vendor">
-            <MyAds />
-          </ProtectedRoute>
-        )}
-      />
-      <Route
-        path="/view-ad/:adId"
-        element={(<ViewAd />)}
-      />
-      <Route
-        path="/messages"
-        element={(
-          <ProtectedRoute>
-            <Chats />
-          </ProtectedRoute>
-        )}
-      />
-      <Route
-        path="/favorite-ads"
-        element={(
-          <ProtectedRoute>
-            <FavoriteAds />
-          </ProtectedRoute>
-        )}
-      />
-      <Route
-        path="/analytics"
-        element={(
-          <ProtectedRoute>
-            <Analytics />
-          </ProtectedRoute>
-        )}
-      />
-      <Route
-        path="/dashboard"
-        element={(
-          <ProtectedRoute>
-            <Dashboard />
-          </ProtectedRoute>
-        )}
-      />
-      <Route
-        path="/subscriptions"
-        element={(
-          <ProtectedRoute role="vendor">
-            <Subscriptions />
-          </ProtectedRoute>
-        )}
-      />
-      <Route
-        path="/plans"
-        element={(
-          <ProtectedRoute>
-            <Plans />
-          </ProtectedRoute>
-        )}
-      />
-      <Route
-        path="/checkout"
-        element={(
-          <ProtectedRoute>
-            <Checkout />
-          </ProtectedRoute>
-        )}
-      />
-      <Route path="/reset-password" element={<ResetPassword />} />
-      {/* <Route
-        path="/reset-password?token=f3ade5ec18534bb7b3bc06e9a4b2b3fe689b2bb049fcef6032"
-        element={retrn<h1>/reset-password/:id</h1>}
-      /> */}
-    </Routes>
+    <>
+      <Login />
+      {
+        user === null && (
+          <TopBanner />
+        )
+      }
+      <Header />
+      {
+        shouldRenderTabNavigation && user?.role && (
+          <TabNavigation role={user.role} />
+        )
+      }
+      <Routes>
+        <Route path="/" element={<Homepage />} />
+        <Route
+          path="/search"
+          element={<Search />}
+        />
+        <Route
+          path="/view-ad/:adId"
+          element={(<ViewAd />)}
+        />
+        <Route
+          path="/plans"
+          element={(
+            <ProtectedRoute>
+              <Plans />
+            </ProtectedRoute>
+          )}
+        />
+        <Route
+          path="/checkout"
+          element={(
+            <ProtectedRoute>
+              <Checkout />
+            </ProtectedRoute>
+          )}
+        />
+        <Route path="/reset-password" element={<ResetPassword />} />
+
+        {/* Routes having TabNavigation component */}
+        <Route
+          path="/post-ad"
+          element={(
+            <ProtectedRoute role="vendor">
+              <PostAd />
+            </ProtectedRoute>
+          )}
+        />
+        <Route
+          path="/edit-ad/:id"
+          element={(
+            <ProtectedRoute role="vendor">
+              <EditAd />
+            </ProtectedRoute>
+          )}
+        />
+        <Route
+          path="/profile-settings"
+          element={(
+            <ProtectedRoute>
+              <ProfileView />
+            </ProtectedRoute>
+          )}
+        />
+        <Route
+          path="/my-ads"
+          element={(
+            <ProtectedRoute role="vendor">
+              <MyAds />
+            </ProtectedRoute>
+          )}
+        />
+        <Route
+          path="/messages"
+          element={(
+            <ProtectedRoute>
+              <Chats />
+            </ProtectedRoute>
+          )}
+        />
+        <Route
+          path="/favorite-ads"
+          element={(
+            <ProtectedRoute>
+              <FavoriteAds />
+            </ProtectedRoute>
+          )}
+        />
+        <Route
+          path="/analytics"
+          element={(
+            <ProtectedRoute>
+              <Analytics />
+            </ProtectedRoute>
+          )}
+        />
+        <Route
+          path="/dashboard"
+          element={(
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          )}
+        />
+        <Route
+          path="/subscriptions"
+          element={(
+            <ProtectedRoute role="vendor">
+              <Subscriptions />
+            </ProtectedRoute>
+          )}
+        />
+      </Routes>
+      <Footer />
+    </>
   );
 }
 

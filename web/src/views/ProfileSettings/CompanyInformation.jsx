@@ -12,8 +12,6 @@ import * as formik from "formik";
 import * as Yup from "yup";
 import { Alert } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
-import Header from "../../components/Navbar/Navbar";
-import userIcon from "../../assets/images/profile-settings/user.svg";
 import personIcon from "../../assets/images/profile-settings/person.svg";
 import mapIcon from "../../assets/images/post-ad/map.svg";
 import postalIcon from "../../assets/images/profile-settings/postal.svg";
@@ -23,8 +21,6 @@ import bankIcon from "../../assets/images/profile-settings/bank.svg";
 
 // import profile_bg from "../../assets/images/profile-settings/profile-bg.svg";
 import "./ProfileSettings.css";
-import Footer from "../../components/Footer/Footer";
-import TabNavigation from "../../components/TabNavigation/TabNavigation";
 import { secureInstance } from "../../axios/config";
 import { handleProfileSettingsCurrentView } from "../redux/TabNavigation/TabNavigationSlice";
 import { setCompanyInformation } from "../redux/Settings/SettingsSlice";
@@ -179,9 +175,6 @@ function CompanyInformationSettings() {
 
   return (
     <>
-      <Header />
-      <TabNavigation role={user.role} />
-
       <div className="profile-settings-banner d-flex align-items-center justify-content-between">
         <div className="banner-text-heading">
           <div className="roboto-bold-36px-h1">Company Information</div>
@@ -612,8 +605,6 @@ function CompanyInformationSettings() {
           </Col>
         </Row>
       </Container>
-
-      <Footer />
     </>
   );
 }

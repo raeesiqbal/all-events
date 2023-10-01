@@ -197,8 +197,6 @@ const DynamicRegisterationView = ({
     >
       {({ handleSubmit, handleChange, values, touched, errors }) => (
         <Form noValidate onSubmit={handleSubmit}>
-          {console.log(step2InitialValues)}
-
           <div
             style={{ maxHeight: "235px", overflowY: "scroll" }}
             className="Container Flipped"
@@ -391,7 +389,6 @@ const DynamicRegisterationView = ({
                 id="validationFormik107"
               />
             </Form.Group>
-            {console.log(values.newsletter)}
             <Form.Group className="position-relative mt-2">
               {/* ------------------ MAYBE CHANGE THESE TWO CHECKBOXES OUTSIDE OF FORMIK ? SINCE THESE ARE NEEDED ON BOTH STEPS */}
               <Form.Check

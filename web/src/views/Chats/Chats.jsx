@@ -9,9 +9,6 @@ import {
 } from "react-bootstrap";
 import { chatsSuggestionList, listChats } from "../redux/Chats/ChatsSlice";
 import { listChatMessages } from "../redux/Messages/MessagesSlice";
-import Header from "../../components/Navbar/Navbar";
-import Footer from "../../components/Footer/Footer";
-import TabNavigation from "../../components/TabNavigation/TabNavigation";
 import MesssageTabNavigation from "../../components/TabNavigation/MessageTabNavigation";
 import Chat from "./Chat";
 import "../Ads/Ads.css";
@@ -19,7 +16,6 @@ import "./Chats.css";
 
 function Chats() {
   const dispatch = useDispatch();
-  const user = useSelector((state) => state.auth.user);
   const {
     chats, inboxCount, archivedCount, suggestionsList, loading,
   } = useSelector((state) => state.chats);
@@ -113,9 +109,6 @@ function Chats() {
 
   return (
     <>
-      <Header />
-      <TabNavigation role={user.role} />
-
       <div className="my-ad-banner p-md-5 mb-5">
         <div className="roboto-bold-36px-h1 mb-2">Chats</div>
         <div className="roboto-regular-18px-body3">
@@ -184,7 +177,9 @@ function Chats() {
         </div>
         <MesssageTabNavigation activeTab={activeTab} setActiveTab={setActiveTab} tabs={tabs} />
         <Row className="chats-body" onScroll={handleScroll}>
-          {chats && !loading && chats.map((chat) => <Chat chat={chat} key={chat.id} isOpenChat={chat.id.toString() === chatId} />)}
+          {chats && !loading && chats.map((chat) => (
+            <Chat chat={chat} key={chat.id} isOpenChat={chat.id.toString() === chatId} />
+          ))}
           {loading && (
             <div className="loading-icon">
               <FontAwesomeIcon icon={faSpinner} spin />
@@ -192,8 +187,6 @@ function Chats() {
           )}
         </Row>
       </Container>
-
-      <Footer />
     </>
   );
 }

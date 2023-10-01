@@ -9,9 +9,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { handleMessageAlerts, listPlans } from "../redux/Subscriptions/SubscriptionsSlice";
 import Plan from "./Plan";
-import Login from "../Login/Login";
-import Header from "../../components/Navbar/Navbar";
-import Footer from "../../components/Footer/Footer";
 
 const Plans = () => {
   const dispatch = useDispatch();
@@ -73,8 +70,6 @@ const Plans = () => {
 
   return (
     <>
-      <Login />
-      <Header />
       <Alert
         severity={SubscriptionErrorAlert ? "error" : "success"}
         variant="filled"
@@ -141,7 +136,6 @@ const Plans = () => {
           }
         </Row>
       </Container>
-      <Footer />
     </>
   );
 };

@@ -9,7 +9,6 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import dayjs from "dayjs";
 import { Tooltip } from "@mui/material";
-import Header from "../../components/Navbar/Navbar";
 import placeholderIcon from "../../assets/images/placeholder.jpg";
 import TimeIcon from "../../assets/images/post-ad/carbon_time.svg";
 import MapIcon from "../../assets/images/post-ad/map-outlined.svg";
@@ -17,8 +16,6 @@ import deleteIcon from "../../assets/images/post-ad/delete.svg";
 import editIcon from "../../assets/images/post-ad/edit.svg";
 import gotoIcon from "../../assets/images/post-ad/goto.svg";
 import noAds from "../../assets/images/post-ad/no-ads.svg";
-import Footer from "../../components/Footer/Footer";
-import TabNavigation from "../../components/TabNavigation/TabNavigation";
 import { secureInstance } from "../../axios/config";
 import "./Ads.css";
 import { handleUpdateAds, listVendorAds } from "../redux/Posts/AdsSlice";
@@ -69,8 +66,6 @@ function MyAds() {
 
   return (
     <>
-      <Header />
-      <TabNavigation role={user?.role} />
       <Modal
         show={modalShow}
         onHide={() => setModalShow(false)}
@@ -355,8 +350,6 @@ function MyAds() {
           </Container>
         )}
       </Container>
-
-      <Footer />
     </>
   );
 }

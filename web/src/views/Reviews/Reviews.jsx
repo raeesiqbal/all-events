@@ -10,7 +10,8 @@ import Rating from "../../components/Rating/Rating";
 import titleIcon from "../../assets/images/title_icon.svg";
 import Review from "./Review";
 import "./Reviews.css";
-import { CircularProgress } from "@mui/material";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 
 const Reviews = ({ adId, adName }) => {
   const dispatch = useDispatch();
@@ -29,7 +30,11 @@ const Reviews = ({ adId, adName }) => {
     rating: 0,
   });
   const [isHide, setIsHide] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState({
+    loading: false,
+    index: -1,
+  });
+  const [screenLoad, setScreenLoad] = useState(false);
 
   const handleImageUpload = (event) => {
     event.preventDefault();
@@ -54,7 +59,10 @@ const Reviews = ({ adId, adName }) => {
   };
 
   const removeImage = async (image, index) => {
-    setIsLoading(true);
+    setIsLoading({
+      loading: true,
+      index,
+    });
     const urlToDelete = imagesToUpload[index];
 
     try {
@@ -106,10 +114,14 @@ const Reviews = ({ adId, adName }) => {
       photos: cloneImages,
     });
 
-    setIsLoading(false);
+    setIsLoading({
+      loading: false,
+      index,
+    });
   };
 
   const removeAllImages = async (images) => {
+    setScreenLoad(true);
     try {
       const response = await secureInstance.request({
         url: "/api/ads/delete-urls/",
@@ -130,6 +142,7 @@ const Reviews = ({ adId, adName }) => {
     } catch (err) {
       console.log(err.message);
     }
+    setScreenLoad(false);
   };
 
   const resetForm = () => {
@@ -198,6 +211,14 @@ const Reviews = ({ adId, adName }) => {
 
   return (
     <>
+      {
+        screenLoad && (
+          <div className="screen-loader">
+            <FontAwesomeIcon icon={faSpinner} spin color="#A0C49D" fontSize="70px" className="mx-auto my-auto" />
+          </div>
+        )
+      }
+
       <Modal
         show={!isHide}
         onHide={() => setIsHide(true)}
@@ -318,8 +339,16 @@ const Reviews = ({ adId, adName }) => {
                 {
                   imagesToUpload.map((image, index) => (
                     <div className="upload-review-img me-2">
-                      <div onClick={() => removeImage(image, index)}>-</div>
-                      <img src={image} alt={index} />
+                      {
+                        isLoading.loading && isLoading.index === index ? (
+                          <FontAwesomeIcon icon={faSpinner} spin color="#A0C49D" size="2xl" className="mx-auto my-auto" />
+                        ) : (
+                          <>
+                            <div onClick={() => removeImage(image, index)}>-</div>
+                            <img src={image} alt={index} />
+                          </>
+                        )
+                      }
                     </div>
                   ))
                 }
@@ -328,10 +357,7 @@ const Reviews = ({ adId, adName }) => {
                     <div className="upload-review-img me-2">
                       {
                         (loading) ? (
-                          <>
-                            <div className="d-flex justify-content-center align-items-center loading-image-container" />
-                            <CircularProgress className="attachment-loader" />
-                          </>
+                          <FontAwesomeIcon icon={faSpinner} spin color="#A0C49D" size="2xl" className="mx-auto my-auto" />
                         ) : (
                           <>
                             <span>+</span>
@@ -362,6 +388,7 @@ const Reviews = ({ adId, adName }) => {
           </Form>
         </Modal.Body>
       </Modal>
+
       <div className="w-100">
         <Row className="border-bottom border-grey mx-0 py-4">
           <Col md={3} className="ps-0">

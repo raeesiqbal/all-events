@@ -4,15 +4,12 @@ import "react-date-range/dist/theme/default.css"; // theme css file
 import { Card, Col, Container, Row } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import Header from "../../components/Navbar/Navbar";
 import viewsIcon from "../../assets/images/views.svg";
 import savesIcon from "../../assets/images/saves.svg";
 import reviewsIcon from "../../assets/images/reviews.svg";
 import messagesIcon from "../../assets/images/messages.svg";
 import editIcon from "../../assets/images/post-ad/edit.svg";
 import "./Dashboard.css";
-import Footer from "../../components/Footer/Footer";
-import TabNavigation from "../../components/TabNavigation/TabNavigation";
 import { handleProfileSettingsCurrentView } from "../redux/TabNavigation/TabNavigationSlice";
 import { getAuthenticatedUser } from "../redux/Auth/authSlice";
 import { setCompanyInformation } from "../redux/Settings/SettingsSlice";
@@ -117,8 +114,6 @@ function Dashboard() {
 
   return (
     <div>
-      <Header />
-      <TabNavigation role={user?.role} />
       <div className="profile-settings-banner d-flex align-items-center">
         <div className="banner-text-heading">
           <div className="roboto-bold-36px-h1">Dashboard</div>
@@ -498,8 +493,6 @@ function Dashboard() {
       </Container>
 
       <MyAdsDashboard userAds={dashboardData.my_ads} />
-
-      <Footer />
     </div>
   );
 }

@@ -7,9 +7,6 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { favoriteAd, listFavoriteAds } from "../redux/Posts/AdsSlice";
-import Header from "../../components/Navbar/Navbar";
-import TabNavigation from "../../components/TabNavigation/TabNavigation";
-import Footer from "../../components/Footer/Footer";
 import noAds from "../../assets/images/post-ad/no-ads.svg";
 import gotoIcon from "../../assets/images/post-ad/goto.svg";
 import placeholderIcon from "../../assets/images/placeholder.jpg";
@@ -48,9 +45,6 @@ const FavoriteAds = () => {
 
   return (
     <>
-      <Header />
-      <TabNavigation role={user?.role} />
-
       <div className="my-ad-banner p-md-5">
         <div className="roboto-bold-36px-h1 mb-2">Ad Management</div>
         <div className="roboto-regular-18px-body3">
@@ -151,7 +145,7 @@ const FavoriteAds = () => {
                                         <span style={{ fontSize: "18px" }} className="star-filled">&#9733;</span>
                                         <span style={{ fontSize: "14px" }}>
                                           {" "}
-                                          {ad.average_rating || "No reviews"}
+                                          {ad.average_rating.toFixed(1) || "No reviews"}
                                         </span>
                                       </div>
                                     </div>
@@ -228,8 +222,6 @@ const FavoriteAds = () => {
           }
         </Row>
       </Container>
-
-      <Footer />
     </>
   );
 };

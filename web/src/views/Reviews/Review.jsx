@@ -47,10 +47,12 @@ const Review = ({ review }) => {
           {" "}
           {formatDate(review.created_at)}
         </div>
-        <div className="d-md-flex justify-content-between">
+        <div>
           {
             review.photos.map((photo, index) => (
-              <img src={photo} alt={index} className="me-2" height="122px" />
+              <a href={photo} target="_blank" rel="noreferrer">
+                <img src={photo} alt={index} className="me-2" style={{ height: "122px" }} />
+              </a>
             ))
           }
         </div>

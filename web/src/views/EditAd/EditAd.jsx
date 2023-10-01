@@ -7,8 +7,6 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { Alert } from "@mui/material";
-import Header from "../../components/Navbar/Navbar";
-import TopBanner from "../../components/TopBanner";
 import postAdBanner1 from "../../assets/images/post-ad-banner-1.svg";
 import postAdBanner2 from "../../assets/images/post-ad-banner-2.svg";
 import postAdBanner3 from "../../assets/images/post-ad-banner-3.svg";
@@ -21,7 +19,6 @@ import ServicesOffered from "../PostAd/ServicesOffered";
 import CompanyInformation from "../PostAd/CompanyInformation";
 import FAQs from "../PostAd/FAQs";
 import PdfUploader from "../../components/PdfUploader/PdfUploader";
-import TabNavigation from "../../components/TabNavigation/TabNavigation";
 import {
   handleEditAd,
   handleUpdateAdPostErrorAlerting,
@@ -464,7 +461,6 @@ function EditAd() {
         request.data.data.activation_countries.map((country) => country.id),
       );
 
-      console.log("request---------------", request);
       const faqsWithAddedProperty = request.data.data?.ad_faqs.map((item) => ({
         ...item,
         added: true,
@@ -504,7 +500,6 @@ function EditAd() {
       if (request.data.data.site_services_list?.length > 0) {
         setAdminServices(request.data.data.site_services_list[0].service);
       }
-      console.log("test line --------------------------");
 
       setAdminServicesSelected(request.data.data.site_services);
 
@@ -599,10 +594,6 @@ function EditAd() {
 
   return (
     <div style={{ position: "relative" }}>
-      <TopBanner />
-      <Header />
-      <TabNavigation role={user.role} />
-
       <Alert
         severity="success"
         variant="filled"
@@ -674,8 +665,6 @@ function EditAd() {
           </div>
         </div>
       </div>
-      {console.log("currentAd", currentAd)}
-      {console.log("localInitialValues", localInitialValues)}
 
       <Container
         fluid
