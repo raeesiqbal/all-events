@@ -86,7 +86,7 @@ const TabNavigation = ({ role }) => {
   };
 
   useEffect(() => {
-    if (currentSubscription === null) {
+    if (currentSubscription === null && role === "vendor") {
       dispatch(currentSubscriptionDetails());
     }
   }, []);

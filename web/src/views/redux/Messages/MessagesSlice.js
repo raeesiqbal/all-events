@@ -65,8 +65,9 @@ export const MessagesSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(sendMessage.fulfilled, (state) => {
+      .addCase(sendMessage.fulfilled, (state, action) => {
         state.loading = false;
+        state.messages = [action.payload.data, ...state.messages];
         state.MessageSuccessAlert = true;
       })
       .addCase(sendMessage.rejected, (state, action) => {
