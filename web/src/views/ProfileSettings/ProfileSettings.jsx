@@ -1,12 +1,15 @@
 import React, { useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight } from "@fortawesome/fontawesome-free-solid";
-import { Card, Col, Container, Row } from "react-bootstrap";
+import {
+  Card, Col, Container, Row,
+} from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import personalInfo from "../../assets/images/profile-settings/personal-info.svg";
 import companyInfo from "../../assets/images/profile-settings/company-info.svg";
 import changePass from "../../assets/images/profile-settings/change-pass.svg";
 import deleteIcon from "../../assets/images/profile-settings/delete.svg";
+import paymentIcon from "../../assets/images/profile-settings/payment-method.svg";
 import "./ProfileSettings.css";
 import { handleProfileSettingsCurrentView } from "../redux/TabNavigation/TabNavigationSlice";
 import { getAuthenticatedUser } from "../redux/Auth/authSlice";
@@ -58,11 +61,9 @@ function ProfileSettings() {
                 <Card
                   style={{ minHeight: "180px" }}
                   className="custom-card"
-                  onClick={() =>
-                    dispatch(
-                      handleProfileSettingsCurrentView("PersonalInformation")
-                    )
-                  }
+                  onClick={() => dispatch(
+                    handleProfileSettingsCurrentView("PersonalInformation"),
+                  )}
                 >
                   <Card.Body>
                     <div className="d-flex justify-content-between">
@@ -91,11 +92,9 @@ function ProfileSettings() {
                   <Card
                     style={{ minHeight: "180px" }}
                     className="custom-card"
-                    onClick={() =>
-                      dispatch(
-                        handleProfileSettingsCurrentView("CompanyInformation")
-                      )
-                    }
+                    onClick={() => dispatch(
+                      handleProfileSettingsCurrentView("CompanyInformation"),
+                    )}
                   >
                     <Card.Body>
                       <div className="d-flex justify-content-between">
@@ -124,9 +123,7 @@ function ProfileSettings() {
                 <Card
                   style={{ minHeight: "180px" }}
                   className="custom-card"
-                  onClick={() =>
-                    dispatch(handleProfileSettingsCurrentView("ChangePassword"))
-                  }
+                  onClick={() => dispatch(handleProfileSettingsCurrentView("ChangePassword"))}
                 >
                   <Card.Body>
                     <div className="d-flex justify-content-between">
@@ -150,9 +147,7 @@ function ProfileSettings() {
                 <Card
                   style={{ minHeight: "180px" }}
                   className="custom-card"
-                  onClick={() =>
-                    dispatch(handleProfileSettingsCurrentView("DeleteAccount"))
-                  }
+                  onClick={() => dispatch(handleProfileSettingsCurrentView("DeleteAccount"))}
                 >
                   <Card.Body>
                     <div className="d-flex justify-content-between">
@@ -169,6 +164,30 @@ function ProfileSettings() {
                     </div>
                     <Card.Title>Delete Account</Card.Title>
                     <Card.Text>Deactivate your account</Card.Text>
+                  </Card.Body>
+                </Card>
+              </Col>
+              <Col md={6} className="mb-5">
+                <Card
+                  style={{ minHeight: "180px" }}
+                  className="custom-card"
+                  onClick={() => dispatch(handleProfileSettingsCurrentView("PaymentMethod"))}
+                >
+                  <Card.Body>
+                    <div className="d-flex justify-content-between">
+                      <img src={paymentIcon} alt="deleteIcon" className="mb-4" />
+                      <FontAwesomeIcon
+                        icon={faArrowRight}
+                        style={{
+                          fontSize: "30px",
+                          color: "#878787",
+                          marginTop: "12px",
+                        }}
+                        className="cards-arrow"
+                      />
+                    </div>
+                    <Card.Title>Payment Method</Card.Title>
+                    <Card.Text>Update your card details</Card.Text>
                   </Card.Body>
                 </Card>
               </Col>

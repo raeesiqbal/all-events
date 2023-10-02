@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Button, Container } from "react-bootstrap";
 import { Alert } from "@mui/material";
@@ -23,7 +23,7 @@ function Subscriptions() {
   const [activeTabSubscriptions, setActiveTabSubscriptions] = React.useState();
 
   // eslint-disable-next-line no-undef
-  const stripe = Stripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+  const [stripe, setStripe] = useState();
 
   const tabs = [
     {
@@ -59,6 +59,18 @@ function Subscriptions() {
 
   useEffect(() => {
     dispatch(listSubscriptions());
+    const script = document.createElement("script");
+    script.src = "https://js.stripe.com/v3/";
+    script.async = true;
+    script.onload = () => {
+      setStripe(window.Stripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY));
+    };
+
+    document.head.appendChild(script);
+
+    return () => {
+      document.head.removeChild(script);
+    };
   }, []);
 
   useEffect(() => {
@@ -98,17 +110,6 @@ function Subscriptions() {
         style={{ paddingBottom: "200px" }}
         className="pt-md-5"
       >
-        <div className="mb-4 text-end">
-          <Button
-            variant="success"
-            className="me-3 px-5 py-0"
-            style={{ fontSize: "12px !important" }}
-            role="link"
-            onClick={handleUpdatePaymentMethod}
-          >
-            Update Payment Method
-          </Button>
-        </div>
         <MesssageTabNavigation activeTab={activeTab} setActiveTab={setActiveTab} tabs={tabs} />
         {
           loading && (

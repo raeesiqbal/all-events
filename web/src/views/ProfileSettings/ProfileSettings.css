@@ -41,6 +41,46 @@
   margin-left: 54px;
 }
 
+.payment-card-front, .payment-card-back {
+  border-radius: 30px;
+  background: linear-gradient(177.23deg, #A0C49D -13.49%, #386C34 109.75%);
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  margin-bottom: 25px;
+  display: grid;
+}
+
+.payment-card-front {
+  max-width: 555px;
+}
+
+.payment-card-back {
+  max-width: 208px;
+}
+
+.payment-card-front > .top-right-oval,
+.payment-card-back > .top-right-oval {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  width: 100%;
+  height: 100%;
+  top: -50%;
+  right: -50%;
+}
+
+.payment-card-front > .bottom-left-oval,
+.payment-card-back > .bottom-left-oval {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  width: 100%;
+  height: 100%;
+  top: 50%;
+  right: 50%;
+}
+
 @media only screen and (max-width: 768px) {
   .profile-settings-banner {
     /* height: 165px; */

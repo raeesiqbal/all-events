@@ -5,6 +5,7 @@ import PersonalInformation from "./PersonalInformation";
 import ChangePassword from "./ChangePassword";
 import DeleteAccount from "./DeleteAccount";
 import CompanyInformationSettings from "./CompanyInformation";
+import PaymentMethod from "./PaymentMethod";
 import { handleProfileSettingsCurrentView } from "../redux/TabNavigation/TabNavigationSlice";
 
 function ProfileView() {
@@ -27,6 +28,7 @@ function ProfileView() {
         <CompanyInformationSettings />
       )}
       {profileSettingsCurrentView === "DeleteAccount" && <DeleteAccount />}
+      {profileSettingsCurrentView === "PaymentMethod" && <PaymentMethod />}
     </>
   );
 }
