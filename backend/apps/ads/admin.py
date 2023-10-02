@@ -1,4 +1,7 @@
 from django.contrib import admin
+from .forms import CountryAdminForm
+from apps.utils.utils import unique_slugify
+from apps.utils.services.s3_service import S3Service
 
 # Register your models here.
 from .models import (
@@ -118,6 +121,7 @@ class AdAdmin(admin.ModelAdmin):
 
 
 class CountyAdmin(admin.ModelAdmin):
+    form = CountryAdminForm
     list_display = (
         "id",
         "name",
@@ -126,6 +130,18 @@ class CountyAdmin(admin.ModelAdmin):
         "id",
         "name",
     ]
+
+    def save_model(self, request, obj, form, change):
+        extra_image = form.cleaned_data.get("image_input")
+        # obj.slug = unique_slugify(Country, obj.name, obj.id)
+        if extra_image:
+            s3_service = S3Service()
+            upload_folder = "countries"
+            if obj.image_url:
+                s3_service.delete_s3_object_by_url(obj.image_url)
+            file_url = s3_service.upload_file(extra_image, "image/jpeg", upload_folder)
+            obj.image_url = file_url
+        super().save_model(request, obj, form, change)
 
 
 class ServiceAdmin(admin.ModelAdmin):

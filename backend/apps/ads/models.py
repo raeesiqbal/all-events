@@ -8,6 +8,7 @@ from apps.utils.utils import unique_slugify
 
 class Country(models.Model):
     name = models.TextField(_("Judet"), unique=True)
+    image_url = models.TextField(_("Image url"), null=True, blank=True)
 
     def __str__(self):
         return f"{self.name}"
