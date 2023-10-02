@@ -76,6 +76,8 @@ class PaymentMethod(NewAbstractModel):
     payment_method_id = models.TextField(_("Payment Method Id"))
     brand = models.TextField(_("Brand"))
     last_4 = models.TextField(_("Last 4"))
+    exp_month = models.TextField(_("Expiry Month"), null=True, blank=True)
+    exp_year = models.TextField(_("Expiry Year"), null=True, blank=True)
 
     class Meta:
         verbose_name = "PaymentMethod"
