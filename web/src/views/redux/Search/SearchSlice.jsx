@@ -28,6 +28,7 @@ const initialState = {
       subcategories: [],
       questions: [],
       commercialName: "",
+      country: "",
     },
   },
   SearchSuccessAlert: false,
@@ -59,6 +60,7 @@ const getDataForSearchKeyword = (data) => {
       sub_categories: [],
       questions: [],
       commercial_name: "",
+      country: "",
     },
     filter: true,
   };
@@ -69,6 +71,9 @@ const getDataForSearchKeyword = (data) => {
       break;
     case "sub_categories":
       payload = { ...payload, data: { sub_categories: [...payload.data.sub_categories, data.name] } };
+      break;
+    case "country":
+      payload = { ...payload, data: { country: data.name } };
       break;
     default:
       payload = { ...payload, data: { commercial_name: data.name } };
@@ -161,6 +166,9 @@ export const SearchSlice = createSlice({
     setCommercialName: (state, action) => {
       state.data.payload.commercialName = action.payload.commercialName;
     },
+    setCountry: (state, action) => {
+      state.data.payload.country = action.payload.country;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -243,6 +251,7 @@ export const {
   setSearchKeyword,
   setSubcategories,
   setQuestions,
+  setCountry,
 } = SearchSlice.actions;
 
 // Export the reducer and actions

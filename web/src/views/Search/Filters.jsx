@@ -13,10 +13,9 @@ const Filters = () => {
   const keyword = useSelector((state) => state.search.data.keyword);
   const limit = useSelector((state) => state.search.data.pagination.limit);
   const offset = useSelector((state) => state.search.data.pagination.offset);
-  const categories = useSelector((state) => state.search.data.payload.categories);
-  const subcategories = useSelector((state) => state.search.data.payload.subcategories);
-  const questions = useSelector((state) => state.search.data.payload.questions);
-  const commercialName = useSelector((state) => state.search.data.payload.commercialName);
+  const {
+    categories, subcategories, questions, commercialName, country,
+  } = useSelector((state) => state.search.data.payload);
 
   const toggleChildDiv = (e) => {
     e.currentTarget.parentNode.children[1].classList.toggle("d-none");
@@ -65,11 +64,11 @@ const Filters = () => {
   };
 
   useEffect(() => {
-    if (categories.length > 0 || subcategories.length > 0 || questions.length > 0) {
+    if (categories.length > 0 || subcategories.length > 0 || questions.length > 0 || commercialName !== "" || country !== "") {
       dispatch(listAdsByFilter({
         data: {
           data: {
-            categories, subcategories, questions, commercial_name: commercialName,
+            categories, subcategories, questions, commercial_name: commercialName, country,
           },
           filter: false,
         },
@@ -77,7 +76,7 @@ const Filters = () => {
         offset,
       }));
     }
-  }, [categories, subcategories, questions]);
+  }, [categories, subcategories, questions, commercialName, country]);
 
   useEffect(() => {
     if (keyword.type === "commercial_name") dispatch(setCommercialName({ commercialName: keyword.name }));

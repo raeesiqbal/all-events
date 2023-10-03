@@ -264,15 +264,15 @@ class AdViewSet(BaseViewset):
         if sub_categories:
             subcategory_q = Q(sub_category__name__in=sub_categories)
 
-        if country:
-            country_q = Q(country__name__iexact=country)
-
         # Combine the Q objects
-        combined_q = category_q | subcategory_q | country_q
+        combined_q = category_q | subcategory_q
 
         # Filter Ads by commercial_name
         if commercial_name:
             combined_q |= Q(name=commercial_name)
+
+        if country:
+            combined_q &= Q(country__name__iexact=country)
 
         # Filter Ads by FAQ questions
         if questions:

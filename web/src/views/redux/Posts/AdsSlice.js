@@ -15,6 +15,7 @@ const initialState = {
     video: [],
     pdf: [],
   },
+  venueCountries: [],
   count: 0,
   AdPostSuccessAlert: false,
   AdPostErrorAlert: false,
@@ -163,6 +164,23 @@ export const favoriteAd = createAsyncThunk(
   },
 );
 
+export const venueCountries = createAsyncThunk(
+  "Ads/venueCountries",
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await instance.request({
+        url: "/api/ads/venue-countries/",
+        method: "Get",
+      });
+      return response.data;
+    } catch (err) {
+      // Use `err.response.data` as `action.payload` for a `rejected` action,
+      // by explicitly returning it using the `rejectWithValue()` utility
+      return rejectWithValue(err.response.data);
+    }
+  },
+);
+
 // Create the loginSlice
 export const AdsSlice = createSlice({
   name: "Ads",
@@ -300,6 +318,18 @@ export const AdsSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
         state.AdPostErrorAlert = action.payload;
+      })
+      .addCase(venueCountries.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(venueCountries.fulfilled, (state, action) => {
+        state.loading = false;
+        state.venueCountries = action.payload.data;
+      })
+      .addCase(venueCountries.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });
