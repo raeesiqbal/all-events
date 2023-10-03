@@ -111,6 +111,12 @@ class CountryGetSerializer(BaseSerializer):
         fields = "__all__"
 
 
+class VenueCountryGetSerializer(BaseSerializer):
+    class Meta:
+        model = Country
+        fields = "__all__"
+
+
 class FaqsGetSerializer(BaseSerializer):
     class Meta:
         model = FAQ

@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.db.models import Value, F, Q
 from django.db.models.functions import Random
-
+from django.db import connection
 from rest_framework.decorators import action
 
 
@@ -34,6 +34,7 @@ from apps.ads.models import (
     Category,
     Gallery,
     SubCategory,
+    Country,
 )
 from apps.subscriptions.models import Subscription, SubscriptionType
 from apps.companies.models import Company
@@ -59,6 +60,7 @@ from apps.ads.serializers.get_serializers import (
     CategoryGetSerializer,
     SubCategoryFilterSerializer,
     CountryGetSerializer,
+    VenueCountryGetSerializer,
 )
 
 
@@ -83,6 +85,7 @@ class AdViewSet(BaseViewset):
         "premium_vendor_ads": PremiumAdGetSerializer,
         "premium_venue_countries": CountryGetSerializer,
         "public_ad_retrieve": AdPublicGetSerializer,
+        "venue_countries": VenueCountryGetSerializer,
     }
     action_permissions = {
         "default": [],
@@ -100,6 +103,7 @@ class AdViewSet(BaseViewset):
         "public_ads_list": [],
         "keyword_details": [],
         "premium_venue_countries": [],
+        "venue_countries": [],
     }
     filter_backends = [AdCustomFilterBackend, SearchFilter, OrderingFilter]
     search_param = "search"
@@ -573,6 +577,60 @@ class AdViewSet(BaseViewset):
                 data=data,
                 status_code=status.HTTP_200_OK,
                 message="Premium Venue Ads List",
+            ),
+        )
+
+    @action(detail=False, url_path="venue-countries", methods=["get"])
+    def venue_countries(self, request, *args, **kwargs):
+        category_name = "Venues"
+
+        query = """
+    SELECT DISTINCT country_id
+    FROM ads_ad
+    LEFT JOIN ads_country ON ads_ad.country_id = ads_country.id
+    WHERE ads_ad.sub_category_id IN (
+        SELECT id
+        FROM ads_subcategory
+        WHERE category_id IN (
+            SELECT id
+            FROM ads_category
+            WHERE LOWER(name) = LOWER(%s)
+        )
+    )
+    UNION
+    SELECT DISTINCT country_id
+    FROM ads_ad_activation_countries
+    LEFT JOIN ads_country ON ads_ad_activation_countries.country_id = ads_country.id
+    WHERE ads_ad_activation_countries.ad_id IN (
+        SELECT id
+        FROM ads_ad
+        WHERE sub_category_id IN (
+            SELECT id
+            FROM ads_subcategory
+            WHERE category_id IN (
+                SELECT id
+                FROM ads_category
+                WHERE LOWER(name) = LOWER(%s)
+            )
+        )
+    )
+"""
+
+        with connection.cursor() as cursor:
+            cursor.execute(query, [category_name, category_name])
+            country_ids = cursor.fetchall()
+
+        countries = Country.objects.filter(
+            id__in=[country_id for country_id, in country_ids]
+        )
+        data = self.get_serializer(countries, many=True).data
+
+        return Response(
+            status=status.HTTP_200_OK,
+            data=ResponseInfo().format_response(
+                data=data,
+                status_code=status.HTTP_200_OK,
+                message="Venues by Countries",
             ),
         )
 
