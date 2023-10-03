@@ -36,6 +36,7 @@ class CompanyViewSet(BaseViewset):
         "retrieve": CompanyRetrieveSerializer,
         "partial_update": VendorUpdateSerializer,
         "get_upload_url": GetUploadPresignedUrlSerializer,
+        "upload_company_image": GetUploadPresignedUrlSerializer,
     }
     action_permissions = {
         "default": [],
@@ -46,6 +47,7 @@ class CompanyViewSet(BaseViewset):
         "public_companies_list": [],
         "public_company_retrieve": [],
         "get_upload_url": [],
+        "upload_company_image": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
     }
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     search_param = "search"
@@ -132,5 +134,33 @@ class CompanyViewSet(BaseViewset):
                 data={"file_url": file_url},
                 status_code=status.HTTP_200_OK,
                 message="uploads media.",
+            ),
+        )
+
+    @action(detail=False, url_path="upload-company-image", methods=["post"])
+    def upload_company_image(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        file = serializer.validated_data.get("file")
+        content_type = serializer.validated_data.get("content_type")
+        upload_folder = "vendor"
+        image_url = None
+        # # Uploading resume to S3.
+        s3_service = S3Service()
+        image_url = s3_service.upload_file(file, content_type, upload_folder)
+
+        company = request.user.user_company
+
+        if company.image:
+            self.s3_service.delete_s3_object_by_url(company.image)
+        company.image = image_url
+        company.save()
+        return Response(
+            status=status.HTTP_200_OK,
+            data=ResponseInfo().format_response(
+                data={"file_url": image_url},
+                status_code=status.HTTP_200_OK,
+                message="company image uploaded",
             ),
         )
