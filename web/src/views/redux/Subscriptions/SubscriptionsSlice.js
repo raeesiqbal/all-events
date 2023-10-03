@@ -19,6 +19,7 @@ const initialState = {
     priceId: "",
     subscriptionId: "",
   },
+  currentPaymentMethod: null,
   currentSubscriptionDetails: null,
   freePlan: null,
   SubscriptionSuccessAlert: false,
@@ -138,6 +139,23 @@ export const listSubscriptions = createAsyncThunk(
     try {
       const response = await secureInstance.request({
         url: "/api/subscriptions/my-subscriptions/",
+        method: "Get",
+      });
+      return response.data;
+    } catch (err) {
+      // Use `err.response.data` as `action.payload` for a `rejected` action,
+      // by explicitly returning it using the `rejectWithValue()` utility
+      return rejectWithValue(err.response.data);
+    }
+  },
+);
+
+export const getPaymentMethod = createAsyncThunk(
+  "PaymentMethod/current",
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await secureInstance.request({
+        url: "/api/subscriptions/get-payment-method/",
         method: "Get",
       });
       return response.data;
@@ -272,6 +290,18 @@ export const SubscriptionsSlice = createSlice({
         state.subscriptions = action.payload.data;
       })
       .addCase(listSubscriptions.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(getPaymentMethod.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getPaymentMethod.fulfilled, (state, action) => {
+        state.loading = false;
+        state.currentPaymentMethod = action.payload.data;
+      })
+      .addCase(getPaymentMethod.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

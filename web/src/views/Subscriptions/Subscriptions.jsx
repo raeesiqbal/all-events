@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Container } from "react-bootstrap";
+import { Button, Container } from "react-bootstrap";
 import { Alert } from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
@@ -10,6 +10,7 @@ import "../Ads/Ads.css";
 import "./Subscriptions.css";
 import { handleMessageAlerts, listSubscriptions } from "../redux/Subscriptions/SubscriptionsSlice";
 import Subscription from "./Subscription";
+import { secureInstance } from "../../axios/config";
 
 function Subscriptions() {
   const dispatch = useDispatch();
@@ -20,6 +21,9 @@ function Subscriptions() {
   // const expiredCount = useSelector((state) => state.subscriptions.expiredCount);
   const [activeTab, setActiveTab] = React.useState("Active");
   const [activeTabSubscriptions, setActiveTabSubscriptions] = React.useState();
+
+  // eslint-disable-next-line no-undef
+  const [stripe, setStripe] = useState();
 
   const tabs = [
     {
@@ -32,6 +36,22 @@ function Subscriptions() {
     },
   ];
 
+  const handleUpdatePaymentMethod = async () => {
+    try {
+      const response = await secureInstance.request({
+        url: "/api/subscriptions/update-payment-method/",
+        method: "Get",
+      });
+
+      // When the customer clicks on the button, redirect them to Checkout.
+      const { error } = await stripe.redirectToCheckout({
+        sessionId: response.data.data.id,
+      });
+    } catch (err) {
+      console.log(err.message);
+    }
+  };
+
   useEffect(() => {
     const status = activeTab === "Active" ? "active" : "canceled";
     setActiveTabSubscriptions(subscriptions.filter((subscription) => subscription.status === status));
@@ -39,6 +59,18 @@ function Subscriptions() {
 
   useEffect(() => {
     dispatch(listSubscriptions());
+    const script = document.createElement("script");
+    script.src = "https://js.stripe.com/v3/";
+    script.async = true;
+    script.onload = () => {
+      setStripe(window.Stripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY));
+    };
+
+    document.head.appendChild(script);
+
+    return () => {
+      document.head.removeChild(script);
+    };
   }, []);
 
   useEffect(() => {
