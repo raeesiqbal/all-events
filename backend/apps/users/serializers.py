@@ -45,6 +45,7 @@ class GetUserSerializer(serializers.ModelSerializer):
             "date_joined",
             "phone",
             "user_company",
+            "image",
         ]
 
 

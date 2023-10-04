@@ -25,6 +25,7 @@ import { secureInstance } from "../../axios/config";
 import { handleProfileSettingsCurrentView } from "../redux/TabNavigation/TabNavigationSlice";
 import { setCompanyInformation } from "../redux/Settings/SettingsSlice";
 import ProfilePic from "../../components/ProfilePic/ProfilePic";
+import CompanyPic from "../../components/CompanyPic/CompanyPic";
 
 function CompanyInformationSettings() {
   const { Formik } = formik;
@@ -157,10 +158,6 @@ function CompanyInformationSettings() {
     }
   };
 
-  const getCompanyInfo = async () => {
-    dispatch(setCompanyInformation({ id: user.userCompanyId }));
-  };
-
   const listCountries = async () => {
     const request = await secureInstance.request({
       url: "/api/ads/country/",
@@ -183,7 +180,7 @@ function CompanyInformationSettings() {
           </div>
         </div>
 
-        <ProfilePic />
+        <CompanyPic />
       </div>
 
       <Col className="justify-content-center left-arrow-settings">

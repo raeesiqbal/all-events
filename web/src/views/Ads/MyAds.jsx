@@ -92,7 +92,7 @@ function MyAds() {
             Delete
           </Button>
           <Button className="btn-success" onClick={() => setModalShow(false)}>
-            No
+            Cancel
           </Button>
         </Modal.Footer>
       </Modal>
@@ -305,7 +305,7 @@ function MyAds() {
                       className="btn btn-success roboto-semi-bold-16px-information btn-lg mt-5"
                       style={{ width: "80%", marginLeft: "-20px" }}
                     >
-                      Post another Ad
+                      Post an Ad
                     </Button>
                   </ul>
                 </Col>
@@ -328,7 +328,7 @@ function MyAds() {
           <Container className="d-flex justify-content-end mt-5">
             <Row className="d-flex justify-content-end">
               {
-                (currentSubscription === null || (currentSubscription && vendorAds.length < currentSubscription.type.allowed_ads)) && (
+                (currentSubscription === null || (currentSubscription && vendorAds.length < currentSubscription?.type?.allowed_ads)) && (
                   <Button
                     variant="success"
                     type="submit"
@@ -340,9 +340,15 @@ function MyAds() {
                 )
               }
               {
-                currentSubscription && vendorAds.length >= currentSubscription.type.allowed_ads && (
+                currentSubscription && vendorAds.length >= currentSubscription?.type?.allowed_ads && (
                   <h5 className="text-danger">
-                    You have posted maximum allowed ads. If you want to post more ads, please update your subscription package.
+                    You have posted maximum allowed ads.
+                    {" "}
+                    {
+                      currentSubscription.type.type !== "featured" && (
+                        "If you want to post more ads, please update your subscription package."
+                      )
+                    }
                   </h5>
                 )
               }

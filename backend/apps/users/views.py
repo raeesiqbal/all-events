@@ -176,7 +176,7 @@ class UserViewSet(BaseViewset):
         user = request.user
 
         if user.image:
-            self.s3_service.delete_s3_object_by_url(user.image)
+            s3_service.delete_s3_object_by_url(user.image)
         user.image = image_url
         user.save()
         return Response(

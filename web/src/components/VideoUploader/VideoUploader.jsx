@@ -284,7 +284,7 @@ function VideoUploader({ setVideoToUpload, videoToUpload }) {
               </Col>
             ))}
 
-            {!isMediaUploading && currentSubscription && currentSubscription.type.allowed_ad_videos > videoToUpload.length && (
+            {!isMediaUploading && currentSubscription && currentSubscription?.type?.allowed_ad_videos > videoToUpload.length && (
               <div
                 style={{
                   border: "2px dashed #A0C49D",

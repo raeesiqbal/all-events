@@ -312,6 +312,13 @@ function EditAd() {
     setImagesToPreview(images);
   };
 
+  const handleClickSubmit = (values) => {
+    if (values.companyInformation.country.length === 0) {
+      const el = document.querySelector(".border-danger");
+      (el?.parentElement ?? el)?.scrollIntoView();
+    }
+  };
+
   const handlePdfsUpdates = (images) => {
     setPdfsToUpload(images);
   };
@@ -416,29 +423,25 @@ function EditAd() {
 
   const handleIsSubCategoryChanged = async (id) => {
     try {
-      if (currentSubscription.type.offered_services) {
-        const request = await secureInstance.request({
-          url: `api/ads/service/${id}/get-services/`,
-          method: "Get",
-        });
+      const request = await secureInstance.request({
+        url: `api/ads/service/${id}/get-services/`,
+        method: "Get",
+      });
 
-        if (
-          request.data.data[0] !== undefined
-          && Object.prototype.hasOwnProperty.call(request.data.data[0], "service")
-        ) {
-          setAdminServices(request.data.data[0].service);
-        } else {
-          setAdminServices([]);
-        }
+      if (
+        request.data.data[0] !== undefined
+        && Object.prototype.hasOwnProperty.call(request.data.data[0], "service")
+      ) {
+        setAdminServices(request.data.data[0].service);
+      } else {
+        setAdminServices([]);
       }
 
-      if (currentSubscription.type.faq) {
-        const responseSiteQuestions = await secureInstance.request({
-          url: `api/ads/site/${id}/site-questions/`,
-          method: "Get",
-        });
-        setPreDefinedFAQs(responseSiteQuestions.data.data);
-      }
+      const responseSiteQuestions = await secureInstance.request({
+        url: `api/ads/site/${id}/site-questions/`,
+        method: "Get",
+      });
+      setPreDefinedFAQs(responseSiteQuestions.data.data);
     } catch (err) {
       // Handle login error here if needed
       console.log(err);
@@ -739,22 +742,18 @@ function EditAd() {
                     handleChange={handleChange}
                   />
 
-                  {
-                    currentSubscription && currentSubscription.type.offered_services && (
-                      <ServicesOffered
-                        values={values}
-                        handleChange={handleChange}
-                        handleAddServices={(currentService) => handleAddServices(currentService, values, setValues)}
-                        handleRemoveService={(index) => handleRemoveService(index, values, setValues)}
-                        adminServices={adminServices}
-                        adminServicesSelected={adminServicesSelected}
-                        setAdminServicesSelected={setAdminServicesSelected}
-                      />
-                    )
-                  }
+                  <ServicesOffered
+                    values={values}
+                    handleChange={handleChange}
+                    handleAddServices={(currentService) => handleAddServices(currentService, values, setValues)}
+                    handleRemoveService={(index) => handleRemoveService(index, values, setValues)}
+                    adminServices={adminServices}
+                    adminServicesSelected={adminServicesSelected}
+                    setAdminServicesSelected={setAdminServicesSelected}
+                  />
 
                   {
-                    currentSubscription && currentSubscription.type.pdf_upload && (
+                    currentSubscription && currentSubscription?.type?.pdf_upload && (
                       <PdfUploader
                         setparentImagesUploadedImages={handlePdfsUpdates}
                         pdfsToUpload={pdfsToUpload}
@@ -765,7 +764,7 @@ function EditAd() {
                   }
 
                   {
-                    currentSubscription && currentSubscription.type.faq && (
+                    currentSubscription && currentSubscription?.type?.faq && (
                       <FAQs
                         values={values}
                         errors={errors.FAQ ?? errors}

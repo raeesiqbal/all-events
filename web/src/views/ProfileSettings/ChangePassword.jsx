@@ -82,10 +82,8 @@ function ChangePassword() {
       });
       setLoading(false);
       handleAlert();
-      deleteCookie("refresh_token");
-      // navigate("/");
       setTimeout(() => {
-        window.location.href = "/";
+        window.location.href = "/profile-settings";
       }, 1500);
     } catch (error) {
       setIsFailedAlertMessage(error.response.data.message);

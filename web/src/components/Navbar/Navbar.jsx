@@ -20,6 +20,7 @@ import { toggleRegisterView } from "../../views/redux/Register/RegisterSlice";
 import {
   getAuthenticatedUser,
   refreshToken,
+  setScreenLoading,
 } from "../../views/redux/Auth/authSlice";
 import { deleteCookie, getCookie } from "../../utilities/utils";
 import { handleProfileSettingsCurrentView } from "../../views/redux/TabNavigation/TabNavigationSlice";
@@ -350,8 +351,10 @@ function Header() {
                   variant="outline-success"
                   type="submit"
                   className="mb-2 mobile-btn"
-                  onClick={() => navigate(user?.role === "client" ? "/favorite-ads" : "/dashboard")}
-                  // style={{ whiteSpace: "nowrap" }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate(user?.role === "client" ? "/favorite-ads" : "/dashboard");
+                  }}
                 >
                   Dashboard
                 </Button>
