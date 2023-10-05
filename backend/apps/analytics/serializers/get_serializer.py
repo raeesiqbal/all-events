@@ -65,9 +65,14 @@ class AdContactGetSerializer(BaseSerializer):
 
 
 class CalenderGetSerializer(BaseSerializer):
+    ad = serializers.SerializerMethodField()
+
     class Meta:
         model = Calender
         fields = "__all__"
+
+    def get_ad(self, obj):
+        return obj.ad.name
 
 
 class AdCalenderGetSerializer(BaseSerializer):
