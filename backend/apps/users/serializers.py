@@ -81,7 +81,8 @@ class GetUserDetailSerializer(serializers.ModelSerializer):
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, value):
-        data = super(CustomTokenObtainPairSerializer, self).validate(value)
+        data = super(CustomTokenObtainPairSerializer, self).validate(value) 
+
         data["user"] = GetUserDetailSerializer(self.user).data
         return data
 
