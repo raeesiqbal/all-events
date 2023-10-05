@@ -18,7 +18,6 @@ from apps.analytics.serializers.create_serializer import (
 )
 from apps.analytics.serializers.get_serializer import (
     CalenderGetSerializer,
-    AdCalenderGetSerializer,
 )
 
 from apps.analytics.serializers.update_serializer import (
@@ -38,13 +37,11 @@ class AdCalenderViewSet(BaseViewset):
     queryset = Calender.objects.all()
     action_serializers = {
         "default": CalenderGetSerializer,
-        "ad_calender": AdCalenderGetSerializer,
         "create": CalenderCreateSerializer,
         "vendor_calender_list": CalenderGetSerializer,
         "set_calender_availability": CalenderAvailabilityUpdateSerializer,
     }
     action_permissions = {
-        "ad_calender": [],
         "default": [IsAuthenticated | IsVendorUser],
         "create": [IsAuthenticated | IsVendorUser],
         "vendor_calender_list": [IsAuthenticated, IsVendorUser],
@@ -55,21 +52,6 @@ class AdCalenderViewSet(BaseViewset):
             company__user_id=self.request.user.id
         )
     }
-
-    @action(detail=True, url_path="ad-calender", methods=["get"])
-    def ad_calender(self, request, *args, **kwargs):
-        calender = []
-        if Calender.objects.filter(ad=kwargs["pk"], hide=False).exists():
-            calender = Calender.objects.filter(ad=kwargs["pk"]).first()
-            calender = self.get_serializer(calender).data
-        return Response(
-            status=status.HTTP_200_OK,
-            data=ResponseInfo().format_response(
-                data=calender,
-                status_code=status.HTTP_200_OK,
-                message="Ad calender",
-            ),
-        )
 
     @action(detail=True, url_path="set-calender-availability", methods=["post"])
     def set_calender_availability(self, request, *args, **kwargs):

@@ -64,6 +64,10 @@ from apps.ads.serializers.get_serializers import (
     VenueCountryGetSerializer,
 )
 
+from apps.analytics.serializers.get_serializer import (
+    AdCalenderGetSerializer,
+)
+
 
 class AdViewSet(BaseViewset):
     """
@@ -87,6 +91,7 @@ class AdViewSet(BaseViewset):
         "premium_venue_countries": CountryGetSerializer,
         "public_ad_retrieve": AdPublicGetSerializer,
         "venue_countries": VenueCountryGetSerializer,
+        "calender": AdCalenderGetSerializer,
     }
     action_permissions = {
         "default": [],
@@ -105,6 +110,7 @@ class AdViewSet(BaseViewset):
         "keyword_details": [],
         "premium_venue_countries": [],
         "venue_countries": [],
+        "calender": [],
     }
     filter_backends = [AdCustomFilterBackend, SearchFilter, OrderingFilter]
     search_param = "search"
@@ -658,5 +664,20 @@ class AdViewSet(BaseViewset):
             status=status.HTTP_200_OK,
             data=ResponseInfo().format_response(
                 data=data, status_code=status.HTTP_200_OK, message="Featured Ads List"
+            ),
+        )
+
+    @action(detail=True, url_path="calender", methods=["get"])
+    def calender(self, request, *args, **kwargs):
+        calender = []
+        if Calender.objects.filter(ad=kwargs["pk"], hide=False).exists():
+            calender = Calender.objects.filter(ad=kwargs["pk"]).first()
+            calender = self.get_serializer(calender).data
+        return Response(
+            status=status.HTTP_200_OK,
+            data=ResponseInfo().format_response(
+                data=calender,
+                status_code=status.HTTP_200_OK,
+                message="Ad calender",
             ),
         )
