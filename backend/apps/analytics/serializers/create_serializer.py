@@ -1,4 +1,4 @@
-from apps.analytics.models import AdReview, Chat, FavouriteAd, Message
+from apps.analytics.models import AdReview, Chat, Calender, Message
 from apps.utils.serializers.base import BaseSerializer
 from rest_framework import serializers
 
@@ -27,6 +27,12 @@ class MessageChildSerializer(BaseSerializer):
 #     class Meta:
 #         model = Chat
 #         fields = ["client", "ad", "event_date", "chat_messages"]
+
+
+class CalenderCreateSerializer(BaseSerializer):
+    class Meta:
+        model = Calender
+        fields = ["ad", "dates"]
 
 
 class AdChatCreateSerializer(BaseSerializer):

@@ -38,6 +38,7 @@ from apps.ads.models import (
 )
 from apps.subscriptions.models import Subscription, SubscriptionType
 from apps.companies.models import Company
+from apps.analytics.models import Calender
 
 # serializers
 from apps.ads.serializers.update_serializer import AdUpdateSerializer
@@ -158,6 +159,7 @@ class AdViewSet(BaseViewset):
                 offered_services=offered_services,
                 company=company,
             )
+
             ad.activation_countries.add(*activation_countries)
 
             """ads gallery created"""
@@ -174,6 +176,7 @@ class AdViewSet(BaseViewset):
             for faq in ad_faqs:
                 ad_faqs_list.append(AdFAQ(**faq, ad=ad))
             AdFAQ.objects.bulk_create(ad_faqs_list)
+            Calender.objects.create(company=company, ad=ad)
 
             return Response(
                 status=status.HTTP_200_OK,

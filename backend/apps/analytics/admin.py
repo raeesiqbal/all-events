@@ -1,5 +1,12 @@
 from django.contrib import admin
-from .models import FavouriteAd, Chat, Message, AdReview, ContactRequest
+from .models import (
+    FavouriteAd,
+    Chat,
+    Message,
+    AdReview,
+    ContactRequest,
+    Calender,
+)
 
 
 # Register your models here.
@@ -107,8 +114,26 @@ class ContactRequestAdmin(admin.ModelAdmin):
     raw_id_fields = ("ad",)
 
 
+class CalenderAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "company",
+        "ad",
+        "hide",
+    )
+    search_fields = [
+        "id",
+        "company__email",
+        "ad__name",
+        "hide",
+    ]
+
+    raw_id_fields = ("ad", "company")
+
+
 admin.site.register(FavouriteAd, FavouriteAdAdmin)
 admin.site.register(Chat, ChatAdmin)
 admin.site.register(Message, MessageAdmin)
 admin.site.register(AdReview, AdReviewAdmin)
 admin.site.register(ContactRequest, ContactRequestAdmin)
+admin.site.register(Calender, CalenderAdmin)
