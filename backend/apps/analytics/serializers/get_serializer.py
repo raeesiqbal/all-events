@@ -70,6 +70,12 @@ class CalenderGetSerializer(BaseSerializer):
         fields = "__all__"
 
 
+class AdCalenderGetSerializer(BaseSerializer):
+    class Meta:
+        model = Calender
+        fields = ["dates"]
+
+
 class AdReviewGetSerializer(BaseSerializer):
     # client = AdReviewClientChildSerializer()
     full_name = serializers.SerializerMethodField()

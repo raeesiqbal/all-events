@@ -1,4 +1,4 @@
-from apps.analytics.models import Chat, Message
+from apps.analytics.models import Calender
 from apps.utils.serializers.base import BaseSerializer
 from rest_framework import serializers
 
@@ -17,3 +17,9 @@ class ChatIsArchivedSerializer(serializers.Serializer):
 
 class MessageIsReadSerializer(serializers.Serializer):
     is_read = serializers.BooleanField(required=True)
+
+
+class CalenderAvailabilityUpdateSerializer(BaseSerializer):
+    class Meta:
+        model = Calender
+        fields = ["hide"]
