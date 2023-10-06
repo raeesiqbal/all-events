@@ -2,6 +2,8 @@ from apps.analytics.models import Calender
 from apps.utils.serializers.base import BaseSerializer
 from rest_framework import serializers
 
+from django.db.models.fields import DateField
+
 
 class ChatIsArchivedSerializer(serializers.Serializer):
     is_archived = serializers.BooleanField(required=True)
@@ -23,3 +25,16 @@ class CalenderAvailabilityUpdateSerializer(BaseSerializer):
     class Meta:
         model = Calender
         fields = ["hide"]
+
+
+# class CalenderUpdateSerializer(serializers.Serializer):
+#     dates = serializers.ListField(child=serializers.CharField())
+#     reason = serializers.CharField()
+#     availability = serializers.CharField()
+
+
+class CalenderUpdateSerializer(serializers.Serializer):
+    start_date = serializers.DateField(input_formats=["%d-%m-%Y"])
+    end_date = serializers.DateField(input_formats=["%d-%m-%Y"])
+    reason = serializers.CharField()
+    availability = serializers.CharField()

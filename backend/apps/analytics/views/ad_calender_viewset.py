@@ -4,6 +4,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
 from django.db.models import Avg
+from datetime import datetime, timedelta
 
 # constants
 from apps.users.constants import USER_ROLE_TYPES
@@ -22,6 +23,7 @@ from apps.analytics.serializers.get_serializer import (
 
 from apps.analytics.serializers.update_serializer import (
     CalenderAvailabilityUpdateSerializer,
+    CalenderUpdateSerializer,
 )
 
 # models
@@ -40,12 +42,14 @@ class AdCalenderViewSet(BaseViewset):
         "create": CalenderCreateSerializer,
         "vendor_calender_list": CalenderGetSerializer,
         "set_calender_availability": CalenderAvailabilityUpdateSerializer,
+        "update_calender": CalenderUpdateSerializer,
     }
     action_permissions = {
         "default": [IsAuthenticated | IsVendorUser],
         "create": [IsAuthenticated | IsVendorUser],
         "vendor_calender_list": [IsAuthenticated, IsVendorUser],
         "set_calender_availability": [IsAuthenticated, IsVendorUser],
+        "update_calender": [IsAuthenticated, IsVendorUser],
     }
     user_role_queryset = {
         USER_ROLE_TYPES["VENDOR"]: lambda self: Calender.objects.filter(
@@ -79,5 +83,69 @@ class AdCalenderViewSet(BaseViewset):
                 data=[],
                 status_code=status.HTTP_200_OK,
                 message="Doest not exists",
+            ),
+        )
+
+    # @action(detail=True, url_path="update-calender", methods=["post"])
+    # def update_calender(self, request, *args, **kwargs):
+    #     serializer = self.get_serializer(data=request.data)
+    #     serializer.is_valid(raise_exception=True)
+    #     calendar = Calender.objects.filter(id=kwargs["pk"]).first()
+    #     dates_list = serializer.validated_data.get("dates", {})
+    #     reason = serializer.validated_data.get("reason", {})
+    #     availability = serializer.validated_data.get("availability", {})
+
+    #     for i in dates_list:
+    #         if calendar.dates and i in calendar.dates:
+    #             if availability == "ad":
+    #                 calendar.dates[i] = reason
+    #             if availability == "remove":
+    #                 del calendar.dates[i]
+    #         else:
+    #             if availability == "ad":
+    #                 calendar.dates[i] = reason
+
+    #     calendar.save()
+    #     return Response(
+    #         status=status.HTTP_200_OK,
+    #         data=ResponseInfo().format_response(
+    #             data=[],
+    #             status_code=status.HTTP_200_OK,
+    #             message="Calender updated",
+    #         ),
+    #     )
+
+    @action(detail=True, url_path="update-calender", methods=["post"])
+    def update_calender(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        calendar = Calender.objects.filter(id=kwargs["pk"]).first()
+        start_date = serializer.validated_data.get("start_date")
+        end_date = serializer.validated_data.get("end_date")
+
+        dates_list = [
+            (start_date + timedelta(days=i)).strftime("%d-%m-%Y")
+            for i in range((end_date - start_date).days + 1)
+        ]
+        reason = serializer.validated_data.get("reason", {})
+        availability = serializer.validated_data.get("availability", {})
+
+        for i in dates_list:
+            if calendar.dates and i in calendar.dates:
+                if availability == "ad":
+                    calendar.dates[i] = reason
+                if availability == "remove":
+                    del calendar.dates[i]
+            else:
+                if availability == "ad":
+                    calendar.dates[i] = reason
+
+        calendar.save()
+        return Response(
+            status=status.HTTP_200_OK,
+            data=ResponseInfo().format_response(
+                data=[],
+                status_code=status.HTTP_200_OK,
+                message="Calender updated",
             ),
         )
