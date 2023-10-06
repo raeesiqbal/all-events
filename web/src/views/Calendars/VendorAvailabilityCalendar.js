@@ -1,15 +1,15 @@
-import React, { useState } from "react";
-import Calendar from "react-calendar";
-import "react-calendar/dist/Calendar.css";
-import Modal from "react-bootstrap/Modal";
-import Button from "react-bootstrap/Button";
-import { DateRangePicker } from "react-date-range";
-import "react-date-range/dist/styles.css";
-import "react-date-range/dist/theme/default.css";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTimes } from "@fortawesome/free-solid-svg-icons";
-import "./Calendar.css";
-import "bootstrap/dist/css/bootstrap.min.css";
+import React, { useState } from 'react';
+import Calendar from 'react-calendar';
+import 'react-calendar/dist/Calendar.css';
+import Modal from 'react-bootstrap/Modal';
+import Button from 'react-bootstrap/Button';
+import { DateRangePicker } from 'react-date-range';
+import 'react-date-range/dist/styles.css';
+import 'react-date-range/dist/theme/default.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTimes } from '@fortawesome/free-solid-svg-icons';
+import './Calendar.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function MyCalendar() {
   const [date, setDate] = useState(new Date());
@@ -19,8 +19,8 @@ function MyCalendar() {
   const [isBusy, setIsBusy] = useState(false);
   const [isAvailable, setIsAvailable] = useState(false);
   const [markedDates, setMarkedDates] = useState([
-    new Date(new Date().getFullYear(), new Date().getMonth() - 1, 28),
-    new Date(new Date().getFullYear(), new Date().getMonth(), 10),
+    new Date(new Date().getFullYear(), new Date().getMonth() - 1, 28), 
+    new Date(new Date().getFullYear(), new Date().getMonth(), 10), 
   ]);
 
   const toggleModal = () => {
@@ -50,14 +50,14 @@ function MyCalendar() {
 
   const tileClassName = ({ date }) => {
     if (isDateMarkedAsBusy(date)) {
-      return "busy-tile";
+      return 'busy-tile';
     }
   };
 
   return (
     <div className="my-calendar">
-      <div className="calendar-container" style={{ width: "80%" }}> 
-        <div className="heading heading1"> <h1 className="calendar-title">Calendar</h1>
+      <div className="calendar-container" style={{ width: '80%' }}> 
+        <div className='heading heading1'> <h1 className="calendar-title">Calendar</h1>
           <Button
             variant="success"
             className="set-availability-button"
@@ -66,7 +66,7 @@ function MyCalendar() {
             Set Availability
           </Button>
               </div>
-              <div className="xyz">
+              <div className='xyz'>
         <Calendar
           onChange={setDate}
                       value={date}
@@ -82,7 +82,7 @@ function MyCalendar() {
                   </div>
         <Modal show={showModal} onHide={toggleModal} centered>
           <Modal.Header>
-            <div className="heading">
+            <div className='heading'>
               <Modal.Title><h3>Select Date Range</h3></Modal.Title>
               <button className="close" onClick={toggleModal}>
                 <FontAwesomeIcon icon={faTimes} />
@@ -95,7 +95,7 @@ function MyCalendar() {
                 {
                   startDate: startDate || new Date(),
                   endDate: endDate || new Date(),
-                  key: "selection",
+                  key: 'selection',
                 },
               ]}
               onChange={(ranges) => {
@@ -139,7 +139,7 @@ function MyCalendar() {
               Cancel
             </Button>
             <Button variant="primary" onClick={handleDateRangeSelection}>
-              Save as {isBusy ? "Busy" : "Available"}
+              Save as {isBusy ? 'Busy' : 'Available'}
             </Button>
           </Modal.Footer>
         </Modal>

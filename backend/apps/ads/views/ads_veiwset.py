@@ -669,7 +669,7 @@ class AdViewSet(BaseViewset):
 
     @action(detail=True, url_path="calender", methods=["get"])
     def calender(self, request, *args, **kwargs):
-        calender = []
+        calender = None
         if Calender.objects.filter(ad=kwargs["pk"], hide=False).exists():
             calender = Calender.objects.filter(ad=kwargs["pk"]).first()
             calender = self.get_serializer(calender).data

@@ -1,0 +1,90 @@
+/* eslint-disable camelcase */
+/* eslint-disable no-useless-catch */
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { secureInstance } from "../../../axios/config";
+
+// Create an initial state for the auth slice
+const initialState = {
+  loading: false,
+  error: null,
+  calendars: [],
+  CalendarSuccessAlert: false,
+  CalendarErrorAlert: false,
+};
+
+export const vendorCalendars = createAsyncThunk(
+  "Calendars/list",
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await secureInstance.request({
+        url: "/api/analytics/ad-calender/",
+        method: "Get",
+      });
+      return response.data; // Assuming your loginAPI returns data with access_token, user_id, and role_id
+    } catch (err) {
+      // Use `err.response.data` as `action.payload` for a `rejected` action,
+      // by explicitly returning it using the `rejectWithValue()` utility
+      return rejectWithValue(err.response.data);
+    }
+  },
+);
+
+export const updateCalendar = createAsyncThunk(
+  "Calendars/update",
+  async ({ id, data }, { rejectWithValue }) => {
+    try {
+      const response = await secureInstance.request({
+        url: `/api/analytics/ad-calender/${id}/update-calender/`,
+        method: "Post",
+        data,
+      });
+      return response.data; // Assuming your loginAPI returns data with access_token, user_id, and role_id
+    } catch (err) {
+      // Use `err.response.data` as `action.payload` for a `rejected` action,
+      // by explicitly returning it using the `rejectWithValue()` utility
+      return rejectWithValue(err.response.data);
+    }
+  },
+);
+
+// Create the CalendarsSlice
+export const CalendarsSlice = createSlice({
+  name: "Calendars",
+  initialState,
+  reducers: {
+    handleResgisterationStatus: (state) => {
+      state.isRegistered = false;
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(vendorCalendars.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(vendorCalendars.fulfilled, (state, action) => {
+        state.loading = false;
+        state.calendars = action.payload.data;
+      })
+      .addCase(vendorCalendars.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(updateCalendar.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateCalendar.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(updateCalendar.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
+  },
+});
+
+export const { handleResgisterationStatus } = CalendarsSlice.actions;
+
+// Export the reducer and actions
+export default CalendarsSlice.reducer;

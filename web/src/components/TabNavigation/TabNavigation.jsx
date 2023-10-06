@@ -26,6 +26,11 @@ const vendorTabs = [
     path: "/my-ads",
   },
   {
+    label: "Calendars",
+    icon: analytics,
+    path: "/calendars",
+  },
+  {
     label: "Messages",
     icon: messages,
     path: "/messages",

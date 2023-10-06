@@ -21,11 +21,12 @@ import "./Ads.css";
 import { handleStartChat } from "../redux/Chats/ChatsSlice";
 import Reviews from "../Reviews/Reviews";
 import useWindowDimensions from "../../utilities/hooks/useWindowDimension";
-import { favoriteAd } from "../redux/Posts/AdsSlice";
+import { adCalendar, favoriteAd } from "../redux/Posts/AdsSlice";
 import Rating from "../../components/Rating/Rating";
 import StarRating from "../../components/Rating/StarRating";
 import { faFacebook, faInstagram, faTiktok, faTwitter, faYoutube } from "@fortawesome/free-brands-svg-icons";
 import { faLink } from "@fortawesome/free-solid-svg-icons";
+import Calendar from "react-calendar";
 
 export function PrevButton(props) {
   const { enabled, onClick } = props;
@@ -80,6 +81,7 @@ function ViewAd() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
+  const calendar = useSelector((state) => state.Ads.calendar);
 
   const mediaQuery = useWindowDimensions();
   const options = { slidesToScroll: "auto", containScroll: "trimSnaps" };
@@ -172,6 +174,7 @@ function ViewAd() {
 
   useEffect(() => {
     getAdInfo();
+    dispatch(adCalendar(params.adId));
   }, [user?.role]);
 
   const getData = () => {
@@ -201,6 +204,10 @@ function ViewAd() {
         : handleStartChat(getData()),
     );
   };
+
+  const isBusyDate = (dt) => Object.keys(calendar?.dates || {}).some((d) => new Date(d).toDateString() === dt.toDateString());
+
+  const busyClassName = ({ date }) => (isBusyDate(date) ? "busy-tile" : "");
 
   return (
     <Container
@@ -330,6 +337,11 @@ function ViewAd() {
         <Col lg={4}>
           <div className="d-flex justify-content-between flex-column h-100">
             <div className="d-flex flex-column">
+              <Calendar
+                value={new Date()}
+                tileClassName={busyClassName}
+                className="mb-5"
+              />
               <div className="d-flex w-100 align-items-center pt-3">
                 <StarRating
                   averageRating={currentAd?.average_rating?.toFixed(1) || 0}
