@@ -100,7 +100,7 @@ class AdViewSet(BaseViewset):
         "retrieve": [IsAuthenticated, IsSuperAdmin | IsVendorUser | IsClient],
         "partial_update": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
         "destroy": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
-        "get_upload_url": [],
+        "get_upload_url": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
         "delete_urls": [],
         "remove_url_on_update": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
         "fetch_suggestion_list": [],
@@ -207,11 +207,13 @@ class AdViewSet(BaseViewset):
 
         file = serializer.validated_data.get("file")
         content_type = serializer.validated_data.get("content_type")
+        file_type = serializer.validated_data.get("file_type")
 
+        upload_folder = f"vendors/{request.user.email}/{file_type}"
         file_url = None
         # # Uploading resume to S3.
         s3_service = S3Service()
-        file_url = s3_service.upload_file(file, content_type)
+        file_url = s3_service.upload_file(file, content_type, upload_folder)
 
         return Response(
             status=status.HTTP_200_OK,

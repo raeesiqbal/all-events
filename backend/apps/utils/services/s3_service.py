@@ -29,22 +29,20 @@ class S3Service:
         return bucket_name, object_key, filename
 
     def delete_s3_object_by_url(self, s3_object_url):
-        object_key = s3_object_url.replace("https://s3.amazonaws.com/mehaio-buc/", "")
+        bucket_name = self.bucket_name
+        object_key = s3_object_url.replace(
+            f"https://s3.amazonaws.com/{bucket_name}/", ""
+        )
 
         s3_client = boto3.client("s3")
-        bucket_name = self.bucket_name
 
         try:
             s3_client.delete_object(Bucket=bucket_name, Key=object_key)
-            print(
-                f"Object '{object_key}' deleted successfully from bucket '{bucket_name}'."
-            )
+            return True
         except Exception as e:
-            print(
-                f"Error deleting object '{object_key}' from bucket '{bucket_name}': {e}"
-            )
+            return False
 
-    def upload_file(self, file, content_type,upload_folder=None, object_name=None):
+    def upload_file(self, file, content_type, upload_folder=None, object_name=None):
         """Upload a file to an S3 bucket
 
         :param file_name: File to upload
@@ -54,9 +52,9 @@ class S3Service:
         """
 
         # If S3 object_name was not specified, use file_name
-        
+
         if upload_folder is None:
-            upload_folder='ads'
+            upload_folder = "ads"
 
         timestamp = datetime.timestamp(datetime.now())
         file_name_gen = f"uploads/{upload_folder}/{timestamp}_{file.name}"
