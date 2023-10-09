@@ -83,7 +83,6 @@ class CountryCreateSerializer(BaseSerializer):
 class GetUploadPresignedUrlSerializer(serializers.Serializer):
     file = serializers.FileField(required=True)
     content_type = serializers.CharField(required=True)
-    file_type = serializers.CharField(required=True)
 
 
 class UserImageSerializer(serializers.Serializer):

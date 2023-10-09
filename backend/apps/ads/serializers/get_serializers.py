@@ -16,7 +16,7 @@ from apps.ads.models import (
     SiteQuestion,
     SiteFAQ,
 )
-from apps.analytics.models import AdReview
+from apps.analytics.models import AdReview, Calender
 from django.db.models import Avg
 from apps.analytics.models import FavouriteAd
 from apps.companies.models import Company
@@ -255,6 +255,7 @@ class AdPublicGetSerializer(BaseSerializer):
     ad_faq_ad = AdFaqsGetSerializer(many=True)
     total_reviews = serializers.SerializerMethodField()
     average_rating = serializers.SerializerMethodField()
+    calendar_display = serializers.SerializerMethodField()
 
     class Meta:
         model = Ad
@@ -278,6 +279,12 @@ class AdPublicGetSerializer(BaseSerializer):
     def get_average_rating(self, obj):
         avg_rating = AdReview.objects.filter(ad=obj).aggregate(Avg("rating"))
         return avg_rating["rating__avg"]
+
+    def get_calendar_display(self, obj):
+        if Calender.objects.filter(ad=obj, hide=True).exists():
+            return False
+        else:
+            return True
 
 
 class SuggestionGetSerializer(BaseSerializer):

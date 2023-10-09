@@ -204,12 +204,14 @@ class AdViewSet(BaseViewset):
     def get_upload_url(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-
         file = serializer.validated_data.get("file")
         content_type = serializer.validated_data.get("content_type")
-        file_type = serializer.validated_data.get("file_type")
-
-        upload_folder = f"vendors/{request.user.email}/{file_type}"
+        if "image" in content_type:
+            upload_folder = f"vendors/{request.user.email}/images"
+        elif "pdf" in content_type:
+            upload_folder = f"vendors/{request.user.email}/pdfs"
+        elif "video" in content_type:
+            upload_folder = f"vendors/{request.user.email}/videos"
         file_url = None
         # # Uploading resume to S3.
         s3_service = S3Service()
@@ -255,7 +257,6 @@ class AdViewSet(BaseViewset):
     @action(detail=False, url_path="public-list", methods=["post"])
     def public_ads_list(self, request, *args, **kwargs):
         payload = request.data
-
         # Extract data from the payload
         payload_data = payload.get("data", {})
         categories = payload_data.get("categories", [])
