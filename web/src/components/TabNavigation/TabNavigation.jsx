@@ -112,7 +112,7 @@ const TabNavigation = ({ role }) => {
       className="d-flex align-items-center justify-content-center"
       style={{ height: "50px", width: "100%" }}
     >
-      <div className="d-flex justify-content-between" style={{ width: "60vw" }}>
+      <div className="d-flex justify-content-between" style={{ width: "80vw" }}>
         {tabs.map((tab, index) => (
           <div
             key={tab.label}

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { vendorCalendars } from "../redux/Calendars/CalendarsSlice";
 import AdCalendar from "./Calendar";
@@ -7,23 +7,49 @@ import { Col, Container, Row } from "react-bootstrap";
 const Calendars = () => {
   const dispatch = useDispatch();
   const { calendars } = useSelector((state) => state.calendars);
+  const [currentAd, setCurrentAd] = useState(1);
+  const [adTabSize, setAdTabSize] = useState(5);
 
   useEffect(() => {
     dispatch(vendorCalendars());
   }, []);
 
+  useEffect(() => {
+    if (calendars?.length === 1) setAdTabSize(2);
+    if (calendars?.length === 2) setAdTabSize(3);
+    if (calendars?.length > 2) setAdTabSize(5);
+  }, [calendars]);
+
   return (
     <Container className="py-5 my-5">
       <h3 className="text-center mb-5">My Ads Calendars</h3>
-      <Row>
-        <Col md={9} className="mx-auto">
-          {
-            calendars?.map((calendar, index) => (
-              <AdCalendar calendarData={calendar} index={index} />
-            ))
-          }
+      <Row className="mx-0">
+        <Col md={9} lg={adTabSize} className="mx-auto">
+          <Row className="mx-0 bg-white rounded">
+            {
+              calendars?.map((calendar, index) => (
+                <Col className="p-2 text-center" style={{ height: "56px" }}>
+                  <div
+                    className={`p-2 rounded interval ${currentAd === index + 1 ? "active-interval" : ""}`}
+                    onClick={() => setCurrentAd(index + 1)}
+                  >
+                    {`Ad ${index + 1}`}
+                  </div>
+                </Col>
+              ))
+            }
+          </Row>
         </Col>
       </Row>
+      {
+        calendars?.length > 0 && (
+          <Row className="pt-5">
+            <Col md={9} className="mx-auto">
+              <AdCalendar calendarData={calendars[currentAd - 1]} index={currentAd - 1} />
+            </Col>
+          </Row>
+        )
+      }
     </Container>
   );
 };

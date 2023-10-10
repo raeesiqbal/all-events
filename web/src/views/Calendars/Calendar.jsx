@@ -6,13 +6,11 @@ import Button from "react-bootstrap/Button";
 import { DateRangePicker } from "react-date-range";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import "./Calendars.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Col, Form, Row } from "react-bootstrap";
 import { useDispatch } from "react-redux";
-import { updateCalendar, vendorCalendars } from "../redux/Calendars/CalendarsSlice";
+import { setCalendarAvailability, updateCalendar, vendorCalendars } from "../redux/Calendars/CalendarsSlice";
 
 const AdCalendar = ({ calendarData, index }) => {
   const dispatch = useDispatch();
@@ -22,6 +20,7 @@ const AdCalendar = ({ calendarData, index }) => {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [availability, setAvailability] = useState("ad");
+  const [isBusy, setIsBusy] = useState(true);
 
   const resetForm = () => {
     setStartDate(null);
@@ -33,6 +32,15 @@ const AdCalendar = ({ calendarData, index }) => {
   const toggleModal = () => {
     setShowModal(!showModal);
     resetForm();
+  };
+
+  const handleAvailability = (e) => {
+    setIsBusy(e.target.checked);
+    setAvailability(e.target.checked ? "ad" : "remove");
+  };
+
+  const handleAdAvailability = () => {
+    dispatch(setCalendarAvailability({ id: calendarData.id, hide: !calendarData.hide, index }))
   };
 
   const updateAdCalendar = () => {
@@ -101,77 +109,78 @@ const AdCalendar = ({ calendarData, index }) => {
         <Modal.Body className="p-4">
           <div className="w-100 text-center" style={{ fontSize: "24px", fontWeight: "600" }}>Update Calendar</div>
           <Row className="pt-5">
-            <div className="w-100 mb-4">
+            <div className="w-100 mb-4 d-grid">
               <div className="d-flex w-100 mb-3">
                 {/* <img src={titleIcon} alt="T" className="me-3" style={{ width: "32px", height: "32px" }} /> */}
                 <div className="my-auto" style={{ fontSize: "20px", fontWeight: "500" }}>Select Busy Date Range</div>
               </div>
-              <DateRangePicker
-                ranges={[
-                  {
-                    startDate: startDate || new Date(),
-                    endDate: endDate || new Date(),
-                    key: "selection",
-                  },
-                ]}
-                onChange={(ranges) => {
-                  setStartDate(ranges.selection.startDate);
-                  setEndDate(ranges.selection.endDate);
-                }}
-                showSelectionPreview
-                moveRangeOnFirstSelection={false}
-              />
-            </div>
-            <div className="w-100 mb-4">
-              <div className="d-flex w-100 mb-3">
-                {/* <img src={titleIcon} alt="T" className="me-3" style={{ width: "32px", height: "32px" }} /> */}
-                <div className="my-auto" style={{ fontSize: "20px", fontWeight: "500" }}>Availability</div>
+              <div className="mx-auto mt-3">
+                <DateRangePicker
+                  ranges={[
+                    {
+                      startDate: startDate || new Date(),
+                      endDate: endDate || new Date(),
+                      key: "selection",
+                    },
+                  ]}
+                  rangeColors="#D9ECFF"
+                  color="#D9ECFF"
+                  onChange={(ranges) => {
+                    setStartDate(ranges.selection.startDate);
+                    setEndDate(ranges.selection.endDate);
+                  }}
+                  showSelectionPreview
+                  moveRangeOnFirstSelection={false}
+                />
               </div>
-              <Form.Select
-                className="px-5"
-                style={{ width: "fit-content" }}
-                size="lg"
-                defaultValue="ad"
-                onChange={(e) => setAvailability(e.target.value)}
-              >
-                <option value="ad">Busy</option>
-                <option value="remove">Available</option>
-              </Form.Select>
             </div>
           </Row>
           <Row className="w-100 mx-0">
-            <Col md={6}>
-              <Button variant="success" className="w-100" onClick={updateAdCalendar} disabled={isDisabled}>Update</Button>
+            <Col md={6} className="d-flex align-items-center">
+              <span className="pe-2">Available</span>
+              <Form.Check
+                type="switch"
+                className="ps-5"
+                label=""
+                checked={isBusy}
+                onChange={handleAvailability}
+              />
+              <span className="ms-2">Busy</span>
             </Col>
             <Col md={6}>
-              <Button
-                variant="light"
-                className="w-100 h-100"
-                style={{ fontSize: "16px", fontWeight: "600", color: "#a0c49d" }}
-                onClick={() => resetForm()}
-              >
-                Clear all
-              </Button>
+              <Button variant="success" className="w-100" onClick={updateAdCalendar} disabled={isDisabled}>Update</Button>
             </Col>
           </Row>
         </Modal.Body>
       </Modal>
-      <div className="d-flex w-100 justify-content-between pt-3">
+      <div className="d-flex w-100 justify-content-between py-3">
         <h4>
-          {index + 1}
-          .
-          {" "}
           {calendarData.ad}
         </h4>
-        <Button variant="success" className="set-availability-button" onClick={toggleModal}>
-          Set availability
-        </Button>
+        <Form.Check
+          type="switch"
+          className="ps-5"
+          label={(
+            <span className="ms-2" style={{ fontSize: "18px", lineHeight: "18px" }}>
+              Ad availability is turned
+              {" "}
+              {calendarData.hide ? "on" : "off"}
+            </span>
+          )}
+          checked={calendarData.hide}
+          onChange={handleAdAvailability}
+        />
       </div>
       <Calendar
         value={new Date()}
         tileClassName={busyClassName}
         className="mb-5"
       />
+      <div className="w-100 mt-4 d-flex">
+        <Button variant="success" className="set-availability-button ms-auto" onClick={toggleModal}>
+          Update
+        </Button>
+      </div>
     </>
   );
 };

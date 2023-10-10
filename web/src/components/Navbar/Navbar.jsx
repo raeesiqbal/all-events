@@ -24,6 +24,8 @@ import {
 } from "../../views/redux/Auth/authSlice";
 import { deleteCookie, getCookie } from "../../utilities/utils";
 import { handleProfileSettingsCurrentView } from "../../views/redux/TabNavigation/TabNavigationSlice";
+import { getHeadersData } from "../../views/redux/Utils/UtilsSlice";
+import { setCategories, setSearchKeyword, setSubcategories } from "../../views/redux/Search/SearchSlice";
 
 function Header() {
   const dispatch = useDispatch();
@@ -31,7 +33,12 @@ function Header() {
   const isRegisterView = useSelector((state) => state.register.isRegisterView);
   const { isLoginView } = useSelector((state) => state.login);
   const { user } = useSelector((state) => state.auth);
+  const { headers } = useSelector((state) => state.utils);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    dispatch(getHeadersData());
+  }, []);
 
   useEffect(() => {
     const refreshTokenValue = getCookie("refresh_token");
@@ -89,6 +96,13 @@ function Header() {
       return;
     }
     navigate(-1);
+  };
+
+  const handleSubCategorySearch = (cat, subCat) => {
+    dispatch(setCategories({ categories: [cat] }));
+    dispatch(setSubcategories({ subcategories: [subCat] }));
+    dispatch(setSearchKeyword({ name: subCat, type: "sub_categories" }));
+    navigate("/search");
   };
 
   return (
@@ -187,88 +201,40 @@ function Header() {
       </Navbar.Toggle>
       <Navbar.Collapse id="navbarSupportedContent" className="navbar-collapse">
         <Nav className="mx-auto">
-          <NavDropdown
-            // title="For him"
-            id="navbarDropdown"
-            // style={{ borderBottom: "1px solid #1A1A1A", opacity: "0.1" }}
-            title={(
-              <>
-                <div className="nav-mobile">
-                  <div className="d-flex align-items-center">For him </div>
-                  <FontAwesomeIcon
-                    icon={faAngleDown}
-                    style={{ marginLeft: "10px" }}
-                  />
-                </div>
-                <div className="mobile-border-nav" />
-              </>
-            )}
-          >
-            <NavDropdown.Item href="#">Action</NavDropdown.Item>
-            <NavDropdown.Divider />
-            <NavDropdown.Item href="#">Something else here</NavDropdown.Item>
-          </NavDropdown>
-
-          <NavDropdown
-            title={(
-              <>
-                <div className="nav-mobile">
-                  <div className="d-flex align-items-center"> For her </div>
-                  <FontAwesomeIcon
-                    icon={faAngleDown}
-                    style={{ marginLeft: "10px" }}
-                  />
-                </div>
-                <div className="mobile-border-nav" />
-              </>
-            )}
-            id="navbarDropdown"
-          >
-            <NavDropdown.Item href="#">Action</NavDropdown.Item>
-            <NavDropdown.Divider />
-            <NavDropdown.Item href="#">Something else here</NavDropdown.Item>
-          </NavDropdown>
-
-          <NavDropdown
-            title={(
-              <>
-                <div className="nav-mobile">
-                  <div className="d-flex align-items-center"> Vendors </div>
-                  <FontAwesomeIcon
-                    icon={faAngleDown}
-                    style={{ marginLeft: "10px" }}
-                  />
-                </div>
-                <div className="mobile-border-nav" />
-              </>
-            )}
-            id="navbarDropdown"
-          >
-            <NavDropdown.Item href="/plans">Plans</NavDropdown.Item>
-            <NavDropdown.Divider />
-            <NavDropdown.Item href="#">Something else here</NavDropdown.Item>
-          </NavDropdown>
-
-          <NavDropdown
-            title={(
-              <>
-                <div className="nav-mobile">
-                  <div className="d-flex align-items-center"> Venues </div>
-                  <FontAwesomeIcon
-                    icon={faAngleDown}
-                    style={{ marginLeft: "10px" }}
-                  />
-                </div>
-                <div className="mobile-border-nav" />
-              </>
-            )}
-            id="navbarDropdown"
-          >
-            <NavDropdown.Item href="#">Action</NavDropdown.Item>
-            <NavDropdown.Divider />
-            <NavDropdown.Item href="#">Something else here</NavDropdown.Item>
-          </NavDropdown>
-
+          {
+            headers.map((header, i) => (
+              <NavDropdown
+                id={`navbarDropdown${i}`}
+                title={(
+                  <>
+                    <div className="nav-mobile">
+                      <div className="d-flex align-items-center">{header.name}</div>
+                      <FontAwesomeIcon
+                        icon={faAngleDown}
+                        style={{ marginLeft: "10px" }}
+                      />
+                    </div>
+                    <div className="mobile-border-nav" />
+                  </>
+                )}
+              >
+                {
+                  header.sub_categories.map((subcat, index) => (
+                    <>
+                      <NavDropdown.Item onClick={() => handleSubCategorySearch(header.name, subcat.name)}>
+                        {subcat.name}
+                      </NavDropdown.Item>
+                      {
+                        index < header.sub_categories.length - 1 && (
+                          <NavDropdown.Divider />
+                        )
+                      }
+                    </>
+                  ))
+                }
+              </NavDropdown>
+            ))
+          }
           <NavDropdown
             title={(
               <>
@@ -288,9 +254,7 @@ function Header() {
             )}
             id="navbarDropdown"
           >
-            <NavDropdown.Item href="#">Action</NavDropdown.Item>
-            <NavDropdown.Divider />
-            <NavDropdown.Item href="#">Something else here</NavDropdown.Item>
+            <NavDropdown.Item href="#">Coming soon</NavDropdown.Item>
           </NavDropdown>
         </Nav>
         <Form role="search" style={{ maxHeight: "40px" }}>

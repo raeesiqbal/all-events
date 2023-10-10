@@ -13,22 +13,24 @@ import searchReducer from "../views/redux/Search/SearchSlice";
 import subscriptionReducer from "../views/redux/Subscriptions/SubscriptionsSlice";
 import analyticsReducer from "../views/redux/Analytics/AnalyticsSlice";
 import calendarsReducer from "../views/redux/Calendars/CalendarsSlice";
+import utilsReducer from "../views/redux/Utils/UtilsSlice";
 
 const rootReducer = combineReducers({
-  auth: authReducer,
-  login: loginReducer,
-  register: registerReducer,
-  stepper: stepperReducer,
-  tabNavigation: TabNavigationReducer,
   Ads: AdsReducer,
-  settings: settingsReducer,
+  analytics: analyticsReducer,
+  auth: authReducer,
+  calendars: calendarsReducer,
   chats: chatsReducer,
+  login: loginReducer,
   messages: messagesReducer,
+  register: registerReducer,
   reviews: reviewsReducer,
   search: searchReducer,
+  settings: settingsReducer,
+  stepper: stepperReducer,
   subscriptions: subscriptionReducer,
-  analytics: analyticsReducer,
-  calendars: calendarsReducer,
+  tabNavigation: TabNavigationReducer,
+  utils: utilsReducer,
 });
 
 export default rootReducer;

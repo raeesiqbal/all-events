@@ -360,11 +360,11 @@ function ViewAd() {
                 || currentAd?.tiktok !== ""
                 || currentAd?.twitter !== ""
                 || currentAd?.others !== null) && (
-                <div className="d-flex align-items-center justify-content-between mt-2">
-                  <div className="roboto-regular-16px-information">
+                <div className="d-grid align-items-center justify-content-between mt-3">
+                  <div className="roboto-regular-16px-information mb-2">
                     Follow
                     {" "}
-                    {currentAd?.name}
+                    <strong>{currentAd?.name}</strong>
                     {" "}
                     on
                   </div>
@@ -547,8 +547,17 @@ function ViewAd() {
               <div
                 className="roboto-regular-16px-information mt-2"
                 style={{ overflowWrap: "break-word" }}
+                // dangerouslySetInnerHTML={{ __html: currentAd?.description?.replace(/\n/g, "<br>") }}
               >
-                {currentAd?.description}
+                {
+                  currentAd?.description?.split("\n").map((content) => (
+                    <>
+                      {content}
+                      <br />
+                    </>
+                  ))
+                }
+                {/* {currentAd?.description} */}
               </div>
             </div>
           )}

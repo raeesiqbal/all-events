@@ -5,12 +5,7 @@ import {
   Container,
   Form,
   Row,
-  Spinner,
 } from "react-bootstrap";
-import * as formik from "formik";
-import * as Yup from "yup";
-import { Alert } from "@mui/material";
-import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import oldPasswordIcon from "../../assets/images/profile-settings/old-password.svg";
 import newPasswordIcon from "../../assets/images/profile-settings/new-password.svg";
@@ -18,9 +13,6 @@ import sim from "../../assets/images/profile-settings/sim.png";
 import paymentCardLogo from "../../assets/images/profile-settings/card-logo.png";
 import paymentCardSingleLogo from "../../assets/images/card-single-logo.svg";
 import confirmPasswordIcon from "../../assets/images/profile-settings/confirm-password.svg";
-// import contactIcon from "../../assets/images/post-ad/contact.svg";
-
-// import profile_bg from "../../assets/images/profile-settings/profile-bg.svg";
 import "./ProfileSettings.css";
 import { secureInstance } from "../../axios/config";
 import { handleProfileSettingsCurrentView } from "../redux/TabNavigation/TabNavigationSlice";

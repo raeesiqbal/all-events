@@ -47,6 +47,24 @@ export const updateCalendar = createAsyncThunk(
   },
 );
 
+export const setCalendarAvailability = createAsyncThunk(
+  "Calendars/availability",
+  async ({ id, hide, index }, { rejectWithValue }) => {
+    try {
+      const response = await secureInstance.request({
+        url: `/api/analytics/ad-calender/${id}/set-calender-availability/`,
+        method: "Post",
+        data: { hide },
+      });
+      return { ...response.data, index }; // Assuming your loginAPI returns data with access_token, user_id, and role_id
+    } catch (err) {
+      // Use `err.response.data` as `action.payload` for a `rejected` action,
+      // by explicitly returning it using the `rejectWithValue()` utility
+      return rejectWithValue(err.response.data);
+    }
+  },
+);
+
 // Create the CalendarsSlice
 export const CalendarsSlice = createSlice({
   name: "Calendars",
@@ -78,6 +96,18 @@ export const CalendarsSlice = createSlice({
         state.loading = false;
       })
       .addCase(updateCalendar.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(setCalendarAvailability.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(setCalendarAvailability.fulfilled, (state, action) => {
+        state.loading = false;
+        state.calendars[action.payload.index] = action.payload.data;
+      })
+      .addCase(setCalendarAvailability.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });
