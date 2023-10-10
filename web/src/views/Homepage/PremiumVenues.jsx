@@ -81,15 +81,29 @@ function PremiumVenues() {
                 icon="fa-solid fa-star"
                 style={{ color: "#f0be41" }}
               />
-              <span
-                className="d-flex align-items-center roboto-regular-14px-information"
-                style={{ margin: "0 6px" }}
-              >
-                <strong> 4.9 </strong>
-              </span>
-              <span className="d-flex align-items-center text-muted roboto-regular-14px-information">
-                (142)
-              </span>
+              {
+                slide.total_reviews !== 0 ? (
+                  <>
+                    <span
+                      className="d-flex align-items-center roboto-regular-14px-information"
+                      style={{ margin: "0 6px" }}
+                    >
+                      <strong>
+                        {" "}
+                        {slide.average_rating?.toFixed(1) || "0.0"}
+                        {" "}
+                      </strong>
+                    </span>
+                    <span className="d-flex align-items-center text-muted roboto-regular-14px-information">
+                      (
+                      {slide.total_reviews}
+                      )
+                    </span>
+                  </>
+                ) : (
+                  <span className="text-muted roboto-regular-14px-information ms-1 mt-1">Not Rated</span>
+                )
+              }
             </div>
           </Card.Text>
           <Card.Text className="text-muted roboto-regular-14px-information">

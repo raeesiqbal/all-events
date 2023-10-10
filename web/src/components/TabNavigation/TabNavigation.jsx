@@ -3,14 +3,10 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import home from "../../assets/images/home.svg";
 import list from "../../assets/images/list.svg";
-import pieChart from "../../assets/images/pie-chart.svg";
 import plusCircle from "../../assets/images/plus-circle.svg";
 import settings from "../../assets/images/settings.svg";
 import messages from "../../assets/images/mdi-light_message-text.svg";
-import analytics from "../../assets/images/uil_analytics.svg";
-import dollar from "../../assets/images/dollar.svg";
 import "./TabNavigation.css";
 import {
   handleClickTab,
@@ -18,36 +14,39 @@ import {
 } from "../../views/redux/TabNavigation/TabNavigationSlice";
 import { setImagesToUpload } from "../../views/redux/Posts/AdsSlice";
 import { currentSubscriptionDetails } from "../../views/redux/Subscriptions/SubscriptionsSlice";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCalendarCheck, faEnvelope, faHeart } from "@fortawesome/free-regular-svg-icons";
+import { faChartLine, faCircleDollarToSlot, faGauge, faGear, faListUl } from "@fortawesome/free-solid-svg-icons";
 
 const vendorTabs = [
   {
     label: "My Ads",
-    icon: list,
+    icon: faListUl,
     path: "/my-ads",
   },
   {
     label: "Calendars",
-    icon: analytics,
+    icon: faCalendarCheck,
     path: "/calendars",
   },
   {
     label: "Messages",
-    icon: messages,
+    icon: faEnvelope,
     path: "/messages",
   },
   {
     label: "Settings",
-    icon: settings,
+    icon: faGear,
     path: "/profile-settings",
   },
   {
     label: "Dashboard",
-    icon: analytics,
+    icon: faGauge,
     path: "/dashboard",
   },
   {
     label: "My Subscriptions",
-    icon: dollar,
+    icon: faCircleDollarToSlot,
     path: "/subscriptions",
   },
 ];
@@ -55,17 +54,17 @@ const vendorTabs = [
 const clientTabs = [
   {
     label: "Favorite Ad",
-    icon: plusCircle,
+    icon: faHeart,
     path: "/favorite-ads",
   },
   {
     label: "Messages",
-    icon: messages,
+    icon: faEnvelope,
     path: "/messages",
   },
   {
     label: "Settings",
-    icon: settings,
+    icon: faGear,
     path: "/profile-settings",
   },
 ];
@@ -101,7 +100,7 @@ const TabNavigation = ({ role }) => {
     if (currentSubscription && role === "vendor" && currentSubscription?.type?.analytics && hasAnalyticsTab.length === 0) {
       setTabs([...tabs, {
         label: "Analytics",
-        icon: analytics,
+        icon: faChartLine,
         path: "/analytics",
       }]);
     }
@@ -125,7 +124,7 @@ const TabNavigation = ({ role }) => {
             }}
           >
             {" "}
-            <img src={tab.icon} alt={tab.icon} />
+            <FontAwesomeIcon icon={tab.icon} />
             <span className="tab-label">{tab.label}</span>
           </div>
         ))}

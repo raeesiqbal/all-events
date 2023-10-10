@@ -40,7 +40,7 @@ const AdCalendar = ({ calendarData, index }) => {
   };
 
   const handleAdAvailability = () => {
-    dispatch(setCalendarAvailability({ id: calendarData.id, hide: !calendarData.hide, index }))
+    dispatch(setCalendarAvailability({ id: calendarData.id, hide: !calendarData.hide, index }));
   };
 
   const updateAdCalendar = () => {
@@ -53,6 +53,7 @@ const AdCalendar = ({ calendarData, index }) => {
         availability,
       },
     }));
+    toggleModal();
     setTimeout(() => {
       dispatch(vendorCalendars());
     }, 500);

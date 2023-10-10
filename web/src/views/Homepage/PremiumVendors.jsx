@@ -69,10 +69,16 @@ function PremiumVendors() {
                 className="d-flex align-items-center roboto-regular-14px-information"
                 style={{ margin: "0 6px" }}
               >
-                <strong> 4.9 </strong>
+                <strong>
+                  {" "}
+                  {slide.average_rating?.toFixed(1) || "0.0"}
+                  {" "}
+                </strong>
               </span>
               <span className="d-flex align-items-center text-muted roboto-regular-14px-information">
-                (142)
+                (
+                {slide.total_reviews}
+                )
               </span>
             </div>
           </Card.Text>
