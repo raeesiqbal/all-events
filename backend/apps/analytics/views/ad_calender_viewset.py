@@ -124,7 +124,7 @@ class AdCalenderViewSet(BaseViewset):
         end_date = serializer.validated_data.get("end_date")
 
         dates_list = [
-            (start_date + timedelta(days=i)).strftime("%d-%m-%Y")
+            (start_date + timedelta(days=i)).strftime("%Y-%m-%d")
             for i in range((end_date - start_date).days + 1)
         ]
         reason = serializer.validated_data.get("reason", {})

@@ -34,7 +34,7 @@ class CalenderAvailabilityUpdateSerializer(BaseSerializer):
 
 
 class CalenderUpdateSerializer(serializers.Serializer):
-    start_date = serializers.DateField(input_formats=["%d-%m-%Y"])
-    end_date = serializers.DateField(input_formats=["%d-%m-%Y"])
+    start_date = serializers.DateField(input_formats=["%Y-%m-%d"])
+    end_date = serializers.DateField(input_formats=["%Y-%m-%d"])
     reason = serializers.CharField()
     availability = serializers.CharField()
