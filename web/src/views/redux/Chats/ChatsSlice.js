@@ -171,15 +171,15 @@ export const ChatsSlice = createSlice({
         state.error = action.payload;
       })
       .addCase(chatsSuggestionList.pending, (state) => {
-        state.loading = true;
+        // state.loading = true;
         state.error = null;
       })
       .addCase(chatsSuggestionList.fulfilled, (state, action) => {
-        state.loading = false;
+        // state.loading = false;
         state.suggestionsList = action.payload.data;
       })
       .addCase(chatsSuggestionList.rejected, (state, action) => {
-        state.loading = false;
+        // state.loading = false;
         state.error = action.payload;
       })
       .addCase(archiveChat.pending, (state) => {

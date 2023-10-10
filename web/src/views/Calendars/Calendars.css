@@ -1,0 +1,104 @@
+.react-calendar__month-view__weekdays__weekday {
+  padding: 0.5em;
+}
+.react-calendar__month-view__weekdays__weekday > abbr {
+  text-decoration: none;
+}
+.react-calendar__month-view__days__day--weekend {
+  color: black !important;
+}
+.react-calendar {
+  width: 100%;
+  border: none;
+  margin: 0px auto;
+  margin-bottom: 100px;
+  display: block !important;
+  background-color: transparent;
+}
+.react-calendar__tile {
+  height: 40px !important;
+  cursor: auto !important;
+}
+.react-calendar__tile > abbr {
+  border-radius: 50%;
+  padding: 6px 6px;
+  width: 30px !important;
+  height: 30px !important;
+  display: block;
+  margin: 0px auto !important;
+  line-height: 19px;
+  cursor: auto !important;
+}
+.busy-tile {
+  background-color: transparent !important;
+  cursor: auto !important;
+}
+.busy-tile > abbr {
+  background-color: rgb(255, 0, 0, 0.8);
+  color: white;
+  cursor: auto !important;
+}
+.react-calendar__tile--active,
+.react-calendar__tile--now {
+  background-color: transparent;
+  cursor: auto !important;
+}
+.react-calendar__tile:enabled:hover, .react-calendar__tile:enabled:focus,
+.react-calendar__tile--active:enabled:hover, .react-calendar__tile--active:enabled:focus,
+.react-calendar__tile--now:enabled:hover, .react-calendar__tile--now:enabled:focus {
+  background: transparent !important;
+  cursor: auto !important;
+}
+.react-calendar__tile--active > abbr {
+  background-color: #a0c49d;
+  color: white;
+  cursor: auto !important;
+}
+.heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.react-calendar__month-view {
+  display: block !important;
+}
+.modal-500 {
+  max-width: 500px !important;
+}
+.rdrDateDisplayItemActive {
+  border-color: #a0c49d !important;
+}
+.rdrDayNumber span {
+  color: #1d2429 !important;
+}
+.rdrStartEdge + .rdrDayNumber > span,
+.rdrEndEdge + .rdrDayNumber > span {
+  background-color: #a0c49d;
+  border-radius: 50%;
+  line-height: 19px;
+  font-weight: 500;
+  padding: 2px 6px;
+  color: white !important;
+}
+.rdrStartEdge + .rdrDayNumber > span::after {
+  background: none !important;
+}
+.form-switch input::before,
+.form-switch input::after {
+  visibility: hidden;
+}
+.form-switch input {
+  transform: scale(1.5);
+  cursor: pointer;
+}
+.form-switch input:focus {
+  border-color: #a0c49d;
+  outline: 0;
+  box-shadow: 0 0 0 0.25rem #a0c49d25;
+  --bs-form-switch-bg-img: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba%280, 0, 0, 0.25%29'/%3e%3c/svg%3e");
+  background-image: var(--bs-form-switch-bg-img) !important;
+}
+.form-switch input:checked:focus {
+  --bs-form-switch-bg-img: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
+  background-image: var(--bs-form-switch-bg-img) !important;
+}

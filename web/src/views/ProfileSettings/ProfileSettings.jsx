@@ -31,7 +31,7 @@ function ProfileSettings() {
   };
 
   useEffect(() => {
-    if (user.userCompanyId !== null) {
+    if (user?.userCompanyId !== null && user?.role === "vendor") {
       getCompanyInfo();
     }
   }, [user]);

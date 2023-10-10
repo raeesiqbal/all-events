@@ -27,6 +27,7 @@ import TabNavigation from "./components/TabNavigation/TabNavigation";
 import Footer from "./components/Footer/Footer";
 import TopBanner from "./components/TopBanner";
 import "./App.css";
+import Calendars from "./views/Calendars/Calendars";
 
 function App() {
   const location = useLocation();
@@ -43,6 +44,7 @@ function App() {
     "/analytics",
     "/dashboard",
     "/subscriptions",
+    "/calendars",
   ];
 
   // Check if the current route is in the array of routes to hide the navigation bar
@@ -78,6 +80,14 @@ function App() {
         <Route
           path="/view-ad/:adId"
           element={(<ViewAd />)}
+        />
+        <Route
+          path="/calendars"
+          element={(
+            <ProtectedRoute role="vendor">
+              <Calendars />
+            </ProtectedRoute>
+          )}
         />
         <Route
           path="/plans"

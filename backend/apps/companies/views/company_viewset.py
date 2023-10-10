@@ -35,7 +35,7 @@ class CompanyViewSet(BaseViewset):
         "create": VendorCreateSerializer,
         "retrieve": CompanyRetrieveSerializer,
         "partial_update": VendorUpdateSerializer,
-        "get_upload_url": GetUploadPresignedUrlSerializer,
+        "upload_company_image": GetUploadPresignedUrlSerializer,
     }
     action_permissions = {
         "default": [],
@@ -45,7 +45,7 @@ class CompanyViewSet(BaseViewset):
         "partial_update": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
         "public_companies_list": [],
         "public_company_retrieve": [],
-        "get_upload_url": [],
+        "upload_company_image": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
     }
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     search_param = "search"
@@ -113,24 +113,29 @@ class CompanyViewSet(BaseViewset):
             ),
         )
 
-    @action(detail=False, url_path="upload-url", methods=["post"])
-    def get_upload_url(self, request, *args, **kwargs):
+    @action(detail=False, url_path="upload-company-image", methods=["post"])
+    def upload_company_image(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        company = request.user.user_company
 
         file = serializer.validated_data.get("file")
         content_type = serializer.validated_data.get("content_type")
-        upload_folder = "vendor"
-        file_url = None
+        upload_folder = f"vendors/{request.user.email}/profile"
+        image_url = None
         # # Uploading resume to S3.
         s3_service = S3Service()
-        file_url = s3_service.upload_file(file, content_type, upload_folder)
+        image_url = s3_service.upload_file(file, content_type, upload_folder)
 
+        if company.image:
+            self.s3_service.delete_s3_object_by_url(company.image)
+        company.image = image_url
+        company.save()
         return Response(
             status=status.HTTP_200_OK,
             data=ResponseInfo().format_response(
-                data={"file_url": file_url},
+                data={"file_url": image_url},
                 status_code=status.HTTP_200_OK,
-                message="uploads media.",
+                message="company image uploaded",
             ),
         )

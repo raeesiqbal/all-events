@@ -93,7 +93,7 @@ function ServerFAQs({
         </div>
       )}
       <Row>
-        {/* <div className="roboto-semi-bold-28px-h2 mt-5">Pre definedFAQs</div> */}
+        <div className="roboto-semi-bold-28px-h2 mb-3">Site FAQs</div>
         {/* <div className="roboto-regular-14px-information mt-2 mb-3">
           Add Questions and answers for your potential buyers
         </div> */}

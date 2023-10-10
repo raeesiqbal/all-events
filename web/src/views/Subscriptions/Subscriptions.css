@@ -3,17 +3,17 @@
   color: rgba(121, 121, 121, 1);
 }
 
-.subscription-pro {
+.subscription-standard {
   background-color: rgb(255, 250, 214);
   color: rgba(121, 121, 121, 1);
 }
 
-.subscription-teams {
+.subscription-advanced {
   background-color: rgb(216, 255, 251);
   color: rgba(121, 121, 121, 1);
 }
 
-.subscription-business {
+.subscription-featured {
   background-color: rgb(219, 229, 255);
   color: rgba(121, 121, 121, 1);
 }

@@ -45,6 +45,10 @@
   /* margin-top: 40px !important; */
 }
 
+.select__menu {
+  z-index: 1000 !important;
+}
+
 @media only screen and (max-width: 768px) {
   .ad-banner {
     /* height: 165px; */

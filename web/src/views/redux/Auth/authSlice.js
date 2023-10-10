@@ -14,6 +14,7 @@ const initialState = {
     first_name: null,
     last_name: null,
   },
+  userCompany: null,
   screenLoading: false,
   isRegistered: false,
   isLoggedInState: false,
@@ -154,7 +155,8 @@ export const authSlice = createSlice({
         state.user.first_name = data.first_name;
         state.user.last_name = data.last_name;
         state.user.userCompanyId = data.user_company?.id;
-        state.user.userImage = data.user_company?.image;
+        state.user.userImage = data?.image;
+        state.userCompany = data?.user_company;
         // state.loading = false;
         // state.error = action.error.message;
         // state.user.accessToken = access;

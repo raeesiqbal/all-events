@@ -58,10 +58,14 @@ urlpatterns = [
     path("api/ads/", include("apps.ads.urls", namespace="ads")),
     path("api/analytics/", include("apps.analytics.urls", namespace="analytics")),
     path("api/clients/", include("apps.clients.urls", namespace="clients")),
-    path("api/subscriptions/", include("apps.subscriptions.urls", namespace="subscriptions")),
-
-
-
+    path(
+        "api/subscriptions/",
+        include("apps.subscriptions.urls", namespace="subscriptions"),
+    ),
+    path(
+        "api/utils/",
+        include("apps.utils.urls", namespace="utils"),
+    ),
     # JWT token urls.
     path("api/token/", CustomTokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),

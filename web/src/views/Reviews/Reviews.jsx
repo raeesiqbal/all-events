@@ -195,7 +195,7 @@ const Reviews = ({ adId, adName }) => {
   }, [isHide]);
 
   useEffect(() => {
-    if (postReview.title !== "" && postReview.message !== "" && postReview.rating !== 0) {
+    if (postReview.title !== "" && postReview.message !== "" && postReview.rating !== 0 && postReview.message !== "") {
       setIsDisabled(user.userId === null ? postReview.name === "" : false);
     }
   }, [postReview]);
