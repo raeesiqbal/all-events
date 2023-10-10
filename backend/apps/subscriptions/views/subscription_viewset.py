@@ -497,6 +497,8 @@ class SubscriptionsViewSet(BaseViewset):
                     payment_method_id=data_object.id,
                     brand=data_object.card.brand,
                     last_4=data_object.card.last4,
+                    exp_month=data_object.card.exp_month,
+                    exp_year=data_object.card.exp_year,
                 )
             else:
                 PaymentMethod.objects.create(
@@ -504,6 +506,8 @@ class SubscriptionsViewSet(BaseViewset):
                     payment_method_id=data_object.id,
                     brand=data_object.card.brand,
                     last_4=data_object.card.last4,
+                    exp_month=data_object.card.exp_month,
+                    exp_year=data_object.card.exp_year,
                 )
 
         if event_type == "checkout.session.completed":
