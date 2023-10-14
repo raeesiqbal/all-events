@@ -64,17 +64,15 @@ class User(AbstractUser):
 
     username = None
     email = models.EmailField(_("email address"), unique=True)
-
+    first_name = models.TextField()
+    last_name = models.TextField()
     role_type = models.CharField(
         max_length=50, choices=ROLE_TYPES, default=USER_ROLE_TYPES["VENDOR"]
     )
-
     phone = models.TextField(null=True, blank=True)
-
     newsletter = models.BooleanField(default=False)
     terms_acceptance = models.BooleanField(default=False)
     delete_reason = models.TextField(null=True, blank=True)
-
     image = models.TextField(null=True, blank=True)
     is_verified = models.BooleanField(default=False)
     USERNAME_FIELD = "email"
