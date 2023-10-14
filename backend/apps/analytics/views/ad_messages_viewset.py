@@ -74,7 +74,7 @@ class MessageViewSet(BaseViewset):
         ).prefetch_related("chat_messages"),
         USER_ROLE_TYPES["CLIENT"]: lambda self: Chat.objects.filter(
             client__user_id=self.request.user.id, is_delete_client=False
-        ).prefetch_related("chat_messages"),
+        ).prefetch_related("chat_messages"), 
     }
 
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
