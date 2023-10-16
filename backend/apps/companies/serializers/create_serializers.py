@@ -7,19 +7,24 @@ from apps.utils.serializers.base import BaseSerializer
 
 
 class UserChildSerializer(BaseSerializer):
-    
     class Meta:
         model = User
-        fields = [ 'email', 'first_name', 'last_name',
-                  'phone','password','role_type','newsletter','terms_acceptance','image']
+        fields = [
+            "email",
+            "first_name",
+            "last_name",
+            "phone",
+            "password",
+            "role_type",
+            "newsletter",
+            "terms_acceptance",
+            "image",
+        ]
 
-   
+
 class VendorCreateSerializer(BaseSerializer):
-    
-    user=UserChildSerializer()
-    
+    user = UserChildSerializer()
+
     class Meta:
         model = Company
-        fields = '__all__'
-
-   
+        fields = "__all__"

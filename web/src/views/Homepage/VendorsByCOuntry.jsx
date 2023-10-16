@@ -1,26 +1,47 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { Button, Col, Container } from "react-bootstrap";
 import EmblaCarousel from "../../components/Carousel/Carousel";
-import imageByIndex from "../../components/Carousel/ImagesByCountry";
-
-const country = ["Greece", "Jamaica", "Mexico", "Italy", "France"];
+import { venueCountries } from "../redux/Posts/AdsSlice";
+import { setCategories, setCountry, setSearchKeyword } from "../redux/Search/SearchSlice";
 
 function VendorsByCountry() {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const venuesCountries = useSelector((state) => state.Ads.venueCountries);
+
   const OPTIONS = { slidesToScroll: "auto", containScroll: "trimSnaps" };
 
-  const SLIDE_COUNT = 25;
+  const SLIDE_COUNT = venuesCountries.length;
   const SLIDES = Array.from(Array(SLIDE_COUNT).keys());
 
+  const handleVenuesCountrySearch = (name) => {
+    dispatch(setCountry({ country: name }));
+    dispatch(setCategories({ categories: ["Venues"] }));
+    navigate("/search");
+  };
+
   const componentToRender = (index) => (
-    <div className="embla__slide__vendors__by__country" key={index}>
+    <div
+      className="embla__slide__vendors__by__country"
+      style={{ cursor: "pointer" }}
+      key={index}
+      onClick={() => handleVenuesCountrySearch(venuesCountries[index].name)}
+    >
       <img
         className="embla__slide__img"
-        src={imageByIndex(index)}
+        src={venuesCountries[index].image_url}
         alt="Your alt text"
       />
-      <div className="roboto-medium-20px-body1 mt-2">{country[index]}</div>
+      <div className="roboto-medium-20px-body1 mt-2">{venuesCountries[index].name}</div>
     </div>
   );
+
+  useEffect(() => {
+    dispatch(venueCountries());
+  }, []);
 
   return (
     <Container fluid style={{ padding: "100px 0", backgroundColor: "#FFF" }}>

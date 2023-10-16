@@ -11,7 +11,6 @@
 
 .card-title-custom {
   white-space: nowrap;
-  width: 22ch;
   overflow: hidden;
   text-overflow: ellipsis;
 }

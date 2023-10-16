@@ -9,18 +9,18 @@ import {
   editCompanyInformation,
   setSelectedImage,
 } from "../../views/redux/Settings/SettingsSlice";
-import "./ProfilePic.css";
+import "./CompanyPic.css";
 import { secureInstance } from "../../axios/config";
 
-const ProfilePic = ({ dashboard }) => {
+const CompanyPic = ({ dashboard }) => {
   const [loadingImage, setLoadingImage] = useState(false);
   // const [selectedImage, setSelectedImage] = useState(null);
 
-  const { userImage } = useSelector((state) => state.auth.user);
   const selectedImage = useSelector((state) => state.settings.selectedImage);
   const companyInformation = useSelector(
     (state) => state.settings.companyInformation,
   );
+  const { userCompany } = useSelector((state) => state.auth);
 
   const dispatch = useDispatch();
   // const media = useMediaQuery;
@@ -28,13 +28,13 @@ const ProfilePic = ({ dashboard }) => {
 
   const isMobileAndDashboard = dashboard && !matchesMobile;
 
-  const updateNewProfilePic = (imageUrl) => {
+  const updateNewCompanyPic = (imageUrl) => {
     const updatedUser = {
       ...companyInformation.user,
       image: imageUrl,
     };
 
-    const updateCompanyWithNewProfilePic = {
+    const updateCompanyWithNewCompanyPic = {
       ...companyInformation,
       image: imageUrl,
       user: updatedUser,
@@ -42,7 +42,7 @@ const ProfilePic = ({ dashboard }) => {
 
     dispatch(
       editCompanyInformation({
-        data: updateCompanyWithNewProfilePic,
+        data: updateCompanyWithNewCompanyPic,
         id: companyInformation.id,
       }),
     );
@@ -59,11 +59,11 @@ const ProfilePic = ({ dashboard }) => {
     formData.append("content_type", e.target.files[0].type);
     try {
       const response = await secureInstance.request({
-        url: "/api/users/upload-user-image/",
+        url: "/api/companies/upload-company-image/",
         method: "Post",
         data: formData,
       });
-      updateNewProfilePic(response.data.data.file_url);
+      updateNewCompanyPic(response.data.data.file_url);
       setLoadingImage(false);
       // setImageUrlToUpload(response.data.data);
     } catch (e) {
@@ -81,7 +81,6 @@ const ProfilePic = ({ dashboard }) => {
       style={{
         left: dashboard && "20px",
         top: dashboard && "20px",
-        position: dashboard ? "relative" : "absolute",
       }}
     >
       <label htmlFor="file-input" style={{ cursor: "pointer" }}>
@@ -99,7 +98,7 @@ const ProfilePic = ({ dashboard }) => {
           </>
         )}
 
-        {((selectedImage !== null && selectedImage !== undefined) || (userImage !== null && userImage !== undefined)) ? (
+        {((selectedImage !== null) || (userCompany?.image !== null && userCompany?.image !== "")) ? (
           <img
             className="selected-image"
             style={{
@@ -112,7 +111,7 @@ const ProfilePic = ({ dashboard }) => {
             }}
             src={
               selectedImage === null
-                ? userImage
+                ? userCompany?.image
                 : selectedImage && URL.createObjectURL(selectedImage)
             }
             alt=""
@@ -153,4 +152,4 @@ const ProfilePic = ({ dashboard }) => {
   );
 };
 
-export default ProfilePic;
+export default CompanyPic;

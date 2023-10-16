@@ -85,6 +85,11 @@ class GetUploadPresignedUrlSerializer(serializers.Serializer):
     content_type = serializers.CharField(required=True)
 
 
+class UserImageSerializer(serializers.Serializer):
+    file = serializers.FileField(required=True)
+    content_type = serializers.CharField(required=True)
+
+
 class URLListSerializer(serializers.Serializer):
     urls = serializers.ListField(child=serializers.CharField())
 

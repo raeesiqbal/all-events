@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { Button, Col, Container, Form, Modal, Row } from "react-bootstrap";
+import {
+  Button, Col, Container, Form, Modal, Row,
+} from "react-bootstrap";
 import Select from "react-select";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClose } from "@fortawesome/free-solid-svg-icons";
@@ -30,20 +32,13 @@ function CompanyInformation({
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
   const [relatedSubCategory, setRelatedSubCategory] = useState(
-    values?.related_sub_categories
+    values?.related_sub_categories,
   );
 
   const [modalShow, setModalShow] = React.useState(false);
-  const [isCountriesToEdit, setIsCountriesToEdit] = useState(false);
-
-  useEffect(() => {
-    if (isEditView && values.country.length > 0) {
-      setIsCountriesToEdit(true);
-    }
-  }, []);
 
   const [countriesList, setCountries] = useState(
-    values.country.length > 0 ? values.country : []
+    values.country.length > 0 ? values.country : [],
   );
 
   const countryOptions = countriesList.map((country) => ({
@@ -53,7 +48,7 @@ function CompanyInformation({
 
   const handleCountryChange = (selectedOptions) => {
     const isAllSelected = selectedOptions.find(
-      (option) => option.value === 200 && option.label === "All counties"
+      (option) => option.value === 200 && option.label === "All counties",
     );
 
     let countryNames;
@@ -88,20 +83,19 @@ function CompanyInformation({
     setSubCategories(request.data.data);
   };
 
-  const handleSubCategorySelected = async (id) => {
-    // values.sub_category = "";
-    handleIsSubCategoryChanged(id);
+  const handleIsMultipleCountries = async (id) => {
     const request = await secureInstance.request({
       url: `/api/ads/sub_category/${id}/activation-countries-exists/`,
       method: "Get",
     });
-    setIsCountriesToEdit(false);
+    setIsMultipleCountries(request.data.data.activation_country);
+  };
+
+  const handleSubCategorySelected = async (id) => {
+    // values.sub_category = "";
+    handleIsSubCategoryChanged(id);
     setSelectedCountries([]);
-    if (request.data.data.activation_country) {
-      setIsMultipleCountries(true);
-    } else {
-      setIsMultipleCountries(false);
-    }
+    handleIsMultipleCountries(id);
     // EDIT AD DOES NOT REACH HERE---------------------------------------------------
     const requestRelatedSub = await secureInstance.request({
       url: `/api/ads/sub_category/${id}/public-related/`,
@@ -127,6 +121,12 @@ function CompanyInformation({
     listCategories();
     listCountries();
   }, []);
+
+  useEffect(() => {
+    if (values?.sub_category && values?.sub_category?.id) {
+      handleIsMultipleCountries(values?.sub_category?.id);
+    }
+  }, [values?.sub_category]);
 
   return (
     <Container fluid style={{ marginTop: "40px" }}>
@@ -376,7 +376,7 @@ function CompanyInformation({
           </Col>
 
           <Col md={6} lg={4}>
-            {(isMultipleCountries || isCountriesToEdit) && (
+            {(isMultipleCountries) && (
               <Form.Group className="form-group mb-3" controlId="form3Example6">
                 <Form.Label
                   className="roboto-medium-20px-body1 d-flex align-items-center"
@@ -398,9 +398,7 @@ function CompanyInformation({
                   isMulti
                   name="companyInformation.country"
                   styles={{ height: "56px" }}
-                  value={countryOptions.filter((option) =>
-                    selectedCountries.includes(option.value)
-                  )}
+                  value={countryOptions.filter((option) => selectedCountries.includes(option.value))}
                   onChange={handleCountryChange}
                   onBlur={handleBlur("companyInformation.country")}
                   className={

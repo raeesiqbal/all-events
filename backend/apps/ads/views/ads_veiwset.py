@@ -38,6 +38,7 @@ from apps.ads.models import (
 )
 from apps.subscriptions.models import Subscription, SubscriptionType
 from apps.companies.models import Company
+from apps.analytics.models import Calender
 
 # serializers
 from apps.ads.serializers.update_serializer import AdUpdateSerializer
@@ -63,6 +64,10 @@ from apps.ads.serializers.get_serializers import (
     VenueCountryGetSerializer,
 )
 
+from apps.analytics.serializers.get_serializer import (
+    AdCalenderGetSerializer,
+)
+
 
 class AdViewSet(BaseViewset):
     """
@@ -86,6 +91,7 @@ class AdViewSet(BaseViewset):
         "premium_venue_countries": CountryGetSerializer,
         "public_ad_retrieve": AdPublicGetSerializer,
         "venue_countries": VenueCountryGetSerializer,
+        "calender": AdCalenderGetSerializer,
     }
     action_permissions = {
         "default": [],
@@ -94,7 +100,7 @@ class AdViewSet(BaseViewset):
         "retrieve": [IsAuthenticated, IsSuperAdmin | IsVendorUser | IsClient],
         "partial_update": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
         "destroy": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
-        "get_upload_url": [],
+        "get_upload_url": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
         "delete_urls": [],
         "remove_url_on_update": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
         "fetch_suggestion_list": [],
@@ -104,6 +110,7 @@ class AdViewSet(BaseViewset):
         "keyword_details": [],
         "premium_venue_countries": [],
         "venue_countries": [],
+        "calender": [],
     }
     filter_backends = [AdCustomFilterBackend, SearchFilter, OrderingFilter]
     search_param = "search"
@@ -158,6 +165,7 @@ class AdViewSet(BaseViewset):
                 offered_services=offered_services,
                 company=company,
             )
+
             ad.activation_countries.add(*activation_countries)
 
             """ads gallery created"""
@@ -174,6 +182,7 @@ class AdViewSet(BaseViewset):
             for faq in ad_faqs:
                 ad_faqs_list.append(AdFAQ(**faq, ad=ad))
             AdFAQ.objects.bulk_create(ad_faqs_list)
+            Calender.objects.create(company=company, ad=ad)
 
             return Response(
                 status=status.HTTP_200_OK,
@@ -195,14 +204,18 @@ class AdViewSet(BaseViewset):
     def get_upload_url(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-
         file = serializer.validated_data.get("file")
         content_type = serializer.validated_data.get("content_type")
-
+        if "image" in content_type:
+            upload_folder = f"vendors/{request.user.email}/images"
+        elif "pdf" in content_type:
+            upload_folder = f"vendors/{request.user.email}/pdfs"
+        elif "video" in content_type:
+            upload_folder = f"vendors/{request.user.email}/videos"
         file_url = None
         # # Uploading resume to S3.
         s3_service = S3Service()
-        file_url = s3_service.upload_file(file, content_type)
+        file_url = s3_service.upload_file(file, content_type, upload_folder)
 
         return Response(
             status=status.HTTP_200_OK,
@@ -244,7 +257,6 @@ class AdViewSet(BaseViewset):
     @action(detail=False, url_path="public-list", methods=["post"])
     def public_ads_list(self, request, *args, **kwargs):
         payload = request.data
-
         # Extract data from the payload
         payload_data = payload.get("data", {})
         categories = payload_data.get("categories", [])
@@ -264,15 +276,15 @@ class AdViewSet(BaseViewset):
         if sub_categories:
             subcategory_q = Q(sub_category__name__in=sub_categories)
 
-        if country:
-            country_q = Q(country__name__iexact=country)
-
         # Combine the Q objects
-        combined_q = category_q | subcategory_q | country_q
+        combined_q = category_q | subcategory_q
 
         # Filter Ads by commercial_name
         if commercial_name:
             combined_q |= Q(name=commercial_name)
+
+        if country:
+            combined_q &= Q(country__name__iexact=country)
 
         # Filter Ads by FAQ questions
         if questions:
@@ -655,5 +667,20 @@ class AdViewSet(BaseViewset):
             status=status.HTTP_200_OK,
             data=ResponseInfo().format_response(
                 data=data, status_code=status.HTTP_200_OK, message="Featured Ads List"
+            ),
+        )
+
+    @action(detail=True, url_path="calender", methods=["get"])
+    def calender(self, request, *args, **kwargs):
+        calender = None
+        if Calender.objects.filter(ad=kwargs["pk"], hide=False).exists():
+            calender = Calender.objects.filter(ad=kwargs["pk"]).first()
+            calender = self.get_serializer(calender).data
+        return Response(
+            status=status.HTTP_200_OK,
+            data=ResponseInfo().format_response(
+                data=calender,
+                status_code=status.HTTP_200_OK,
+                message="Ad calender",
             ),
         )

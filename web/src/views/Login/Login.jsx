@@ -48,6 +48,9 @@ import {
 } from "../redux/Auth/authSlice";
 import { instance } from "../../axios/config";
 import DynamicRegisterationView from "./ViewHelper";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faStore } from "@fortawesome/free-solid-svg-icons";
+import { faCircleUser } from "@fortawesome/free-regular-svg-icons";
 
 function Login() {
   const dispatch = useDispatch();
@@ -358,7 +361,7 @@ function Login() {
     if (isLoggedInState) {
       handleClose();
       dispatch(handleLoginStatusFalse());
-      navigate(selectedRole === "client" ? "/" : "/post-ad");
+      navigate(selectedRole === "client" ? "/" : "/dashboard");
     }
   }, [isLoggedInState]);
 
@@ -606,12 +609,12 @@ function Login() {
               {!hideRegisterStep1 && (
                 <div className="w-100 pt-5">
                   <div
-                    className="w-100 border border-dark pt-2 pb-3 px-3 mb-5 mt-2"
+                    className="w-100 border border-dark p-3 mb-5 mt-2"
                     style={{ borderRadius: "4px", cursor: "pointer" }}
                     onClick={() => setSelectedRole("client")}
                   >
                     <div className="d-flex justify-content-between align-items-center mb-4">
-                      <img src={userIcon} alt="Document Icon" width="35" />
+                      <FontAwesomeIcon icon={faCircleUser} fontSize="30px" />
                       <input
                         className="form-check-input"
                         style={{ width: "1.5em", height: "1.5em" }}
@@ -632,12 +635,12 @@ function Login() {
                     </div>
                   </div>
                   <div
-                    className="w-100 border border-dark pt-2 pb-3 px-3 mb-5"
+                    className="w-100 border border-dark p-3 mb-5"
                     style={{ borderRadius: "4px", cursor: "pointer" }}
                     onClick={() => setSelectedRole("vendor")}
                   >
                     <div className="d-flex justify-content-between align-items-center mb-4">
-                      <img src={vendorIcon} alt="Document Icon" width="35" />
+                      <FontAwesomeIcon icon={faStore} fontSize="28px" />
                       <input
                         className="form-check-input"
                         style={{ width: "1.5em", height: "1.5em" }}

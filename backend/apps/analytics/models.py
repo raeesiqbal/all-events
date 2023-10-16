@@ -125,3 +125,28 @@ class ContactRequest(NewAbstractModel):
         ordering = ["-id"]
         verbose_name = "Contact Request"
         verbose_name_plural = "Contact Requests"
+
+
+class Calender(NewAbstractModel):
+    company = models.ForeignKey(
+        "companies.Company",
+        verbose_name=_("Company"),
+        on_delete=models.CASCADE,
+        related_name="company_calender",
+    )
+    ad = models.OneToOneField(
+        "ads.Ad",
+        verbose_name=_("Ad"),
+        on_delete=models.CASCADE,
+        related_name="ad_canlender",
+    )
+    dates = models.JSONField(_("Dates"), default=dict, null=True, blank=True)
+    hide = models.BooleanField(_("Hide"), default=True)
+
+    def __str__(self):
+        return f"{self.ad.name}"
+
+    class Meta:
+        ordering = ["-id"]
+        verbose_name = "Calender"
+        verbose_name_plural = "Calenders"

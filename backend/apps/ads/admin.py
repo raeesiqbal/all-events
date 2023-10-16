@@ -136,7 +136,7 @@ class CountyAdmin(admin.ModelAdmin):
         # obj.slug = unique_slugify(Country, obj.name, obj.id)
         if extra_image:
             s3_service = S3Service()
-            upload_folder = "countries"
+            upload_folder = "admin/countries"
             if obj.image_url:
                 s3_service.delete_s3_object_by_url(obj.image_url)
             file_url = s3_service.upload_file(extra_image, "image/jpeg", upload_folder)

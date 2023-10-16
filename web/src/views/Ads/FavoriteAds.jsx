@@ -145,7 +145,7 @@ const FavoriteAds = () => {
                                         <span style={{ fontSize: "18px" }} className="star-filled">&#9733;</span>
                                         <span style={{ fontSize: "14px" }}>
                                           {" "}
-                                          {ad.average_rating.toFixed(1) || "No reviews"}
+                                          {ad?.average_rating?.toFixed(1) || "No reviews"}
                                         </span>
                                       </div>
                                     </div>

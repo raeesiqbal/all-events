@@ -4,7 +4,9 @@ import {
   Card,
   Col,
   Modal,
+  OverlayTrigger,
   Row,
+  Tooltip,
 } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import dayjs from "dayjs";
@@ -181,7 +183,7 @@ const Chat = ({ chat, isOpenChat }) => {
                 src={additionalInfo?.image || defaultProfilePhoto}
                 className="mr-3 profile-img"
                 alt="Profile Picture"
-                style={{ width: "80px" }}
+                style={{ width: "80px", height: "80px", borderRadius: "50%" }}
               />
               <h3 className="ms-2 ms-md-3 my-auto" style={{ color: "#797979" }}>{additionalInfo?.name}</h3>
             </div>
@@ -193,12 +195,20 @@ const Chat = ({ chat, isOpenChat }) => {
               >
                 Ad Details
               </Link>
-              <div className="mt-2" style={{ fontSize: "13px", color: "grey" }}>
-                {`Event Date: ${dayjs(chat.event_date).format("MMM D[th], YYYY").toString()}`}
-              </div>
             </div>
           </div>
           <div className="mb-3 message-body" ref={messageBody} onScroll={handleScroll}>
+            <div
+              className="mx-auto text-white px-2 py-1 mb-4"
+              style={{
+                width: "fit-content",
+                borderRadius: "8px",
+                background: "#A0C49D",
+                fontSize: "14px",
+              }}
+            >
+              {`Event Date: ${dayjs(chat.event_date).format("MMM D[th], YYYY").toString()}`}
+            </div>
             {
               messages.slice().reverse().map((message) => {
                 const dateContent = (!dates.includes(formattedDate(message.created_at))) ? (
@@ -229,7 +239,10 @@ const Chat = ({ chat, isOpenChat }) => {
                               borderTopRightRadius: "0px",
                             }}
                           >
-                            <p className={message.text ? "" : "text-secondary"} style={{ fontSize: `${message.text ? "14px" : "12px"}` }}>
+                            <p
+                              className={message.text ? "" : "text-secondary"}
+                              style={{ fontSize: `${message.text ? "14px" : "12px"}`, overflowWrap: "break-word", wordWrap: "break-word" }}
+                            >
                               {message.text || "Attachment sent"}
                             </p>
                             <div className="d-flex w-100 justify-content-between" style={{ fontSize: "10px" }}>
@@ -248,7 +261,7 @@ const Chat = ({ chat, isOpenChat }) => {
                             className="mx-2 mb-auto"
                             src={currentUser.userImage || defaultProfilePhoto}
                             style={{
-                              borderRadius: "50%", width: "31px", height: "31px", objectFit: "contain",
+                              borderRadius: "50%", width: "31px", height: "31px",
                             }}
                           />
                         </div>
@@ -259,7 +272,7 @@ const Chat = ({ chat, isOpenChat }) => {
                             className="me-2 mb-auto"
                             src={currentUser.userImage || defaultProfilePhoto}
                             style={{
-                              borderRadius: "50%", width: "31px", height: "31px", objectFit: "contain",
+                              borderRadius: "50%", width: "31px", height: "31px",
                             }}
                           />
                           <div
@@ -272,7 +285,10 @@ const Chat = ({ chat, isOpenChat }) => {
                               borderTopLeftRadius: "0px",
                             }}
                           >
-                            <p className={message.text ? "" : "text-secondary"} style={{ fontSize: `${message.text ? "14px" : "12px"}` }}>
+                            <p
+                              className={message.text ? "" : "text-secondary"}
+                              style={{ fontSize: `${message.text ? "14px" : "12px"}`, overflowWrap: "break-word", wordWrap: "break-word" }}
+                            >
                               {message.text || "Attachment received"}
                             </p>
                             <div className="d-flex w-100 justify-content-between" style={{ fontSize: "10px" }}>
@@ -424,30 +440,38 @@ const Chat = ({ chat, isOpenChat }) => {
                     </div>
 
                     <div className="row mx-0">
-                      <div
-                        className="roboto-regular-14px-information text-white mt-2 me-4"
-                        style={{
-                          borderRadius: "6px",
-                          background: "#A0C49D",
-                          padding: "2px 10px",
-                          fontWeight: "500",
-                          width: "fit-content",
-                        }}
-                      >
-                        {`Event Date: ${dayjs(chat.event_date).format("MMM D[th], YYYY").toString()}`}
-                      </div>
+                      {
+                        currentUser?.role === "vendor" && (
+                          <div
+                            className="roboto-regular-14px-information text-white mt-2 me-4"
+                            style={{
+                              borderRadius: "6px",
+                              background: "#A0C49D",
+                              padding: "2px 10px",
+                              fontWeight: "500",
+                              width: "fit-content",
+                            }}
+                          >
+                            {`Event Date: ${dayjs(chat.event_date).format("MMM D[th], YYYY").toString()}`}
+                          </div>
+                        )
+                      }
 
-                      <div
-                        className="roboto-regular-14px-information d-flex align-items-end mt-2 ps-0 me-3"
-                        style={{ width: "fit-content" }}
-                      >
-                        <img
-                          src={phoneIcon}
-                          alt="phoneIcon"
-                          className="me-2 my-auto"
-                        />
-                        {chat.person.phone}
-                      </div>
+                      {
+                        ![undefined, null, ""].includes(chat.person.phone) && (
+                          <div
+                            className="roboto-regular-14px-information d-flex align-items-end mt-2 ps-0 me-3"
+                            style={{ width: "fit-content" }}
+                          >
+                            <img
+                              src={phoneIcon}
+                              alt="phoneIcon"
+                              className="me-2 my-auto"
+                            />
+                            {chat.person.phone}
+                          </div>
+                        )
+                      }
                     </div>
                   </Card.Title>
                   <div className="d-md-flex justify-content-between">
@@ -458,7 +482,8 @@ const Chat = ({ chat, isOpenChat }) => {
                           maxWidth: "500px",
                         }}
                       >
-                        {chat.latest_message.text}
+                        {chat.latest_message.text.slice(0, 100)}
+                        {chat.latest_message.text.length >= 100 && "..."}
                       </Card.Text>
                       {
                         !(chat.read || isRead) && (
@@ -466,7 +491,7 @@ const Chat = ({ chat, isOpenChat }) => {
                             className="roboto-regular-14px-information text-white mt-2 me-3"
                             style={{
                               borderRadius: "6px",
-                              background: "#A0C49D",
+                              background: "#a0c49d90",
                               padding: "2px 10px",
                               fontWeight: "500",
                               width: "fit-content",
@@ -478,44 +503,59 @@ const Chat = ({ chat, isOpenChat }) => {
                       }
                     </div>
                     <div className="d-flex align-items-end pt-3">
-                      <div
-                        className="me-3"
-                        style={{ width: "30px", cursor: "pointer" }}
-                        onClick={() => {
-                          dispatch(archiveChat({ id: chat.id, is_archived: !chat.archived }));
-                          window.location.reload();
-                        }}
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip>Archive</Tooltip>}
                       >
-                        <img
-                          src={archiveIcon}
-                          alt="archiveIcon"
-                          className="img-fluid"
-                        />
-                      </div>
-                      <div
-                        className="me-3"
-                        style={{ width: "30px", cursor: "pointer" }}
-                        onClick={() => {
-                          setDeleteModal(true);
-                        }}
+                        <div
+                          className="me-3"
+                          style={{ width: "30px", cursor: "pointer" }}
+                          onClick={() => {
+                            dispatch(archiveChat({ id: chat.id, is_archived: !chat.archived }));
+                            window.location.reload();
+                          }}
+                        >
+                          <img
+                            src={archiveIcon}
+                            alt="archiveIcon"
+                            className="img-fluid"
+                          />
+                        </div>
+                      </OverlayTrigger>
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip>Delete</Tooltip>}
                       >
-                        <img
-                          src={deleteIcon}
-                          alt="deleteIcon"
-                          className="img-fluid"
-                        />
-                      </div>
-                      <div
-                        className="me-3"
-                        style={{ width: "30px", cursor: "pointer" }}
-                        onClick={openMessages}
+                        <div
+                          className="me-3"
+                          style={{ width: "30px", cursor: "pointer" }}
+                          onClick={() => {
+                            setDeleteModal(true);
+                          }}
+                        >
+                          <img
+                            src={deleteIcon}
+                            alt="deleteIcon"
+                            className="img-fluid"
+                          />
+                        </div>
+                      </OverlayTrigger>
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip>Open</Tooltip>}
                       >
-                        <img
-                          src={gotoIcon}
-                          alt="gotoIcon"
-                          className="img-fluid"
-                        />
-                      </div>
+                        <div
+                          className="me-3"
+                          style={{ width: "30px", cursor: "pointer" }}
+                          onClick={openMessages}
+                        >
+                          <img
+                            src={gotoIcon}
+                            alt="gotoIcon"
+                            className="img-fluid"
+                          />
+                        </div>
+                      </OverlayTrigger>
                     </div>
                   </div>
                 </div>

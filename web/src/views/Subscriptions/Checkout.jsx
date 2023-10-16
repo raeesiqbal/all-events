@@ -1,16 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { Button, Container, Form } from "react-bootstrap";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 // import { useNavigate } from "react-router-dom";
+import { setScreenLoading } from "../redux/Auth/authSlice";
 
 const Checkout = () => {
   // const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { clientSecret, subscriptionId } = useSelector((state) => state.subscriptions);
   // eslint-disable-next-line no-undef
   const [stripe, setStripe] = useState();
   const [elements, setElements] = useState();
 
   useEffect(() => {
+    dispatch(setScreenLoading(true));
     const script = document.createElement("script");
     script.src = "https://js.stripe.com/v3/";
     script.async = true;
@@ -27,6 +30,7 @@ const Checkout = () => {
 
   const handleCheckout = async (event) => {
     event.preventDefault();
+    dispatch(setScreenLoading(true));
 
     const result = await stripe.confirmPayment({
       elements,
@@ -41,6 +45,8 @@ const Checkout = () => {
     } else {
       // navigate("/subscriptions");
     }
+
+    dispatch(setScreenLoading(false));
   };
 
   useEffect(() => {
@@ -51,6 +57,9 @@ const Checkout = () => {
     if (elements) {
       const paymentElement = elements.create("payment");
       paymentElement.mount("#payment-element");
+      setTimeout(() => {
+        dispatch(setScreenLoading(false));
+      }, 500);
     }
   }, [elements]);
 

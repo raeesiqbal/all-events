@@ -182,7 +182,7 @@ function ImageUploader({ imagesError }) {
                 </Col>
               ))}
               {
-                currentSubscription && currentSubscription.type.allowed_ad_photos > images.length && (
+                currentSubscription && currentSubscription?.type?.allowed_ad_photos > images.length && (
                   <div
                     style={{
                       border: "2px dashed #A0C49D",

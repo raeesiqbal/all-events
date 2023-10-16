@@ -15,7 +15,9 @@ const initialState = {
     video: [],
     pdf: [],
   },
+  venueCountries: [],
   count: 0,
+  calendar: null,
   AdPostSuccessAlert: false,
   AdPostErrorAlert: false,
   imagesError: false,
@@ -163,6 +165,40 @@ export const favoriteAd = createAsyncThunk(
   },
 );
 
+export const venueCountries = createAsyncThunk(
+  "Ads/venueCountries",
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await instance.request({
+        url: "/api/ads/venue-countries/",
+        method: "Get",
+      });
+      return response.data;
+    } catch (err) {
+      // Use `err.response.data` as `action.payload` for a `rejected` action,
+      // by explicitly returning it using the `rejectWithValue()` utility
+      return rejectWithValue(err.response.data);
+    }
+  },
+);
+
+export const adCalendar = createAsyncThunk(
+  "Ads/calendar",
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await instance.request({
+        url: `/api/ads/${id}/calender/`,
+        method: "Get",
+      });
+      return response.data;
+    } catch (err) {
+      // Use `err.response.data` as `action.payload` for a `rejected` action,
+      // by explicitly returning it using the `rejectWithValue()` utility
+      return rejectWithValue(err.response.data);
+    }
+  },
+);
+
 // Create the loginSlice
 export const AdsSlice = createSlice({
   name: "Ads",
@@ -205,7 +241,7 @@ export const AdsSlice = createSlice({
         state.media_urls.images = [];
         // navigate("/post-ad");
       })
-      .addCase(handleCreateNewAd.rejected, (state, action) => {
+      .addCase(handleCreateNewAd.rejected, (state) => {
         state.loading = false;
         state.AdPostErrorAlert = true;
         // state.error = action.payload;
@@ -300,6 +336,30 @@ export const AdsSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
         state.AdPostErrorAlert = action.payload;
+      })
+      .addCase(venueCountries.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(venueCountries.fulfilled, (state, action) => {
+        state.loading = false;
+        state.venueCountries = action.payload.data;
+      })
+      .addCase(venueCountries.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(adCalendar.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(adCalendar.fulfilled, (state, action) => {
+        state.loading = false;
+        state.calendar = action.payload.data;
+      })
+      .addCase(adCalendar.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });

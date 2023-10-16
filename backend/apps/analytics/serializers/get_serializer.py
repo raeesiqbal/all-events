@@ -1,4 +1,4 @@
-from apps.analytics.models import AdReview, Chat, Message, ContactRequest
+from apps.analytics.models import AdReview, Chat, Message, ContactRequest, Calender
 from apps.utils.serializers.base import BaseSerializer
 from apps.ads.models import Ad, Category, Gallery
 from rest_framework import serializers
@@ -64,11 +64,21 @@ class AdContactGetSerializer(BaseSerializer):
         fields = "__all__"
 
 
-# class AdReviewClientChildSerializer(BaseSerializer):
-#     full_name =
-#     class Meta:
-#         model = Client
-#         fields = ["user__first_name"]
+class CalenderGetSerializer(BaseSerializer):
+    ad = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Calender
+        fields = "__all__"
+
+    def get_ad(self, obj):
+        return obj.ad.name
+
+
+class AdCalenderGetSerializer(BaseSerializer):
+    class Meta:
+        model = Calender
+        fields = ["dates"]
 
 
 class AdReviewGetSerializer(BaseSerializer):

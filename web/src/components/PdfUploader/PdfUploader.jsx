@@ -182,41 +182,46 @@ function PdfUploader({
                 </div>
               </Col>
             ))}
-            <div
-              style={{
-                border: "2px dashed #A0C49D",
-                width: "141px",
-                height: "122px",
-              }}
-            >
-              <label
-                htmlFor="pdf-input"
-                className="d-flex align-items-center justify-content-center"
-                style={{
-                  width: "141px",
-                  height: "122px",
-                  cursor: "pointer",
-                }}
-              >
-                <FontAwesomeIcon
-                  icon={faAdd}
+
+            {
+              pdfs.length < 10 && (
+                <div
                   style={{
-                    color: "#A0C49D",
-                    width: "40px",
-                    height: "40px",
-                    marginRight: "10px",
-                    marginBottom: "8px",
+                    border: "2px dashed #A0C49D",
+                    width: "141px",
+                    height: "122px",
                   }}
-                />
-              </label>
-              <input
-                id="pdf-input"
-                type="file"
-                accept="application/pdf"
-                onChange={(event) => handleImageUpload(event)}
-                style={{ display: "none" }}
-              />
-            </div>
+                >
+                  <label
+                    htmlFor="pdf-input"
+                    className="d-flex align-items-center justify-content-center"
+                    style={{
+                      width: "141px",
+                      height: "122px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <FontAwesomeIcon
+                      icon={faAdd}
+                      style={{
+                        color: "#A0C49D",
+                        width: "40px",
+                        height: "40px",
+                        marginRight: "10px",
+                        marginBottom: "8px",
+                      }}
+                    />
+                  </label>
+                  <input
+                    id="pdf-input"
+                    type="file"
+                    accept="application/pdf"
+                    onChange={(event) => handleImageUpload(event)}
+                    style={{ display: "none" }}
+                  />
+                </div>
+              )
+            }
           </div>
         </Row>
       </div>
