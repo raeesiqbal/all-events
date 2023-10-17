@@ -511,26 +511,56 @@ class SubscriptionsViewSet(BaseViewset):
                 )
 
         if event_type == "checkout.session.completed":
-            session_id = data_object.id
-            session = self.stripe.checkout.Session.retrieve(session_id)
-            setup_intent_id = session.setup_intent
-            setup_intent = self.stripe.SetupIntent.retrieve(setup_intent_id)
-            customer_id = setup_intent.customer
-            subscription_id = setup_intent.metadata.subscription_id
-            payment_method_id = setup_intent.payment_method
-            self.stripe.Customer.modify(
-                customer_id,
-                invoice_settings={"default_payment_method": payment_method_id},
-            )
-            self.stripe.Subscription.modify(
-                subscription_id,
-                default_payment_method=payment_method_id,
-            )
+            if data_object.mode == "setup":
+                session_id = data_object.id
+                session = self.stripe.checkout.Session.retrieve(session_id)
+                setup_intent_id = session.setup_intent
+                setup_intent = self.stripe.SetupIntent.retrieve(setup_intent_id)
+                customer_id = setup_intent.customer
+                subscription_id = setup_intent.metadata.subscription_id
+                payment_method_id = setup_intent.payment_method
+
+                self.stripe.Customer.modify(
+                    customer_id,
+                    invoice_settings={"default_payment_method": payment_method_id},
+                )
+                self.stripe.Subscription.modify(
+                    subscription_id,
+                    default_payment_method=payment_method_id,
+                )
+
+                retrieve_subscription = self.stripe_service.retrieve_subscription(
+                    subscription_id=subscription_id
+                )
+                if retrieve_subscription.status == "unpaid":
+                    latest_invoice = self.stripe_service.retrieve_invoice(
+                        retrieve_subscription.latest_invoice
+                    )
+                    if latest_invoice.status == "draft":
+                        self.stripe.Invoice.modify(
+                            latest_invoice.id,
+                            auto_advance=True,
+                        )
+                        self.stripe.Invoice.finalize_invoice(
+                            latest_invoice.id,
+                        )
+                    self.stripe.Invoice.pay(latest_invoice.id)
+            else:
+                pass
 
         if event_type == "customer.subscription.updated":
             if Subscription.objects.filter(subscription_id=data_object.id).exists():
+                subscription = Subscription.objects.filter(
+                    subscription_id=data_object.id
+                ).first()
                 if data_object.status == "canceled":
-                    Subscription.objects.filter(subscription_id=data_object.id).delete()
+                    subscription.delete()
+                elif data_object.status == "unpaid":
+                    subscription.status = "unpaid"
+                    subscription.save()
+                elif data_object.status == "active":
+                    subscription.status = "active"
+                    subscription.save()
 
         return Response({"message": "Webhook received successfully"})
 
