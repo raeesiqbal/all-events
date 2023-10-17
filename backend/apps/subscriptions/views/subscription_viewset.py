@@ -355,11 +355,9 @@ class SubscriptionsViewSet(BaseViewset):
     def current_subscription(self, request, *args, **kwargs):
         if Subscription.objects.filter(
             company__user__email=request.user.email,
-            status=SUBSCRIPTION_STATUS["ACTIVE"],
         ).exists():
             my_subscriptions = Subscription.objects.filter(
                 company__user__email=request.user.email,
-                status=SUBSCRIPTION_STATUS["ACTIVE"],
             ).first()
             serializer = self.get_serializer(my_subscriptions).data
 
