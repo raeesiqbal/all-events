@@ -1,5 +1,6 @@
 from apps.utils.serializers.base import BaseSerializer
 from rest_framework import serializers
+from apps.ads.mixins import MediaUrlsValidationMixin, OfferedServicesValidationMixin
 from apps.ads.models import (
     Ad,
     Category,
@@ -33,7 +34,6 @@ class AdCreateSerializer(BaseSerializer):
     faqs = serializers.ListField(child=FaqsChildCreateSerializer())
     ad_faq_ad = serializers.ListField(child=AdFAQChildCreateSerializer())
     media_urls = serializers.JSONField(default=dict)
-    
 
     class Meta:
         model = Ad
