@@ -37,7 +37,7 @@ class Subscription(NewAbstractModel):
         (SUBSCRIPTION_STATUS["ACTIVE"], "active"),
         (SUBSCRIPTION_STATUS["INACTIVE"], "inactive"),
         (SUBSCRIPTION_STATUS["CANCELLED"], "cancelled"),
-        (SUBSCRIPTION_STATUS["PAUSED"], "paused"),
+        (SUBSCRIPTION_STATUS["UNPAID"], "unpaid"),
     )
 
     company = models.ForeignKey(
