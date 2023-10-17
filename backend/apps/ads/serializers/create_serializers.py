@@ -33,6 +33,7 @@ class AdCreateSerializer(BaseSerializer):
     faqs = serializers.ListField(child=FaqsChildCreateSerializer())
     ad_faq_ad = serializers.ListField(child=AdFAQChildCreateSerializer())
     media_urls = serializers.JSONField(default=dict)
+    
 
     class Meta:
         model = Ad

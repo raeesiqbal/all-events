@@ -38,7 +38,7 @@ class Subscription(NewAbstractModel):
         (SUBSCRIPTION_STATUS["INACTIVE"], "inactive"),
         (SUBSCRIPTION_STATUS["CANCELLED"], "cancelled"),
         (SUBSCRIPTION_STATUS["UNPAID"], "unpaid"),
-    ) 
+    )
 
     company = models.ForeignKey(
         "companies.Company", on_delete=models.CASCADE, related_name="my_subscriptions"
