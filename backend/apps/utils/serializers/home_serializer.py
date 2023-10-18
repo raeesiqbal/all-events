@@ -12,6 +12,7 @@ class SubCategoryGetSerializer(BaseSerializer):
     class Meta:
         model = SubCategory
         fields = ["name"]
+        ref_name = "Uitls SubCategory Serializer"
 
 
 class CategoryGetSerializer(BaseSerializer):
@@ -20,3 +21,4 @@ class CategoryGetSerializer(BaseSerializer):
     class Meta:
         model = Category
         fields = ["name", "sub_categories"]
+        ref_name = "Utils Category Serializer"
