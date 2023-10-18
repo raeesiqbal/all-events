@@ -19,6 +19,7 @@ const initialState = {
     priceId: "",
     subscriptionId: "",
   },
+  showModal: false,
   currentPaymentMethod: null,
   currentSubscriptionDetails: null,
   freePlan: null,
@@ -176,6 +177,9 @@ export const SubscriptionsSlice = createSlice({
       state.SubscriptionSuccessAlert = false;
       state.SubscriptionErrorAlert = false;
     },
+    setShowModal: (state, action) => {
+      state.showModal = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -310,6 +314,7 @@ export const SubscriptionsSlice = createSlice({
 
 export const {
   handleMessageAlerts,
+  setShowModal,
 } = SubscriptionsSlice.actions;
 
 // Export the reducer and actions

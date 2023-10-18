@@ -12,7 +12,7 @@ function ProfileView() {
   const dispatch = useDispatch();
 
   const profileSettingsCurrentView = useSelector(
-    (state) => state.tabNavigation.profileSettingsCurrentView
+    (state) => state.tabNavigation.profileSettingsCurrentView,
   );
   useEffect(() => {
     dispatch(handleProfileSettingsCurrentView("profileSettings"));

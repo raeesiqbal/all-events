@@ -7,9 +7,10 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBan } from "@fortawesome/free-solid-svg-icons";
+import { faBan, faDownload } from "@fortawesome/free-solid-svg-icons";
 import timeIcon from "../../assets/images/post-ad/carbon_time.svg";
 import { cancelSubscription, resumeSubscription, listSubscriptions } from "../redux/Subscriptions/SubscriptionsSlice";
+import { Tooltip } from "@mui/material";
 // import cancelIcon from "../../assets/images/cancel.svg";
 
 const Subscription = ({ subscription }) => {
@@ -38,9 +39,9 @@ const Subscription = ({ subscription }) => {
   };
 
   // Get the formatted date with ordinal day
-  const formattedDate = (d) => `${`${date(d).getDate() + getOrdinalSuffix(date(d).getDate())} ${
+  const formattedDate = (d) => `${date(d).getDate().toString()}${getOrdinalSuffix(date(d).getDate())} ${
     date(d).toLocaleString("en-US", { month: "long" })}, ${
-    date(d).getFullYear()}`}`;
+    date(d).getFullYear().toString()}`;
 
   const handleCancelSubscription = async () => {
     dispatch(cancelSubscription({ subscription_id: subscription.subscription_id }));
@@ -109,12 +110,12 @@ const Subscription = ({ subscription }) => {
         <h2>{subscription.name}</h2>
         <div className="d-flex w-100">
           <img src={timeIcon} alt="time icon" style={{ width: "20px", height: "20px" }} />
-          <div className="my-auto ms-1" style={{ fontSize: "14px" }}>{formattedDate(subscription.created_at)}</div>
+          <div className="my-auto ms-1" style={{ fontSize: "14px" }}>{formattedDate(subscription?.created_at)}</div>
         </div>
         {
           subscription.cancel_at_period_end && (
             <div className="mt-1" style={{ fontSize: "14px", fontWeight: "500" }}>
-              Validation date:
+              Expiry Date:
               {" "}
               {formattedDate(subscription.cancel_date)}
             </div>
@@ -149,15 +150,30 @@ const Subscription = ({ subscription }) => {
                   >
                     Upgrade
                   </Button>
-                  <div
-                    className="d-flex"
-                    style={{
-                      borderRadius: "50%", height: "32px", width: "32px", backgroundColor: "rgba(217, 217, 217, 1)", cursor: "pointer",
-                    }}
-                    onClick={() => setDeleteModal(true)}
-                  >
-                    <FontAwesomeIcon className="mx-auto my-auto" icon={faBan} />
-                  </div>
+
+                  <Tooltip title="Cancel subscription" placement="top">
+                    <div
+                      className="d-flex"
+                      style={{
+                        borderRadius: "50%", height: "32px", width: "32px", backgroundColor: "rgba(217, 217, 217, 1)", cursor: "pointer",
+                      }}
+                      onClick={() => setDeleteModal(true)}
+                    >
+                      <FontAwesomeIcon className="mx-auto my-auto" icon={faBan} />
+                    </div>
+                  </Tooltip>
+
+                  <Tooltip className="ms-3" title="Download Invoice" placement="top">
+                    <div
+                      className="d-flex"
+                      style={{
+                        borderRadius: "50%", height: "32px", width: "32px", backgroundColor: "rgba(217, 217, 217, 1)", cursor: "pointer",
+                      }}
+                      // onClick={() => setDeleteModal(true)}
+                    >
+                      <FontAwesomeIcon className="mx-auto my-auto" icon={faDownload} />
+                    </div>
+                  </Tooltip>
                 </>
               )
             }

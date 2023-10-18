@@ -33,7 +33,6 @@ import { ScrollToError } from "../../utilities/ScrollToError";
 import { handleWelcomeUserAlert } from "../redux/Auth/authSlice";
 import { secureInstance } from "../../axios/config";
 import ServerFAQs from "./ServerFAQs";
-import { currentSubscriptionDetails } from "../redux/Subscriptions/SubscriptionsSlice";
 
 function PostAd() {
   const { Formik } = formik;
@@ -491,7 +490,6 @@ function PostAd() {
 
   useEffect(() => {
     dispatch(setImagesToUpload([]));
-    dispatch(currentSubscriptionDetails());
     dispatch(listVendorAds());
   }, []);
 

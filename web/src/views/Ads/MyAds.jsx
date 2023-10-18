@@ -20,7 +20,6 @@ import { secureInstance } from "../../axios/config";
 import "./Ads.css";
 import { handleUpdateAds, listVendorAds } from "../redux/Posts/AdsSlice";
 import useWindowDimensions from "../../utilities/hooks/useWindowDimension";
-import { currentSubscriptionDetails } from "../redux/Subscriptions/SubscriptionsSlice";
 
 function MyAds() {
   const navigate = useNavigate();
@@ -54,9 +53,10 @@ function MyAds() {
     }
   };
 
+  const isPaidSubscription = () => (currentSubscription === null || (currentSubscription && currentSubscription !== "unpaid"));
+
   useEffect(() => {
     window.scrollTo(0, 0);
-    dispatch(currentSubscriptionDetails());
     dispatch(listVendorAds());
   }, []);
 
@@ -217,24 +217,26 @@ function MyAds() {
                                   {country.name}
                                 </div>
                                 <div>
-                                  <Tooltip title="Edit" placement="top">
+                                  <Tooltip title={isPaidSubscription() ? "Edit" : "Can't Edit"} placement="top">
                                     <img
                                       src={editIcon}
                                       alt="editIcon"
                                       className="me-3"
-                                      onClick={() => navigate(`/edit-ad/${id}`)}
+                                      onClick={() => (isPaidSubscription() ? navigate(`/edit-ad/${id}`) : null)}
                                       style={{ cursor: "pointer" }}
                                     />
                                   </Tooltip>
 
-                                  <Tooltip title="Delete" placement="top">
+                                  <Tooltip title={isPaidSubscription() ? "Delete" : "Can't Delete"} placement="top">
                                     <img
                                       src={deleteIcon}
                                       alt="deleteIcon"
                                       className="me-3"
                                       onClick={() => {
-                                        setModalShow(true);
-                                        setCurrentAdId(id);
+                                        if (isPaidSubscription()) {
+                                          setModalShow(true);
+                                          setCurrentAdId(id);
+                                        }
                                       }}
                                       style={{ cursor: "pointer" }}
                                     />
@@ -304,6 +306,7 @@ function MyAds() {
                       onClick={() => navigate("/post-ad")}
                       className="btn btn-success roboto-semi-bold-16px-information btn-lg mt-5"
                       style={{ width: "80%", marginLeft: "-20px" }}
+                      disabled={!isPaidSubscription()}
                     >
                       Post an Ad
                     </Button>
@@ -328,7 +331,10 @@ function MyAds() {
           <Container className="d-flex justify-content-end mt-5">
             <Row className="d-flex justify-content-end">
               {
-                (currentSubscription === null || (currentSubscription && vendorAds.length < currentSubscription?.type?.allowed_ads)) && (
+                (
+                  (currentSubscription && currentSubscription !== "unpaid" && vendorAds.length < currentSubscription?.type?.allowed_ads)
+                    || currentSubscription === null
+                ) && (
                   <Button
                     variant="success"
                     type="submit"

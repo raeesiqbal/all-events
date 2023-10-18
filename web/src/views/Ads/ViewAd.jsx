@@ -22,7 +22,6 @@ import { handleStartChat } from "../redux/Chats/ChatsSlice";
 import Reviews from "../Reviews/Reviews";
 import useWindowDimensions from "../../utilities/hooks/useWindowDimension";
 import { adCalendar, favoriteAd } from "../redux/Posts/AdsSlice";
-import Rating from "../../components/Rating/Rating";
 import StarRating from "../../components/Rating/StarRating";
 import { faFacebook, faInstagram, faTiktok, faTwitter, faYoutube } from "@fortawesome/free-brands-svg-icons";
 import { faLink } from "@fortawesome/free-solid-svg-icons";
