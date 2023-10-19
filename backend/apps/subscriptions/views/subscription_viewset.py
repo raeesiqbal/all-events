@@ -169,7 +169,7 @@ class SubscriptionsViewSet(BaseViewset):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         price_id = serializer.validated_data.get("price_id")
-        # allowed_ads = serializer.validated_data.pop("allpwed_ads")
+        allowed_ads = serializer.validated_data.pop("allowed_ads")
         company = request.user.user_company
 
         # stripe customer
@@ -185,21 +185,21 @@ class SubscriptionsViewSet(BaseViewset):
             for i in incomplete_subscriptions:
                 self.stripe_service.cancel_subscription(i.id)
 
-        # if Ad.objects.filter(company=company, status="inactive").exists():
-        #     inactive_ads = Ad.objects.filter(company=company, status="inactive").count()
-        #     if inactive_ads > allowed_ads:
-        #         return Response(
-        #             status=status.HTTP_200_OK,
-        #             data=ResponseInfo().format_response(
-        #                 data={
-        #                     "subscribed": False,
-        #                     "subscriptionId": None,
-        #                     "clientSecret": None,
-        #                 },
-        #                 status_code=status.HTTP_200_OK,
-        #                 message=f"You can't upgrade to this plan. Your inactive Ad count is {inactive_ads}, while the plan you want to subscribe allow {allowed_ads} ads. Please delete your unwanted ads first.",
-        #             ),
-        #         )
+        if Ad.objects.filter(company=company, status="inactive").exists():
+            inactive_ads = Ad.objects.filter(company=company, status="inactive").count()
+            if inactive_ads > allowed_ads:
+                return Response(
+                    status=status.HTTP_200_OK,
+                    data=ResponseInfo().format_response(
+                        data={
+                            "subscribed": False,
+                            "subscriptionId": None,
+                            "clientSecret": None,
+                        },
+                        status_code=status.HTTP_200_OK,
+                        message=f"You can't subscribe to this plan. Your inactive Ad count is {inactive_ads}, while the plan you want to subscribe allow {allowed_ads} ads. Please delete your unwanted ads first.",
+                    ),
+                )
 
         subscription = self.stripe_service.create_subscription(customer, price_id)
         return Response(
@@ -318,12 +318,13 @@ class SubscriptionsViewSet(BaseViewset):
     @action(detail=False, url_path="current-subscription", methods=["get"])
     def current_subscription(self, request, *args, **kwargs):
         if Subscription.objects.filter(
-            company__user__email=request.user.email,
+            company__user__email=request.user.email, status__in=["active", "unpaid"]
         ).exists():
-            my_subscriptions = Subscription.objects.filter(
-                company__user__email=request.user.email,
+            my_subscription = Subscription.objects.filter(
+                company__user__email=request.user.email, status__in=["active", "unpaid"]
             ).first()
-            serializer = self.get_serializer(my_subscriptions).data
+            print(my_subscription.status)
+            serializer = self.get_serializer(my_subscription).data
 
             return Response(
                 status=status.HTTP_200_OK,
@@ -637,8 +638,8 @@ class SubscriptionsViewSet(BaseViewset):
                         "subscription_id": subscription.subscription_id,
                     },
                 },
-                success_url="http://localhost:5173/subscriptions",
-                cancel_url="http://localhost:5173/subscriptions",
+                success_url="http://localhost:5173/dashboard?",
+                cancel_url="http://localhost:5173/dashboard",
             )
 
         return Response(

@@ -91,6 +91,7 @@ class AdAdmin(admin.ModelAdmin):
                     "created_at",
                     "name",
                     "company",
+                    "status",
                     "activation_countries",
                 )
             },
