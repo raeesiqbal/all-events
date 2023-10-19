@@ -107,7 +107,10 @@ class SubscriptionsViewSet(BaseViewset):
                 type=SUBSCRIPTION_TYPES["FREE"]
             ).first()
             user_scription = (
-                Subscription.objects.filter(company__user__email=request.user.email)
+                Subscription.objects.filter(
+                    company__user__email=request.user.email,
+                    status__in=["active", "unpaid"],
+                )
                 .exclude(type=free_subscription)
                 .first()
             )
@@ -164,7 +167,7 @@ class SubscriptionsViewSet(BaseViewset):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         price_id = serializer.validated_data.get("price_id")
-        allowed_ads = serializer.validated_data.pop("allpwed_ads")
+        # allowed_ads = serializer.validated_data.pop("allpwed_ads")
         company = request.user.user_company
 
         # stripe customer
@@ -179,21 +182,22 @@ class SubscriptionsViewSet(BaseViewset):
         if incomplete_subscriptions:
             for i in incomplete_subscriptions:
                 self.stripe_service.cancel_subscription(i.id)
-        if Ad.objects.filter(company=company, status="inactive").exists():
-            inactive_ads = Ad.objects.filter(company=company, status="inactive").count()
-            if inactive_ads > allowed_ads:
-                return Response(
-                    status=status.HTTP_200_OK,
-                    data=ResponseInfo().format_response(
-                        data={
-                            "subscribed": False,
-                            "subscriptionId": None,
-                            "clientSecret": None,
-                        },
-                        status_code=status.HTTP_200_OK,
-                        message=f"You can't upgrade to this plan. Your inactive Ad count is {inactive_ads}, while the plan you want to subscribe allow {allowed_ads} ads. Please delete your unwanted ads first.",
-                    ),
-                )
+
+        # if Ad.objects.filter(company=company, status="inactive").exists():
+        #     inactive_ads = Ad.objects.filter(company=company, status="inactive").count()
+        #     if inactive_ads > allowed_ads:
+        #         return Response(
+        #             status=status.HTTP_200_OK,
+        #             data=ResponseInfo().format_response(
+        #                 data={
+        #                     "subscribed": False,
+        #                     "subscriptionId": None,
+        #                     "clientSecret": None,
+        #                 },
+        #                 status_code=status.HTTP_200_OK,
+        #                 message=f"You can't upgrade to this plan. Your inactive Ad count is {inactive_ads}, while the plan you want to subscribe allow {allowed_ads} ads. Please delete your unwanted ads first.",
+        #             ),
+        #         )
 
         subscription = self.stripe_service.create_subscription(customer, price_id)
         return Response(
@@ -246,6 +250,7 @@ class SubscriptionsViewSet(BaseViewset):
                         dic = {
                             "subscription_id": i.id,
                             "amount": amount,
+                            
                             "next_payment": next_payment_date,
                             "price_id": i["items"].data[0].price.id,
                             "interval": i["items"].data[0].price.recurring.interval,
@@ -382,6 +387,8 @@ class SubscriptionsViewSet(BaseViewset):
                     subscription.unit_amount = (
                         retrieve_subscription["items"].data[0].price.unit_amount
                     )
+                    subscription.stripe_subscription = retrieve_subscription
+                    subscription.stripe_product = retrieve_product
                     subscription.save()
 
                 else:
@@ -395,6 +402,8 @@ class SubscriptionsViewSet(BaseViewset):
                             retrieve_subscription["items"].data[0].price.unit_amount
                         ),
                         price_id=retrieve_subscription["items"].data[0].price.id,
+                        stripe_subscription=retrieve_subscription,
+                        stripe_product=retrieve_product,
                     )
             if Ad.objects.filter(company=company, status="inactive").exists():
                 Ad.objects.filter(company=company).update(status="active")

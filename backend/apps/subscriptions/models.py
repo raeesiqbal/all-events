@@ -38,7 +38,7 @@ class Subscription(NewAbstractModel):
         (SUBSCRIPTION_STATUS["INACTIVE"], "inactive"),
         (SUBSCRIPTION_STATUS["CANCELLED"], "cancelled"),
         (SUBSCRIPTION_STATUS["UNPAID"], "unpaid"),
-    ) 
+    )
 
     company = models.ForeignKey(
         "companies.Company", on_delete=models.CASCADE, related_name="my_subscriptions"
@@ -54,6 +54,13 @@ class Subscription(NewAbstractModel):
     )
     price_id = models.TextField(_("Price Id"), null=True, blank=True)
     unit_amount = models.TextField(_("Unit Amount"), null=True, blank=True)
+    stripe_subscription = models.JSONField(
+        _("Stripe Subscription"), default=dict, null=True, blank=True
+    )
+    stripe_product = models.JSONField(
+        _("Stripe Product"), default=dict, null=True, blank=True
+    )
+
     status = models.CharField(
         _("Status"), choices=SUBSCRIPTION_STATUS, max_length=50, null=True, blank=True
     )

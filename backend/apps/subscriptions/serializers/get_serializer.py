@@ -26,6 +26,25 @@ class CurrentSubscriptionSerializer(BaseSerializer):
         fields = "__all__"
 
 
+class MySubscriptionSerializer(BaseSerializer):
+    type = SubscriptionTypeChildSerializer()
+    unit_amount = serializers.SerializerMethodField()
+    next_payment = serializers.SerializerMethodField()
+
+    def get_unit_amount(self, obj):
+        return obj.unit_amount / 100
+
+    def get_next_payment (self, obj):
+        
+        return obj.unit_amount / 100
+
+    class Meta:
+        model = Subscription
+        fields = [
+            "subscription_id",
+        ]
+
+
 class SubscriptionDashboardSerializer(BaseSerializer):
     type = SubscriptionTypeChildSerializer()
 

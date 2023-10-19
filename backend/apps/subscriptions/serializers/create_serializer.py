@@ -6,11 +6,11 @@ from rest_framework import serializers
 
 class CreateCustomerSerializer(BaseSerializer):
     price_id = serializers.CharField()
-    allowed_ads = serializers.IntegerField()
+    # allowed_ads = serializers.IntegerField()
 
     class Meta:
         model = Client
-        fields = ["price_id", "allowed_ads"]
+        fields = ["price_id"]
 
 
 class InputPriceIdSerializer(serializers.Serializer):
