@@ -1,9 +1,15 @@
+# imports
 from django.contrib import admin
-from .forms import CountryAdminForm
 from apps.utils.utils import unique_slugify
 from apps.utils.services.s3_service import S3Service
+from django.urls import reverse
+from django.utils.html import format_html
 
-# Register your models here.
+# forms
+from .forms import CountryAdminForm
+
+# models
+
 from .models import (
     FAQ,
     Ad,
@@ -45,14 +51,29 @@ class FAQInline(admin.TabularInline):
 class AdAdmin(admin.ModelAdmin):
     list_display = (
         "id",
-        "slug",
+        "get_company_email",
         "name",
-        "company",
+        "status",
     )
+
+    def get_company_email(self, obj):
+        company_admin_url = reverse(
+            "admin:%s_%s_change"
+            % (
+                obj.company._meta.app_label,
+                obj.company._meta.model_name,
+            ),
+            args=[obj.company.pk],
+        )
+        return format_html(
+            '<a href="{}">{}</a>', company_admin_url, obj.company.user.email
+        )
+
     search_fields = [
         "id",
-        "slug",
         "name",
+        "company__user__email",
+        "status",
     ]
     raw_id_fields = (
         "company",
