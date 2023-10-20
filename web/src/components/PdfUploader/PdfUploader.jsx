@@ -61,8 +61,9 @@ function PdfUploader({
   const removeImage = (index) => {
     const updatedImages = [...pdfs];
     updatedImages[index] = null;
-    setPdfs(updatedImages);
-    setparentImagesUploadedImages(updatedImages);
+    const newUpdatedImages = updatedImages.filter((item) => item !== null);
+    setPdfs(newUpdatedImages);
+    setparentImagesUploadedImages(newUpdatedImages);
   };
 
   const handlePDFView = (pdf) => {
@@ -183,45 +184,43 @@ function PdfUploader({
               </Col>
             ))}
 
-            {
-              pdfs.length < 10 && (
-                <div
+            {pdfs.length < 10 && (
+              <div
+                style={{
+                  border: "2px dashed #A0C49D",
+                  width: "141px",
+                  height: "122px",
+                }}
+              >
+                <label
+                  htmlFor="pdf-input"
+                  className="d-flex align-items-center justify-content-center"
                   style={{
-                    border: "2px dashed #A0C49D",
                     width: "141px",
                     height: "122px",
+                    cursor: "pointer",
                   }}
                 >
-                  <label
-                    htmlFor="pdf-input"
-                    className="d-flex align-items-center justify-content-center"
+                  <FontAwesomeIcon
+                    icon={faAdd}
                     style={{
-                      width: "141px",
-                      height: "122px",
-                      cursor: "pointer",
+                      color: "#A0C49D",
+                      width: "40px",
+                      height: "40px",
+                      marginRight: "10px",
+                      marginBottom: "8px",
                     }}
-                  >
-                    <FontAwesomeIcon
-                      icon={faAdd}
-                      style={{
-                        color: "#A0C49D",
-                        width: "40px",
-                        height: "40px",
-                        marginRight: "10px",
-                        marginBottom: "8px",
-                      }}
-                    />
-                  </label>
-                  <input
-                    id="pdf-input"
-                    type="file"
-                    accept="application/pdf"
-                    onChange={(event) => handleImageUpload(event)}
-                    style={{ display: "none" }}
                   />
-                </div>
-              )
-            }
+                </label>
+                <input
+                  id="pdf-input"
+                  type="file"
+                  accept="application/pdf"
+                  onChange={(event) => handleImageUpload(event)}
+                  style={{ display: "none" }}
+                />
+              </div>
+            )}
           </div>
         </Row>
       </div>

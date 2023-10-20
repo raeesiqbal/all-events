@@ -361,7 +361,8 @@ function Login() {
     if (isLoggedInState) {
       handleClose();
       dispatch(handleLoginStatusFalse());
-      navigate(selectedRole === "client" ? "/" : "/dashboard");
+      navigate("/dashboard");
+      // navigate(selectedRole === "client" ? "/" : "/dashboard");
     }
   }, [isLoggedInState]);
 
