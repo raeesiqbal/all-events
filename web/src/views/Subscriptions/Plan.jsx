@@ -38,10 +38,7 @@ const Plan = ({
 
   const handlePlanSubscription = async () => {
     if (user.userId === null || (user.userId !== null && currentSubscription.priceId === "")) {
-      dispatch(createSubscription({ price_id: currentPlanPrice?.price_id }));
-      setTimeout(() => {
-        navigate("/checkout");
-      }, 1000);
+      dispatch(createSubscription({ price_id: currentPlanPrice?.price_id, allowed_ads: plan.allowed_ads }));
     } else {
       const data = {
         subscription_id: currentSubscription.subscriptionId,

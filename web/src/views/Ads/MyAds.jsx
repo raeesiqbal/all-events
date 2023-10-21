@@ -53,7 +53,7 @@ function MyAds() {
     }
   };
 
-  const isPaidSubscription = () => (currentSubscription === null || (currentSubscription && currentSubscription !== "unpaid"));
+  const isPaidSubscription = () => (currentSubscription === null || (currentSubscription && currentSubscription.status !== "unpaid"));
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -227,16 +227,14 @@ function MyAds() {
                                     />
                                   </Tooltip>
 
-                                  <Tooltip title={isPaidSubscription() ? "Delete" : "Can't Delete"} placement="top">
+                                  <Tooltip title="Delete" placement="top">
                                     <img
                                       src={deleteIcon}
                                       alt="deleteIcon"
                                       className="me-3"
                                       onClick={() => {
-                                        if (isPaidSubscription()) {
-                                          setModalShow(true);
-                                          setCurrentAdId(id);
-                                        }
+                                        setModalShow(true);
+                                        setCurrentAdId(id);
                                       }}
                                       style={{ cursor: "pointer" }}
                                     />
@@ -332,7 +330,7 @@ function MyAds() {
             <Row className="d-flex justify-content-end">
               {
                 (
-                  (currentSubscription && currentSubscription !== "unpaid" && vendorAds.length < currentSubscription?.type?.allowed_ads)
+                  (currentSubscription && currentSubscription.status !== "unpaid" && vendorAds.length < currentSubscription?.type?.allowed_ads)
                     || currentSubscription === null
                 ) && (
                   <Button
@@ -355,6 +353,13 @@ function MyAds() {
                         "If you want to post more ads, please update your subscription package."
                       )
                     }
+                  </h5>
+                )
+              }
+              {
+                currentSubscription && currentSubscription.status === "unpaid" && (
+                  <h5 className="text-danger">
+                    Please update your payment method and buy a subscription.
                   </h5>
                 )
               }

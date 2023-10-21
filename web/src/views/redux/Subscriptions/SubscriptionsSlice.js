@@ -19,7 +19,12 @@ const initialState = {
     priceId: "",
     subscriptionId: "",
   },
-  showModal: false,
+  modalInfo: {
+    showModal: false,
+    modalMessage: "",
+    modalType: "",
+    buttonText: "",
+  },
   currentPaymentMethod: null,
   currentSubscriptionDetails: null,
   freePlan: null,
@@ -178,7 +183,10 @@ export const SubscriptionsSlice = createSlice({
       state.SubscriptionErrorAlert = false;
     },
     setShowModal: (state, action) => {
-      state.showModal = action.payload;
+      state.modalInfo.showModal = action.payload;
+    },
+    setModalMessage: (state, action) => {
+      state.modalInfo.modalMessage = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -189,8 +197,16 @@ export const SubscriptionsSlice = createSlice({
       })
       .addCase(createSubscription.fulfilled, (state, action) => {
         state.loading = false;
-        state.clientSecret = action.payload.data.clientSecret;
-        state.subscriptionId = action.payload.data.subscriptionId;
+        if (action.payload.data.subscribed) {
+          state.clientSecret = action.payload.data.clientSecret;
+          state.subscriptionId = action.payload.data.subscriptionId;
+          window.location.href = "/checkout";
+        } else {
+          state.modalInfo.modalMessage = action.payload.message;
+          state.modalInfo.modalType = "create";
+          state.modalInfo.buttonText = "Go to my ads";
+          state.modalInfo.showModal = true;
+        }
       })
       .addCase(createSubscription.rejected, (state, action) => {
         state.loading = false;
@@ -203,6 +219,18 @@ export const SubscriptionsSlice = createSlice({
       .addCase(currentSubscriptionDetails.fulfilled, (state, action) => {
         state.loading = false;
         state.currentSubscriptionDetails = action.payload.data;
+
+        if (action.payload.data === null) {
+          state.modalInfo.buttonText = "See our plans";
+          state.modalInfo.modalType = "no_subscription";
+          state.modalInfo.modalMessage = "You have no active subscription, please check our subscription plans.";
+        } else if (action.payload.data.status === "unpaid") {
+          state.modalInfo.buttonText = "Update Payment Method";
+          state.modalInfo.modalType = "unpaid";
+          state.modalInfo.modalMessage = `We are unable to renew your subscription.
+                                          <br />
+                                          Please update your payment information to continue.`;
+        }
       })
       .addCase(currentSubscriptionDetails.rejected, (state, action) => {
         state.loading = false;

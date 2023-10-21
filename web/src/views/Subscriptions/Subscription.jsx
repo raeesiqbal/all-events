@@ -8,9 +8,9 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBan, faDownload } from "@fortawesome/free-solid-svg-icons";
-import timeIcon from "../../assets/images/post-ad/carbon_time.svg";
-import { cancelSubscription, resumeSubscription, listSubscriptions } from "../redux/Subscriptions/SubscriptionsSlice";
 import { Tooltip } from "@mui/material";
+import { cancelSubscription, resumeSubscription, listSubscriptions } from "../redux/Subscriptions/SubscriptionsSlice";
+import timeIcon from "../../assets/images/post-ad/carbon_time.svg";
 // import cancelIcon from "../../assets/images/cancel.svg";
 
 const Subscription = ({ subscription }) => {

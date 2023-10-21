@@ -6,6 +6,7 @@ import { Button, Container } from "react-bootstrap";
 import { Alert } from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
+import MesssageTabNavigation from "../../components/TabNavigation/MessageTabNavigation";
 import "../Ads/Ads.css";
 import "./Subscriptions.css";
 import { handleMessageAlerts, listSubscriptions } from "../redux/Subscriptions/SubscriptionsSlice";
@@ -13,11 +14,34 @@ import Subscription from "./Subscription";
 import ProfilePic from "../../components/ProfilePic/ProfilePic";
 
 function Subscriptions() {
+  const CURRENT = ["active", "unpaid", "free"];
+  const CANCELLED = ["canceled"];
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
   const {
     subscriptions, SubscriptionSuccessAlert, SubscriptionErrorAlert, error, loading,
   } = useSelector((state) => state.subscriptions);
+
+  const [activeTab, setActiveTab] = React.useState("Current");
+  const [activeTabSubscriptions, setActiveTabSubscriptions] = React.useState([]);
+
+  const tabs = [
+    {
+      label: "Current",
+      count: 1,
+    },
+    {
+      label: "Cancelled",
+      count: subscriptions.length > 0 ? subscriptions.length - 1 : 0,
+    },
+  ];
+
+  useEffect(() => {
+    const status = activeTab === "Current" ? CURRENT : CANCELLED;
+    setActiveTabSubscriptions(subscriptions.filter((subscription) => status.includes(subscription.status)));
+  }, [activeTab, subscriptions]);
 
   useEffect(() => {
     dispatch(listSubscriptions());
@@ -60,18 +84,10 @@ function Subscriptions() {
         <ProfilePic />
       </div>
 
-      {/* <div className="my-ad-banner p-md-5 mb-5">
-        <div className="roboto-bold-36px-h1 mb-2">Subscriptions</div>
-        <div className="roboto-regular-18px-body3">
-          Review, upgrade and update your packages
-        </div>
-
-        <ProfilePic />
-      </div> */}
-
       <Container
         className="pt-md-5"
       >
+        <MesssageTabNavigation activeTab={activeTab} setActiveTab={setActiveTab} tabs={tabs} />
         {
           loading && (
             <div className="loading-icon">
@@ -80,7 +96,7 @@ function Subscriptions() {
           )
         }
         {
-          !loading && subscriptions && subscriptions.map(
+          !loading && activeTabSubscriptions && activeTabSubscriptions.map(
             (subscription) => <Subscription subscription={subscription} key={subscription.id} />,
           )
         }

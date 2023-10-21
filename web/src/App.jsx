@@ -38,7 +38,12 @@ function App() {
   const navigate = useNavigate();
   const { user, screenLoading } = useSelector((state) => state.auth);
   const currentSubscription = useSelector((state) => state.subscriptions.currentSubscriptionDetails);
-  const { showModal } = useSelector((state) => state.subscriptions);
+  const {
+    showModal, modalMessage, modalType, buttonText,
+  } = useSelector((state) => state.subscriptions.modalInfo);
+  const profileSettingsCurrentView = useSelector(
+    (state) => state.tabNavigation.profileSettingsCurrentView,
+  );
 
   const routesWithTabNavigation = [
     "/post-ad",
@@ -55,16 +60,31 @@ function App() {
 
   const shouldRenderTabNavigation = routesWithTabNavigation.includes(location.pathname);
 
-  const navigateToPaymentMethod = () => {
-    dispatch(handleProfileSettingsCurrentView("PaymentMethod"));
-    navigate("/profile-settings");
+  const handleSubscription = () => {
+    dispatch(setShowModal(false));
+
+    switch (modalType) {
+      case "no_subscription":
+        navigate("/plans");
+        break;
+      case "unpaid":
+        dispatch(handleProfileSettingsCurrentView("PaymentMethod"));
+        navigate("/profile-settings");
+        break;
+      case "create":
+        navigate("/my-ads");
+        break;
+      default:
+        // nothing to do
+    }
   };
 
   useEffect(() => {
     if (
-      currentSubscription !== null && user?.role === "vendor"
-        && currentSubscription.status === "unpaid"
+      (currentSubscription === null || (currentSubscription !== null && user?.role === "vendor"
+        && currentSubscription.status === "unpaid"))
         && !["/plans", "/subscriptions"].includes(location.pathname)
+        && profileSettingsCurrentView !== "PaymentMethod"
     ) {
       dispatch(setShowModal(true));
     }
@@ -122,18 +142,14 @@ function App() {
         </div>
         <Modal.Body className="text-center">
           <h1 className="w-100 mb-5 mt-3 fw-bold">Payment Failed!</h1>
-          <h5 className="my-5 mx-5 px-5 text-secondary fw-normal">
-            We are unable to renew your subscription.
-            <br />
-            Please update your payment information to continue.
-          </h5>
+          <h5 className="my-5 mx-5 px-5 text-secondary fw-normal" dangerouslySetInnerHTML={{ __html: modalMessage }} />
           <Button
             variant="success"
             className="mx-5 mb-3"
             style={{ width: "-webkit-fill-available" }}
-            onClick={navigateToPaymentMethod}
+            onClick={handleSubscription}
           >
-            Update Payment Method
+            {buttonText}
           </Button>
         </Modal.Body>
       </Modal>
