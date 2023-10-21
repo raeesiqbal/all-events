@@ -14,6 +14,8 @@ import timeIcon from "../../assets/images/post-ad/carbon_time.svg";
 // import cancelIcon from "../../assets/images/cancel.svg";
 
 const Subscription = ({ subscription }) => {
+  const CANCELLED = ["cancelled"];
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -115,7 +117,7 @@ const Subscription = ({ subscription }) => {
         {
           subscription.cancel_at_period_end && (
             <div className="mt-1" style={{ fontSize: "14px", fontWeight: "500" }}>
-              Expiry Date:
+              Validation Date:
               {" "}
               {formattedDate(subscription.cancel_date)}
             </div>
@@ -127,57 +129,61 @@ const Subscription = ({ subscription }) => {
             {" "}
             {subscription.allowed_ads}
           </div>
-          <div className="d-flex">
-            {
-              subscription.cancel_at_period_end ? (
-                <Button
-                  type="button"
-                  variant="success"
-                  className="me-3 px-5 py-0"
-                  style={{ fontSize: "12px !important", height: "32px" }}
-                  onClick={() => setDeleteModal(true)}
-                >
-                  Resume
-                </Button>
-              ) : (
-                <>
-                  <Button
-                    type="button"
-                    variant="success"
-                    className="me-3 px-5 py-0"
-                    style={{ fontSize: "12px !important", height: "32px" }}
-                    onClick={() => navigate("/plans")}
-                  >
-                    Upgrade
-                  </Button>
-
-                  <Tooltip title="Cancel subscription" placement="top">
-                    <div
-                      className="d-flex"
-                      style={{
-                        borderRadius: "50%", height: "32px", width: "32px", backgroundColor: "rgba(217, 217, 217, 1)", cursor: "pointer",
-                      }}
+          {
+            !CANCELLED.includes(subscription.status) && (
+              <div className="d-flex">
+                {
+                  subscription.cancel_at_period_end ? (
+                    <Button
+                      type="button"
+                      variant="success"
+                      className="me-3 px-5 py-0"
+                      style={{ fontSize: "12px !important", height: "32px" }}
                       onClick={() => setDeleteModal(true)}
                     >
-                      <FontAwesomeIcon className="mx-auto my-auto" icon={faBan} />
-                    </div>
-                  </Tooltip>
+                      Resume
+                    </Button>
+                  ) : (
+                    <>
+                      <Button
+                        type="button"
+                        variant="success"
+                        className="me-3 px-5 py-0"
+                        style={{ fontSize: "12px !important", height: "32px" }}
+                        onClick={() => navigate("/plans")}
+                      >
+                        Upgrade
+                      </Button>
 
-                  <Tooltip className="ms-3" title="Download Invoice" placement="top">
-                    <div
-                      className="d-flex"
-                      style={{
-                        borderRadius: "50%", height: "32px", width: "32px", backgroundColor: "rgba(217, 217, 217, 1)", cursor: "pointer",
-                      }}
-                      // onClick={() => setDeleteModal(true)}
-                    >
-                      <FontAwesomeIcon className="mx-auto my-auto" icon={faDownload} />
-                    </div>
-                  </Tooltip>
-                </>
-              )
-            }
-          </div>
+                      <Tooltip title="Cancel subscription" placement="top">
+                        <div
+                          className="d-flex"
+                          style={{
+                            borderRadius: "50%", height: "32px", width: "32px", backgroundColor: "rgba(217, 217, 217, 1)", cursor: "pointer",
+                          }}
+                          onClick={() => setDeleteModal(true)}
+                        >
+                          <FontAwesomeIcon className="mx-auto my-auto" icon={faBan} />
+                        </div>
+                      </Tooltip>
+
+                      <Tooltip className="ms-3" title="Download Invoice" placement="top">
+                        <div
+                          className="d-flex"
+                          style={{
+                            borderRadius: "50%", height: "32px", width: "32px", backgroundColor: "rgba(217, 217, 217, 1)", cursor: "pointer",
+                          }}
+                          // onClick={() => setDeleteModal(true)}
+                        >
+                          <FontAwesomeIcon className="mx-auto my-auto" icon={faDownload} />
+                        </div>
+                      </Tooltip>
+                    </>
+                  )
+                }
+              </div>
+            )
+          }
         </div>
       </Row>
     </>

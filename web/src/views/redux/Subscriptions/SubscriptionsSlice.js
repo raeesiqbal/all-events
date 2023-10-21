@@ -22,6 +22,7 @@ const initialState = {
   modalInfo: {
     showModal: false,
     modalMessage: "",
+    modalTitle: "",
     modalType: "",
     buttonText: "",
   },
@@ -203,6 +204,7 @@ export const SubscriptionsSlice = createSlice({
           window.location.href = "/checkout";
         } else {
           state.modalInfo.modalMessage = action.payload.message;
+          state.modalInfo.modalTitle = "Subscription Error";
           state.modalInfo.modalType = "create";
           state.modalInfo.buttonText = "Go to my ads";
           state.modalInfo.showModal = true;
@@ -223,10 +225,12 @@ export const SubscriptionsSlice = createSlice({
         if (action.payload.data === null) {
           state.modalInfo.buttonText = "See our plans";
           state.modalInfo.modalType = "no_subscription";
+          state.modalInfo.modalTitle = "Subscribe to a Plan";
           state.modalInfo.modalMessage = "You have no active subscription, please check our subscription plans.";
         } else if (action.payload.data.status === "unpaid") {
           state.modalInfo.buttonText = "Update Payment Method";
           state.modalInfo.modalType = "unpaid";
+          state.modalInfo.modalTitle = "Payment Failed!";
           state.modalInfo.modalMessage = `We are unable to renew your subscription.
                                           <br />
                                           Please update your payment information to continue.`;

@@ -39,7 +39,7 @@ function App() {
   const { user, screenLoading } = useSelector((state) => state.auth);
   const currentSubscription = useSelector((state) => state.subscriptions.currentSubscriptionDetails);
   const {
-    showModal, modalMessage, modalType, buttonText,
+    showModal, modalMessage, modalType, buttonText, modalTitle,
   } = useSelector((state) => state.subscriptions.modalInfo);
   const profileSettingsCurrentView = useSelector(
     (state) => state.tabNavigation.profileSettingsCurrentView,
@@ -141,7 +141,7 @@ function App() {
           </div>
         </div>
         <Modal.Body className="text-center">
-          <h1 className="w-100 mb-5 mt-3 fw-bold">Payment Failed!</h1>
+          <h1 className="w-100 mb-5 mt-3 fw-bold">{modalTitle}</h1>
           <h5 className="my-5 mx-5 px-5 text-secondary fw-normal" dangerouslySetInnerHTML={{ __html: modalMessage }} />
           <Button
             variant="success"

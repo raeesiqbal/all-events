@@ -14,8 +14,8 @@ import Subscription from "./Subscription";
 import ProfilePic from "../../components/ProfilePic/ProfilePic";
 
 function Subscriptions() {
-  const CURRENT = ["active", "unpaid", "free"];
-  const CANCELLED = ["canceled"];
+  const CURRENT = ["active", "unpaid", "inactive"];
+  const CANCELLED = ["cancelled"];
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -26,22 +26,28 @@ function Subscriptions() {
 
   const [activeTab, setActiveTab] = React.useState("Current");
   const [activeTabSubscriptions, setActiveTabSubscriptions] = React.useState([]);
+  const [currentTabSubscriptions, setCurrentTabSubscriptions] = React.useState([]);
+  const [cancelledTabSubscriptions, setCancelledTabSubscriptions] = React.useState([]);
 
   const tabs = [
     {
       label: "Current",
-      count: 1,
+      count: currentTabSubscriptions.length,
     },
     {
       label: "Cancelled",
-      count: subscriptions.length > 0 ? subscriptions.length - 1 : 0,
+      count: cancelledTabSubscriptions.length,
     },
   ];
 
   useEffect(() => {
-    const status = activeTab === "Current" ? CURRENT : CANCELLED;
-    setActiveTabSubscriptions(subscriptions.filter((subscription) => status.includes(subscription.status)));
-  }, [activeTab, subscriptions]);
+    setCurrentTabSubscriptions(subscriptions.filter((subscription) => CURRENT.includes(subscription.status)));
+    setCancelledTabSubscriptions(subscriptions.filter((subscription) => CANCELLED.includes(subscription.status)));
+  }, [subscriptions]);
+
+  useEffect(() => {
+    setActiveTabSubscriptions(activeTab === "Current" ? currentTabSubscriptions : cancelledTabSubscriptions);
+  }, [activeTab, currentTabSubscriptions, cancelledTabSubscriptions]);
 
   useEffect(() => {
     dispatch(listSubscriptions());

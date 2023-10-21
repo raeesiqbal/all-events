@@ -337,9 +337,7 @@ class SubscriptionsViewSet(BaseViewset):
         return Response(
             status=status.HTTP_200_OK,
             data=ResponseInfo().format_response(
-                data={
-                    "current_subscription": None,
-                },
+                data=None,
                 status_code=status.HTTP_200_OK,
                 message="My subscriptions",
             ),
