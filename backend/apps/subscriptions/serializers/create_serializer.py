@@ -10,7 +10,7 @@ class CreateCustomerSerializer(BaseSerializer):
 
     class Meta:
         model = Client
-        fields = ["price_id"]
+        fields = ["price_id", "allowed_ads"]
 
 
 class InputPriceIdSerializer(serializers.Serializer):

@@ -215,91 +215,6 @@ class SubscriptionsViewSet(BaseViewset):
             ),
         )
 
-    # @action(detail=False, url_path="my-subscriptions", methods=["get"])
-    # def my_subscriptions(self, request, *args, **kwargs):
-    #     data = []
-    #     if request.user.user_company.stripe_customer_id:
-    #         subscriptions = self.stripe_service.list_subscriptions_all(
-    #             request.user.user_company.stripe_customer_id
-    #         )
-    #         if subscriptions:
-    #             for i in subscriptions:
-    #                 if i.status == "active" or i.status == "canceled":
-    #                     if i.created:
-    #                         created_date = datetime.datetime.utcfromtimestamp(
-    #                             i.created
-    #                         ).strftime("%Y-%m-%d %H:%M:%S UTC")
-    #                     else:
-    #                         created_date = None
-    #                     if i.cancel_at:
-    #                         cancel_date = datetime.datetime.utcfromtimestamp(
-    #                             i.cancel_at
-    #                         ).strftime("%Y-%m-%d %H:%M:%S UTC")
-    #                     else:
-    #                         cancel_date = None
-    #                     amount = i["items"].data[0].price.unit_amount / 100
-    #                     if i.current_period_end:
-    #                         next_payment_date = datetime.datetime.utcfromtimestamp(
-    #                             i.current_period_end
-    #                         ).strftime("%Y-%m-%d %H:%M:%S UTC")
-    #                     else:
-    #                         next_payment_date = None
-
-    #                     product = self.stripe_service.retrieve_product(
-    #                         i["items"].data[0].price.product
-    #                     )
-
-    #                     dic = {
-    #                         "subscription_id": i.id,
-    #                         "amount": amount,
-    #                         "next_payment": next_payment_date,
-    #                         "price_id": i["items"].data[0].price.id,
-    #                         "interval": i["items"].data[0].price.recurring.interval,
-
-    #                         "interval_count": i["items"]
-    #                         .data[0]
-    #                         .price.recurring.interval_count,
-    #                         "cancel_at_period_end": i.cancel_at_period_end,
-    #                         "cancel_date": cancel_date,
-
-    #                         "status": i.status,
-    #                         "name": product.name,
-    #                         "allowed_ads": product.metadata.allowed_ads,
-    #                         "created_at": created_date,
-    #                     }
-    #                     data.append(dic)
-    #     free_type = SubscriptionType.objects.filter(
-    #         type=SUBSCRIPTION_TYPES["FREE"]
-    #     ).first()
-    #     if Subscription.objects.filter(
-    #         company=request.user.user_company, type=free_type
-    #     ).exists():
-    #         free_plan = {
-    #             "subscription_id": None,
-    #             "amount": 0.0,
-    #             "next_payment": None,
-    #             "price_id": None,
-    #             "interval": "month",
-    #             "interval_count": 3,
-    #             "cancel_at_period_end": False,
-    #             "cancel_date": None,
-    #             "status": "active",
-    #             "name": "Free",
-    #             "allowed_ads": "1",
-    #             "created_at": "2023-09-26 14:22:35 UTC",
-    #         }
-
-    #         data.append(free_plan)
-
-    #     return Response(
-    #         status=status.HTTP_200_OK,
-    #         data=ResponseInfo().format_response(
-    #             data=data,
-    #             status_code=status.HTTP_200_OK,
-    #             message="My subscriptions",
-    #         ),
-    #     )
-
     @action(detail=False, url_path="my-subscriptions", methods=["get"])
     def my_subscriptions(self, request, *args, **kwargs):
         my_subscriptions = Subscription.objects.filter(
@@ -495,9 +410,9 @@ class SubscriptionsViewSet(BaseViewset):
                 subscription = Subscription.objects.filter(
                     subscription_id=data_object.id
                 ).first()
+                subscription.stripe_subscription = data_object
                 if data_object.status == "unpaid":
                     subscription.status = "unpaid"
-                    subscription.save()
                     if Ad.objects.filter(company=subscription.company).exists():
                         Ad.objects.filter(company=subscription.company).update(
                             status="inactive"
@@ -508,13 +423,14 @@ class SubscriptionsViewSet(BaseViewset):
                         Ad.objects.filter(company=subscription.company).update(
                             status="active"
                         )
-                    subscription.save()
+                subscription.save()
         if event_type == "customer.subscription.deleted":
             if Subscription.objects.filter(subscription_id=data_object.id).exists():
                 subscription = Subscription.objects.filter(
                     subscription_id=data_object.id
                 ).first()
                 subscription.status = "cancelled"
+                subscription.stripe_subscription = data_object
                 subscription.save()
                 if Ad.objects.filter(company=subscription.company).exists():
                     Ad.objects.filter(company=subscription.company).update(
@@ -663,3 +579,88 @@ class SubscriptionsViewSet(BaseViewset):
                 message="Payment method",
             ),
         )
+
+    # @action(detail=False, url_path="my-subscriptions", methods=["get"])
+    # def my_subscriptions(self, request, *args, **kwargs):
+    #     data = []
+    #     if request.user.user_company.stripe_customer_id:
+    #         subscriptions = self.stripe_service.list_subscriptions_all(
+    #             request.user.user_company.stripe_customer_id
+    #         )
+    #         if subscriptions:
+    #             for i in subscriptions:
+    #                 if i.status == "active" or i.status == "canceled":
+    #                     if i.created:
+    #                         created_date = datetime.datetime.utcfromtimestamp(
+    #                             i.created
+    #                         ).strftime("%Y-%m-%d %H:%M:%S UTC")
+    #                     else:
+    #                         created_date = None
+    #                     if i.cancel_at:
+    #                         cancel_date = datetime.datetime.utcfromtimestamp(
+    #                             i.cancel_at
+    #                         ).strftime("%Y-%m-%d %H:%M:%S UTC")
+    #                     else:
+    #                         cancel_date = None
+    #                     amount = i["items"].data[0].price.unit_amount / 100
+    #                     if i.current_period_end:
+    #                         next_payment_date = datetime.datetime.utcfromtimestamp(
+    #                             i.current_period_end
+    #                         ).strftime("%Y-%m-%d %H:%M:%S UTC")
+    #                     else:
+    #                         next_payment_date = None
+
+    #                     product = self.stripe_service.retrieve_product(
+    #                         i["items"].data[0].price.product
+    #                     )
+
+    #                     dic = {
+    #                         "subscription_id": i.id,
+    #                         "amount": amount,
+    #                         "next_payment": next_payment_date,
+    #                         "price_id": i["items"].data[0].price.id,
+    #                         "interval": i["items"].data[0].price.recurring.interval,
+
+    #                         "interval_count": i["items"]
+    #                         .data[0]
+    #                         .price.recurring.interval_count,
+    #                         "cancel_at_period_end": i.cancel_at_period_end,
+    #                         "cancel_date": cancel_date,
+
+    #                         "status": i.status,
+    #                         "name": product.name,
+    #                         "allowed_ads": product.metadata.allowed_ads,
+    #                         "created_at": created_date,
+    #                     }
+    #                     data.append(dic)
+    #     free_type = SubscriptionType.objects.filter(
+    #         type=SUBSCRIPTION_TYPES["FREE"]
+    #     ).first()
+    #     if Subscription.objects.filter(
+    #         company=request.user.user_company, type=free_type
+    #     ).exists():
+    #         free_plan = {
+    #             "subscription_id": None,
+    #             "amount": 0.0,
+    #             "next_payment": None,
+    #             "price_id": None,
+    #             "interval": "month",
+    #             "interval_count": 3,
+    #             "cancel_at_period_end": False,
+    #             "cancel_date": None,
+    #             "status": "active",
+    #             "name": "Free",
+    #             "allowed_ads": "1",
+    #             "created_at": "2023-09-26 14:22:35 UTC",
+    #         }
+
+    #         data.append(free_plan)
+
+    #     return Response(
+    #         status=status.HTTP_200_OK,
+    #         data=ResponseInfo().format_response(
+    #             data=data,
+    #             status_code=status.HTTP_200_OK,
+    #             message="My subscriptions",
+    #         ),
+    #     )

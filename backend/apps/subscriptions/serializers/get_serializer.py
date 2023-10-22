@@ -65,7 +65,7 @@ class MySubscriptionSerializer(BaseSerializer):
 
     def get_next_payment(self, obj):
         if obj.stripe_subscription:
-            if obj.stripe_subscription["current_period_end"]:
+            if obj.stripe_subscription.get("current_period_end", None):
                 next_payment_date = datetime.datetime.utcfromtimestamp(
                     obj.stripe_subscription["current_period_end"]
                 ).strftime("%Y-%m-%d %H:%M:%S UTC")
