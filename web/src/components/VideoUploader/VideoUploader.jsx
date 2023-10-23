@@ -2,7 +2,9 @@
 import { faAdd, faClose } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect, useState } from "react";
-import { Button, Col, Container, Row } from "react-bootstrap";
+import {
+  Button, Col, Container, Row,
+} from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { CircularProgress } from "@mui/material";
 import { secureInstance } from "../../axios/config";
@@ -16,9 +18,7 @@ function VideoUploader({ setVideoToUpload, videoToUpload }) {
 
   const dispatch = useDispatch();
   const isMediaUploading = useSelector((state) => state.Ads.isMediaUploading);
-  const currentSubscription = useSelector(
-    (state) => state.subscriptions.currentSubscriptionDetails
-  );
+  const currentSubscription = useSelector((state) => state.subscriptions.currentSubscriptionDetails);
 
   const fileInputRef = React.createRef();
 
@@ -131,13 +131,9 @@ function VideoUploader({ setVideoToUpload, videoToUpload }) {
 
       try {
         await uploadFileToCloud(uploadedVideo);
-        setVideos((prevVideos) =>
-          prevVideos.map((video) =>
-            video.file === uploadedVideo
-              ? { ...video, uploading: false } // Mark the uploaded video as not uploading
-              : video
-          )
-        );
+        setVideos((prevVideos) => prevVideos.map((video) => (video.file === uploadedVideo
+          ? { ...video, uploading: false } // Mark the uploaded video as not uploading
+          : video)));
       } catch (error) {
         console.error("Video upload failed", error);
         // Handle error if needed
@@ -154,6 +150,7 @@ function VideoUploader({ setVideoToUpload, videoToUpload }) {
 
   const removeVideo = async () => {
     const urlToDelete = videoToUpload;
+
     try {
       const request = await secureInstance.request({
         url: "/api/ads/delete-url/",
@@ -164,7 +161,7 @@ function VideoUploader({ setVideoToUpload, videoToUpload }) {
       });
       // ----------------do this inside redux
       if (request.status === 200) {
-        setVideos([]);
+        setVideos(null);
       }
     } catch (err) {
       console.log("error", err);
@@ -287,46 +284,43 @@ function VideoUploader({ setVideoToUpload, videoToUpload }) {
               </Col>
             ))}
 
-            {!isMediaUploading &&
-              currentSubscription &&
-              currentSubscription?.type?.allowed_ad_videos >
-                videoToUpload.length && (
-                <div
+            {!isMediaUploading && currentSubscription && currentSubscription?.type?.allowed_ad_videos > videoToUpload.length && (
+              <div
+                style={{
+                  border: "2px dashed #A0C49D",
+                  width: "141px",
+                  height: "122px",
+                }}
+              >
+                <label
+                  className="d-flex align-items-center justify-content-center"
                   style={{
-                    border: "2px dashed #A0C49D",
                     width: "141px",
                     height: "122px",
+                    cursor: "pointer",
                   }}
                 >
-                  <label
-                    className="d-flex align-items-center justify-content-center"
+                  <input
+                    type="file"
+                    accept="video/*"
+                    onChange={handleVideoUpload}
+                    style={{ display: "none" }}
+                    key={videos.length} // Add a unique key to force reset on new selection
+                    ref={fileInputRef}
+                  />
+                  <FontAwesomeIcon
+                    icon={faAdd}
                     style={{
-                      width: "141px",
-                      height: "122px",
-                      cursor: "pointer",
+                      color: "#A0C49D",
+                      width: "40px",
+                      height: "40px",
+                      marginRight: "10px",
+                      marginBottom: "8px",
                     }}
-                  >
-                    <input
-                      type="file"
-                      accept="video/*"
-                      onChange={handleVideoUpload}
-                      style={{ display: "none" }}
-                      key={videos.length} // Add a unique key to force reset on new selection
-                      ref={fileInputRef}
-                    />
-                    <FontAwesomeIcon
-                      icon={faAdd}
-                      style={{
-                        color: "#A0C49D",
-                        width: "40px",
-                        height: "40px",
-                        marginRight: "10px",
-                        marginBottom: "8px",
-                      }}
-                    />
-                  </label>
-                </div>
-              )}
+                  />
+                </label>
+              </div>
+            )}
           </div>
         </Row>
       </div>

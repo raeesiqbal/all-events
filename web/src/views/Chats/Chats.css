@@ -9,10 +9,9 @@
   height: 100%;
   border-top-left-radius: 24px;
   border-bottom-left-radius: 24px;
-  background-color: #f2f2f7;
+  background-color: #F2F2F7;
   border: none;
   padding-left: 24px;
-  color: #000;
 }
 
 .send-message-button {
@@ -20,7 +19,7 @@
   height: 100%;
   border-top-right-radius: 8px;
   border-bottom-right-radius: 8px;
-  background-color: #a0c49d;
+  background-color: #A0C49D;
   border: none;
   color: white;
   font-size: 16px;
@@ -63,8 +62,8 @@
 .upload-message-img {
   width: 45px;
   height: 45px;
-  border: 2px dashed #a8a8a8;
-  color: #a8a8a8;
+  border: 2px dashed #A8A8A8;
+  color: #A8A8A8;
   position: relative !important;
   display: flex;
   cursor: pointer;
@@ -150,7 +149,7 @@
 
 .loading-icon .svg-inline--fa {
   font-size: 48px;
-  color: #a0c49d;
+  color: #A0C49D;
 }
 
 @media (max-width: 600px) {
