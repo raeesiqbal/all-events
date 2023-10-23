@@ -570,7 +570,10 @@ class SubscriptionsViewSet(BaseViewset):
         payment_method = PaymentMethod.objects.filter(
             company=request.user.user_company
         ).first()
-        data = self.get_serializer(payment_method).data
+        if payment_method:
+            data = self.get_serializer(payment_method).data
+        else:
+            data = None
         return Response(
             status=status.HTTP_200_OK,
             data=ResponseInfo().format_response(
