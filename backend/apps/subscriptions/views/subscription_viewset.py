@@ -186,9 +186,9 @@ class SubscriptionsViewSet(BaseViewset):
             for i in incomplete_subscriptions:
                 self.stripe_service.cancel_subscription(i.id)
 
-        if Ad.objects.filter(company=company, status="inactive").exists():
-            inactive_ads = Ad.objects.filter(company=company, status="inactive").count()
-            if inactive_ads > allowed_ads:
+        if Ad.objects.filter(company=company).exists():
+            ads = Ad.objects.filter(company=company).count()
+            if ads > allowed_ads:
                 return Response(
                     status=status.HTTP_200_OK,
                     data=ResponseInfo().format_response(
@@ -198,7 +198,7 @@ class SubscriptionsViewSet(BaseViewset):
                             "clientSecret": None,
                         },
                         status_code=status.HTTP_200_OK,
-                        message=f"You can't subscribe to this plan. Your inactive Ad count is {inactive_ads}, while the plan you want to subscribe allow {allowed_ads} ads. Please delete your unwanted ads first.",
+                        message=f"You can't subscribe to this plan. Your Current Ad count is {ads}, while the plan you want to subscribe allow {allowed_ads} ads. Please delete your unwanted ads first.",
                     ),
                 )
         subscription = self.stripe_service.create_subscription(customer, price_id)
@@ -478,16 +478,19 @@ class SubscriptionsViewSet(BaseViewset):
         update_subscription = self.stripe_service.update_subscription(
             subscription_id, retrieve_subscription["items"].data[0].id, price_id
         )
-
+        updated = False
+        message = "There are some errors, please try again."
         if update_subscription:
-            return Response(
-                status=status.HTTP_200_OK,
-                data=ResponseInfo().format_response(
-                    data={"updated": True},
-                    status_code=status.HTTP_200_OK,
-                    message="Your Subscription will be changed after invoice has been paid successfully",
-                ),
-            )
+            updated = True
+            message = "Your Subscription will be changed after invoice has been paid successfully"
+        return Response(
+            status=status.HTTP_200_OK,
+            data=ResponseInfo().format_response(
+                data={"updated": updated},
+                status_code=status.HTTP_200_OK,
+                message=message,
+            ),
+        )
 
     @action(detail=False, url_path="cancel-subscription", methods=["post"])
     def cancel_subscription(self, request, *args, **kwargs):
@@ -496,51 +499,44 @@ class SubscriptionsViewSet(BaseViewset):
         subscription_id = serializer.validated_data.pop("subscription_id")
         cancel_subscription = self.stripe_service.cancel_subscription(subscription_id)
 
+        cancelled = False
+        message = "There are some errors, please try again"
+
         if cancel_subscription:
-            return Response(
-                status=status.HTTP_200_OK,
-                data=ResponseInfo().format_response(
-                    data={"cancelled": True},
-                    status_code=status.HTTP_200_OK,
-                    message="Subscription Will be cancelled at the end of current billing cycle",
-                ),
+            cancelled = True
+            message = (
+                "Subscription Will be cancelled at the end of current billing cycle"
             )
-        else:
-            return Response(
-                status=status.HTTP_200_OK,
-                data=ResponseInfo().format_response(
-                    data={"cancelled": False},
-                    status_code=status.HTTP_200_OK,
-                    message="There are some errors",
-                ),
-            )
+
+        return Response(
+            status=status.HTTP_200_OK,
+            data=ResponseInfo().format_response(
+                data={"cancelled": cancelled},
+                status_code=status.HTTP_200_OK,
+                message=message,
+            ),
+        )
 
     @action(detail=False, url_path="resume-subscription", methods=["post"])
     def resume_subscription(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         subscription_id = serializer.validated_data.pop("subscription_id")
-
         resume_subscription = self.stripe_service.resume_subscription(subscription_id)
 
+        resumed = False
+        message = "There are some errors, please try again."
         if resume_subscription:
-            return Response(
-                status=status.HTTP_200_OK,
-                data=ResponseInfo().format_response(
-                    data={"resumed": True},
-                    status_code=status.HTTP_200_OK,
-                    message="Subscription is resumed",
-                ),
-            )
-        else:
-            return Response(
-                status=status.HTTP_200_OK,
-                data=ResponseInfo().format_response(
-                    data={"resumed": False},
-                    status_code=status.HTTP_200_OK,
-                    message="Try again, there are some error",
-                ),
-            )
+            resumed = True
+            message = "Subscription has been resumed successfully."
+        return Response(
+            status=status.HTTP_200_OK,
+            data=ResponseInfo().format_response(
+                data={"resumed": resumed},
+                status_code=status.HTTP_200_OK,
+                message=message,
+            ),
+        )
 
     @action(detail=False, url_path="update-payment-method", methods=["get"])
     def update_payment_method(self, request, *args, **kwargs):
@@ -589,88 +585,3 @@ class SubscriptionsViewSet(BaseViewset):
                 message="Payment method",
             ),
         )
-
-    # @action(detail=False, url_path="my-subscriptions", methods=["get"])
-    # def my_subscriptions(self, request, *args, **kwargs):
-    #     data = []
-    #     if request.user.user_company.stripe_customer_id:
-    #         subscriptions = self.stripe_service.list_subscriptions_all(
-    #             request.user.user_company.stripe_customer_id
-    #         )
-    #         if subscriptions:
-    #             for i in subscriptions:
-    #                 if i.status == "active" or i.status == "canceled":
-    #                     if i.created:
-    #                         created_date = datetime.datetime.utcfromtimestamp(
-    #                             i.created
-    #                         ).strftime("%Y-%m-%d %H:%M:%S UTC")
-    #                     else:
-    #                         created_date = None
-    #                     if i.cancel_at:
-    #                         cancel_date = datetime.datetime.utcfromtimestamp(
-    #                             i.cancel_at
-    #                         ).strftime("%Y-%m-%d %H:%M:%S UTC")
-    #                     else:
-    #                         cancel_date = None
-    #                     amount = i["items"].data[0].price.unit_amount / 100
-    #                     if i.current_period_end:
-    #                         next_payment_date = datetime.datetime.utcfromtimestamp(
-    #                             i.current_period_end
-    #                         ).strftime("%Y-%m-%d %H:%M:%S UTC")
-    #                     else:
-    #                         next_payment_date = None
-
-    #                     product = self.stripe_service.retrieve_product(
-    #                         i["items"].data[0].price.product
-    #                     )
-
-    #                     dic = {
-    #                         "subscription_id": i.id,
-    #                         "amount": amount,
-    #                         "next_payment": next_payment_date,
-    #                         "price_id": i["items"].data[0].price.id,
-    #                         "interval": i["items"].data[0].price.recurring.interval,
-
-    #                         "interval_count": i["items"]
-    #                         .data[0]
-    #                         .price.recurring.interval_count,
-    #                         "cancel_at_period_end": i.cancel_at_period_end,
-    #                         "cancel_date": cancel_date,
-
-    #                         "status": i.status,
-    #                         "name": product.name,
-    #                         "allowed_ads": product.metadata.allowed_ads,
-    #                         "created_at": created_date,
-    #                     }
-    #                     data.append(dic)
-    #     free_type = SubscriptionType.objects.filter(
-    #         type=SUBSCRIPTION_TYPES["FREE"]
-    #     ).first()
-    #     if Subscription.objects.filter(
-    #         company=request.user.user_company, type=free_type
-    #     ).exists():
-    #         free_plan = {
-    #             "subscription_id": None,
-    #             "amount": 0.0,
-    #             "next_payment": None,
-    #             "price_id": None,
-    #             "interval": "month",
-    #             "interval_count": 3,
-    #             "cancel_at_period_end": False,
-    #             "cancel_date": None,
-    #             "status": "active",
-    #             "name": "Free",
-    #             "allowed_ads": "1",
-    #             "created_at": "2023-09-26 14:22:35 UTC",
-    #         }
-
-    #         data.append(free_plan)
-
-    #     return Response(
-    #         status=status.HTTP_200_OK,
-    #         data=ResponseInfo().format_response(
-    #             data=data,
-    #             status_code=status.HTTP_200_OK,
-    #             message="My subscriptions",
-    #         ),
-    #     )
