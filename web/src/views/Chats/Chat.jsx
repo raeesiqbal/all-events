@@ -20,9 +20,7 @@ import archiveIcon from "../../assets/images/ph_archive-box-light.svg";
 import gotoIcon from "../../assets/images/post-ad/goto.svg";
 import phoneIcon from "../../assets/images/fluent_call.svg";
 import defaultProfilePhoto from "../../assets/images/profile-settings/person.svg";
-import {
-  archiveChat, deleteChat, listChats,
-} from "../redux/Chats/ChatsSlice";
+import { archiveChat, deleteChat, listChats } from "../redux/Chats/ChatsSlice";
 import { listChatMessages, sendMessage } from "../redux/Messages/MessagesSlice";
 import "./Chats.css";
 import { secureInstance } from "../../axios/config";
@@ -32,9 +30,9 @@ const Chat = ({ chat, isOpenChat }) => {
   const dispatch = useDispatch();
   const messageBody = useRef(null);
 
-  const {
-    messages, additionalInfo, count,
-  } = useSelector((state) => state.messages);
+  const { messages, additionalInfo, count } = useSelector(
+    (state) => state.messages
+  );
   const currentUser = useSelector((state) => state.auth.user);
 
   const [modalShow, setModalShow] = React.useState(isOpenChat);
@@ -59,14 +57,21 @@ const Chat = ({ chat, isOpenChat }) => {
       setOffset(offset + limit);
       dispatch(listChatMessages({ id: chat.id, limit, offset }));
       setTimeout(() => {
-        if (messageBody.current) messageBody.current.scrollTop = messageBody.current.scrollHeight - scrollHeight;
+        if (messageBody.current)
+          messageBody.current.scrollTop =
+            messageBody.current.scrollHeight - scrollHeight;
       }, 500);
     }
   };
 
   const sendChatMessage = () => {
     if (messageText !== "" || attachment !== null) {
-      dispatch(sendMessage({ id: chat.id, data: { text: messageText, attachments: attachment } }));
+      dispatch(
+        sendMessage({
+          id: chat.id,
+          data: { text: messageText, attachments: attachment },
+        })
+      );
     }
     setMessageText("");
     setAttachment(null);
@@ -149,15 +154,17 @@ const Chat = ({ chat, isOpenChat }) => {
   };
 
   // Get the formatted date with ordinal day
-  const formattedDate = (d) => `${`${date(d).getDate() + getOrdinalSuffix(date(d).getDate())} ${
-    date(d).toLocaleString("en-US", { month: "long" })}, ${
-    date(d).getFullYear()}`}`;
+  const formattedDate = (d) =>
+    `${`${date(d).getDate() + getOrdinalSuffix(date(d).getDate())} ${date(
+      d
+    ).toLocaleString("en-US", { month: "long" })}, ${date(d).getFullYear()}`}`;
 
   useEffect(() => {
     if (modalShow) {
       dispatch(listChatMessages({ id: chat.id, limit, offset }));
       setTimeout(() => {
-        if (messageBody.current) messageBody.current.scrollTop = messageBody.current.scrollHeight;
+        if (messageBody.current)
+          messageBody.current.scrollTop = messageBody.current.scrollHeight;
       }, 500);
       setIsRead(true);
     }
@@ -185,7 +192,9 @@ const Chat = ({ chat, isOpenChat }) => {
                 alt="Profile Picture"
                 style={{ width: "80px", height: "80px", borderRadius: "50%" }}
               />
-              <h3 className="ms-2 ms-md-3 my-auto" style={{ color: "#797979" }}>{additionalInfo?.name}</h3>
+              <h3 className="ms-2 ms-md-3 my-auto" style={{ color: "#797979" }}>
+                {additionalInfo?.name}
+              </h3>
             </div>
             <div className="me-md-5 text-center">
               <Link
@@ -197,7 +206,11 @@ const Chat = ({ chat, isOpenChat }) => {
               </Link>
             </div>
           </div>
-          <div className="mb-3 message-body" ref={messageBody} onScroll={handleScroll}>
+          <div
+            className="mb-3 message-body"
+            ref={messageBody}
+            onScroll={handleScroll}
+          >
             <div
               className="mx-auto text-white px-2 py-1 mb-4"
               style={{
@@ -207,117 +220,158 @@ const Chat = ({ chat, isOpenChat }) => {
                 fontSize: "14px",
               }}
             >
-              {`Event Date: ${dayjs(chat.event_date).format("MMM D[th], YYYY").toString()}`}
+              {`Event Date: ${dayjs(chat.event_date)
+                .format("MMM D[th], YYYY")
+                .toString()}`}
             </div>
-            {
-              messages.slice().reverse().map((message) => {
-                const dateContent = (!dates.includes(formattedDate(message.created_at))) ? (
+            {messages
+              .slice()
+              .reverse()
+              .map((message) => {
+                const dateContent = !dates.includes(
+                  formattedDate(message.created_at)
+                ) ? (
                   <div
                     className="mx-auto text-white px-2 py-1 mb-4"
                     style={{
-                      width: "fit-content", borderRadius: "8px", background: "#A0C49D", fontSize: "14px",
+                      width: "fit-content",
+                      borderRadius: "8px",
+                      background: "#A0C49D",
+                      fontSize: "14px",
                     }}
                   >
                     {formattedDate(message.created_at)}
                   </div>
-                ) : "";
+                ) : (
+                  ""
+                );
                 dates.push(formattedDate(message.created_at));
 
                 return (
                   <>
                     {dateContent}
-                    {
-                      (currentUser.userId === message.sender) ? (
-                        <div className="d-flex justify-content-end mb-5" key={message.id}>
-                          <div
-                            className="p-3 pb-2 mt-3"
+                    {currentUser.userId === message.sender ? (
+                      <div
+                        className="d-flex justify-content-end mb-5"
+                        key={message.id}
+                      >
+                        <div
+                          className="p-3 pb-2 mt-3"
+                          style={{
+                            maxWidth: "350px",
+                            minWidth: "200px",
+                            background: "#A0C49D33",
+                            borderRadius: "8px",
+                            borderTopRightRadius: "0px",
+                          }}
+                        >
+                          <p
+                            className={message.text ? "" : "text-secondary"}
                             style={{
-                              maxWidth: "350px",
-                              minWidth: "200px",
-                              background: "#A0C49D33",
-                              borderRadius: "8px",
-                              borderTopRightRadius: "0px",
+                              fontSize: `${message.text ? "14px" : "12px"}`,
+                              overflowWrap: "break-word",
+                              wordWrap: "break-word",
                             }}
                           >
-                            <p
-                              className={message.text ? "" : "text-secondary"}
-                              style={{ fontSize: `${message.text ? "14px" : "12px"}`, overflowWrap: "break-word", wordWrap: "break-word" }}
-                            >
-                              {message.text || "Attachment sent"}
-                            </p>
-                            <div className="d-flex w-100 justify-content-between" style={{ fontSize: "10px" }}>
-                              {
-                                message.attachments !== null ? (
-                                  <a href={message.attachments} style={{ color: "#A0C49D", textDecoration: "none" }} target="_blank" rel="noreferrer">View Attachment</a>
-                                ) : (
-                                  <div />
-                                )
-                              }
-                              <div>{getTime(message.created_at)}</div>
-                            </div>
-                          </div>
-                          <img
-                            alt={currentUser.first_name}
-                            className="mx-2 mb-auto"
-                            src={currentUser.userImage || defaultProfilePhoto}
-                            style={{
-                              borderRadius: "50%", width: "31px", height: "31px",
-                            }}
-                          />
-                        </div>
-                      ) : (
-                        <div className="d-flex me-auto mb-5" key={message.id}>
-                          <img
-                            alt={currentUser.first_name}
-                            className="me-2 mb-auto"
-                            src={currentUser.userImage || defaultProfilePhoto}
-                            style={{
-                              borderRadius: "50%", width: "31px", height: "31px",
-                            }}
-                          />
+                            {message.text || "Attachment sent"}
+                          </p>
                           <div
-                            className="p-3 pb-2 mt-3"
+                            className="d-flex w-100 justify-content-between"
+                            style={{ fontSize: "10px" }}
+                          >
+                            {message.attachments !== null ? (
+                              <a
+                                href={message.attachments}
+                                style={{
+                                  color: "#A0C49D",
+                                  textDecoration: "none",
+                                }}
+                                target="_blank"
+                                rel="noreferrer"
+                              >
+                                View Attachment
+                              </a>
+                            ) : (
+                              <div />
+                            )}
+                            <div>{getTime(message.created_at)}</div>
+                          </div>
+                        </div>
+                        <img
+                          alt={currentUser.first_name}
+                          className="mx-2 mb-auto"
+                          src={currentUser.userImage || defaultProfilePhoto}
+                          style={{
+                            borderRadius: "50%",
+                            width: "31px",
+                            height: "31px",
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <div className="d-flex me-auto mb-5" key={message.id}>
+                        <img
+                          alt={currentUser.first_name}
+                          className="me-2 mb-auto"
+                          src={currentUser.userImage || defaultProfilePhoto}
+                          style={{
+                            borderRadius: "50%",
+                            width: "31px",
+                            height: "31px",
+                          }}
+                        />
+                        <div
+                          className="p-3 pb-2 mt-3"
+                          style={{
+                            maxWidth: "350px",
+                            minWidth: "200px",
+                            background: "#F2F2F7",
+                            borderRadius: "8px",
+                            borderTopLeftRadius: "0px",
+                          }}
+                        >
+                          <p
+                            className={message.text ? "" : "text-secondary"}
                             style={{
-                              maxWidth: "350px",
-                              minWidth: "200px",
-                              background: "#F2F2F7",
-                              borderRadius: "8px",
-                              borderTopLeftRadius: "0px",
+                              fontSize: `${message.text ? "14px" : "12px"}`,
+                              overflowWrap: "break-word",
+                              wordWrap: "break-word",
                             }}
                           >
-                            <p
-                              className={message.text ? "" : "text-secondary"}
-                              style={{ fontSize: `${message.text ? "14px" : "12px"}`, overflowWrap: "break-word", wordWrap: "break-word" }}
-                            >
-                              {message.text || "Attachment received"}
-                            </p>
-                            <div className="d-flex w-100 justify-content-between" style={{ fontSize: "10px" }}>
-                              {
-                                message.attachments !== null ? (
-                                  <a
-                                    href={message.attachments}
-                                    style={{ color: "#A0C49D", textDecoration: "none" }}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                  >
-                                    View Attachment
-                                  </a>
-                                ) : (
-                                  <div />
-                                )
-                              }
-                              <div>{getTime(message.created_at)}</div>
-                            </div>
+                            {message.text || "Attachment received"}
+                          </p>
+                          <div
+                            className="d-flex w-100 justify-content-between"
+                            style={{ fontSize: "10px" }}
+                          >
+                            {message.attachments !== null ? (
+                              <a
+                                href={message.attachments}
+                                style={{
+                                  color: "#A0C49D",
+                                  textDecoration: "none",
+                                }}
+                                target="_blank"
+                                rel="noreferrer"
+                              >
+                                View Attachment
+                              </a>
+                            ) : (
+                              <div />
+                            )}
+                            <div>{getTime(message.created_at)}</div>
                           </div>
                         </div>
-                      )
-                    }
+                      </div>
+                    )}
                   </>
                 );
-              })
-            }
+              })}
           </div>
-          <div className="w-100 pt-3 border-top border-grey" style={{ height: "fit-content", display: "flex" }}>
+          <div
+            className="w-100 pt-3 border-top border-grey"
+            style={{ height: "fit-content", display: "flex" }}
+          >
             <div className="d-flex" style={{ width: "86%", height: "44px" }}>
               <input
                 type="text"
@@ -327,29 +381,54 @@ const Chat = ({ chat, isOpenChat }) => {
                 onChange={(e) => setMessageText(e.target.value)}
                 onKeyUp={handleKeyPress}
               />
-              <button type="button" className="send-message-button" disabled={loading} onClick={sendChatMessage}>Send</button>
+              <button
+                type="button"
+                className="send-message-button"
+                disabled={loading}
+                onClick={sendChatMessage}
+              >
+                Send
+              </button>
             </div>
-            <div className="d-flex justify-content-center" style={{ width: "14%" }}>
+            <div
+              className="d-flex justify-content-center"
+              style={{ width: "14%" }}
+            >
               <div className="upload-message-img">
-                {
-                  !loading && (
-                    attachment === null ? (
-                      <>
-                        <span>+</span>
-                        <input type="file" accept="image/*,video/*,.pdf" onChange={handleAttachment} />
-                      </>
-                    ) : (
-                      <>
-                        <div onClick={removeImage}>-</div>
-                        <a href={attachment} style={{ textDecoration: "none" }} target="_blank" rel="noreferrer">
-                          <FontAwesomeIcon icon="fa-solid fa-paperclip" beatFade />
-                        </a>
-                      </>
-                    )
-                  )
-                }
+                {!loading &&
+                  (attachment === null ? (
+                    <>
+                      <span>+</span>
+                      <input
+                        type="file"
+                        accept="image/*,video/*,.pdf"
+                        onChange={handleAttachment}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <div onClick={removeImage}>-</div>
+                      <a
+                        href={attachment}
+                        style={{ textDecoration: "none" }}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <FontAwesomeIcon
+                          icon="fa-solid fa-paperclip"
+                          beatFade
+                        />
+                      </a>
+                    </>
+                  ))}
                 {loading && (
-                  <FontAwesomeIcon icon={faSpinner} spin color="#A0C49D" className="mx-auto my-auto" size="lg" />
+                  <FontAwesomeIcon
+                    icon={faSpinner}
+                    spin
+                    color="#A0C49D"
+                    className="mx-auto my-auto"
+                    size="lg"
+                  />
                 )}
               </div>
             </div>
@@ -402,7 +481,11 @@ const Chat = ({ chat, isOpenChat }) => {
         </Modal.Footer>
       </Modal>
 
-      <Col lg={12} className="py-md-5 border-bottom border-2">
+      <Col
+        style={{ maxHeight: "254px" }}
+        lg={12}
+        className="py-md-5 border-bottom border-2"
+      >
         <Card className="shadow-none bg-transparent">
           <Row>
             <Col lg={2} md={3} className="d-flex">
@@ -410,7 +493,7 @@ const Chat = ({ chat, isOpenChat }) => {
                 src={chat.ad_image}
                 alt="AdImage"
                 className="img-fluid h-100 object-fit-cover mx-auto"
-                style={{ maxHeight: "180px" }}
+                style={{ maxHeight: "140px", maxWidth: "140px" }}
               />
             </Col>
             <Col
@@ -431,7 +514,9 @@ const Chat = ({ chat, isOpenChat }) => {
                           alt="timeIcon"
                           className="me-2 my-auto"
                         />
-                        {dayjs(chat.latest_message.created_at).format("MMM D[th], YYYY")}
+                        {dayjs(chat.latest_message.created_at).format(
+                          "MMM D[th], YYYY"
+                        )}
                       </div>
                     </div>
 
@@ -440,7 +525,7 @@ const Chat = ({ chat, isOpenChat }) => {
                     </div>
 
                     <div className="row mx-0">
-                      {
+                      {/* {
                         currentUser?.role === "vendor" && (
                           <div
                             className="roboto-regular-14px-information text-white mt-2 me-4"
@@ -455,23 +540,21 @@ const Chat = ({ chat, isOpenChat }) => {
                             {`Event Date: ${dayjs(chat.event_date).format("MMM D[th], YYYY").toString()}`}
                           </div>
                         )
-                      }
+                      } */}
 
-                      {
-                        ![undefined, null, ""].includes(chat.person.phone) && (
-                          <div
-                            className="roboto-regular-14px-information d-flex align-items-end mt-2 ps-0 me-3"
-                            style={{ width: "fit-content" }}
-                          >
-                            <img
-                              src={phoneIcon}
-                              alt="phoneIcon"
-                              className="me-2 my-auto"
-                            />
-                            {chat.person.phone}
-                          </div>
-                        )
-                      }
+                      {![undefined, null, ""].includes(chat.person.phone) && (
+                        <div
+                          className="roboto-regular-14px-information d-flex align-items-end mt-2 ps-0 me-3"
+                          style={{ width: "fit-content" }}
+                        >
+                          <img
+                            src={phoneIcon}
+                            alt="phoneIcon"
+                            className="me-2 my-auto"
+                          />
+                          {chat.person.phone}
+                        </div>
+                      )}
                     </div>
                   </Card.Title>
                   <div className="d-md-flex justify-content-between">
@@ -485,22 +568,20 @@ const Chat = ({ chat, isOpenChat }) => {
                         {chat.latest_message.text.slice(0, 100)}
                         {chat.latest_message.text.length >= 100 && "..."}
                       </Card.Text>
-                      {
-                        !(chat.read || isRead) && (
-                          <div
-                            className="roboto-regular-14px-information text-white mt-2 me-3"
-                            style={{
-                              borderRadius: "6px",
-                              background: "#a0c49d90",
-                              padding: "2px 10px",
-                              fontWeight: "500",
-                              width: "fit-content",
-                            }}
-                          >
-                            Unread
-                          </div>
-                        )
-                      }
+                      {!(chat.read || isRead) && (
+                        <div
+                          className="roboto-regular-14px-information text-white mt-2 me-3"
+                          style={{
+                            borderRadius: "6px",
+                            background: "#a0c49d90",
+                            padding: "2px 10px",
+                            fontWeight: "500",
+                            width: "fit-content",
+                          }}
+                        >
+                          Unread
+                        </div>
+                      )}
                     </div>
                     <div className="d-flex align-items-end pt-3">
                       <OverlayTrigger
@@ -511,7 +592,12 @@ const Chat = ({ chat, isOpenChat }) => {
                           className="me-3"
                           style={{ width: "30px", cursor: "pointer" }}
                           onClick={() => {
-                            dispatch(archiveChat({ id: chat.id, is_archived: !chat.archived }));
+                            dispatch(
+                              archiveChat({
+                                id: chat.id,
+                                is_archived: !chat.archived,
+                              })
+                            );
                             window.location.reload();
                           }}
                         >
