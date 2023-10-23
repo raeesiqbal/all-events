@@ -81,14 +81,14 @@ function App() {
 
   useEffect(() => {
     if (
-      (currentSubscription === null || (currentSubscription !== null && user?.role === "vendor"
-        && currentSubscription.status === "unpaid"))
-        && !["/plans", "/subscriptions"].includes(location.pathname)
+      ((currentSubscription === null && modalType !== null)
+          || (currentSubscription !== null && user?.role === "vendor" && currentSubscription.status === "unpaid"))
+        && !["/plans", "/checkout", "/subscriptions"].includes(location.pathname)
         && profileSettingsCurrentView !== "PaymentMethod"
     ) {
       dispatch(setShowModal(true));
     }
-  }, [currentSubscription, location]);
+  }, [currentSubscription, location, modalType, profileSettingsCurrentView]);
 
   useEffect(() => {
     if (currentSubscription === null && user?.role === "vendor") {
@@ -107,12 +107,12 @@ function App() {
         aria-labelledby="example-custom-modal-styling-title"
         centered="true"
       >
-        <div className="box" style={{ position: "absolute", right: "0" }} />
+        <div className="box" style={{ position: "absolute", right: "3.5px", top: "3px" }} />
         <div
           style={{
             position: "absolute",
-            right: "10px",
-            top: "8px",
+            right: "11px",
+            top: "6px",
             zIndex: "20",
           }}
         >

@@ -27,3 +27,15 @@
   font-weight: 600;
   background-color: #A0C49D;
 }
+
+.click-here {
+  color: rgba(var(--bs-link-color-rgb),var(--bs-link-opacity,1));
+  text-decoration: underline;
+  cursor: pointer;
+  margin-left: 5px;
+}
+
+.click-here:hover {
+  --bs-link-color-rgb: var(--bs-link-hover-color-rgb);
+  color: #747bff;
+}

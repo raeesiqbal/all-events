@@ -19,6 +19,7 @@ const Checkout = () => {
     script.async = true;
     script.onload = () => {
       setStripe(window.Stripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY));
+      console.log("setStripe");
     };
 
     document.head.appendChild(script);
@@ -50,8 +51,8 @@ const Checkout = () => {
   };
 
   useEffect(() => {
-    if (clientSecret !== "" && subscriptionId !== "") setElements(stripe.elements({ clientSecret, subscriptionId }));
-  }, [clientSecret, subscriptionId]);
+    if (stripe && clientSecret !== "" && subscriptionId !== "") setElements(stripe.elements({ clientSecret, subscriptionId }));
+  }, [clientSecret, subscriptionId, stripe]);
 
   useEffect(() => {
     if (elements) {

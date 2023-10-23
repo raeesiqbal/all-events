@@ -7,10 +7,11 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBan, faDownload } from "@fortawesome/free-solid-svg-icons";
+import { faBan, faDownload, faInfo } from "@fortawesome/free-solid-svg-icons";
 import { Tooltip } from "@mui/material";
 import { cancelSubscription, resumeSubscription, listSubscriptions } from "../redux/Subscriptions/SubscriptionsSlice";
 import timeIcon from "../../assets/images/post-ad/carbon_time.svg";
+import { handleProfileSettingsCurrentView } from "../redux/TabNavigation/TabNavigationSlice";
 // import cancelIcon from "../../assets/images/cancel.svg";
 
 const Subscription = ({ subscription }) => {
@@ -20,6 +21,15 @@ const Subscription = ({ subscription }) => {
   const navigate = useNavigate();
 
   const [deleteModal, setDeleteModal] = React.useState(false);
+
+  const infostyle = {
+    backgroundColor: "#9B9B9B",
+    color: "white",
+    borderRadius: "50%",
+    fontSize: "11px",
+    width: "16px",
+    height: "16px",
+  };
 
   const date = (d) => new Date(d);
 
@@ -117,21 +127,45 @@ const Subscription = ({ subscription }) => {
         {
           subscription.cancel_at_period_end && (
             <div className="mt-1" style={{ fontSize: "14px", fontWeight: "500" }}>
-              Validation Date:
+              Cancels on
               {" "}
               {formattedDate(subscription.cancel_date)}
             </div>
           )
         }
         <div className="d-sm-flex justify-content-between mt-3">
-          <div className="mb-3 my-sm-auto" style={{ fontSize: "13px" }}>
-            Allowed Ads:
-            {" "}
-            {subscription.allowed_ads}
+          <div>
+            <div className="mb-3 my-sm-auto w-100" style={{ fontSize: "13px" }}>
+              Allowed Ads:
+              {" "}
+              {subscription.allowed_ads}
+            </div>
+            <div className="d-flex align-items-center w-100">
+              <div
+                style={infostyle}
+                className="d-flex align-items-center justify-content-center me-1"
+              >
+                <FontAwesomeIcon
+                  icon={faInfo}
+                  size="sm"
+                />
+              </div>
+              Plan failed to renew, please update your payment method.
+              {" "}
+              <span
+                className="click-here"
+                onClick={() => {
+                  dispatch(handleProfileSettingsCurrentView("PaymentMethod"));
+                  navigate("/profile-settings");
+                }}
+              >
+                Click here
+              </span>
+            </div>
           </div>
           {
             !CANCELLED.includes(subscription.status) && (
-              <div className="d-flex">
+              <div className="d-flex align-items-center">
                 {
                   subscription.cancel_at_period_end ? (
                     <Button

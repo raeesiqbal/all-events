@@ -494,8 +494,18 @@ function PostAd() {
   }, []);
 
   useEffect(() => {
-    if (currentSubscription && vendorAds.length > 0 && currentSubscription?.type?.allowed_ads <= vendorAds.length) navigate("/my-ads");
+    if (currentSubscription === null || (
+      currentSubscription
+        && (
+          currentSubscription.status === "unpaid"
+            || (vendorAds.length > 0 && currentSubscription?.type?.allowed_ads <= vendorAds.length)
+        )
+    )) navigate("/my-ads");
   }, [currentSubscription, vendorAds]);
+
+  useEffect(() => {
+    if (currentSubscription === null || (currentSubscription && currentSubscription.status === "unpaid")) navigate("/my-ads");
+  }, [currentSubscription]);
 
   return (
     <div style={{ position: "relative", overflowX: "hidden" }}>
@@ -694,22 +704,6 @@ function PostAd() {
 
                 {preDefinedFAQs.length > 0 && (
                   <ServerFAQs
-                    // values={values}
-                    // errors={errors.FAQ ?? errors}
-                    // touched={touched.FAQ ?? touched}
-                    // handleChange={handleChange}
-                    // handleAddFieldsForFAQ={() =>
-                    //   handleAddFAQsFields(values, setValues)
-                    // }
-                    // handleAddFAQ={(index) =>
-                    //   handleAddFAQ(index, values, setValues)
-                    // }
-                    // handleRemoveFAQ={(index) =>
-                    //   handleRemoveFAQ(index, values, setValues)
-                    // }
-                    // handleEditFAQ={(index) =>
-                    //   handleEditFAQ(index, values, setValues)
-                    // }
                     siteFaqQuestions={preDefinedFAQs}
                     selectedValues={selectedValuesServerFAQ}
                     setSelectedValues={setSelectedValuesServerFAQ}

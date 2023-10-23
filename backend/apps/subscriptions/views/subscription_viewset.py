@@ -238,7 +238,6 @@ class SubscriptionsViewSet(BaseViewset):
             my_subscription = Subscription.objects.filter(
                 company__user__email=request.user.email, status__in=["active", "unpaid"]
             ).first()
-            print(my_subscription.status)
             serializer = self.get_serializer(my_subscription).data
 
             return Response(

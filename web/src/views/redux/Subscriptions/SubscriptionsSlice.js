@@ -21,10 +21,10 @@ const initialState = {
   },
   modalInfo: {
     showModal: false,
-    modalMessage: "",
-    modalTitle: "",
-    modalType: "",
-    buttonText: "",
+    modalMessage: null,
+    modalTitle: null,
+    modalType: null,
+    buttonText: null,
   },
   currentPaymentMethod: null,
   currentSubscriptionDetails: null,
@@ -35,13 +35,14 @@ const initialState = {
 
 export const createSubscription = createAsyncThunk(
   "Subscription/create",
-  async (data, { rejectWithValue }) => {
+  async ({ data, navigate }, { rejectWithValue }) => {
     try {
       const response = await secureInstance.request({
         url: "/api/subscriptions/create-subscription/",
         method: "Post",
         data,
       });
+      if (response.data.data.subscribed) navigate("/checkout");
       return response.data;
     } catch (err) {
       // Use `err.response.data` as `action.payload` for a `rejected` action,
@@ -199,9 +200,13 @@ export const SubscriptionsSlice = createSlice({
       .addCase(createSubscription.fulfilled, (state, action) => {
         state.loading = false;
         if (action.payload.data.subscribed) {
+          state.modalInfo.showModal = false;
+          state.modalInfo.buttonText = null;
+          state.modalInfo.modalType = null;
+          state.modalInfo.modalTitle = null;
+          state.modalInfo.modalMessage = null;
           state.clientSecret = action.payload.data.clientSecret;
           state.subscriptionId = action.payload.data.subscriptionId;
-          window.location.href = "/checkout";
         } else {
           state.modalInfo.modalMessage = action.payload.message;
           state.modalInfo.modalTitle = "Subscription Error";
@@ -234,6 +239,12 @@ export const SubscriptionsSlice = createSlice({
           state.modalInfo.modalMessage = `We are unable to renew your subscription.
                                           <br />
                                           Please update your payment information to continue.`;
+        } else {
+          state.modalInfo.showModal = false;
+          state.modalInfo.buttonText = null;
+          state.modalInfo.modalType = null;
+          state.modalInfo.modalTitle = null;
+          state.modalInfo.modalMessage = null;
         }
       })
       .addCase(currentSubscriptionDetails.rejected, (state, action) => {

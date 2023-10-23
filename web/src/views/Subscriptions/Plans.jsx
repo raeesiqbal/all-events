@@ -8,7 +8,7 @@ import {
 import { Alert } from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
-import { handleMessageAlerts, listPlans } from "../redux/Subscriptions/SubscriptionsSlice";
+import { getPaymentMethod, handleMessageAlerts, listPlans } from "../redux/Subscriptions/SubscriptionsSlice";
 import Plan from "./Plan";
 
 const Plans = () => {
@@ -52,6 +52,7 @@ const Plans = () => {
   useEffect(() => {
     if (user?.role === "client") navigate("/");
     dispatch(listPlans(user?.userId !== null));
+    dispatch(getPaymentMethod());
   }, [user?.userId]);
 
   useEffect(() => {
