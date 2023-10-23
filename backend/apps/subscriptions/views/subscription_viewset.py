@@ -66,6 +66,7 @@ class SubscriptionsViewSet(BaseViewset):
         "subscription_success": [IsAuthenticated, IsVendorUser],
         "my_subscriptions": [IsAuthenticated, IsVendorUser],
         "current_subscription": [IsAuthenticated, IsVendorUser],
+        "current_subscription_dpm": [IsAuthenticated, IsVendorUser],
         "update_payment_method": [IsAuthenticated, IsVendorUser],
         "get_payment_method": [IsAuthenticated, IsVendorUser],
     }
@@ -200,7 +201,6 @@ class SubscriptionsViewSet(BaseViewset):
                         message=f"You can't subscribe to this plan. Your inactive Ad count is {inactive_ads}, while the plan you want to subscribe allow {allowed_ads} ads. Please delete your unwanted ads first.",
                     ),
                 )
-
         subscription = self.stripe_service.create_subscription(customer, price_id)
         return Response(
             status=status.HTTP_200_OK,
@@ -436,6 +436,14 @@ class SubscriptionsViewSet(BaseViewset):
                     Ad.objects.filter(company=subscription.company).update(
                         status="inactive"
                     )
+
+                payment_method = PaymentMethod.objects.filter(
+                    company=subscription.company
+                ).first()
+                if payment_method:
+                    self.stripe.PaymentMethod.detach(payment_method.payment_method_id)
+                    payment_method.delete()
+
         return Response({"message": "Webhook received successfully"})
 
     @action(detail=False, url_path="update-subscription", methods=["post"])
