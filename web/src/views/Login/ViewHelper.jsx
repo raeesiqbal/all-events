@@ -169,6 +169,7 @@ const DynamicRegisterationView = ({
               {role === "client" ? "Register" : "Next"}
             </Button>
           </div>
+
           <div className="row" style={{ textAlign: "center" }}>
             <p className="roboto-regular-16px-information mt-3 pt-1 mb-0 ">
               Already have an account?{" "}
@@ -184,6 +185,49 @@ const DynamicRegisterationView = ({
               </span>
             </p>
           </div>
+          {role === "client" ? (
+            // The code is being re-used either make a resusable funcitonal component or update the logic
+            <>
+              <Form.Group className="position-relative mb-1 mt-3">
+                <Form.Check
+                  type="checkbox"
+                  required
+                  name="terms_acceptance"
+                  label="I agree to the Terms & Conditions"
+                  value={values.terms_acceptance || ""}
+                  // checked={values.terms_acceptance}
+                  onChange={handleChange}
+                  isInvalid={!!errors.terms_acceptance}
+                  feedback={errors.terms_acceptance}
+                  feedbackType="invalid"
+                  id="validationFormik107"
+                />
+              </Form.Group>
+              <Form.Group className="position-relative mt-2">
+                <Form.Check
+                  type="checkbox"
+                  required
+                  name="newsletter"
+                  label="Keep me updated with the latest news"
+                  value={values.newsletter || ""}
+                  // eslint-disable-next-line no-unneeded-ternary
+                  checked={
+                    // eslint-disable-next-line no-unneeded-ternary
+                    values.newsletter === undefined ||
+                    values.newsletter === true
+                      ? true
+                      : false
+                  }
+                  // checked={values.newsletter || false} // Set the checked attribute based on the value
+                  onChange={handleChange}
+                  isInvalid={!!errors.newsletter}
+                  feedback={errors.newsletter}
+                  feedbackType="invalid"
+                  id="validationFormik108"
+                />
+              </Form.Group>
+            </>
+          ) : null}
         </Form>
       )}
     </Formik>
