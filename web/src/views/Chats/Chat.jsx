@@ -134,7 +134,13 @@ const Chat = ({ chat, isOpenChat }) => {
   };
 
   const date = (d) => new Date(d);
-  const getTime = (d) => date(d).toLocaleTimeString("en-US", { hour12: true });
+  // const getTime = (d) => date(d).toLocaleTimeString("en-US", { hour12: true });
+  const getTime = (d) => {
+    const date = new Date(d);
+    return `${date.getHours() % 12 || 12}:${date.getMinutes()} ${
+      date.getHours() >= 12 ? "PM" : "AM"
+    }`;
+  };
 
   // Function to get the ordinal suffix for a day
   const getOrdinalSuffix = (day) => {
@@ -187,7 +193,7 @@ const Chat = ({ chat, isOpenChat }) => {
           >
             <div className="d-flex">
               <img
-                src={additionalInfo?.image || defaultProfilePhoto}
+                src={chat?.ad_image || defaultProfilePhoto}
                 className="mr-3 profile-img"
                 alt="Profile Picture"
                 style={{ width: "80px", height: "80px", borderRadius: "50%" }}
@@ -245,6 +251,7 @@ const Chat = ({ chat, isOpenChat }) => {
                 ) : (
                   ""
                 );
+
                 dates.push(formattedDate(message.created_at));
 
                 return (
@@ -313,7 +320,19 @@ const Chat = ({ chat, isOpenChat }) => {
                         <img
                           alt={currentUser.first_name}
                           className="me-2 mb-auto"
-                          src={currentUser.userImage || defaultProfilePhoto}
+                          // I created the below logic but then came to know that on
+                          //Vendor side we have no access to client's photo.
+                          // Either I am missing something or we will have to add it in additional info from getting it from backend.
+                          // src={
+                          //   currentUser.role === "client"
+                          //     ? chat?.ad_image
+                          //     : additionalInfo.image || defaultProfilePhoto
+                          // }
+                          src={
+                            currentUser.role === "client"
+                              ? chat?.ad_image
+                              : defaultProfilePhoto || defaultProfilePhoto
+                          }
                           style={{
                             borderRadius: "50%",
                             width: "31px",
@@ -380,6 +399,7 @@ const Chat = ({ chat, isOpenChat }) => {
                 value={messageText}
                 onChange={(e) => setMessageText(e.target.value)}
                 onKeyUp={handleKeyPress}
+                style={{ color: "black" }}
               />
               <button
                 type="button"
@@ -481,11 +501,7 @@ const Chat = ({ chat, isOpenChat }) => {
         </Modal.Footer>
       </Modal>
 
-      <Col
-        style={{ maxHeight: "254px" }}
-        lg={12}
-        className="py-md-5 border-bottom border-2"
-      >
+      <Col lg={12} className="py-md-4 border-bottom border-2">
         <Card className="shadow-none bg-transparent">
           <Row>
             <Col lg={2} md={3} className="d-flex">
@@ -499,7 +515,7 @@ const Chat = ({ chat, isOpenChat }) => {
             <Col
               lg={10}
               md={9}
-              className="d-flex justify-content-center align-items-center py-3"
+              className="d-flex justify-content-center align-items-center py-0"
             >
               <Card.Body className="ps-0" style={{ height: "100%" }}>
                 <div className="d-md-flex flex-column justify-content-between h-100">
@@ -525,22 +541,22 @@ const Chat = ({ chat, isOpenChat }) => {
                     </div>
 
                     <div className="row mx-0">
-                      {/* {
-                        currentUser?.role === "vendor" && (
-                          <div
-                            className="roboto-regular-14px-information text-white mt-2 me-4"
-                            style={{
-                              borderRadius: "6px",
-                              background: "#A0C49D",
-                              padding: "2px 10px",
-                              fontWeight: "500",
-                              width: "fit-content",
-                            }}
-                          >
-                            {`Event Date: ${dayjs(chat.event_date).format("MMM D[th], YYYY").toString()}`}
-                          </div>
-                        )
-                      } */}
+                      {currentUser?.role === "vendor" && (
+                        <div
+                          className="roboto-regular-14px-information text-white mt-2 me-4"
+                          style={{
+                            borderRadius: "6px",
+                            background: "#A0C49D",
+                            padding: "2px 10px",
+                            fontWeight: "500",
+                            width: "fit-content",
+                          }}
+                        >
+                          {`Event Date: ${dayjs(chat.event_date)
+                            .format("MMM D[th], YYYY")
+                            .toString()}`}
+                        </div>
+                      )}
 
                       {![undefined, null, ""].includes(chat.person.phone) && (
                         <div
@@ -583,7 +599,7 @@ const Chat = ({ chat, isOpenChat }) => {
                         </div>
                       )}
                     </div>
-                    <div className="d-flex align-items-end pt-3">
+                    <div className="d-flex align-items-end ">
                       <OverlayTrigger
                         placement="top"
                         overlay={<Tooltip>Archive</Tooltip>}

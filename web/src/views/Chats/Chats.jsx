@@ -140,8 +140,8 @@ function Chats() {
         <ProfilePic />
       </div>
 
-      <Container style={{ paddingBottom: "200px" }} className="pt-md-3">
-        <div className="w-100 pb-4 d-md-flex justify-content-between">
+      <Container style={{ paddingBottom: "100px" }} className="pt-md-3">
+        <div className="w-100 d-md-flex justify-content-between">
           <div className="d-flex">
             <div className="position-relative me-3">
               <FormControl
