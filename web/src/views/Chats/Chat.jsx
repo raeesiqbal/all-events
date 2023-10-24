@@ -199,7 +199,7 @@ const Chat = ({ chat, isOpenChat }) => {
                 style={{ width: "80px", height: "80px", borderRadius: "50%" }}
               />
               <h3 className="ms-2 ms-md-3 my-auto" style={{ color: "#797979" }}>
-                {additionalInfo?.name}
+                {(chat?.ad_name).toUpperCase()}
               </h3>
             </div>
             <div className="me-md-5 text-center">
@@ -536,12 +536,12 @@ const Chat = ({ chat, isOpenChat }) => {
                       </div>
                     </div>
 
-                    <div className="roboto-light-16px-information">
+                    {/* <div className="roboto-light-16px-information">
                       {`Client: ${chat.person.name}`}
-                    </div>
+                    </div> */}
 
                     <div className="row mx-0">
-                      {currentUser?.role === "vendor" && (
+                      {/* {currentUser?.role === "vendor" && (
                         <div
                           className="roboto-regular-14px-information text-white mt-2 me-4"
                           style={{
@@ -556,7 +556,7 @@ const Chat = ({ chat, isOpenChat }) => {
                             .format("MMM D[th], YYYY")
                             .toString()}`}
                         </div>
-                      )}
+                      )} */}
 
                       {![undefined, null, ""].includes(chat.person.phone) && (
                         <div
