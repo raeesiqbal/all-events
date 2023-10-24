@@ -121,12 +121,12 @@ const Subscription = ({ subscription }) => {
       <Row className="mx-0 mt-4 w-100 ps-2 p-3 subscription-free">
         <h2>{subscription.name}</h2>
         <div className="d-flex w-100">
-          <img src={timeIcon} alt="time icon" style={{ width: "20px", height: "20px" }} />
-          <div className="my-auto ms-1" style={{ fontSize: "14px" }}>{formattedDate(subscription?.created_at)}</div>
+          <img src={timeIcon} alt="time icon" style={{ width: "25px", height: "25px" }} />
+          <div className="my-auto ms-1" style={{ fontSize: "18px", lineHeight: "18px" }}>{formattedDate(subscription?.created_at)}</div>
         </div>
         {
           subscription.cancel_at_period_end && (
-            <div className="mt-1" style={{ fontSize: "14px", fontWeight: "500" }}>
+            <div className="mt-1" style={{ fontSize: "18px", fontWeight: "500" }}>
               Cancels on
               {" "}
               {formattedDate(subscription.cancel_date)}
@@ -135,33 +135,37 @@ const Subscription = ({ subscription }) => {
         }
         <div className="d-sm-flex justify-content-between mt-3">
           <div>
-            <div className="mb-3 my-sm-auto w-100" style={{ fontSize: "13px" }}>
+            <div className="mb-3 my-sm-auto w-100">
               Allowed Ads:
               {" "}
               {subscription.allowed_ads}
             </div>
-            <div className="d-flex align-items-center w-100">
-              <div
-                style={infostyle}
-                className="d-flex align-items-center justify-content-center me-1"
-              >
-                <FontAwesomeIcon
-                  icon={faInfo}
-                  size="sm"
-                />
-              </div>
-              Plan failed to renew, please update your payment method.
-              {" "}
-              <span
-                className="click-here"
-                onClick={() => {
-                  dispatch(handleProfileSettingsCurrentView("PaymentMethod"));
-                  navigate("/profile-settings");
-                }}
-              >
-                Click here
-              </span>
-            </div>
+            {
+              subscription.status === "unpaid" && (
+                <div className="d-flex align-items-center w-100">
+                  <div
+                    style={infostyle}
+                    className="d-flex align-items-center justify-content-center me-1"
+                  >
+                    <FontAwesomeIcon
+                      icon={faInfo}
+                      size="sm"
+                    />
+                  </div>
+                  Plan failed to renew, please update your payment method.
+                  {" "}
+                  <span
+                    className="click-here"
+                    onClick={() => {
+                      dispatch(handleProfileSettingsCurrentView("PaymentMethod"));
+                      navigate("/profile-settings");
+                    }}
+                  >
+                    Click here
+                  </span>
+                </div>
+              )
+            }
           </div>
           {
             !CANCELLED.includes(subscription.status) && (

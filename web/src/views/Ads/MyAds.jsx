@@ -80,33 +80,67 @@ function MyAds() {
     <>
       <Modal
         show={modalShow}
-        onHide={() => setModalShow(false)}
+        onHide={() => {
+          dispatch(setModalShow(false));
+        }}
         size="md"
-        aria-labelledby="contained-modal-title-vcenter"
-        centered
+        aria-labelledby="example-custom-modal-styling-title"
+        centered="true"
       >
-        <Modal.Header closeButton style={{ border: "none" }} />
-        <Modal.Body>
-          <h4>Are you sure you want to delete this ad?</h4>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            variant="danger"
-            className="btn-md roboto-regular-16px-information text-white"
-            style={{
-              height: "44px",
-              fontWeight: "500",
-              paddingLeft: "32px",
-              paddingRight: "32px",
+        <div className="box" style={{ position: "absolute", right: "3.5px", top: "3px" }} />
+        <div
+          style={{
+            position: "absolute",
+            right: "11px",
+            top: "6px",
+            zIndex: "20",
+          }}
+        >
+          <div
+            role="presentation"
+            onClick={() => {
+              dispatch(setModalShow(false));
             }}
-            onClick={() => handleDeleteAd()}
+            className="close-icon"
           >
-            Delete
-          </Button>
-          <Button className="btn-success" onClick={() => setModalShow(false)}>
-            Cancel
-          </Button>
-        </Modal.Footer>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 18 18"
+              fill="none"
+              style={{ cursor: "pointer" }}
+            >
+              <path
+                d="M17 1L1 17M1 1L17 17"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
+        </div>
+        <Modal.Body className="text-center p-4">
+          <h4>Are you sure to delete this ad?</h4>
+          <div className="text-center px-5 mt-4">
+            <Button
+              variant="outline-secondary"
+              size="lg"
+              className="roboto-regular-16px-information px-5 fw-bold me-3"
+              onClick={() => setModalShow(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="danger"
+              size="lg"
+              className="roboto-regular-16px-information px-5 fw-bold text-white"
+              onClick={() => handleDeleteAd()}
+            >
+              Delete
+            </Button>
+          </div>
+        </Modal.Body>
       </Modal>
 
       <div className="my-ad-banner d-flex align-items-center justify-content-between">
@@ -120,9 +154,93 @@ function MyAds() {
 
       <Container
         fluid
-        style={{ marginTop: "40px", marginBottom: "200px" }}
-        className=""
+        style={{ marginTop: "60px", marginBottom: "200px" }}
       >
+        {vendorAds.length > 0 && (
+          <Container className="mb-4 px-0">
+            <Row>
+              {
+                currentSubscription && currentSubscription.status !== "unpaid"
+                  && vendorAds.length >= currentSubscription?.type?.allowed_ads && (
+                  <div className="d-flex align-items-center px-0">
+                    <div
+                      style={infostyle}
+                      className="d-flex align-items-center justify-content-center me-2"
+                    >
+                      <FontAwesomeIcon
+                        icon={faInfo}
+                        size="sm"
+                      />
+                    </div>
+                    <div style={{ fontSize: "20px" }}>
+                      Ad Limit Reached,
+                      {
+                        currentSubscription.type.type !== "featured" && (
+                          <>
+                            {" "}
+                            <Link to="/plans">Upgrade</Link>
+                            {" "}
+                            your package to post more Ads
+                          </>
+                        )
+                      }
+                    </div>
+                  </div>
+                )
+              }
+              {
+                currentSubscription === null && (
+                  <div className="d-flex align-items-center px-0">
+                    <div
+                      style={infostyle}
+                      className="d-flex align-items-center justify-content-center me-2"
+                    >
+                      <FontAwesomeIcon
+                        icon={faInfo}
+                        size="sm"
+                      />
+                    </div>
+                    <div style={{ fontSize: "20px" }}>
+                      Please subscribe to a plan to active your Ads.
+                      {" "}
+                      <Link to="/plans">Click here</Link>
+                      {" "}
+                      to see our plans.
+                    </div>
+                  </div>
+                )
+              }
+              {
+                currentSubscription && currentSubscription.status === "unpaid" && (
+                  <div className="d-flex align-items-center px-0">
+                    <div
+                      style={infostyle}
+                      className="d-flex align-items-center justify-content-center me-2"
+                    >
+                      <FontAwesomeIcon
+                        icon={faInfo}
+                        size="sm"
+                      />
+                    </div>
+                    <div style={{ fontSize: "20px" }}>
+                      Plan failed to renew, please update your payment method.
+                      {" "}
+                      <span
+                        className="click-here"
+                        onClick={() => {
+                          dispatch(handleProfileSettingsCurrentView("PaymentMethod"));
+                          navigate("/profile-settings");
+                        }}
+                      >
+                        Click here
+                      </span>
+                    </div>
+                  </div>
+                )
+              }
+            </Row>
+          </Container>
+        )}
         <Row
           className="justify-content-center"
           style={{
@@ -356,85 +474,6 @@ function MyAds() {
                   >
                     Post another Ad
                   </Button>
-                )
-              }
-              {
-                currentSubscription && currentSubscription.status !== "unpaid"
-                  && vendorAds.length >= currentSubscription?.type?.allowed_ads && (
-                  <div className="d-flex align-items-center">
-                    <div
-                      style={infostyle}
-                      className="d-flex align-items-center justify-content-center me-1"
-                    >
-                      <FontAwesomeIcon
-                        icon={faInfo}
-                        size="sm"
-                      />
-                    </div>
-                    <div style={{ fontSize: "20px" }}>
-                      Ad Limit Reached,
-                      {
-                        currentSubscription.type.type !== "featured" && (
-                          <>
-                            {" "}
-                            <Link to="/plans">Upgrade</Link>
-                            {" "}
-                            your package to post more Ads
-                          </>
-                        )
-                      }
-                    </div>
-                  </div>
-                )
-              }
-              {
-                currentSubscription === null && (
-                  <div className="d-flex align-items-center">
-                    <div
-                      style={infostyle}
-                      className="d-flex align-items-center justify-content-center me-1"
-                    >
-                      <FontAwesomeIcon
-                        icon={faInfo}
-                        size="sm"
-                      />
-                    </div>
-                    <div style={{ fontSize: "20px" }}>
-                      Please subscribe to a plan to active your Ads.
-                      {" "}
-                      <Link to="/plans">Click here</Link>
-                      {" "}
-                      to see our plans.
-                    </div>
-                  </div>
-                )
-              }
-              {
-                currentSubscription && currentSubscription.status === "unpaid" && (
-                  <div className="d-flex align-items-center">
-                    <div
-                      style={infostyle}
-                      className="d-flex align-items-center justify-content-center me-1"
-                    >
-                      <FontAwesomeIcon
-                        icon={faInfo}
-                        size="sm"
-                      />
-                    </div>
-                    <div style={{ fontSize: "20px" }}>
-                      Plan failed to renew, please update your payment method.
-                      {" "}
-                      <span
-                        className="click-here"
-                        onClick={() => {
-                          dispatch(handleProfileSettingsCurrentView("PaymentMethod"));
-                          navigate("/profile-settings");
-                        }}
-                      >
-                        Click here
-                      </span>
-                    </div>
-                  </div>
                 )
               }
             </Row>

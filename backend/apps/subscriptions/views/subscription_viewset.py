@@ -471,7 +471,7 @@ class SubscriptionsViewSet(BaseViewset):
                     data=ResponseInfo().format_response(
                         data={},
                         status_code=status.HTTP_400_BAD_REQUEST,
-                        message=f"You can't upgrade to this plan. Your Current Active Ad count is {vendor_ads}, while the plan you want to upgrade allow {allowed_ads} ads upload. Please delete your unwanted ads first.",
+                        message=f"You can't upgrade to this plan. Your current active Ads count is {vendor_ads}, while the plan you want to upgrade allow {allowed_ads} ads upload. Please delete your unwanted ads first.",
                     ),
                 )
 
@@ -479,10 +479,10 @@ class SubscriptionsViewSet(BaseViewset):
             subscription_id, retrieve_subscription["items"].data[0].id, price_id
         )
         status_code = status.HTTP_400_BAD_REQUEST
-        message = "There are some errors, please try again."
+        message = "An error occur while updating your subscription, please try again."
         if update_subscription:
             status_code = status.HTTP_200_OK
-            message = "Your Subscription will be changed after invoice has been paid successfully"
+            message = "Your subscription will be changed after the invoice has been paid successfully"
         return Response(
             status=status_code,
             data=ResponseInfo().format_response(
@@ -500,12 +500,12 @@ class SubscriptionsViewSet(BaseViewset):
         cancel_subscription = self.stripe_service.cancel_subscription(subscription_id)
 
         status_code = status.HTTP_400_BAD_REQUEST
-        message = "There are some errors, please try again"
+        message = "An error occur while cancelling your subscription, please try again."
 
         if cancel_subscription:
             status_code = status.HTTP_200_OK
             message = (
-                "Subscription Will be cancelled at the end of current billing cycle"
+                "Subscription will be cancelled at the end of current billing cycle"
             )
 
         return Response(
@@ -525,7 +525,7 @@ class SubscriptionsViewSet(BaseViewset):
         resume_subscription = self.stripe_service.resume_subscription(subscription_id)
 
         status_code = status.HTTP_400_BAD_REQUEST
-        message = "There are some errors, please try again."
+        message = "An error occur while resuming your subscription, please try again."
         if resume_subscription:
             status_code = status.HTTP_200_OK
             message = "Subscription has been resumed successfully."

@@ -15,7 +15,7 @@ const Plans = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const {
-    plans, freePlan, currentSubscription, SubscriptionSuccessAlert, SubscriptionErrorAlert, error, loading,
+    plans, freePlan, currentSubscription, SubscriptionSuccessAlert, SubscriptionErrorAlert, error, loading, listPlansLoading,
   } = useSelector((state) => state.subscriptions);
   const user = useSelector((state) => state.auth.user);
 
@@ -91,35 +91,41 @@ const Plans = () => {
       </Alert>
       <Container className="py-5">
         <h1 className="mb-5 fw-bold ps-2">Plans</h1>
-        <h3 className="mb-4 fw-bold w-100 text-center">Please select the subscription period</h3>
-        <Row className="mx-0">
-          <Col md={9} lg={5} className="mx-auto">
-            <Row className="mx-0 bg-white rounded">
-              {
-                intervals.map((interval) => (
-                  <Col sm={3} className="p-2 text-center" style={{ height: "56px" }}>
-                    <div
-                      className={`p-2 rounded interval ${isCurrentInterval(interval) ? "active-interval" : ""}`}
-                      onClick={() => handleInterval(interval)}
-                    >
-                      {`${interval.intervalCount} ${interval.interval}`}
-                    </div>
-                  </Col>
-                ))
-              }
-            </Row>
-          </Col>
-        </Row>
+        {
+          (listPlansLoading || loading) && (
+            <div className="loading-icon">
+              <FontAwesomeIcon icon={faSpinner} spin />
+            </div>
+          )
+        }
+        {
+          !(listPlansLoading || loading) && (
+            <>
+              <h3 className="mb-4 fw-bold w-100 text-center">Please select the subscription period</h3>
+              <Row className="mx-0">
+                <Col md={9} lg={5} className="mx-auto">
+                  <Row className="mx-0 bg-white rounded">
+                    {
+                      intervals.map((interval) => (
+                        <Col sm={3} className="p-2 text-center" style={{ height: "56px" }}>
+                          <div
+                            className={`p-2 rounded interval ${isCurrentInterval(interval) ? "active-interval" : ""}`}
+                            onClick={() => handleInterval(interval)}
+                          >
+                            {`${interval.intervalCount} ${interval.interval}`}
+                          </div>
+                        </Col>
+                      ))
+                    }
+                  </Row>
+                </Col>
+              </Row>
+            </>
+          )
+        }
         <Row className="my-5 mx-0">
           {
-            loading && (
-              <div className="loading-icon">
-                <FontAwesomeIcon icon={faSpinner} spin />
-              </div>
-            )
-          }
-          {
-            !loading && freePlan && (
+            !(listPlansLoading || loading) && freePlan && (
               <Plan
                 plan={freePlan}
                 index={0}
@@ -129,7 +135,7 @@ const Plans = () => {
             )
           }
           {
-            !loading && plans.slice().reverse().map((plan, index) => (
+            !(listPlansLoading || loading) && plans.slice().reverse().map((plan, index) => (
               <Plan
                 plan={plan}
                 index={index + 1}

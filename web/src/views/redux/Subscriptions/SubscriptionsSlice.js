@@ -6,6 +6,7 @@ import { instance, secureInstance } from "../../../axios/config";
 // Create an initial state for the auth slice
 const initialState = {
   loading: false,
+  listPlansLoading: false,
   error: null,
   subscriptions: [],
   plans: [],
@@ -259,8 +260,7 @@ export const SubscriptionsSlice = createSlice({
       })
       .addCase(updateSubscription.fulfilled, (state, action) => {
         state.loading = false;
-        state.SubscriptionSuccessAlert = action.payload.data.updated;
-        state.SubscriptionErrorAlert = !action.payload.data.updated;
+        state.SubscriptionSuccessAlert = true;
         state.error = action.payload.message;
         if (action.payload.data.updated) {
           action.payload.navigate("/subscriptions");
@@ -279,8 +279,7 @@ export const SubscriptionsSlice = createSlice({
       })
       .addCase(cancelSubscription.fulfilled, (state, action) => {
         state.loading = false;
-        state.SubscriptionSuccessAlert = action.payload.data.cancelled || false;
-        state.SubscriptionErrorAlert = !(action.payload.data.cancelled || true);
+        state.SubscriptionSuccessAlert = true;
         state.error = action.payload.message;
       })
       .addCase(cancelSubscription.rejected, (state, action) => {
@@ -296,8 +295,7 @@ export const SubscriptionsSlice = createSlice({
       })
       .addCase(resumeSubscription.fulfilled, (state, action) => {
         state.loading = false;
-        state.SubscriptionSuccessAlert = action.payload.data.resumed || false;
-        state.SubscriptionErrorAlert = !(action.payload.data.resumed || true);
+        state.SubscriptionSuccessAlert = true;
         state.error = action.payload.message;
       })
       .addCase(resumeSubscription.rejected, (state, action) => {
@@ -306,13 +304,13 @@ export const SubscriptionsSlice = createSlice({
         state.error = action.payload;
       })
       .addCase(listPlans.pending, (state) => {
-        state.loading = true;
+        state.listPlansLoading = true;
         state.SubscriptionSuccessAlert = false;
         state.SubscriptionErrorAlert = false;
         state.error = null;
       })
       .addCase(listPlans.fulfilled, (state, action) => {
-        state.loading = false;
+        state.listPlansLoading = false;
         state.plans = action.payload.data.products;
         if (action.payload.data.current_subscription !== null) {
           state.currentSubscription.priceId = action.payload.data.current_subscription.price_id;
@@ -323,7 +321,7 @@ export const SubscriptionsSlice = createSlice({
         state.freePlan = action.payload.data.free_plan;
       })
       .addCase(listPlans.rejected, (state, action) => {
-        state.loading = false;
+        state.listPlansLoading = false;
         state.error = action.payload;
       })
       .addCase(listSubscriptions.pending, (state) => {
