@@ -26,6 +26,14 @@ from apps.analytics.models import FavouriteAd
 from django.db.models import Q
 
 
+class AdNameSerializer(BaseSerializer):
+    class Meta:
+        model = Ad
+        fields = [
+            "name",
+        ]
+
+
 class SiteQuestionChildGetSerializer(BaseSerializer):
     class Meta:
         model = SiteQuestion
