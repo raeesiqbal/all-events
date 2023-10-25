@@ -10,17 +10,19 @@ import savesIcon from "../../assets/images/saves.svg";
 import reviewsIcon from "../../assets/images/reviews.svg";
 import messagesIcon from "../../assets/images/messages.svg";
 import "./Analytics.css";
-import { analyticsHome } from "../redux/Analytics/AnalyticsSlice";
+import {
+  analyticsHome, getFavAdsAnalytics, getMessagesAdsAnalytics, getReviewsAdsAnalytics
+} from "../redux/Analytics/AnalyticsSlice";
 import LineChart from "./LineChart";
 
 function Analytics() {
   const dispatch = useDispatch();
-  const { user } = useSelector((state) => state.auth);
   const {
-    vendorAds, totalAdFavourite, totalAdReviews, totalAdMessages,
+    vendorAds, totalAdFavourite, totalAdReviews, totalAdMessages, favAdsAnalytics, reviewsAdsAnalytics, messagesAdsAnalytics,
   } = useSelector((state) => state.analytics);
 
   const [selectedAd, setSelectedAd] = useState("0");
+  const [period, setPeriod] = useState("last_month");
 
   const handleSelectedAd = (e) => {
     e.preventDefault();
@@ -28,6 +30,12 @@ function Analytics() {
     setSelectedAd(e.target.value);
     dispatch(analyticsHome(e.target.value));
   };
+
+  useEffect(() => {
+    dispatch(getFavAdsAnalytics({ adId: selectedAd, dateRange: period }));
+    dispatch(getReviewsAdsAnalytics({ adId: selectedAd, dateRange: period }));
+    dispatch(getMessagesAdsAnalytics({ adId: selectedAd, dateRange: period }));
+  }, [selectedAd, period]);
 
   useEffect(() => {
     dispatch(analyticsHome("0"));
@@ -44,31 +52,41 @@ function Analytics() {
         </div>
       </div>
 
-      <div
-        className="d-flex justify-content-center"
-        style={{ marginTop: "48px" }}
-      >
-        <Form.Select
-          className="px-5"
-          style={{ width: "fit-content" }}
-          size="lg"
-          defaultValue={selectedAd}
-          onChange={handleSelectedAd}
-        >
-          <option value="0">All ads</option>
-          {
-            vendorAds.map((ad) => (
-              <option value={ad.id}>{ad.name}</option>
-            ))
-          }
-        </Form.Select>
-      </div>
-
       <Container
         // fluid
         style={{ marginTop: "100px", marginBottom: "200px" }}
         className=""
       >
+        <Row
+          className="d-flex mx-0 my-5 py-5"
+          // style={{ marginTop: "48px" }}
+        >
+          <Form.Select
+            className="px-5 me-3"
+            style={{ width: "fit-content" }}
+            size="lg"
+            defaultValue={selectedAd}
+            onChange={handleSelectedAd}
+          >
+            <option value="0">All ads</option>
+            {
+              vendorAds.map((ad) => (
+                <option value={ad.id}>{ad.name}</option>
+              ))
+            }
+          </Form.Select>
+          <Form.Select
+            className="px-5"
+            style={{ width: "fit-content" }}
+            size="lg"
+            defaultValue={period}
+            onChange={(e) => setPeriod(e.target.value)}
+          >
+            <option value="last_month">Last Month</option>
+            <option value="last_week">Last Week</option>
+          </Form.Select>
+        </Row>
+
         {/* <Row className="d-flex justify-content-center align-items-center"> */}
         <Row>
           <Col md={11} lg={12} xl={12}>
@@ -243,9 +261,12 @@ function Analytics() {
             </Row>
           </Col>
         </Row>
-        <LineChart label="Favourite Ads Analytics" selectedAd={selectedAd} />
-        <LineChart label="Ad Reviews Analytics" selectedAd={selectedAd} />
-        <LineChart label="Ad Messages Analytics" selectedAd={selectedAd} />
+        <h4 className="pt-5 pb-5 text-center">Favourite Ads Analytics</h4>
+        <LineChart period={period} analytics={favAdsAnalytics} />
+        <h4 className="pt-5 pb-5 text-center">Ad Reviews Analytics</h4>
+        <LineChart period={period} analytics={reviewsAdsAnalytics} />
+        <h4 className="pt-5 pb-5 text-center">Ad Messages Analytics</h4>
+        <LineChart period={period} analytics={messagesAdsAnalytics} />
       </Container>
     </div>
   );
