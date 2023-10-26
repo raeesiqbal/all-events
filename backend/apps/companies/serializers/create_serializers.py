@@ -27,6 +27,16 @@ from apps.utils.serializers.base import BaseSerializer
 
 
 class UserChildSerializer(BaseSerializer):
+    def to_internal_value(self, data):
+        if "first_name" in data:
+            data["first_name"] = data["first_name"].capitalize()
+        if "last_name" in data:
+            data["last_name"] = data["last_name"].capitalize()
+
+        if "email" in data:
+            data["email"] = data["email"].lower()
+        return super().to_internal_value(data)
+
     phone = serializers.CharField(
         max_length=15,
         min_length=8,

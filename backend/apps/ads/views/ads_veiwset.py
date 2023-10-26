@@ -60,7 +60,6 @@ from apps.ads.serializers.get_serializers import (
     CategoryGetSerializer,
     SubCategoryFilterSerializer,
     CountryGetSerializer,
-    VenueCountryGetSerializer,
 )
 
 from apps.analytics.serializers.get_serializer import (
@@ -91,7 +90,7 @@ class AdViewSet(BaseViewset):
         "premium_vendor_ads": PremiumAdGetSerializer,
         "premium_venue_countries": CountryGetSerializer,
         "public_ad_retrieve": AdPublicGetSerializer,
-        "venue_countries": VenueCountryGetSerializer,
+        "venue_countries": CountryGetSerializer,
         "calender": AdCalenderGetSerializer,
     }
     action_permissions = {
@@ -156,7 +155,7 @@ class AdViewSet(BaseViewset):
         subscription = Subscription.objects.filter(company=company).first()
         if company and subscription:
             company_ad_count = Ad.objects.filter(company=company).count()
-            if company_ad_count > subscription.type.allowed_ads:
+            if company_ad_count >= subscription.type.allowed_ads:
                 return Response(
                     status=status.HTTP_200_OK,
                     data=ResponseInfo().format_response(
@@ -187,16 +186,19 @@ class AdViewSet(BaseViewset):
         Gallery.objects.create(ad=ad, media_urls=media_urls)
 
         # faqs
-        faqs_list = []
-        for faq in faqs:
-            faqs_list.append(FAQ(**faq, ad=ad))
-        FAQ.objects.bulk_create(faqs_list)
+        if faqs:
+            faqs_list = []
+            for faq in faqs:
+                print("tttttttttttttttttt")
+                faqs_list.append(FAQ(**faq, ad=ad))
+            FAQ.objects.bulk_create(faqs_list)
 
         # ad faqs
-        ad_faqs_list = []
-        for faq in ad_faqs:
-            ad_faqs_list.append(AdFAQ(**faq, ad=ad))
-        AdFAQ.objects.bulk_create(ad_faqs_list)
+        if ad_faqs:
+            ad_faqs_list = []
+            for faq in ad_faqs:
+                ad_faqs_list.append(AdFAQ(**faq, ad=ad))
+            AdFAQ.objects.bulk_create(ad_faqs_list)
         Calender.objects.create(company=company, ad=ad)
 
         return Response(

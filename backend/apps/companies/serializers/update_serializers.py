@@ -23,6 +23,14 @@ class VendorUpdateSerializer(BaseSerializer):
 
 
 class UserUpdateSerializer(BaseSerializer):
+    def to_internal_value(self, data):
+        if "first_name" in data:
+            data["first_name"] = data["first_name"].capitalize()
+        if "last_name" in data:
+            data["last_name"] = data["last_name"].capitalize()
+
+        return super().to_internal_value(data)
+
     class Meta:
         model = User
         fields = ["first_name", "last_name", "phone"]
