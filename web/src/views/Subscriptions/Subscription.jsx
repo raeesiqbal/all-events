@@ -9,7 +9,7 @@ import { useDispatch } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBan, faDownload, faInfo } from "@fortawesome/free-solid-svg-icons";
 import { Tooltip } from "@mui/material";
-import { cancelSubscription, resumeSubscription, listSubscriptions } from "../redux/Subscriptions/SubscriptionsSlice";
+import { cancelSubscription, resumeSubscription, listSubscriptions, downloadSubscriptionInvoice } from "../redux/Subscriptions/SubscriptionsSlice";
 import timeIcon from "../../assets/images/post-ad/carbon_time.svg";
 import { handleProfileSettingsCurrentView } from "../redux/TabNavigation/TabNavigationSlice";
 // import cancelIcon from "../../assets/images/cancel.svg";
@@ -211,7 +211,7 @@ const Subscription = ({ subscription }) => {
                           style={{
                             borderRadius: "50%", height: "32px", width: "32px", backgroundColor: "rgba(217, 217, 217, 1)", cursor: "pointer",
                           }}
-                          // onClick={() => setDeleteModal(true)}
+                          onClick={() => dispatch(downloadSubscriptionInvoice())}
                         >
                           <FontAwesomeIcon className="mx-auto my-auto" icon={faDownload} />
                         </div>
