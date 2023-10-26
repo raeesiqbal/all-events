@@ -78,7 +78,7 @@ function Analytics() {
           <Button
             variant="success"
             type="submit"
-            className="roboto-semi-bold-16px-information btn btn-height w-auto"
+            className="roboto-semi-bold-16px-information btn btn-height w-auto px-3"
             onClick={() => dispatch(analyticsHome({ adId: selectedAd, period }))}
           >
             Search
