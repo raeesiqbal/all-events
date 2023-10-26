@@ -21,8 +21,7 @@ import { setCompanyInformation } from "../redux/Settings/SettingsSlice";
 import MyAdsDashboard from "./MyAdsDashboard";
 import ProfilePic from "../../components/ProfilePic/ProfilePic";
 import { secureInstance } from "../../axios/config";
-import { currentSubscriptionDetails, listPlans } from "../redux/Subscriptions/SubscriptionsSlice";
-// import ProfilePic from "../../components/ProfilePic/ProfilePic";
+import { listPlans } from "../redux/Subscriptions/SubscriptionsSlice";
 
 function Dashboard() {
   const dispatch = useDispatch();
@@ -91,9 +90,6 @@ function Dashboard() {
   useEffect(() => {
     if (user?.userCompanyId === null) {
       dispatch(getAuthenticatedUser());
-    }
-    if (currentSubscription === null && user?.role === "vendor") {
-      dispatch(currentSubscriptionDetails());
     }
   }, []);
 

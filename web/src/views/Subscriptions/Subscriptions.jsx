@@ -1,6 +1,7 @@
 /* eslint-disable camelcase */
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { Button, Container } from "react-bootstrap";
 import { Alert } from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -10,67 +11,46 @@ import "../Ads/Ads.css";
 import "./Subscriptions.css";
 import { handleMessageAlerts, listSubscriptions } from "../redux/Subscriptions/SubscriptionsSlice";
 import Subscription from "./Subscription";
-import { secureInstance } from "../../axios/config";
+import ProfilePic from "../../components/ProfilePic/ProfilePic";
 
 function Subscriptions() {
+  const CURRENT = ["active", "unpaid", "inactive"];
+  const CANCELLED = ["cancelled"];
+
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const {
     subscriptions, SubscriptionSuccessAlert, SubscriptionErrorAlert, error, loading,
   } = useSelector((state) => state.subscriptions);
-  // const activeCount = useSelector((state) => state.subscriptions.activeCount);
-  // const expiredCount = useSelector((state) => state.subscriptions.expiredCount);
-  const [activeTab, setActiveTab] = React.useState("Active");
-  const [activeTabSubscriptions, setActiveTabSubscriptions] = React.useState();
 
-  // eslint-disable-next-line no-undef
-  const [stripe, setStripe] = useState();
+  const [activeTab, setActiveTab] = React.useState("Current");
+  const [activeTabSubscriptions, setActiveTabSubscriptions] = React.useState([]);
+  const [currentTabSubscriptions, setCurrentTabSubscriptions] = React.useState([]);
+  const [cancelledTabSubscriptions, setCancelledTabSubscriptions] = React.useState([]);
 
   const tabs = [
     {
-      label: "Active",
-      count: subscriptions.length,
+      label: "Current",
+      count: currentTabSubscriptions.length,
     },
     {
-      label: "Expired",
-      count: 0,
+      label: "Cancelled",
+      count: cancelledTabSubscriptions.length,
     },
   ];
 
-  const handleUpdatePaymentMethod = async () => {
-    try {
-      const response = await secureInstance.request({
-        url: "/api/subscriptions/update-payment-method/",
-        method: "Get",
-      });
-
-      // When the customer clicks on the button, redirect them to Checkout.
-      const { error } = await stripe.redirectToCheckout({
-        sessionId: response.data.data.id,
-      });
-    } catch (err) {
-      console.log(err.message);
-    }
-  };
+  useEffect(() => {
+    setCurrentTabSubscriptions(subscriptions.filter((subscription) => CURRENT.includes(subscription.status)));
+    setCancelledTabSubscriptions(subscriptions.filter((subscription) => CANCELLED.includes(subscription.status)));
+  }, [subscriptions]);
 
   useEffect(() => {
-    const status = activeTab === "Active" ? "active" : "canceled";
-    setActiveTabSubscriptions(subscriptions.filter((subscription) => subscription.status === status));
-  }, [activeTab, subscriptions]);
+    setActiveTabSubscriptions(activeTab === "Current" ? currentTabSubscriptions : cancelledTabSubscriptions);
+  }, [activeTab, currentTabSubscriptions, cancelledTabSubscriptions]);
 
   useEffect(() => {
     dispatch(listSubscriptions());
-    const script = document.createElement("script");
-    script.src = "https://js.stripe.com/v3/";
-    script.async = true;
-    script.onload = () => {
-      setStripe(window.Stripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY));
-    };
-
-    document.head.appendChild(script);
-
-    return () => {
-      document.head.removeChild(script);
-    };
   }, []);
 
   useEffect(() => {
@@ -99,15 +79,18 @@ function Subscriptions() {
         {error}
       </Alert>
 
-      <div className="my-ad-banner p-md-5 mb-5">
-        <div className="roboto-bold-36px-h1 mb-2">Subscriptions</div>
-        <div className="roboto-regular-18px-body3">
-          Review, upgrade and update your packages
+      <div className="profile-settings-banner d-flex align-items-center justify-content-between">
+        <div className="banner-text-heading">
+          <div className="roboto-bold-36px-h1 mb-2">Subscriptions</div>
+          <div className="roboto-regular-18px-body3">
+            Review, upgrade and update your packages
+          </div>
         </div>
+
+        <ProfilePic />
       </div>
 
       <Container
-        style={{ paddingBottom: "200px" }}
         className="pt-md-5"
       >
         <MesssageTabNavigation activeTab={activeTab} setActiveTab={setActiveTab} tabs={tabs} />
@@ -123,6 +106,21 @@ function Subscriptions() {
             (subscription) => <Subscription subscription={subscription} key={subscription.id} />,
           )
         }
+      </Container>
+
+      <Container
+        style={{ paddingBottom: "200px" }}
+        className="pt-md-5 d-flex"
+      >
+        <Button
+          type="button"
+          variant="success"
+          className="px-5 py-0 ms-auto"
+          style={{ fontSize: "12px !important", height: "32px" }}
+          onClick={() => navigate("/plans")}
+        >
+          Check Subscription Plans
+        </Button>
       </Container>
     </>
   );

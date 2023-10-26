@@ -373,12 +373,12 @@ function Login() {
       aria-labelledby="example-custom-modal-styling-title"
       centered="true"
     >
-      <div className="box" style={{ position: "absolute", right: "0" }} />
+      <div className="box" style={{ position: "absolute", right: "3.5px", top: "3px" }} />
       <div
         style={{
           position: "absolute",
-          right: "10px",
-          top: "8px",
+          right: "11px",
+          top: "6px",
           zIndex: "20",
         }}
       >

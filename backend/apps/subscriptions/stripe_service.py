@@ -77,6 +77,9 @@ class StripeService:
     def retrieve_subscription(self, subscription_id):
         return stripe.Subscription.retrieve(subscription_id)
 
+    def retrieve_invoice(self, invoice_id):
+        return stripe.Invoice.retrieve(invoice_id)
+
     def create_account(self, email, acc_type):
         try:
             response = stripe.Account.create(

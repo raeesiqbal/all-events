@@ -43,13 +43,6 @@
   padding: 18px 64px;
 }
 
-.box {
-  width: 75px;
-  height: 69px;
-  background-color: #A0C49D;
-  clip-path: polygon(0 0, 100% 0, 100% 100%);
-}
-
 
 .modal-90w {
   width: 90%;
