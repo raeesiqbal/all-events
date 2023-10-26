@@ -33,9 +33,9 @@ from apps.users.serializers import (
 )
 
 # models
+from apps.subscriptions.models import Subscription, SubscriptionType
 from apps.users.models import User
 from apps.ads.models import Ad
-from apps.subscriptions.models import Subscription
 
 
 class UserViewSet(BaseViewset):
@@ -156,6 +156,7 @@ class UserViewSet(BaseViewset):
 
         if user.check_password(serializer.validated_data.pop("password")):
             if user.role_type == USER_ROLE_TYPES["VENDOR"]:
+                print("compaaaaaaaaaaaaa")
                 company = user.user_company
                 company_subscription = Subscription.objects.filter(
                     company=company,
@@ -164,8 +165,11 @@ class UserViewSet(BaseViewset):
                         SUBSCRIPTION_STATUS["UNPAID"],
                     ],
                 ).first()
+                free_type = SubscriptionType.objects.filter(
+                    type=SUBSCRIPTION_TYPES["FREE"]
+                ).first()
 
-                if company_subscription.type == SUBSCRIPTION_TYPES["FREE"]:
+                if company_subscription.type == free_type:
                     Ad.objects.filter(company=company).update(
                         status=AD_STATUS["INACTIVE"]
                     )
