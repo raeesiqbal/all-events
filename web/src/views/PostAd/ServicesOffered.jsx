@@ -3,7 +3,6 @@ import React, { useEffect, useState } from "react";
 import { Form, Row, Col, Button, Container } from "react-bootstrap";
 import Chip from "../../components/Chip/Chip";
 import { useDispatch, useSelector } from "react-redux";
-import { currentSubscriptionDetails } from "../redux/Subscriptions/SubscriptionsSlice";
 
 function ServicesOffered({
   values,
@@ -60,10 +59,6 @@ function ServicesOffered({
     );
     setAdminServicesSelected(filteredServices);
   };
-
-  useEffect(() => {
-    dispatch(currentSubscriptionDetails());
-  }, []);
 
   return (
     <Container fluid className="mt-4">

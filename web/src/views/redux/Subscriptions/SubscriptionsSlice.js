@@ -6,6 +6,7 @@ import { instance, secureInstance } from "../../../axios/config";
 // Create an initial state for the auth slice
 const initialState = {
   loading: false,
+  listPlansLoading: false,
   error: null,
   subscriptions: [],
   plans: [],
@@ -19,6 +20,13 @@ const initialState = {
     priceId: "",
     subscriptionId: "",
   },
+  modalInfo: {
+    showModal: false,
+    modalMessage: null,
+    modalTitle: null,
+    modalType: null,
+    buttonText: null,
+  },
   currentPaymentMethod: null,
   currentSubscriptionDetails: null,
   freePlan: null,
@@ -28,13 +36,14 @@ const initialState = {
 
 export const createSubscription = createAsyncThunk(
   "Subscription/create",
-  async (data, { rejectWithValue }) => {
+  async ({ data, navigate }, { rejectWithValue }) => {
     try {
       const response = await secureInstance.request({
         url: "/api/subscriptions/create-subscription/",
         method: "Post",
         data,
       });
+      if (response.data.data.subscribed) navigate("/checkout");
       return response.data;
     } catch (err) {
       // Use `err.response.data` as `action.payload` for a `rejected` action,
@@ -176,6 +185,12 @@ export const SubscriptionsSlice = createSlice({
       state.SubscriptionSuccessAlert = false;
       state.SubscriptionErrorAlert = false;
     },
+    setShowModal: (state, action) => {
+      state.modalInfo.showModal = action.payload;
+    },
+    setModalMessage: (state, action) => {
+      state.modalInfo.modalMessage = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -185,8 +200,21 @@ export const SubscriptionsSlice = createSlice({
       })
       .addCase(createSubscription.fulfilled, (state, action) => {
         state.loading = false;
-        state.clientSecret = action.payload.data.clientSecret;
-        state.subscriptionId = action.payload.data.subscriptionId;
+        if (action.payload.data.subscribed) {
+          state.modalInfo.showModal = false;
+          state.modalInfo.buttonText = null;
+          state.modalInfo.modalType = null;
+          state.modalInfo.modalTitle = null;
+          state.modalInfo.modalMessage = null;
+          state.clientSecret = action.payload.data.clientSecret;
+          state.subscriptionId = action.payload.data.subscriptionId;
+        } else {
+          state.modalInfo.modalMessage = action.payload.message;
+          state.modalInfo.modalTitle = "Subscription Error";
+          state.modalInfo.modalType = "create";
+          state.modalInfo.buttonText = "Go to my ads";
+          state.modalInfo.showModal = true;
+        }
       })
       .addCase(createSubscription.rejected, (state, action) => {
         state.loading = false;
@@ -199,6 +227,26 @@ export const SubscriptionsSlice = createSlice({
       .addCase(currentSubscriptionDetails.fulfilled, (state, action) => {
         state.loading = false;
         state.currentSubscriptionDetails = action.payload.data;
+
+        if (action.payload.data === null) {
+          state.modalInfo.buttonText = "See our plans";
+          state.modalInfo.modalType = "no_subscription";
+          state.modalInfo.modalTitle = "Subscribe to a Plan";
+          state.modalInfo.modalMessage = "You have no active subscription, please check our subscription plans.";
+        } else if (action.payload.data.status === "unpaid") {
+          state.modalInfo.buttonText = "Update Payment Method";
+          state.modalInfo.modalType = "unpaid";
+          state.modalInfo.modalTitle = "Payment Failed!";
+          state.modalInfo.modalMessage = `We are unable to renew your subscription.
+                                          <br />
+                                          Please update your payment information to continue.`;
+        } else {
+          state.modalInfo.showModal = false;
+          state.modalInfo.buttonText = null;
+          state.modalInfo.modalType = null;
+          state.modalInfo.modalTitle = null;
+          state.modalInfo.modalMessage = null;
+        }
       })
       .addCase(currentSubscriptionDetails.rejected, (state, action) => {
         state.loading = false;
@@ -212,8 +260,7 @@ export const SubscriptionsSlice = createSlice({
       })
       .addCase(updateSubscription.fulfilled, (state, action) => {
         state.loading = false;
-        state.SubscriptionSuccessAlert = action.payload.data.updated;
-        state.SubscriptionErrorAlert = !action.payload.data.updated;
+        state.SubscriptionSuccessAlert = true;
         state.error = action.payload.message;
         if (action.payload.data.updated) {
           action.payload.navigate("/subscriptions");
@@ -232,8 +279,7 @@ export const SubscriptionsSlice = createSlice({
       })
       .addCase(cancelSubscription.fulfilled, (state, action) => {
         state.loading = false;
-        state.SubscriptionSuccessAlert = action.payload.data.cancelled || false;
-        state.SubscriptionErrorAlert = !(action.payload.data.cancelled || true);
+        state.SubscriptionSuccessAlert = true;
         state.error = action.payload.message;
       })
       .addCase(cancelSubscription.rejected, (state, action) => {
@@ -249,8 +295,7 @@ export const SubscriptionsSlice = createSlice({
       })
       .addCase(resumeSubscription.fulfilled, (state, action) => {
         state.loading = false;
-        state.SubscriptionSuccessAlert = action.payload.data.resumed || false;
-        state.SubscriptionErrorAlert = !(action.payload.data.resumed || true);
+        state.SubscriptionSuccessAlert = true;
         state.error = action.payload.message;
       })
       .addCase(resumeSubscription.rejected, (state, action) => {
@@ -259,13 +304,13 @@ export const SubscriptionsSlice = createSlice({
         state.error = action.payload;
       })
       .addCase(listPlans.pending, (state) => {
-        state.loading = true;
+        state.listPlansLoading = true;
         state.SubscriptionSuccessAlert = false;
         state.SubscriptionErrorAlert = false;
         state.error = null;
       })
       .addCase(listPlans.fulfilled, (state, action) => {
-        state.loading = false;
+        state.listPlansLoading = false;
         state.plans = action.payload.data.products;
         if (action.payload.data.current_subscription !== null) {
           state.currentSubscription.priceId = action.payload.data.current_subscription.price_id;
@@ -276,7 +321,7 @@ export const SubscriptionsSlice = createSlice({
         state.freePlan = action.payload.data.free_plan;
       })
       .addCase(listPlans.rejected, (state, action) => {
-        state.loading = false;
+        state.listPlansLoading = false;
         state.error = action.payload;
       })
       .addCase(listSubscriptions.pending, (state) => {
@@ -310,6 +355,7 @@ export const SubscriptionsSlice = createSlice({
 
 export const {
   handleMessageAlerts,
+  setShowModal,
 } = SubscriptionsSlice.actions;
 
 // Export the reducer and actions

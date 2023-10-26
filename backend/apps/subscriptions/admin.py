@@ -49,7 +49,7 @@ class SubscriptionAdmin(admin.ModelAdmin):
     search_fields = [
         "id",
         "company__user__email",
-        "type_type",
+        "type__type",
         "status",
     ]
 
@@ -63,6 +63,7 @@ class SubscriptionTypeAdmin(admin.ModelAdmin):
     list_display = (
         "id",
         "type",
+        "allowed_ads",
     )
     search_fields = [
         "id",
