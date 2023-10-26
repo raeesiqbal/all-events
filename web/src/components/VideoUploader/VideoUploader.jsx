@@ -13,6 +13,7 @@ import {
 
 function VideoUploader({ setVideoToUpload, videoToUpload }) {
   const [videos, setVideos] = useState([]);
+  const [deleteVideoButton, setDeleteVideoButton] = useState(true);
 
   const dispatch = useDispatch();
   const isMediaUploading = useSelector((state) => state.Ads.isMediaUploading);
@@ -153,6 +154,7 @@ function VideoUploader({ setVideoToUpload, videoToUpload }) {
   };
 
   const removeVideo = async () => {
+    setDeleteVideoButton(false);
     const urlToDelete = videoToUpload;
     try {
       const request = await secureInstance.request({
@@ -166,6 +168,7 @@ function VideoUploader({ setVideoToUpload, videoToUpload }) {
       if (request.status === 200) {
         setVideos([]);
       }
+      setDeleteVideoButton(true);
     } catch (err) {
       console.log("error", err);
     }
@@ -265,22 +268,24 @@ function VideoUploader({ setVideoToUpload, videoToUpload }) {
                         src={video.previewURL ?? video}
                         controls
                       />
-                      <button
-                        type="button"
-                        style={{ position: "absolute", top: "0", right: "0" }}
-                        className="upload-img-close-btn"
-                        onClick={() => removeVideo(video, index)}
-                      >
-                        <FontAwesomeIcon
-                          icon={faClose}
-                          style={{
-                            position: "absolute",
-                            top: "2px",
-                            right: "5px",
-                            color: "#FFF",
-                          }}
-                        />
-                      </button>
+                      {deleteVideoButton ? (
+                        <button
+                          type="button"
+                          style={{ position: "absolute", top: "0", right: "0" }}
+                          className="upload-img-close-btn"
+                          onClick={() => removeVideo(video, index)}
+                        >
+                          <FontAwesomeIcon
+                            icon={faClose}
+                            style={{
+                              position: "absolute",
+                              top: "2px",
+                              right: "5px",
+                              color: "#FFF",
+                            }}
+                          />
+                        </button>
+                      ) : null}
                     </div>
                   )}
                 </div>

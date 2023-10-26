@@ -15,6 +15,7 @@ function PdfUploader({
   pdfsToUpload,
 }) {
   const [pdfs, setPdfs] = useState([]);
+  const [deletePdfButton, setDeletePdfButton] = useState(true);
 
   const uploadFileToCloud = async (uploadedPdf) => {
     const formData = new FormData(); // pass in the form
@@ -58,12 +59,27 @@ function PdfUploader({
     reader.readAsDataURL(uploadedPdf);
   };
 
-  const removeImage = (index) => {
+  const removeImage = async (index) => {
+    setDeletePdfButton(false);
     const updatedImages = [...pdfs];
-    updatedImages[index] = null;
-    const newUpdatedImages = updatedImages.filter((item) => item !== null);
-    setPdfs(newUpdatedImages);
-    setparentImagesUploadedImages(newUpdatedImages);
+    const urlToDelete = updatedImages[index];
+    try {
+      const request = await secureInstance.request({
+        url: "/api/ads/delete-url/",
+        method: "Post",
+        data: {
+          url: urlToDelete,
+        },
+      });
+      // ----------------do this inside redux
+      if (request.status === 200) {
+        updatedImages[index] = null;
+        const newUpdatedImages = updatedImages.filter((item) => item !== null);
+        setPdfs(newUpdatedImages);
+        setparentImagesUploadedImages(newUpdatedImages);
+        setDeletePdfButton(true);
+      }
+    } catch (err) {}
   };
 
   const handlePDFView = (pdf) => {
@@ -162,22 +178,25 @@ function PdfUploader({
                           <span>Preview PDF</span>
                         </a>
                       </div>
-                      <button
-                        type="button"
-                        style={{ position: "absolute", top: "0", right: "0" }}
-                        className="upload-img-close-btn"
-                        onClick={() => removeImage(index)}
-                      >
-                        <FontAwesomeIcon
-                          icon={faClose}
-                          style={{
-                            position: "absolute",
-                            top: "2px",
-                            right: "5px",
-                            color: "#FFF",
-                          }}
-                        />
-                      </button>
+
+                      {deletePdfButton ? (
+                        <button
+                          type="button"
+                          style={{ position: "absolute", top: "0", right: "0" }}
+                          className="upload-img-close-btn"
+                          onClick={() => removeImage(index)}
+                        >
+                          <FontAwesomeIcon
+                            icon={faClose}
+                            style={{
+                              position: "absolute",
+                              top: "2px",
+                              right: "5px",
+                              color: "#FFF",
+                            }}
+                          />
+                        </button>
+                      ) : null}
                     </div>
                   )}
                 </div>

@@ -120,6 +120,9 @@ function Login() {
         /^[a-zA-Z\s-]*$/,
         "Must only contain letters, spaces, and hyphens"
       ),
+    terms_acceptance: Yup.bool()
+      .required()
+      .oneOf([true], "Terms must be accepted"),
   });
 
   const step2Schema = Yup.object().shape({
