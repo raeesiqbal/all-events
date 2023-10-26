@@ -1,10 +1,11 @@
 # imports
 from django.core.validators import RegexValidator
 from rest_framework import serializers
+import re
 
 
 class CustomCompanyNameValidator:
-    regex = r"^[a-zA-Z.,$]+$"
+    regex = r"^[a-zA-Z., $]+$"
     message = (
         "Company Name must be between 6 and 25 characters long"
         "only contain letters, spaces and , . & signs are allowed"
@@ -12,27 +13,26 @@ class CustomCompanyNameValidator:
     )
 
     def __call__(self, value):
+        value = re.sub(r"\s+", " ", value.strip())
         regex_validator = RegexValidator(regex=self.regex, message=self.message)
         try:
             regex_validator(value)
         except serializers.ValidationError as e:
             raise serializers.ValidationError({"name": e.detail[0]})
-        if "  " in value or value.startswith(" ") or value.endswith(" "):
-            raise serializers.ValidationError(self.message)
-
-        if len([c for c in value if c.isalpha()]) < 2:
-            raise serializers.ValidationError(self.message)
+        # if value.startswith(" ") or value.endswith(" "):
+        #     raise serializers.ValidationError(self.message)
 
 
 class CustomCityValidator:
-    regex = r"^[a-zA-Z-]+$"
+    regex = r"^[a-zA-Z $]+$"
     message = (
         "City must be between 3 and 25 characters long"
         "only contain letters, spaces, and hyphens"
-        "It should not have two consecutive spaces or hyphens"
+        "It should not have two consecutive hyphens"
     )
 
     def __call__(self, value):
+        value = re.sub(r"\s+", " ", value.strip())
         regex_validator = RegexValidator(regex=self.regex, message=self.message)
         try:
             regex_validator(value)
@@ -48,21 +48,21 @@ class CustomCityValidator:
 
 
 class CustomAddressValidator:
-    regex = r"^[a-zA-Z\d,.\-/]+$"
+    regex = r"^[a-zA-Z\d,.\-/\s]+$"
     message = (
         "Address must be between 5 and 80 characters long"
         "only contain letters, digits, spaces, and . , - / signs"
-        "It should not have two consecutive spaces"
     )
 
     def __call__(self, value):
         regex_validator = RegexValidator(regex=self.regex, message=self.message)
+        value = re.sub(r"\s+", " ", value.strip())
         try:
             regex_validator(value)
         except serializers.ValidationError as e:
             raise serializers.ValidationError({"address": e.detail[0]})
-        if "  " in value or value.startswith(" ") or value.endswith(" "):
-            raise serializers.ValidationError(self.message)
+        # if "  " in value or value.startswith(" ") or value.endswith(" "):
+        #     raise serializers.ValidationError(self.message)
 
 
 class CustomPostalCodeValidator:
@@ -87,17 +87,17 @@ class CustomFiscalCodeValidator:
     message = (
         "Fiscal Code must be between 4 and 20 characters long"
         "only contain letters, digits are allowed"
-        "It should not have two consecutive spaces"
     )
 
     def __call__(self, value):
+        value = re.sub(r"\s+", " ", value.strip())
         regex_validator = RegexValidator(regex=self.regex, message=self.message)
         try:
             regex_validator(value)
         except serializers.ValidationError as e:
             raise serializers.ValidationError({"fiscal_code": e.detail[0]})
-        if "  " in value or value.startswith(" ") or value.endswith(" "):
-            raise serializers.ValidationError(self.message)
+        # if "  " in value or value.startswith(" ") or value.endswith(" "):
+        #     raise serializers.ValidationError(self.message)
 
 
 class CustomFirmNumberValidator:
@@ -105,13 +105,13 @@ class CustomFirmNumberValidator:
     message = (
         "Firm Numer must be between 4 and 20 characters long"
         "only contain letters, digits, / . are allowed"
-        "It should not have two consecutive spaces"
         "only signs are not allowed"
     )
 
     def __call__(self, value):
         if not any(c.isalpha() or c.isdigit() for c in value):
             raise serializers.ValidationError(self.message)
+        value = re.sub(r"\s+", " ", value.strip())
         regex_validator = RegexValidator(regex=self.regex, message=self.message)
         try:
             regex_validator(value)
@@ -126,12 +126,12 @@ class CustomBankNameValidator:
     message = (
         "Bank Name must be between 1 and 30 characters long"
         "only letters and digits are allowed"
-        "It should not have two consecutive spaces"
     )
 
     def __call__(self, value):
         if not any(c.isalpha() or c.isdigit() for c in value):
             raise serializers.ValidationError(self.message)
+        value = re.sub(r"\s+", " ", value.strip())
         regex_validator = RegexValidator(regex=self.regex, message=self.message)
         try:
             regex_validator(value)

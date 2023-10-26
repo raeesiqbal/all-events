@@ -20,7 +20,7 @@ class CustomPasswordValidator:
 
 
 class CustomPhoneValidator:
-    regex = r"^\+?\d$"
+    regex = r"^\+?[0-9\s-]+$"
     message = (
         "Phone number must be between 8 and 15 characters longRAEES"
         "only contain digits and the '+' sign"
@@ -37,7 +37,8 @@ class CustomPhoneValidator:
 
 
 class CustomNameValidator:
-    regex = r"^[a-zA-Z-]+$"
+    regex = r"^[a-zA-Z., $]+$"
+
     message = (
         "First name must be between 2 and 20 characters long"
         "only contain letters, spaces, and hyphens"

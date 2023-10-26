@@ -38,13 +38,15 @@ class SubscriptionTypeValidationMixin:
         return value
 
     def validate_offered_services(self, value):
-        if self.subscription_type.offered_services:
-            return value
-        else:
-            raise serializers.ValidationError("Offered services are not allowed")
+        if value:
+            if value and self.subscription_type.offered_services:
+                return value
+            else:
+                raise serializers.ValidationError("Offered services are not allowed")
 
     def validate_faqs(self, value):
-        if self.subscription_type.faq:
-            return value
-        else:
-            raise serializers.ValidationError("FAQ's are not allowed")
+        if value:
+            if self.subscription_type.faq:
+                return value
+            else:
+                raise serializers.ValidationError("FAQ's are not allowed")

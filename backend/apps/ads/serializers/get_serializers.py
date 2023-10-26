@@ -1,6 +1,12 @@
-from apps.ads.models import FAQ, Ad, Category, Country, Gallery, SubCategory
-from apps.ads.serializers.create_serializers import CategoryCreateSerializer
+# imports
 from rest_framework import serializers
+from apps.utils.serializers.base import BaseSerializer
+from django.db.models import Avg
+
+# serialziers
+from apps.ads.serializers.create_serializers import CategoryCreateSerializer
+
+# models
 from apps.ads.models import (
     FAQ,
     Ad,
@@ -16,14 +22,16 @@ from apps.ads.models import (
     SiteQuestion,
     SiteFAQ,
 )
-from apps.analytics.models import AdReview, Calender
-from django.db.models import Avg
-from apps.analytics.models import FavouriteAd
+from apps.analytics.models import (
+    AdReview,
+    Calender,
+    FavouriteAd,
+)
 from apps.companies.models import Company
+
+
+# constants
 from apps.users.constants import USER_ROLE_TYPES
-from apps.utils.serializers.base import BaseSerializer
-from apps.analytics.models import FavouriteAd
-from django.db.models import Q
 
 
 class SiteQuestionChildGetSerializer(BaseSerializer):
@@ -105,18 +113,6 @@ class SubCategoryGetSerializer(BaseSerializer):
         model = SubCategory
         fields = "__all__"
         ref_name = "Ads SubCategory Serializer"
-
-
-class CountryGetSerializer(BaseSerializer):
-    class Meta:
-        model = Country
-        fields = "__all__"
-
-
-class VenueCountryGetSerializer(BaseSerializer):
-    class Meta:
-        model = Country
-        fields = "__all__"
 
 
 class FaqsGetSerializer(BaseSerializer):
