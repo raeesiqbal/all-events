@@ -6,9 +6,9 @@ from rest_framework import status
 from rest_framework.decorators import action
 from apps.subscriptions.stripe_service import StripeService, WebHookService
 from apps.utils.views.base import BaseViewset, ResponseInfo
-from django.db.models import Q
+from django.http import FileResponse
 from django.core import serializers
-import datetime
+import requests
 
 # permissions
 from apps.users.permissions import IsVendorUser
@@ -69,6 +69,7 @@ class SubscriptionsViewSet(BaseViewset):
         "current_subscription_dpm": [IsAuthenticated, IsVendorUser],
         "update_payment_method": [IsAuthenticated, IsVendorUser],
         "get_payment_method": [IsAuthenticated, IsVendorUser],
+        "download_invoice": [IsAuthenticated, IsVendorUser],
     }
     stripe_service = StripeService()
     webhook_service = WebHookService()
@@ -583,5 +584,47 @@ class SubscriptionsViewSet(BaseViewset):
                 data=data,
                 status_code=status.HTTP_200_OK,
                 message="Payment method",
+            ),
+        )
+
+    @action(detail=False, url_path="download-invoice", methods=["get"])
+    def download_invoice(self, request, *args, **kwargs):
+        company = request.user.user_company
+        free_type = SubscriptionType.objects.filter(
+            type=SUBSCRIPTION_TYPES["FREE"]
+        ).first()
+
+        subscription = (
+            Subscription.objects.filter(
+                company=company,
+                status__in=[
+                    SUBSCRIPTION_STATUS["ACTIVE"],
+                    SUBSCRIPTION_STATUS["UNPAID"],
+                ],
+            )
+            .exclude(type=free_type)
+            .first()
+        )
+
+        if subscription:
+            latest_invoice_id = subscription.stripe_subscription.get(
+                "latest_invoice", None
+            )
+            if latest_invoice_id:
+                latest_invoice = self.stripe.Invoice.retrieve(latest_invoice_id)
+                pdf_link = latest_invoice.invoice_pdf
+                response = FileResponse(
+                    requests.get(pdf_link).content, content_type="application/pdf"
+                )
+                response[
+                    "Content-Disposition"
+                ] = f'attachment; filename="{pdf_link.split("/")[-1]}"'
+                return response
+        return Response(
+            status=status.HTTP_400_BAD_REQUEST,
+            data=ResponseInfo().format_response(
+                data=[],
+                status_code=status.HTTP_400_BAD_REQUEST,
+                message="There is no invoice to download",
             ),
         )
