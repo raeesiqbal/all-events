@@ -8,6 +8,7 @@ const initialState = {
   loading: false,
   error: null,
   vendorAds: [],
+  vendorAdNames: [],
   publicAds: [],
   favoriteAds: [],
   media_urls: {
@@ -102,6 +103,23 @@ export const listVendorAds = createAsyncThunk(
     try {
       const response = await secureInstance.request({
         url: "/api/ads/",
+        method: "Get",
+      });
+      return response.data; // Assuming your loginAPI returns data with access_token, user_id, and role_id
+    } catch (err) {
+      // Use `err.response.data` as `action.payload` for a `rejected` action,
+      // by explicitly returning it using the `rejectWithValue()` utility
+      return rejectWithValue(err.response.data);
+    }
+  },
+);
+
+export const getVendorAdNames = createAsyncThunk(
+  "Ads/vendorAdNames",
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await secureInstance.request({
+        url: "/api/ads/my-ads/",
         method: "Get",
       });
       return response.data; // Assuming your loginAPI returns data with access_token, user_id, and role_id
@@ -268,6 +286,18 @@ export const AdsSlice = createSlice({
         state.vendorAds = action.payload.data;
       })
       .addCase(listVendorAds.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(getVendorAdNames.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getVendorAdNames.fulfilled, (state, action) => {
+        state.loading = false;
+        state.vendorAdNames = action.payload.data;
+      })
+      .addCase(getVendorAdNames.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })

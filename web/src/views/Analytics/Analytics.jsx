@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import "react-date-range/dist/styles.css"; // main style file
 import "react-date-range/dist/theme/default.css"; // theme css file
 import {
+  Button,
   Card, Col, Container, Form, Row,
 } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
@@ -10,35 +11,23 @@ import savesIcon from "../../assets/images/saves.svg";
 import reviewsIcon from "../../assets/images/reviews.svg";
 import messagesIcon from "../../assets/images/messages.svg";
 import "./Analytics.css";
-import {
-  analyticsHome, getFavAdsAnalytics, getMessagesAdsAnalytics, getReviewsAdsAnalytics
-} from "../redux/Analytics/AnalyticsSlice";
+import { analyticsHome } from "../redux/Analytics/AnalyticsSlice";
 import LineChart from "./LineChart";
+import { getVendorAdNames } from "../redux/Posts/AdsSlice";
 
 function Analytics() {
   const dispatch = useDispatch();
   const {
-    vendorAds, totalAdFavourite, totalAdReviews, totalAdMessages, favAdsAnalytics, reviewsAdsAnalytics, messagesAdsAnalytics,
+    totalAdFavourite, totalAdReviews, totalAdMessages, favAdsAnalytics, reviewsAdsAnalytics, messagesAdsAnalytics,
   } = useSelector((state) => state.analytics);
+  const vendorAdNames = useSelector((state) => state.Ads.vendorAdNames);
 
   const [selectedAd, setSelectedAd] = useState("0");
   const [period, setPeriod] = useState("last_month");
 
-  const handleSelectedAd = (e) => {
-    e.preventDefault();
-
-    setSelectedAd(e.target.value);
-    dispatch(analyticsHome(e.target.value));
-  };
-
   useEffect(() => {
-    dispatch(getFavAdsAnalytics({ adId: selectedAd, dateRange: period }));
-    dispatch(getReviewsAdsAnalytics({ adId: selectedAd, dateRange: period }));
-    dispatch(getMessagesAdsAnalytics({ adId: selectedAd, dateRange: period }));
-  }, [selectedAd, period]);
-
-  useEffect(() => {
-    dispatch(analyticsHome("0"));
+    dispatch(getVendorAdNames());
+    dispatch(analyticsHome({ adId: selectedAd, period }));
   }, []);
 
   return (
@@ -53,38 +42,47 @@ function Analytics() {
       </div>
 
       <Container
-        // fluid
         style={{ marginTop: "100px", marginBottom: "200px" }}
-        className=""
       >
         <Row
-          className="d-flex mx-0 my-5 py-5"
-          // style={{ marginTop: "48px" }}
+          className="d-flex justify-content-between align-items-center mx-0 my-5 py-5"
         >
-          <Form.Select
-            className="px-5 me-3"
-            style={{ width: "fit-content" }}
-            size="lg"
-            defaultValue={selectedAd}
-            onChange={handleSelectedAd}
+          <div className="d-flex px-0 w-auto">
+            <Form.Select
+              className="px-4 me-3"
+              style={{
+                width: "fit-content", height: "56px", fontSize: "16px", color: "#797979",
+              }}
+              defaultValue={selectedAd}
+              onChange={(e) => setSelectedAd(e.target.value)}
+            >
+              <option value="0">Select Ad</option>
+              {
+                vendorAdNames.map((ad) => (
+                  <option value={ad.id}>{ad.name}</option>
+                ))
+              }
+            </Form.Select>
+            <Form.Select
+              className="ps-4 pe-5"
+              style={{
+                width: "fit-content", height: "56px", fontSize: "16px", color: "#797979",
+              }}
+              defaultValue={period}
+              onChange={(e) => setPeriod(e.target.value)}
+            >
+              <option value="last_month">Last Month</option>
+              <option value="last_week">Last Week</option>
+            </Form.Select>
+          </div>
+          <Button
+            variant="success"
+            type="submit"
+            className="roboto-semi-bold-16px-information btn btn-height w-auto"
+            onClick={() => dispatch(analyticsHome({ adId: selectedAd, period }))}
           >
-            <option value="0">All ads</option>
-            {
-              vendorAds.map((ad) => (
-                <option value={ad.id}>{ad.name}</option>
-              ))
-            }
-          </Form.Select>
-          <Form.Select
-            className="px-5"
-            style={{ width: "fit-content" }}
-            size="lg"
-            defaultValue={period}
-            onChange={(e) => setPeriod(e.target.value)}
-          >
-            <option value="last_month">Last Month</option>
-            <option value="last_week">Last Week</option>
-          </Form.Select>
+            Search
+          </Button>
         </Row>
 
         {/* <Row className="d-flex justify-content-center align-items-center"> */}
