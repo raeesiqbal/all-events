@@ -42,16 +42,16 @@ function Analytics() {
       </div>
 
       <Container
-        style={{ marginTop: "100px", marginBottom: "200px" }}
+        style={{ marginBottom: "200px" }}
       >
         <Row
-          className="d-flex justify-content-between align-items-center mx-0 my-5 py-5"
+          className="d-flex justify-content-between align-items-center mx-0 mb-5 mt-4"
         >
-          <div className="d-flex px-0 w-auto">
+          <div className="d-md-flex px-0 w-auto">
             <Form.Select
-              className="px-4 me-3"
+              className="px-4 me-3 mt-4"
               style={{
-                width: "fit-content", height: "56px", fontSize: "16px", color: "#797979",
+                width: "fit-content", minWidth: "328px", height: "56px", fontSize: "16px", color: "#797979",
               }}
               defaultValue={selectedAd}
               onChange={(e) => setSelectedAd(e.target.value)}
@@ -64,9 +64,9 @@ function Analytics() {
               }
             </Form.Select>
             <Form.Select
-              className="ps-4 pe-5"
+              className="ps-4 pe-5 mt-4"
               style={{
-                width: "fit-content", height: "56px", fontSize: "16px", color: "#797979",
+                width: "fit-content", minWidth: "328px", height: "56px", fontSize: "16px", color: "#797979",
               }}
               defaultValue={period}
               onChange={(e) => setPeriod(e.target.value)}
@@ -75,14 +75,27 @@ function Analytics() {
               <option value="last_week">Last Week</option>
             </Form.Select>
           </div>
-          <Button
-            variant="success"
-            type="submit"
-            className="roboto-semi-bold-16px-information btn btn-height w-auto px-3"
-            onClick={() => dispatch(analyticsHome({ adId: selectedAd, period }))}
-          >
-            Search
-          </Button>
+          <div className="d-flex px-0 w-auto mt-4">
+            <Button
+              variant="light"
+              type="submit"
+              className="roboto-semi-bold-16px-information btn btn-height w-auto px-5 me-3 text-success"
+              onClick={() => {
+                setSelectedAd("0");
+                setPeriod("last_month");
+              }}
+            >
+              Clear all
+            </Button>
+            <Button
+              variant="success"
+              type="submit"
+              className="roboto-semi-bold-16px-information btn btn-height w-auto px-5"
+              onClick={() => dispatch(analyticsHome({ adId: selectedAd, period }))}
+            >
+              Search
+            </Button>
+          </div>
         </Row>
 
         {/* <Row className="d-flex justify-content-center align-items-center"> */}
@@ -259,11 +272,11 @@ function Analytics() {
             </Row>
           </Col>
         </Row>
-        <h4 className="pt-5 pb-5 text-center">Favourite Ads Analytics</h4>
+        <h4 className="py-3 text-center">Favourite Ads Analytics</h4>
         <LineChart period={period} analytics={favAdsAnalytics} />
-        <h4 className="pt-5 pb-5 text-center">Ad Reviews Analytics</h4>
+        <h4 className="py-3 text-center">Ad Reviews Analytics</h4>
         <LineChart period={period} analytics={reviewsAdsAnalytics} />
-        <h4 className="pt-5 pb-5 text-center">Ad Messages Analytics</h4>
+        <h4 className="py-3 text-center">Ad Messages Analytics</h4>
         <LineChart period={period} analytics={messagesAdsAnalytics} />
       </Container>
     </div>
