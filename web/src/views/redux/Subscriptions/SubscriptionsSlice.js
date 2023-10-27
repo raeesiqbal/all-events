@@ -371,8 +371,14 @@ export const SubscriptionsSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(downloadSubscriptionInvoice.fulfilled, (state) => {
+      .addCase(downloadSubscriptionInvoice.fulfilled, (state, action) => {
         state.loading = false;
+
+        const a = document.createElement("a");
+        a.href = action.payload.data;
+        a.click();
+
+        window.URL.revokeObjectURL(action.payload.data);
       })
       .addCase(downloadSubscriptionInvoice.rejected, (state, action) => {
         state.loading = false;

@@ -613,13 +613,14 @@ class SubscriptionsViewSet(BaseViewset):
             if latest_invoice_id:
                 latest_invoice = self.stripe.Invoice.retrieve(latest_invoice_id)
                 pdf_link = latest_invoice.invoice_pdf
-                response = FileResponse(
-                    requests.get(pdf_link).content, content_type="application/pdf"
+                return Response(
+                    status=status.HTTP_200_OK,
+                    data=ResponseInfo().format_response(
+                        data=pdf_link,
+                        status_code=status.HTTP_200_OK,
+                        message="Invoice downloaded successfully.",
+                    ),
                 )
-                response[
-                    "Content-Disposition"
-                ] = f'attachment; filename="{pdf_link.split("/")[-1]}"'
-                return response
         return Response(
             status=status.HTTP_400_BAD_REQUEST,
             data=ResponseInfo().format_response(
