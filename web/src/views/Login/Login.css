@@ -44,8 +44,8 @@
 }
 
 .box {
-  width: 75px;
-  height: 69px;
+  width: 61px;
+  height: 59px;
   background-color: #a0c49d;
   clip-path: polygon(0 0, 100% 0, 100% 100%);
   z-index: 5;

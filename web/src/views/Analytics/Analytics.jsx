@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import "react-date-range/dist/styles.css"; // main style file
 import "react-date-range/dist/theme/default.css"; // theme css file
 import {
+  Button,
   Card, Col, Container, Form, Row,
 } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
@@ -12,25 +13,21 @@ import messagesIcon from "../../assets/images/messages.svg";
 import "./Analytics.css";
 import { analyticsHome } from "../redux/Analytics/AnalyticsSlice";
 import LineChart from "./LineChart";
+import { getVendorAdNames } from "../redux/Posts/AdsSlice";
 
 function Analytics() {
   const dispatch = useDispatch();
-  const { user } = useSelector((state) => state.auth);
   const {
-    vendorAds, totalAdFavourite, totalAdReviews, totalAdMessages,
+    totalAdFavourite, totalAdReviews, totalAdMessages, favAdsAnalytics, reviewsAdsAnalytics, messagesAdsAnalytics,
   } = useSelector((state) => state.analytics);
+  const vendorAdNames = useSelector((state) => state.Ads.vendorAdNames);
 
   const [selectedAd, setSelectedAd] = useState("0");
-
-  const handleSelectedAd = (e) => {
-    e.preventDefault();
-
-    setSelectedAd(e.target.value);
-    dispatch(analyticsHome(e.target.value));
-  };
+  const [period, setPeriod] = useState("last_month");
 
   useEffect(() => {
-    dispatch(analyticsHome("0"));
+    dispatch(getVendorAdNames());
+    dispatch(analyticsHome({ adId: selectedAd, period }));
   }, []);
 
   return (
@@ -44,31 +41,63 @@ function Analytics() {
         </div>
       </div>
 
-      <div
-        className="d-flex justify-content-center"
-        style={{ marginTop: "48px" }}
-      >
-        <Form.Select
-          className="px-5"
-          style={{ width: "fit-content" }}
-          size="lg"
-          defaultValue={selectedAd}
-          onChange={handleSelectedAd}
-        >
-          <option value="0">All ads</option>
-          {
-            vendorAds.map((ad) => (
-              <option value={ad.id}>{ad.name}</option>
-            ))
-          }
-        </Form.Select>
-      </div>
-
       <Container
-        // fluid
-        style={{ marginTop: "100px", marginBottom: "200px" }}
-        className=""
+        style={{ marginBottom: "200px" }}
       >
+        <Row
+          className="d-flex justify-content-between align-items-center mx-0 mb-5 mt-4"
+        >
+          <div className="d-md-flex px-0 w-auto">
+            <Form.Select
+              className="px-4 me-3 mt-4"
+              style={{
+                width: "fit-content", minWidth: "328px", height: "56px", fontSize: "16px", color: "#797979",
+              }}
+              defaultValue={selectedAd}
+              onChange={(e) => setSelectedAd(e.target.value)}
+            >
+              <option value="0">Select Ad</option>
+              {
+                vendorAdNames.map((ad) => (
+                  <option value={ad.id}>{ad.name}</option>
+                ))
+              }
+            </Form.Select>
+            <Form.Select
+              className="ps-4 pe-5 mt-4"
+              style={{
+                width: "fit-content", minWidth: "328px", height: "56px", fontSize: "16px", color: "#797979",
+              }}
+              defaultValue={period}
+              onChange={(e) => setPeriod(e.target.value)}
+            >
+              <option value="last_month">Last Month</option>
+              <option value="last_week">Last Week</option>
+            </Form.Select>
+          </div>
+          <div className="d-flex px-0 w-auto mt-4">
+            <Button
+              variant="light"
+              type="submit"
+              className="roboto-semi-bold-16px-information btn btn-height w-auto px-5 me-3 text-success"
+              onClick={() => {
+                setSelectedAd("0");
+                setPeriod("last_month");
+              }}
+            >
+              Clear all
+            </Button>
+            <Button
+              variant="success"
+              type="submit"
+              className="roboto-semi-bold-16px-information btn btn-height w-auto px-5"
+              onClick={() => dispatch(analyticsHome({ adId: selectedAd, period }))}
+            >
+              Search
+            </Button>
+          </div>
+        </Row>
+
         {/* <Row className="d-flex justify-content-center align-items-center"> */}
         <Row>
           <Col md={11} lg={12} xl={12}>
@@ -243,9 +272,12 @@ function Analytics() {
             </Row>
           </Col>
         </Row>
-        <LineChart label="Favourite Ads Analytics" selectedAd={selectedAd} />
-        <LineChart label="Ad Reviews Analytics" selectedAd={selectedAd} />
-        <LineChart label="Ad Messages Analytics" selectedAd={selectedAd} />
+        <h4 className="py-3 text-center">Favourite Ads Analytics</h4>
+        <LineChart period={period} analytics={favAdsAnalytics} />
+        <h4 className="py-3 text-center">Ad Reviews Analytics</h4>
+        <LineChart period={period} analytics={reviewsAdsAnalytics} />
+        <h4 className="py-3 text-center">Ad Messages Analytics</h4>
+        <LineChart period={period} analytics={messagesAdsAnalytics} />
       </Container>
     </div>
   );

@@ -6,17 +6,12 @@ import ChangePassword from "./ChangePassword";
 import DeleteAccount from "./DeleteAccount";
 import CompanyInformationSettings from "./CompanyInformation";
 import PaymentMethod from "./PaymentMethod";
-import { handleProfileSettingsCurrentView } from "../redux/TabNavigation/TabNavigationSlice";
 
 function ProfileView() {
-  const dispatch = useDispatch();
-
   const profileSettingsCurrentView = useSelector(
-    (state) => state.tabNavigation.profileSettingsCurrentView
+    (state) => state.tabNavigation.profileSettingsCurrentView,
   );
-  useEffect(() => {
-    dispatch(handleProfileSettingsCurrentView("profileSettings"));
-  }, []);
+
   return (
     <>
       {profileSettingsCurrentView === "profileSettings" && <ProfileSettings />}

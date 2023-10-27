@@ -22,7 +22,6 @@ import { handleStartChat } from "../redux/Chats/ChatsSlice";
 import Reviews from "../Reviews/Reviews";
 import useWindowDimensions from "../../utilities/hooks/useWindowDimension";
 import { adCalendar, favoriteAd } from "../redux/Posts/AdsSlice";
-import Rating from "../../components/Rating/Rating";
 import StarRating from "../../components/Rating/StarRating";
 import { faFacebook, faInstagram, faTiktok, faTwitter, faYoutube } from "@fortawesome/free-brands-svg-icons";
 import { faLink } from "@fortawesome/free-solid-svg-icons";
@@ -562,7 +561,7 @@ function ViewAd() {
             </div>
           )}
 
-          {currentTab === 1 && currentAd?.offered_services.length > 0 && (
+          {currentTab === 1 && (currentAd?.offered_services.length > 0 || currentAd?.site_services.length > 0) && (
             <div className="d-flex flex-column ps-4 my-4">
               <div className="d-flex roboto-semi-bold-24px-h3">
                 Offered services
@@ -576,7 +575,7 @@ function ViewAd() {
                     </ul>
                   </Col>
                 ))}
-                {currentAd.site_services.map((service, index) => (
+                {currentAd?.site_services.map((service, index) => (
                   <Col key={index} lg={4}>
                     <ul className="custom-lists roboto-regular-16px-information">
                       <li className="ps-2">{service}</li>
@@ -587,7 +586,7 @@ function ViewAd() {
             </div>
           )}
 
-          {currentTab === 2 && currentAd?.ad_faqs.length > 0 && (
+          {currentTab === 2 && (
             <div className="d-flex flex-column ps-4 my-4">
               <div className="d-flex roboto-semi-bold-24px-h3">
                 Frequently Asked Questions

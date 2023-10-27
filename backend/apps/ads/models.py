@@ -1,9 +1,13 @@
+# imports
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.contrib.postgres.fields import ArrayField
-from apps.ads.constants import FAQ_TYPE
-from apps.utils.models.base import AbstractBaseModel, NewAbstractModel
+from apps.utils.models.base import NewAbstractModel
 from apps.utils.utils import unique_slugify
+
+
+# constants
+from apps.ads.constants import AD_STATUS
 
 
 class Country(models.Model):
@@ -49,6 +53,10 @@ class SubCategory(models.Model):
 
 
 class Ad(NewAbstractModel):
+    AD_STATUS = (
+        (AD_STATUS["ACTIVE"], "active"),
+        (AD_STATUS["INACTIVE"], "inactive"),
+    )
     slug = models.SlugField(null=True, blank=True)
     name = models.CharField(default="Ad", verbose_name=_("Commercial Name"))
     description = models.TextField(_("Description"), null=True, blank=True)
@@ -100,6 +108,9 @@ class Ad(NewAbstractModel):
     site_services = ArrayField(base_field=models.TextField(), null=True, blank=True)
 
     total_views = models.IntegerField(_("Total Views"), default=0)
+    status = models.CharField(
+        _("Status"), choices=AD_STATUS, default="active", max_length=50
+    )
 
     def __str__(self):
         return f"{self.name}"

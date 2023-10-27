@@ -39,11 +39,9 @@ function EditAd() {
     setSelectedCountriesforContactInformation,
   ] = useState([]);
   const [currentAd, setCurrentAd] = useState(null);
-  const [imagesToPreview, setImagesToPreview] = useState(Array(5).fill(null));
   const [pdfsToUpload, setPdfsToUpload] = useState([]);
   const [pdfsError, setPdfsError] = useState(false);
   const [videoToUpload, setVideoToUpload] = useState([]);
-  const [showImagesModal, setShowImagesModal] = useState(false);
   const [relatedSubCategoryId, setRelatedSubCategoryId] = useState(null);
   const [isMultipleCountries, setIsMultipleCountries] = useState(false);
   const [localInitialValues, setLocalInitialValues] = useState(null);
@@ -54,7 +52,6 @@ function EditAd() {
   const [adminServices, setAdminServices] = useState([]);
 
   const loading = useSelector((state) => state.Ads.loading);
-  const user = useSelector((state) => state.auth.user);
   const AdPostSuccessAlert = useSelector(
     (state) => state.Ads.AdPostSuccessAlert
   );
@@ -309,10 +306,6 @@ function EditAd() {
     // Add more validation rules as needed
 
     return errors;
-  };
-
-  const handleImageUpdates = (images) => {
-    setImagesToPreview(images);
   };
 
   const handleClickSubmit = (values) => {
@@ -599,6 +592,10 @@ function EditAd() {
     }
   }, [AdPostErrorAlert, mediaError]);
 
+  useEffect(() => {
+    if (currentSubscription === null || (currentSubscription && currentSubscription.status === "unpaid")) navigate("/my-ads");
+  }, [currentSubscription]);
+
   return (
     <div style={{ position: "relative" }}>
       <Alert
@@ -793,22 +790,6 @@ function EditAd() {
 
                   {preDefinedFAQs.length > 0 && (
                     <ServerFAQs
-                      // values={values}
-                      // errors={errors.FAQ ?? errors}
-                      // touched={touched.FAQ ?? touched}
-                      // handleChange={handleChange}
-                      // handleAddFieldsForFAQ={() =>
-                      //   handleAddFAQsFields(values, setValues)
-                      // }
-                      // handleAddFAQ={(index) =>
-                      //   handleAddFAQ(index, values, setValues)
-                      // }
-                      // handleRemoveFAQ={(index) =>
-                      //   handleRemoveFAQ(index, values, setValues)
-                      // }
-                      // handleEditFAQ={(index) =>
-                      //   handleEditFAQ(index, values, setValues)
-                      // }
                       siteFaqQuestions={preDefinedFAQs}
                       selectedValues={selectedValuesServerFAQ}
                       setSelectedValues={setSelectedValuesServerFAQ}

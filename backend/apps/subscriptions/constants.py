@@ -10,4 +10,5 @@ SUBSCRIPTION_STATUS = {
     "INACTIVE": "inactive",
     "CANCELLED": "cancelled",
     "PAUSED": "paused",
+    "UNPAID": "unpaid",
 }

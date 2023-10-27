@@ -7,7 +7,6 @@ import { secureInstance } from "../../../axios/config";
 const initialState = {
   loading: false,
   error: null,
-  vendorAds: [],
   totalAdFavourite: 0,
   totalAdReviews: 0,
   totalAdMessages: 0,
@@ -20,70 +19,13 @@ const initialState = {
 
 export const analyticsHome = createAsyncThunk(
   "Analytics/home",
-  async (adId, { rejectWithValue }) => {
+  async (data, { rejectWithValue }) => {
     try {
       const response = await secureInstance.request({
-        url: `/api/analytics/ad-analytics/home${adId === "0" ? "" : `?ad=${adId}`}`,
+        url: `/api/analytics/ad-analytics/home?date_range=${data.period}${data.adId === "0" ? "" : `&ad=${data.adId}`}`,
         method: "Get",
       });
       return response.data;
-    } catch (err) {
-      // Use `err.response.data` as `action.payload` for a `rejected` action,
-      // by explicitly returning it using the `rejectWithValue()` utility
-      return rejectWithValue(err.response.data);
-    }
-  },
-);
-
-export const getFavAdsAnalytics = createAsyncThunk(
-  "Analytics/fav-ads",
-  async ({ adId, dateRange }, { rejectWithValue }) => {
-    try {
-      let url = `/api/analytics/ad-analytics/favourites?date_range=${dateRange || "last_month"}`;
-      if (adId !== "0") url += `&ad=${adId}`;
-
-      const response = await secureInstance.request({
-        url, method: "Get",
-      });
-      return { ...response.data };
-    } catch (err) {
-      // Use `err.response.data` as `action.payload` for a `rejected` action,
-      // by explicitly returning it using the `rejectWithValue()` utility
-      return rejectWithValue(err.response.data);
-    }
-  },
-);
-
-export const getReviewsAdsAnalytics = createAsyncThunk(
-  "Analytics/ad-reviews",
-  async ({ adId, dateRange }, { rejectWithValue }) => {
-    try {
-      let url = `/api/analytics/ad-analytics/reviews?date_range=${dateRange || "last_month"}`;
-      if (adId !== "0") url += `&ad=${adId}`;
-
-      const response = await secureInstance.request({
-        url, method: "Get",
-      });
-      return { ...response.data };
-    } catch (err) {
-      // Use `err.response.data` as `action.payload` for a `rejected` action,
-      // by explicitly returning it using the `rejectWithValue()` utility
-      return rejectWithValue(err.response.data);
-    }
-  },
-);
-
-export const getMessagesAdsAnalytics = createAsyncThunk(
-  "Analytics/ad-messages",
-  async ({ adId, dateRange }, { rejectWithValue }) => {
-    try {
-      let url = `/api/analytics/ad-analytics/messages?date_range=${dateRange || "last_month"}`;
-      if (adId !== "0") url += `&ad=${adId}`;
-
-      const response = await secureInstance.request({
-        url, method: "Get",
-      });
-      return { ...response.data };
     } catch (err) {
       // Use `err.response.data` as `action.payload` for a `rejected` action,
       // by explicitly returning it using the `rejectWithValue()` utility
@@ -105,48 +47,14 @@ export const AnalyticsSlice = createSlice({
       })
       .addCase(analyticsHome.fulfilled, (state, action) => {
         state.loading = false;
-        state.vendorAds = action.payload.data.vendor_ads;
         state.totalAdFavourite = action.payload.data.total_ad_fav;
         state.totalAdReviews = action.payload.data.total_ad_reviews;
         state.totalAdMessages = action.payload.data.total_ad_messages;
+        state.favAdsAnalytics = action.payload.data.ad_favourite_analytics;
+        state.reviewsAdsAnalytics = action.payload.data.ad_review_analytics;
+        state.messagesAdsAnalytics = action.payload.data.ad_message_analytics;
       })
       .addCase(analyticsHome.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
-      .addCase(getFavAdsAnalytics.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(getFavAdsAnalytics.fulfilled, (state, action) => {
-        state.loading = false;
-        state.favAdsAnalytics = action.payload.data.result;
-      })
-      .addCase(getFavAdsAnalytics.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
-      .addCase(getReviewsAdsAnalytics.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(getReviewsAdsAnalytics.fulfilled, (state, action) => {
-        state.loading = false;
-        state.reviewsAdsAnalytics = action.payload.data.result;
-      })
-      .addCase(getReviewsAdsAnalytics.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
-      .addCase(getMessagesAdsAnalytics.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(getMessagesAdsAnalytics.fulfilled, (state, action) => {
-        state.loading = false;
-        state.messagesAdsAnalytics = action.payload.data.result;
-      })
-      .addCase(getMessagesAdsAnalytics.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });
