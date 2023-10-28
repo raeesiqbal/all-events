@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Button,
   Modal,
@@ -8,10 +8,12 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBan, faDownload, faInfo } from "@fortawesome/free-solid-svg-icons";
-import { Tooltip } from "@mui/material";
-import { cancelSubscription, resumeSubscription, listSubscriptions, downloadSubscriptionInvoice } from "../redux/Subscriptions/SubscriptionsSlice";
+import { Alert, Tooltip } from "@mui/material";
+import { cancelSubscription, resumeSubscription, listSubscriptions } from "../redux/Subscriptions/SubscriptionsSlice";
 import timeIcon from "../../assets/images/post-ad/carbon_time.svg";
 import { handleProfileSettingsCurrentView } from "../redux/TabNavigation/TabNavigationSlice";
+import { secureInstance } from "../../axios/config";
+import { setScreenLoading } from "../redux/Auth/authSlice";
 // import cancelIcon from "../../assets/images/cancel.svg";
 
 const Subscription = ({ subscription }) => {
@@ -21,6 +23,10 @@ const Subscription = ({ subscription }) => {
   const navigate = useNavigate();
 
   const [deleteModal, setDeleteModal] = React.useState(false);
+  const [message, setMessage] = React.useState({
+    type: null,
+    text: null,
+  });
 
   const infostyle = {
     backgroundColor: "#9B9B9B",
@@ -71,8 +77,61 @@ const Subscription = ({ subscription }) => {
     }, 2000);
   };
 
+  const handleDownloadInvoice = async () => {
+    dispatch(setScreenLoading(true));
+    try {
+      const response = await secureInstance.request({
+        url: "/api/subscriptions/download-invoice/",
+        method: "Get",
+      });
+
+      const a = document.createElement("a");
+      a.href = response.data.data;
+      a.click();
+
+      window.URL.revokeObjectURL(response.data.data);
+      setMessage({
+        text: response.data.message,
+        type: "success",
+      });
+    } catch (err) {
+      setMessage({
+        text: err.message,
+        type: "error",
+      });
+    }
+    dispatch(setScreenLoading(false));
+  };
+
+  useEffect(() => {
+    if (message !== "") {
+      setTimeout(() => {
+        setMessage({
+          type: null,
+          text: null,
+        });
+      }, 4000);
+    }
+  }, [message]);
+
   return (
     <>
+      <Alert
+        severity={message.type}
+        variant="filled"
+        style={{
+          position: "fixed",
+          top: message.text ? "80px" : "-80px",
+          left: "50%",
+          transform: "translateX(-50%)",
+          transition: "ease 200ms",
+          opacity: message.text ? 1 : 0,
+          zIndex: 2,
+        }}
+      >
+        {message.text}
+      </Alert>
+
       <Modal
         show={deleteModal}
         onHide={() => {
@@ -211,7 +270,7 @@ const Subscription = ({ subscription }) => {
                           style={{
                             borderRadius: "50%", height: "32px", width: "32px", backgroundColor: "rgba(217, 217, 217, 1)", cursor: "pointer",
                           }}
-                          onClick={() => dispatch(downloadSubscriptionInvoice())}
+                          onClick={handleDownloadInvoice}
                         >
                           <FontAwesomeIcon className="mx-auto my-auto" icon={faDownload} />
                         </div>

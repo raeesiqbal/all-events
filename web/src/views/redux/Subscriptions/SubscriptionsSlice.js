@@ -176,23 +176,6 @@ export const getPaymentMethod = createAsyncThunk(
   },
 );
 
-export const downloadSubscriptionInvoice = createAsyncThunk(
-  "Subscription/downloadInvoice",
-  async (data, { rejectWithValue }) => {
-    try {
-      const response = await secureInstance.request({
-        url: "/api/subscriptions/download-invoice/",
-        method: "Get",
-      });
-      return response.data;
-    } catch (err) {
-      // Use `err.response.data` as `action.payload` for a `rejected` action,
-      // by explicitly returning it using the `rejectWithValue()` utility
-      return rejectWithValue(err.response.data);
-    }
-  },
-);
-
 // Create the SubscriptionsSlice
 export const SubscriptionsSlice = createSlice({
   name: "Subscriptions",
@@ -366,23 +349,6 @@ export const SubscriptionsSlice = createSlice({
       .addCase(getPaymentMethod.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-      })
-      .addCase(downloadSubscriptionInvoice.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(downloadSubscriptionInvoice.fulfilled, (state, action) => {
-        state.loading = false;
-
-        const a = document.createElement("a");
-        a.href = action.payload.data;
-        a.click();
-
-        window.URL.revokeObjectURL(action.payload.data);
-      })
-      .addCase(downloadSubscriptionInvoice.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload.message;
       });
   },
 });
