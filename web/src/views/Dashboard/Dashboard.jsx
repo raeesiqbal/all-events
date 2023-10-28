@@ -16,7 +16,6 @@ import editIcon from "../../assets/images/post-ad/edit.svg";
 import timeIcon from "../../assets/images/post-ad/carbon_time.svg";
 import "./Dashboard.css";
 import { handleProfileSettingsCurrentView } from "../redux/TabNavigation/TabNavigationSlice";
-import { getAuthenticatedUser } from "../redux/Auth/authSlice";
 import { setCompanyInformation } from "../redux/Settings/SettingsSlice";
 import MyAdsDashboard from "./MyAdsDashboard";
 import ProfilePic from "../../components/ProfilePic/ProfilePic";
@@ -86,12 +85,6 @@ function Dashboard() {
       console.log("error", e);
     }
   };
-
-  useEffect(() => {
-    if (user?.userCompanyId === null) {
-      dispatch(getAuthenticatedUser());
-    }
-  }, []);
 
   useEffect(() => {
     if (user.userCompanyId !== null) {

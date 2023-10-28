@@ -12,19 +12,12 @@ import deleteIcon from "../../assets/images/profile-settings/delete.svg";
 import paymentIcon from "../../assets/images/profile-settings/payment-method.svg";
 import "./ProfileSettings.css";
 import { handleProfileSettingsCurrentView } from "../redux/TabNavigation/TabNavigationSlice";
-import { getAuthenticatedUser } from "../redux/Auth/authSlice";
 import { setCompanyInformation } from "../redux/Settings/SettingsSlice";
 import ProfilePic from "../../components/ProfilePic/ProfilePic";
 
 function ProfileSettings() {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
-
-  useEffect(() => {
-    if (user.userCompanyId === null) {
-      dispatch(getAuthenticatedUser());
-    }
-  }, []);
 
   const getCompanyInfo = async () => {
     dispatch(setCompanyInformation({ id: user.userCompanyId }));

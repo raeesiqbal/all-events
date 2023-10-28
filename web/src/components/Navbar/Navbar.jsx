@@ -18,9 +18,7 @@ import {
 } from "../../views/redux/Login/loginSlice";
 import { toggleRegisterView } from "../../views/redux/Register/RegisterSlice";
 import {
-  getAuthenticatedUser,
   refreshToken,
-  setScreenLoading,
 } from "../../views/redux/Auth/authSlice";
 import { deleteCookie, getCookie } from "../../utilities/utils";
 import { handleProfileSettingsCurrentView } from "../../views/redux/TabNavigation/TabNavigationSlice";
@@ -46,15 +44,6 @@ function Header() {
       dispatch(refreshToken());
     }
   }, [user]);
-
-  useEffect(() => {
-    if (
-      user?.userId === null
-      && user?.accessToken !== null
-    ) {
-      dispatch(getAuthenticatedUser());
-    }
-  }, [user, user?.accessToken]);
 
   const handleLoginClick = (e) => {
     e.preventDefault();
