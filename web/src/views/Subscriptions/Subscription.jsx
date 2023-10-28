@@ -117,7 +117,7 @@ const Subscription = ({ subscription }) => {
   return (
     <>
       <Alert
-        severity={message.type}
+        severity={message.type || "error"}
         variant="filled"
         style={{
           position: "fixed",
@@ -129,7 +129,7 @@ const Subscription = ({ subscription }) => {
           zIndex: 2,
         }}
       >
-        {message.text}
+        {message.text || ""}
       </Alert>
 
       <Modal

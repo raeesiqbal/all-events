@@ -87,10 +87,13 @@ function Dashboard() {
   };
 
   useEffect(() => {
-    if (user.userCompanyId !== null) {
+    if (user?.userCompanyId !== null) {
       getCompanyInfo();
       getDashboardInfo();
     }
+  }, [user?.userCompanyId]);
+
+  useEffect(() => {
     dispatch(listPlans(user?.userId !== null));
   }, [user?.userId]);
 

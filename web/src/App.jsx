@@ -32,6 +32,7 @@ import Calendars from "./views/Calendars/Calendars";
 import { handleProfileSettingsCurrentView } from "./views/redux/TabNavigation/TabNavigationSlice";
 import { currentSubscriptionDetails, setShowModal } from "./views/redux/Subscriptions/SubscriptionsSlice";
 import { getAuthenticatedUser } from "./views/redux/Auth/authSlice";
+import { listCountries } from "./views/redux/Posts/AdsSlice";
 
 function App() {
   const location = useLocation();
@@ -45,6 +46,15 @@ function App() {
   const profileSettingsCurrentView = useSelector(
     (state) => state.tabNavigation.profileSettingsCurrentView,
   );
+
+  useEffect(() => {
+    if (
+      user?.userId === null
+      && user?.accessToken !== null
+    ) {
+      dispatch(getAuthenticatedUser());
+    }
+  }, [user?.userId, user?.accessToken]);
 
   const routesWithTabNavigation = [
     "/post-ad",
@@ -92,16 +102,14 @@ function App() {
   }, [currentSubscription, location, modalType, profileSettingsCurrentView]);
 
   useEffect(() => {
-    if (
-      user?.userId === null
-      && user?.accessToken !== null
-    ) {
-      dispatch(getAuthenticatedUser());
-    }
+    dispatch(listCountries(user?.userId !== null));
+  }, [user?.userId]);
+
+  useEffect(() => {
     if (currentSubscription === null && user?.role === "vendor") {
       dispatch(currentSubscriptionDetails());
     }
-  }, [user]);
+  }, [user?.role]);
 
   return (
     <>

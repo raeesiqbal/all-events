@@ -150,11 +150,6 @@ function ViewAd() {
     }
   };
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    if (user?.role === "client") isChatExists();
-  }, [user]);
-
   const onSelect = useCallback((emblaApi) => {
     // setSelectedIndex(emblaApi.selectedScrollSnap());
     setPrevBtnEnabled(emblaApi.canScrollPrev());
@@ -174,6 +169,8 @@ function ViewAd() {
   useEffect(() => {
     getAdInfo();
     dispatch(adCalendar(params.adId));
+    window.scrollTo(0, 0);
+    if (user?.role === "client") isChatExists();
   }, [user?.role]);
 
   const getData = () => {

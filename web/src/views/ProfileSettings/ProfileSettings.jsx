@@ -27,7 +27,7 @@ function ProfileSettings() {
     if (user?.userCompanyId !== null && user?.role === "vendor") {
       getCompanyInfo();
     }
-  }, [user]);
+  }, [user?.userCompanyId, user?.role]);
 
   return (
     <>

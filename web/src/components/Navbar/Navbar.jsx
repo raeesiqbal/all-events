@@ -43,7 +43,7 @@ function Header() {
     if (refreshTokenValue && user?.accessToken === null) {
       dispatch(refreshToken());
     }
-  }, [user]);
+  }, [user?.accessToken]);
 
   const handleLoginClick = (e) => {
     e.preventDefault();
