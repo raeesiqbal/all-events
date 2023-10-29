@@ -7,6 +7,8 @@ import { PhotoProvider, PhotoView } from "react-photo-view";
 import { useDispatch, useSelector } from "react-redux";
 import "./ImageUploader.css";
 import { secureInstance } from "../../axios/config";
+import { CircularProgress } from "@mui/material";
+
 import {
   setImagesToUpload,
   uploadImagesToCloud,
@@ -24,6 +26,7 @@ function ImageUploader({ imagesError }) {
   const dispatch = useDispatch();
 
   const handleImageUpload = (event) => {
+    setDeleteImageButton(false);
     event.preventDefault();
     const uploadedImage = event.target.files[0];
     const updatedImages = [...images];
@@ -39,6 +42,7 @@ function ImageUploader({ imagesError }) {
     };
     reader.readAsDataURL(uploadedImage);
     dispatch(uploadImagesToCloud(uploadedImage));
+    setDeleteImageButton(true);
   };
 
   const removeImage = async (image, index) => {
@@ -183,6 +187,34 @@ function ImageUploader({ imagesError }) {
                               }}
                             />
                           </button>
+                        ) : null}
+                        {!deleteImageButton ? (
+                          <>
+                            <div
+                              style={{
+                                position: "absolute",
+                                top: 0,
+                                right: "0",
+                                // left: "20px",
+                                maxWidth: "100%",
+                                maxHeight: "100%",
+                                width: "160px",
+                                height: "120px",
+                                objectFit: "cover",
+                                // borderRadius: "50%",
+                              }}
+                              className="d-flex justify-content-center align-items-center"
+                            />
+
+                            <CircularProgress
+                              style={{
+                                position: "absolute",
+                                top: "30px",
+                                left: "60px",
+                                color: "#51f742",
+                              }}
+                            />
+                          </>
                         ) : null}
                       </div>
                     )}

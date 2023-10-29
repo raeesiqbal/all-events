@@ -185,7 +185,7 @@ const DynamicRegisterationView = ({
               </span>
             </p>
           </div>
-          {role === "client" ? (
+          {/* {role === "client" ? (
             // The code is being re-used either make a resusable funcitonal component or update the logic
             <>
               <Form.Group className="position-relative mb-1 mt-3">
@@ -237,7 +237,7 @@ const DynamicRegisterationView = ({
                 />
               </Form.Group>
             </>
-          ) : null}
+          ) : null} */}
         </Form>
       )}
     </Formik>

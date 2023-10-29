@@ -294,6 +294,7 @@ function Login() {
   };
 
   const handleRegisterationSubmit = (values, { resetForm }) => {
+    console.log("Hellpo");
     let data = {
       user: {
         email: values.email,

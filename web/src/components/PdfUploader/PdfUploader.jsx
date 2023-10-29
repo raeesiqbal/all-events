@@ -7,6 +7,7 @@ import { Button, Col, Container, Row } from "react-bootstrap";
 import InfoIcon from "../../assets/images/gg_info.svg";
 import "../ImageUploader/ImageUploader.css";
 import { secureInstance } from "../../axios/config";
+import { CircularProgress } from "@mui/material";
 
 function PdfUploader({
   setparentImagesUploadedImages,
@@ -40,6 +41,7 @@ function PdfUploader({
   };
 
   const handleImageUpload = (event, index) => {
+    setDeletePdfButton(false);
     event.preventDefault();
     const uploadedPdf = event.target.files[0];
     const updatedPdfs = [...pdfs];
@@ -57,6 +59,7 @@ function PdfUploader({
     uploadFileToCloud(uploadedPdf);
     setparentImagesUploadedImages(updatedPdfs);
     reader.readAsDataURL(uploadedPdf);
+    setDeletePdfButton(true);
   };
 
   const removeImage = async (index) => {
@@ -196,6 +199,34 @@ function PdfUploader({
                             }}
                           />
                         </button>
+                      ) : null}
+                      {!deletePdfButton ? (
+                        <>
+                          <div
+                            style={{
+                              position: "absolute",
+                              top: 0,
+                              right: "0",
+                              // left: "20px",
+                              maxWidth: "100%",
+                              maxHeight: "100%",
+                              width: "160px",
+                              height: "120px",
+                              objectFit: "cover",
+                              // borderRadius: "50%",
+                            }}
+                            className="d-flex justify-content-center align-items-center"
+                          />
+
+                          <CircularProgress
+                            style={{
+                              position: "absolute",
+                              top: "30px",
+                              left: "60px",
+                              color: "#51f742",
+                            }}
+                          />
+                        </>
                       ) : null}
                     </div>
                   )}

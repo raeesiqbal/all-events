@@ -116,6 +116,7 @@ function VideoUploader({ setVideoToUpload, videoToUpload }) {
   //   }
   // };
   const handleVideoUpload = async (event) => {
+    setDeleteVideoButton(false);
     event.preventDefault();
     const uploadedVideo = event.target.files[0];
 
@@ -143,6 +144,7 @@ function VideoUploader({ setVideoToUpload, videoToUpload }) {
         console.error("Video upload failed", error);
         // Handle error if needed
       }
+      setDeleteVideoButton(true);
 
       // Reset the file input after handling the upload
       if (fileInputRef.current) {

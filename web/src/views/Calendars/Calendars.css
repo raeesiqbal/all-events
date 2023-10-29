@@ -9,11 +9,11 @@
 }
 .react-calendar {
   width: 100%;
-  border: solid;
+  border: solid green;
   margin: 0px auto;
   margin-bottom: 100px;
   display: block !important;
-  background-color: transparent;
+  background-color: white;
 }
 .react-calendar__tile {
   height: 40px !important;
@@ -23,7 +23,7 @@
 .react-calendar__tile > abbr {
   /* to have rounded border uncomment below line */
   /* border-radius: 50%; */
-  border: solid;
+  /* border: solid; */
   padding: 6px 6px;
   width: 30px !important;
   height: 30px !important;
@@ -62,7 +62,7 @@
   background-color: #a0c49d;
   color: white;
   cursor: auto !important;
-  border: solid black;
+  /* border: solid black; */
 }
 .heading {
   display: flex;
@@ -113,4 +113,8 @@
 .form-switch input:checked:focus {
   --bs-form-switch-bg-img: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
   background-image: var(--bs-form-switch-bg-img) !important;
+}
+
+.react-calendar__navigation button {
+  color: black;
 }

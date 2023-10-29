@@ -21,6 +21,14 @@ const Calendars = () => {
     if (calendars?.length > 2) setAdTabSize(5);
   }, [calendars]);
 
+  const truncateString = (inputString) => {
+    if (inputString.length <= 12) {
+      return inputString;
+    } else {
+      return inputString.slice(0, 12) + "...";
+    }
+  };
+
   return (
     <>
       <div className="my-ad-banner d-flex align-items-center justify-content-between">
@@ -46,7 +54,7 @@ const Calendars = () => {
                     onClick={() => setCurrentAd(index + 1)}
                   >
                     {/* {`Ad ${index + 1}`} */}
-                    {calendar.ad}
+                    {truncateString(calendar.ad)}
                   </div>
                 </Col>
               ))}
