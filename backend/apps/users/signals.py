@@ -1,5 +1,4 @@
 from datetime import date
-from apps.users.constants import USER_ROLE_TYPES
 from apps.utils.services.email_service import send_email_to_user
 from django_rest_passwordreset.signals import (
     post_password_reset,
@@ -31,7 +30,6 @@ def password_reset_token_created(
         "Reset Your Password",
         render_to_string("emails/reset_password/user_reset_password.html", context),
         render_to_string("emails/reset_password/user_reset_password.txt", context),
-
         settings.EMAIL_HOST_USER,
         user.email,
     )
@@ -56,6 +54,5 @@ def password_reset_successful(sender, user, *args, **kwargs):
             "emails/reset_password/reset_password_successful.txt", context
         ),
         settings.EMAIL_HOST_USER,
-
         user.email,
     )
