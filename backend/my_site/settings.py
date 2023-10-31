@@ -310,7 +310,7 @@ DJANGO_REST_MULTITOKENAUTH_RESET_TOKEN_EXPIRY_TIME = 1
 # EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)
 # EMAIL_HOST = env.str("EMAIL_HOST", default="smtp.gmail.com")
 # EMAIL_PORT = env.int("EMAIL_PORT", default=587)
-# EMAIL_HOST_USER = env.str("EMAIL_HOST_USER", default="")
+
 # EMAIL_HOST_PASSWORD = env.str("EMAIL_HOST_PASSWORD", default="")
 
 SITE_ID = 1
@@ -318,6 +318,7 @@ EMAIL_BACKEND = "django_ses.SESBackend"
 AWS_SES_REGION_NAME = "us-east-1"
 AWS_SES_REGION_ENDPOINT = "email.us-east-1.amazonaws.com"
 DEFAULT_FROM_EMAIL = "rayiszafar@gmail.com"
+EMAIL_HOST_USER = env.str("EMAIL_HOST_USER", default="rayiszafar@gmail.com")
 
 
 FRONTEND_URL = env.str("FRONTEND_URL", default="")
