@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 // eslint-disable-next-line import/no-extraneous-dependencies
 import CircularProgress from "@mui/material/CircularProgress";
-import { getAuthenticatedUser, refreshToken } from "./redux/Auth/authSlice";
+import { refreshToken } from "./redux/Auth/authSlice";
 import { useNavigate } from "react-router-dom";
 
 const ProtectedRoute = ({ children, role }) => {
@@ -13,12 +13,6 @@ const ProtectedRoute = ({ children, role }) => {
   useEffect(() => {
     dispatch(refreshToken());
   }, [dispatch]);
-
-  useEffect(() => {
-    if (user.userId === null && user.accessToken !== null) {
-      dispatch(getAuthenticatedUser());
-    }
-  }, [user.userId, user.accessToken]);
 
   useEffect(() => {
     if (role && user.role && user.role !== role) navigate("/");

@@ -5,25 +5,28 @@ import { instance, secureInstance } from "../../../axios/config";
 
 // Create an initial state for the auth slice
 const initialState = {
-  loading: false,
+  AdPostErrorAlert: false,
+  AdPostSuccessAlert: false,
+  calendar: null,
+  countries: [],
+  count: 0,
   error: null,
   vendorAds: [],
   vendorAdNames: [],
   publicAds: [],
   favoriteAds: [],
+  imagesError: false,
+  isMediaUploading: false,
+  loading: false,
+  mediaError: null,
   media_urls: {
     images: [],
     video: [],
     pdf: [],
   },
+  publicAds: [],
+  vendorAds: [],
   venueCountries: [],
-  count: 0,
-  calendar: null,
-  AdPostSuccessAlert: false,
-  AdPostErrorAlert: false,
-  imagesError: false,
-  isMediaUploading: false,
-  mediaError: null,
 };
 
 export const handleCreateNewAd = createAsyncThunk(
@@ -103,6 +106,24 @@ export const listVendorAds = createAsyncThunk(
     try {
       const response = await secureInstance.request({
         url: "/api/ads/",
+        method: "Get",
+      });
+      return response.data; // Assuming your loginAPI returns data with access_token, user_id, and role_id
+    } catch (err) {
+      // Use `err.response.data` as `action.payload` for a `rejected` action,
+      // by explicitly returning it using the `rejectWithValue()` utility
+      return rejectWithValue(err.response.data);
+    }
+  },
+);
+
+export const listCountries = createAsyncThunk(
+  "Ads/listCountries",
+  async (isLoggedIn, { rejectWithValue }) => {
+    try {
+      const request = isLoggedIn ? secureInstance : instance;
+      const response = await request.request({
+        url: "/api/ads/country/",
         method: "Get",
       });
       return response.data; // Assuming your loginAPI returns data with access_token, user_id, and role_id
@@ -311,6 +332,18 @@ export const AdsSlice = createSlice({
       })
       .addCase(listPublicAds.rejected, (state, action) => {
         state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(listCountries.pending, (state) => {
+        // state.loading = true;
+        state.error = null;
+      })
+      .addCase(listCountries.fulfilled, (state, action) => {
+        // state.loading = false;
+        state.countries = action.payload.data;
+      })
+      .addCase(listCountries.rejected, (state, action) => {
+        // state.loading = false;
         state.error = action.payload;
       })
       .addCase(uploadImagesToCloud.pending, (state) => {

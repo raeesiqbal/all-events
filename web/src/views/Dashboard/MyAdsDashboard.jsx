@@ -1,12 +1,7 @@
-import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
-import { Button, Card, Col, Container, Row } from "react-bootstrap";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHeart } from "@fortawesome/free-regular-svg-icons";
-import EmblaCarousel from "../../components/Carousel/Carousel";
-import placeholderIcon from "../../assets/images/placeholder.jpg";
-import { favoriteAd, listPublicAds } from "../redux/Posts/AdsSlice";
+import React from "react";
+import {
+  Card, Col, Container, Row,
+} from "react-bootstrap";
 
 function MyAdsDashboard({ userAds }) {
   const componentToRender = (slide) => (
@@ -68,7 +63,7 @@ function MyAdsDashboard({ userAds }) {
       >
         <Container>
           <div className="roboto-semi-bold-28px-h2 mb-5">My Ads</div>
-          <Row>{userAds?.map((slide, index) => componentToRender(slide))}</Row>
+          <Row>{userAds?.map((slide) => componentToRender(slide))}</Row>
         </Container>
       </Container>
     )

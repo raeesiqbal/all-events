@@ -3,26 +3,17 @@ import { Col, Container, Form, Row } from "react-bootstrap";
 import contactIcon from "../../assets/images/post-ad/contact.svg";
 import mapIcon from "../../assets/images/post-ad/map.svg";
 import { secureInstance } from "../../axios/config";
+import { useSelector } from "react-redux";
 
-function ContactInformationForm({ values, errors, touched, handleChange }) {
-  const [countriesList, setCountries] = useState([]);
+function ContactInformationForm({
+  values, errors, touched, handleChange,
+}) {
+  const { countries } = useSelector((state) => state.Ads.countries);
 
-  const countryOptions = countriesList.map((country) => ({
+  const countryOptions = countries.map((country) => ({
     value: country.id,
     label: country.name,
   }));
-
-  const listCountries = async () => {
-    const request = await secureInstance.request({
-      url: "/api/ads/country/",
-      method: "Get",
-    });
-    setCountries(request.data.data);
-  };
-
-  useEffect(() => {
-    listCountries();
-  }, []);
 
   return (
     <Container fluid style={{ paddingTop: "40px" }}>
