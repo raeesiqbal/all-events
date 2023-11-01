@@ -6,30 +6,12 @@ from django.core.mail import EmailMultiAlternatives
 
 
 @shared_task()
-def printMe():
-    print("abccccccjsdnsjdnsjndsj")
-    return "ssssssssssssssssssssssssssss"
-
-
-@shared_task()
-def add():
-    url = f"abc"
-    context = {
-        "url": url,
-    }
-    html_content = render_to_string("email.html", context=context).strip()
-
-    subject = "Worker task completed."
-    recipients = ["rayiszafar@gmail.com"]
-    reply_to = ["noreply@worker.com"]
+def send_email_to_user(title, html_message, plaintext_message, from_email, to_email):
     msg = EmailMultiAlternatives(
-        subject,
-        html_content,
-        "rayiszafar@gmail.com",
-        recipients,
-        reply_to=reply_to,
+        subject=title,
+        body=plaintext_message,
+        from_email="rayiszafar@gmail.com",
+        to=[to_email],
     )
-    msg.content_subtype = "html"
-    msg.mixed_subtype = "related"
+    msg.attach_alternative(html_message, "text/html")
     msg.send()
-    return True

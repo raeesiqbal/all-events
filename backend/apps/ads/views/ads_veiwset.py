@@ -8,7 +8,6 @@ from django.db.models import Value, F, Q
 from django.db.models.functions import Random
 from django.db import connection
 from rest_framework.decorators import action
-from apps.utils.tasks import add, printMe
 
 
 # filters
@@ -257,7 +256,6 @@ class AdViewSet(BaseViewset):
 
     @action(detail=False, url_path="public-list", methods=["post"])
     def public_ads_list(self, request, *args, **kwargs):
-        printMe.delay()
         payload = request.data
         # Extract data from the payload
         payload_data = payload.get("data", {})

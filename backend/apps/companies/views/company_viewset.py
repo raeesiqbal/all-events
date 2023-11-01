@@ -9,7 +9,7 @@ from rest_framework.decorators import action
 from django.conf import settings
 from rest_framework import status
 from datetime import datetime
-from apps.utils.services.email_service import send_email_to_user
+from apps.utils.tasks import send_email_to_user
 from django.template.loader import render_to_string
 from datetime import date
 
@@ -82,39 +82,6 @@ class CompanyViewSet(BaseViewset):
         user.set_password(user_details["password"])
         user.save()
         Company.objects.create(**serializer.validated_data, user=user)
-
-        # Generate token
-        token = RefreshToken.for_user(user)
-        email_verification_token = str(token.access_token)
-
-        # Construct email verification link
-
-        # verification_link = (
-        #     f"http://example.com/verify-email/?token={email_verification_token}"
-        # )
-        url = settings.FRONTEND_URL
-        verification_link = (
-            "{}/verify-company?token={}".format(url, email_verification_token),
-        )
-
-        # Send email with verification link
-        # Use Django's email sending functionality here
-        context = {
-            "full_name": "{} {}".format(
-                user.first_name.title(), user.last_name.title()
-            ),
-            "year": date.today().year,
-            "reset_password_url": "{}/reset-password?token={}".format(
-                url, reset_password_token.key
-            ),
-        }
-        send_email_to_user(
-            "Verify your account",
-            render_to_string("emails/reset_password/user_reset_password.html", context),
-            render_to_string("emails/reset_password/user_reset_password.txt", context),
-            settings.EMAIL_HOST_USER,
-            user.email,
-        )
 
         return Response(
             status=status.HTTP_200_OK,
@@ -231,15 +198,8 @@ class CompanyViewSet(BaseViewset):
         token = RefreshToken.for_user(user)
         email_verification_token = str(token.access_token)
 
-        # Construct email verification link
-
-        # verification_link = (
-        #     f"http://example.com/verify-email/?token={email_verification_token}"
-        # )
+        # Sending verify email
         url = settings.FRONTEND_URL
-        verification_link = (
-            "{}/verify-company?token={}".format(url, email_verification_token),
-        )
         context = {
             "full_name": "{} {}".format(
                 user.first_name.title(), user.last_name.title()
@@ -249,7 +209,8 @@ class CompanyViewSet(BaseViewset):
                 url, email_verification_token
             ),
         }
-        send_email_to_user(
+
+        send_email_to_user.delay(
             "Verify your account",
             render_to_string("emails/verify_account/verify-account.html", context),
             render_to_string("emails/reset_password/user_reset_password.txt", context),
