@@ -42,6 +42,27 @@ class S3Service:
         except Exception as e:
             return False
 
+    def delete_s3_object_by_urls(self, media_list):
+        bucket_name = self.bucket_name
+        object_key = s3_object_url.replace(
+            f"https://s3.amazonaws.com/{bucket_name}/", ""
+        )
+
+        s3_client = boto3.client("s3")
+
+        try:
+            s3_client.delete_objects(
+                Bucket=bucket_name,
+                Delete={
+                    "Objects": [
+                        {"Key": "string", "VersionId": "string"},
+                    ],
+                },
+            )
+            return True
+        except Exception as e:
+            return False
+
     def upload_file(self, file, content_type, upload_folder=None, object_name=None):
         """Upload a file to an S3 bucket
 
