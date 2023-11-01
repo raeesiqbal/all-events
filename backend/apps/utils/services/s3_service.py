@@ -76,3 +76,28 @@ class S3Service:
             logging.error(e)
             return False
         return uploaded_file_url
+
+    def create_presigned_url(self, file_name, content_type, folder_path=None):
+        """
+        Generate a presigned URL S3 PUT request to upload a file.
+        The response contains the presigned URL.
+        """
+        timestamp = datetime.timestamp(datetime.now())
+        file_path = f"{timestamp}_{file_name}"
+
+        if folder_path:
+            file_path = f"{folder_path}/{file_path}"
+
+        try:
+            response = self.s3_client.generate_presigned_url(
+                "put_object",
+                Params={
+                    "Bucket": self.bucket_name,
+                    "Key": file_path,
+                    "ContentType": content_type,
+                },
+            )
+        except ClientError as e:
+            response = None
+
+        return response

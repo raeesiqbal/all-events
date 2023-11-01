@@ -315,7 +315,10 @@ class AdViewSet(BaseViewset):
         file_url = None
         # # Uploading resume to S3.
         s3_service = S3Service()
-        file_url = s3_service.upload_file(file, content_type, upload_folder)
+        # file_url = s3_service.upload_file(file, content_type, upload_folder)
+        file_url = s3_service.create_presigned_url(
+            file.name, content_type, upload_folder
+        )
 
         return Response(
             status=status.HTTP_200_OK,
@@ -352,7 +355,7 @@ class AdViewSet(BaseViewset):
             data=ResponseInfo().format_response(
                 data={}, status_code=status.HTTP_200_OK, message="delete media list"
             ),
-        )
+        ) 
 
     @action(detail=False, url_path="public-list", methods=["post"])
     def public_ads_list(self, request, *args, **kwargs):
