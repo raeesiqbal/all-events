@@ -8,6 +8,7 @@ from django.db.models import Value, F, Q
 from django.db.models.functions import Random
 from django.db import connection
 from rest_framework.decorators import action
+from apps.utils.tasks import delete_s3_object_by_urls
 
 
 # filters
@@ -144,9 +145,12 @@ class AdViewSet(BaseViewset):
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
-        
+        media = Gallery.objects.filter(ad=instance).first()
+        if media:
+            if media.media_urls and any(media.media_urls.values()):
+                delete_s3_object_by_urls.delay(media.media_urls)
+                media.delete()
         self.perform_destroy(instance)
-
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def create(self, request, *args, **kwargs):
