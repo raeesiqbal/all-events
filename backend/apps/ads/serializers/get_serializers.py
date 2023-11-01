@@ -1,6 +1,12 @@
-from apps.ads.models import FAQ, Ad, Category, Country, Gallery, SubCategory
-from apps.ads.serializers.create_serializers import CategoryCreateSerializer
+# imports
 from rest_framework import serializers
+from apps.utils.serializers.base import BaseSerializer
+from django.db.models import Avg
+
+# serialziers
+from apps.ads.serializers.create_serializers import CategoryCreateSerializer
+
+# models
 from apps.ads.models import (
     FAQ,
     Ad,
@@ -16,14 +22,16 @@ from apps.ads.models import (
     SiteQuestion,
     SiteFAQ,
 )
-from apps.analytics.models import AdReview, Calender
-from django.db.models import Avg
-from apps.analytics.models import FavouriteAd
+from apps.analytics.models import (
+    AdReview,
+    Calender,
+    FavouriteAd,
+)
 from apps.companies.models import Company
+
+
+# constants
 from apps.users.constants import USER_ROLE_TYPES
-from apps.utils.serializers.base import BaseSerializer
-from apps.analytics.models import FavouriteAd
-from django.db.models import Q
 
 
 class SiteQuestionChildGetSerializer(BaseSerializer):
@@ -95,6 +103,7 @@ class CategoryGetSerializer(BaseSerializer):
     class Meta:
         model = Category
         fields = "__all__"
+        ref_name = "Ads Category Serializer"
 
 
 class SubCategoryGetSerializer(BaseSerializer):
@@ -103,18 +112,7 @@ class SubCategoryGetSerializer(BaseSerializer):
     class Meta:
         model = SubCategory
         fields = "__all__"
-
-
-class CountryGetSerializer(BaseSerializer):
-    class Meta:
-        model = Country
-        fields = "__all__"
-
-
-class VenueCountryGetSerializer(BaseSerializer):
-    class Meta:
-        model = Country
-        fields = "__all__"
+        ref_name = "Ads SubCategory Serializer"
 
 
 class FaqsGetSerializer(BaseSerializer):
@@ -381,7 +379,6 @@ class SubCategoryKeywordSerializer(BaseSerializer):
 class AdDashboardSerializer(BaseSerializer):
     ad_image = serializers.SerializerMethodField("get_ad_image")
     sub_category = serializers.SerializerMethodField()
-    status = serializers.SerializerMethodField()
 
     def get_ad_image(self, obj):
         gallery = Gallery.objects.filter(ad=obj).first()
@@ -394,9 +391,6 @@ class AdDashboardSerializer(BaseSerializer):
 
     def get_sub_category(self, obj):
         return obj.sub_category.name
-
-    def get_status(self, obj):
-        return "Active"
 
     class Meta:
         model = Ad

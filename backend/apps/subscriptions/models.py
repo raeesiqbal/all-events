@@ -17,10 +17,10 @@ class SubscriptionType(NewAbstractModel):
     allowed_ads = models.IntegerField(_("Allowed Ads"))
     allowed_ad_photos = models.IntegerField(_("Allowed Ad Photos"))
     allowed_ad_videos = models.IntegerField(_("Allowed Ad Videos"))
+    pdf_upload = models.BooleanField(_("Pdf Upload"))
     reviews = models.BooleanField(_("Reviews"))
     faq = models.BooleanField(_("FAQ"))
     offered_services = models.BooleanField(_("Offered Services"))
-    pdf_upload = models.BooleanField(_("Pdf Upload"))
     analytics = models.BooleanField(_("Analytics"))
     calender = models.BooleanField(_("Calender"))
 
@@ -37,7 +37,7 @@ class Subscription(NewAbstractModel):
         (SUBSCRIPTION_STATUS["ACTIVE"], "active"),
         (SUBSCRIPTION_STATUS["INACTIVE"], "inactive"),
         (SUBSCRIPTION_STATUS["CANCELLED"], "cancelled"),
-        (SUBSCRIPTION_STATUS["PAUSED"], "paused"),
+        (SUBSCRIPTION_STATUS["UNPAID"], "unpaid"),
     )
 
     company = models.ForeignKey(
@@ -54,6 +54,13 @@ class Subscription(NewAbstractModel):
     )
     price_id = models.TextField(_("Price Id"), null=True, blank=True)
     unit_amount = models.TextField(_("Unit Amount"), null=True, blank=True)
+    stripe_subscription = models.JSONField(
+        _("Stripe Subscription"), default=dict, null=True, blank=True
+    )
+    stripe_product = models.JSONField(
+        _("Stripe Product"), default=dict, null=True, blank=True
+    )
+
     status = models.CharField(
         _("Status"), choices=SUBSCRIPTION_STATUS, max_length=50, null=True, blank=True
     )

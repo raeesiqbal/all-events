@@ -7,16 +7,29 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBan } from "@fortawesome/free-solid-svg-icons";
-import timeIcon from "../../assets/images/post-ad/carbon_time.svg";
+import { faBan, faDownload, faInfo } from "@fortawesome/free-solid-svg-icons";
+import { Tooltip } from "@mui/material";
 import { cancelSubscription, resumeSubscription, listSubscriptions } from "../redux/Subscriptions/SubscriptionsSlice";
+import timeIcon from "../../assets/images/post-ad/carbon_time.svg";
+import { handleProfileSettingsCurrentView } from "../redux/TabNavigation/TabNavigationSlice";
 // import cancelIcon from "../../assets/images/cancel.svg";
 
 const Subscription = ({ subscription }) => {
+  const CANCELLED = ["cancelled"];
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const [deleteModal, setDeleteModal] = React.useState(false);
+
+  const infostyle = {
+    backgroundColor: "#9B9B9B",
+    color: "white",
+    borderRadius: "50%",
+    fontSize: "11px",
+    width: "16px",
+    height: "16px",
+  };
 
   const date = (d) => new Date(d);
 
@@ -38,9 +51,9 @@ const Subscription = ({ subscription }) => {
   };
 
   // Get the formatted date with ordinal day
-  const formattedDate = (d) => `${`${date(d).getDate() + getOrdinalSuffix(date(d).getDate())} ${
+  const formattedDate = (d) => `${date(d).getDate().toString()}${getOrdinalSuffix(date(d).getDate())} ${
     date(d).toLocaleString("en-US", { month: "long" })}, ${
-    date(d).getFullYear()}`}`;
+    date(d).getFullYear().toString()}`;
 
   const handleCancelSubscription = async () => {
     dispatch(cancelSubscription({ subscription_id: subscription.subscription_id }));
@@ -108,60 +121,107 @@ const Subscription = ({ subscription }) => {
       <Row className="mx-0 mt-4 w-100 ps-2 p-3 subscription-free">
         <h2>{subscription.name}</h2>
         <div className="d-flex w-100">
-          <img src={timeIcon} alt="time icon" style={{ width: "20px", height: "20px" }} />
-          <div className="my-auto ms-1" style={{ fontSize: "14px" }}>{formattedDate(subscription.created_at)}</div>
+          <img src={timeIcon} alt="time icon" style={{ width: "25px", height: "25px" }} />
+          <div className="my-auto ms-1" style={{ fontSize: "18px", lineHeight: "18px" }}>{formattedDate(subscription?.created_at)}</div>
         </div>
         {
           subscription.cancel_at_period_end && (
-            <div className="mt-1" style={{ fontSize: "14px", fontWeight: "500" }}>
-              Validation date:
+            <div className="mt-1" style={{ fontSize: "18px", fontWeight: "500" }}>
+              Cancels on
               {" "}
               {formattedDate(subscription.cancel_date)}
             </div>
           )
         }
         <div className="d-sm-flex justify-content-between mt-3">
-          <div className="mb-3 my-sm-auto" style={{ fontSize: "13px" }}>
-            Allowed Ads:
-            {" "}
-            {subscription.allowed_ads}
-          </div>
-          <div className="d-flex">
+          <div>
+            <div className="mb-3 my-sm-auto w-100">
+              Allowed Ads:
+              {" "}
+              {subscription.allowed_ads}
+            </div>
             {
-              subscription.cancel_at_period_end ? (
-                <Button
-                  type="button"
-                  variant="success"
-                  className="me-3 px-5 py-0"
-                  style={{ fontSize: "12px !important", height: "32px" }}
-                  onClick={() => setDeleteModal(true)}
-                >
-                  Resume
-                </Button>
-              ) : (
-                <>
-                  <Button
-                    type="button"
-                    variant="success"
-                    className="me-3 px-5 py-0"
-                    style={{ fontSize: "12px !important", height: "32px" }}
-                    onClick={() => navigate("/plans")}
-                  >
-                    Upgrade
-                  </Button>
+              subscription.status === "unpaid" && (
+                <div className="d-flex align-items-center w-100">
                   <div
-                    className="d-flex"
-                    style={{
-                      borderRadius: "50%", height: "32px", width: "32px", backgroundColor: "rgba(217, 217, 217, 1)", cursor: "pointer",
-                    }}
-                    onClick={() => setDeleteModal(true)}
+                    style={infostyle}
+                    className="d-flex align-items-center justify-content-center me-1"
                   >
-                    <FontAwesomeIcon className="mx-auto my-auto" icon={faBan} />
+                    <FontAwesomeIcon
+                      icon={faInfo}
+                      size="sm"
+                    />
                   </div>
-                </>
+                  Plan failed to renew, please update your payment method.
+                  {" "}
+                  <span
+                    className="click-here"
+                    onClick={() => {
+                      dispatch(handleProfileSettingsCurrentView("PaymentMethod"));
+                      navigate("/profile-settings");
+                    }}
+                  >
+                    Click here
+                  </span>
+                </div>
               )
             }
           </div>
+          {
+            !CANCELLED.includes(subscription.status) && (
+              <div className="d-flex align-items-center">
+                {
+                  subscription.cancel_at_period_end ? (
+                    <Button
+                      type="button"
+                      variant="success"
+                      className="me-3 px-5 py-0"
+                      style={{ fontSize: "12px !important", height: "32px" }}
+                      onClick={() => setDeleteModal(true)}
+                    >
+                      Resume
+                    </Button>
+                  ) : (
+                    <>
+                      <Button
+                        type="button"
+                        variant="success"
+                        className="me-3 px-5 py-0"
+                        style={{ fontSize: "12px !important", height: "32px" }}
+                        onClick={() => navigate("/plans")}
+                      >
+                        Upgrade
+                      </Button>
+
+                      <Tooltip title="Cancel subscription" placement="top">
+                        <div
+                          className="d-flex"
+                          style={{
+                            borderRadius: "50%", height: "32px", width: "32px", backgroundColor: "rgba(217, 217, 217, 1)", cursor: "pointer",
+                          }}
+                          onClick={() => setDeleteModal(true)}
+                        >
+                          <FontAwesomeIcon className="mx-auto my-auto" icon={faBan} />
+                        </div>
+                      </Tooltip>
+
+                      <Tooltip className="ms-3" title="Download Invoice" placement="top">
+                        <div
+                          className="d-flex"
+                          style={{
+                            borderRadius: "50%", height: "32px", width: "32px", backgroundColor: "rgba(217, 217, 217, 1)", cursor: "pointer",
+                          }}
+                          // onClick={() => setDeleteModal(true)}
+                        >
+                          <FontAwesomeIcon className="mx-auto my-auto" icon={faDownload} />
+                        </div>
+                      </Tooltip>
+                    </>
+                  )
+                }
+              </div>
+            )
+          }
         </div>
       </Row>
     </>

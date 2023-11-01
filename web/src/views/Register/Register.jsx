@@ -62,9 +62,8 @@ function Register() {
       centered="true"
     >
 
-      <div className="box" style={{ position: "absolute", right: "0" }} />
-      <div style={{ position: "absolute", right: "0" }}>
-
+      <div className="box" style={{ position: "absolute", right: "3.5px", top: "3px" }} />
+      <div style={{ position: "absolute", right: "11px", top: "6px" }}>
         <div role="presentation" onClick={handleClose}>
           <img src={X} alt="X" className="close-icon" style={{ cursor: "pointer" }} />
         </div>

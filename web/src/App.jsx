@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
-  Route, Routes, useLocation,
+  Route, Routes, useLocation, useNavigate,
 } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { Button, Modal } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import Homepage from "./views/Homepage/Homepage";
@@ -28,12 +29,22 @@ import Footer from "./components/Footer/Footer";
 import TopBanner from "./components/TopBanner";
 import "./App.css";
 import Calendars from "./views/Calendars/Calendars";
+import { handleProfileSettingsCurrentView } from "./views/redux/TabNavigation/TabNavigationSlice";
+import { currentSubscriptionDetails, setShowModal } from "./views/redux/Subscriptions/SubscriptionsSlice";
 
 function App() {
   const location = useLocation();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { user, screenLoading } = useSelector((state) => state.auth);
+  const currentSubscription = useSelector((state) => state.subscriptions.currentSubscriptionDetails);
+  const {
+    showModal, modalMessage, modalType, buttonText, modalTitle,
+  } = useSelector((state) => state.subscriptions.modalInfo);
+  const profileSettingsCurrentView = useSelector(
+    (state) => state.tabNavigation.profileSettingsCurrentView,
+  );
 
-  // Define an array of routes where you want to hide the navigation bar
   const routesWithTabNavigation = [
     "/post-ad",
     "/edit-ad/:id",
@@ -47,11 +58,102 @@ function App() {
     "/calendars",
   ];
 
-  // Check if the current route is in the array of routes to hide the navigation bar
   const shouldRenderTabNavigation = routesWithTabNavigation.includes(location.pathname);
+
+  const handleSubscription = () => {
+    dispatch(setShowModal(false));
+
+    switch (modalType) {
+      case "no_subscription":
+        navigate("/plans");
+        break;
+      case "unpaid":
+        dispatch(handleProfileSettingsCurrentView("PaymentMethod"));
+        navigate("/profile-settings");
+        break;
+      case "create":
+        navigate("/my-ads");
+        break;
+      default:
+        // nothing to do
+    }
+  };
+
+  useEffect(() => {
+    if (
+      ((currentSubscription === null && modalType !== null)
+          || (currentSubscription !== null && user?.role === "vendor" && currentSubscription.status === "unpaid"))
+        && !["/plans", "/checkout", "/subscriptions"].includes(location.pathname)
+        && profileSettingsCurrentView !== "PaymentMethod"
+    ) {
+      dispatch(setShowModal(true));
+    }
+  }, [currentSubscription, location, modalType, profileSettingsCurrentView]);
+
+  useEffect(() => {
+    if (currentSubscription === null && user?.role === "vendor") {
+      dispatch(currentSubscriptionDetails());
+    }
+  }, [user]);
 
   return (
     <>
+      <Modal
+        show={showModal}
+        onHide={() => {
+          dispatch(setShowModal(false));
+        }}
+        size="lg"
+        aria-labelledby="example-custom-modal-styling-title"
+        centered="true"
+      >
+        <div className="box" style={{ position: "absolute", right: "3.5px", top: "3px" }} />
+        <div
+          style={{
+            position: "absolute",
+            right: "11px",
+            top: "6px",
+            zIndex: "20",
+          }}
+        >
+          <div
+            role="presentation"
+            onClick={() => {
+              dispatch(setShowModal(false));
+            }}
+            className="close-icon"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 18 18"
+              fill="none"
+              style={{ cursor: "pointer" }}
+            >
+              <path
+                d="M17 1L1 17M1 1L17 17"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
+        </div>
+        <Modal.Body className="text-center">
+          <h1 className="w-100 mb-5 mt-3 fw-bold">{modalTitle}</h1>
+          <h5 className="my-5 mx-5 px-5 text-secondary fw-normal" dangerouslySetInnerHTML={{ __html: modalMessage }} />
+          <Button
+            variant="success"
+            className="mx-5 mb-3"
+            style={{ width: "-webkit-fill-available" }}
+            onClick={handleSubscription}
+          >
+            {buttonText}
+          </Button>
+        </Modal.Body>
+      </Modal>
+
       <Login />
       {
         user === null && (

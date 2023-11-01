@@ -23,8 +23,8 @@ class Company(NewAbstractModel):
     is_active = models.BooleanField(default=True)
     is_verified = models.BooleanField(default=False)
     postal_code = models.TextField(null=True, blank=True, verbose_name=_("Cod Postal"))
-    fiscal_code = models.TextField(null=True, blank=True, verbose_name=_("Cod Fiscal"))
-    address = models.TextField(null=True, blank=True, verbose_name=_("adresa"))
+    fiscal_code = models.TextField(verbose_name=_("Cod Fiscal"))
+    address = models.TextField(verbose_name=_("adresa"))
     firm_number = models.TextField(
         null=True, blank=True, verbose_name=_("Nr. Reg. Comertului")
     )
@@ -39,7 +39,7 @@ class Company(NewAbstractModel):
         blank=True,
     )
     image = models.TextField(null=True, blank=True)
-    city = models.TextField(null=True, blank=True)
+    city = models.TextField()
     stripe_customer_id = models.TextField(
         _("Stripe Customer Id"), null=True, blank=True
     )

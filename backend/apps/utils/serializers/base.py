@@ -17,28 +17,30 @@ class BaseSerializer(ModelSerializer):
     user_role_fields = dict()
 
     class Meta:
-        lookup_field = 'id'
+        lookup_field = "id"
 
     def get_field_names(self, declared_fields, info):
         fields = super().get_field_names(declared_fields, info)
 
-        user_role = getattr(self._get_calling_user(), 'role_type', USER_ROLE_TYPES['VENDOR'])
+        user_role = getattr(
+            self._get_calling_user(), "role_type", USER_ROLE_TYPES["VENDOR"]
+        )
         if user_role in self.user_role_fields:
             fields = list(set(fields).intersection(self.user_role_fields[user_role]))
-        elif 'default' in self.user_role_fields:
-            fields = list(set(fields).intersection(self.user_role_fields['default']))
+        elif "default" in self.user_role_fields:
+            fields = list(set(fields).intersection(self.user_role_fields["default"]))
 
-        if 'id' not in fields:
-            fields.append('id')
+        if "id" not in fields:
+            fields.append("id")
 
         return fields
 
     def _get_calling_user(self, default=None):
-        user = self.context.get('request', DummyRequest()).user
+        user = self.context.get("request", DummyRequest()).user
         return user if user else default
 
     def _get_calling_user_id(self, default=None):
-        user = self.context.get('request', DummyRequest()).user
+        user = self.context.get("request", DummyRequest()).user
         return user.id if user else default
 
     def update(self, instance, validated_data):

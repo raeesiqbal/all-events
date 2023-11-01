@@ -5,12 +5,12 @@ from rest_framework import serializers
 
 
 class CreateCustomerSerializer(BaseSerializer):
-    # email=serializers.EmailField()
     price_id = serializers.CharField()
+    allowed_ads = serializers.IntegerField()
 
     class Meta:
         model = Client
-        fields = ["price_id"]
+        fields = ["price_id", "allowed_ads"]
 
 
 class InputPriceIdSerializer(serializers.Serializer):

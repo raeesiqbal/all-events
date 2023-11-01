@@ -77,6 +77,9 @@ class StripeService:
     def retrieve_subscription(self, subscription_id):
         return stripe.Subscription.retrieve(subscription_id)
 
+    def retrieve_invoice(self, invoice_id):
+        return stripe.Invoice.retrieve(invoice_id)
+
     def create_account(self, email, acc_type):
         try:
             response = stripe.Account.create(
@@ -104,25 +107,6 @@ class StripeService:
                 },
             )
             return payment_method
-        except Exception as ex:
-            return None
-
-    def create_session(self, customer_id, price_id, domain_url):
-        try:
-            checkout_session = stripe.checkout.Session.create(
-                customer=customer_id,
-                success_url=domain_url + "success?session_id={CHECKOUT_SESSION_ID}",
-                cancel_url=domain_url + "cancel/",
-                payment_method_types=["card"],
-                mode="subscription",
-                line_items=[
-                    {
-                        "price": price_id,
-                        "quantity": 1,
-                    }
-                ],
-            )
-            return checkout_session
         except Exception as ex:
             return None
 
@@ -187,6 +171,13 @@ class StripeService:
                 subscription_id,
                 cancel_at_period_end=True,
             )
+            return cancel_subscription
+        except Exception as ex:
+            return None
+
+    def cancel_subscription_immediately(self, subscription_id):
+        try:
+            cancel_subscription = stripe.Subscription.delete(subscription_id)
             return cancel_subscription
         except Exception as ex:
             return None

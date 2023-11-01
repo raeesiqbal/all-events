@@ -3,20 +3,17 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import list from "../../assets/images/list.svg";
-import plusCircle from "../../assets/images/plus-circle.svg";
-import settings from "../../assets/images/settings.svg";
-import messages from "../../assets/images/mdi-light_message-text.svg";
-import "./TabNavigation.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCalendarCheck, faEnvelope, faHeart } from "@fortawesome/free-regular-svg-icons";
+import {
+  faChartLine, faCircleDollarToSlot, faGauge, faGear, faListUl,
+} from "@fortawesome/free-solid-svg-icons";
 import {
   handleClickTab,
   handleProfileSettingsCurrentView,
 } from "../../views/redux/TabNavigation/TabNavigationSlice";
 import { setImagesToUpload } from "../../views/redux/Posts/AdsSlice";
-import { currentSubscriptionDetails } from "../../views/redux/Subscriptions/SubscriptionsSlice";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCalendarCheck, faEnvelope, faHeart } from "@fortawesome/free-regular-svg-icons";
-import { faChartLine, faCircleDollarToSlot, faGauge, faGear, faListUl } from "@fortawesome/free-solid-svg-icons";
+import "./TabNavigation.css";
 
 const vendorTabs = [
   {
@@ -88,12 +85,6 @@ const TabNavigation = ({ role }) => {
     navigate(path);
     dispatch(handleClickTab(index));
   };
-
-  useEffect(() => {
-    if (currentSubscription === null && role === "vendor") {
-      dispatch(currentSubscriptionDetails());
-    }
-  }, []);
 
   useEffect(() => {
     const hasAnalyticsTab = tabs.filter((tab) => tab.label === "Analytics");

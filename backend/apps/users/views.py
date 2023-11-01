@@ -1,32 +1,41 @@
+# imports
+from apps.utils.views.base import BaseViewset, ResponseInfo
+from apps.subscriptions.stripe_service import StripeService
+from rest_framework_simplejwt.views import TokenObtainPairView
+from apps.utils.services.s3_service import S3Service
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework import status
 import datetime
-from re import sub
+import jwt
+
+# constants
+from apps.subscriptions.constants import SUBSCRIPTION_STATUS, SUBSCRIPTION_TYPES
+from apps.users.constants import USER_ROLE_TYPES
+from apps.ads.constants import AD_STATUS
+from my_site.settings import SECRET_KEY
+
+# permissions
+from apps.users.permissions import IsSuperAdmin, IsVendorUser, IsClient
+from rest_framework.permissions import IsAuthenticated
+
+# serializers
+from apps.ads.serializers.create_serializers import UserImageSerializer
 from apps.companies.serializers.update_serializers import (
     UserDeleteSerializer,
     UserUpdateSerializer,
 )
-from apps.users.constants import USER_ROLE_TYPES
-from apps.users.permissions import IsSuperAdmin, IsVendorUser, IsClient
 from apps.users.serializers import (
-    CreateUserSerializer,
     CustomTokenObtainPairSerializer,
     GetUserSerializer,
     UpdatePasswordSerializer,
     ValidatePasswordSerializer,
 )
-from rest_framework.decorators import action
-from rest_framework.response import Response
-import jwt
-from rest_framework import status
+
+# models
+from apps.subscriptions.models import Subscription, SubscriptionType
 from apps.users.models import User
-from rest_framework_simplejwt.views import TokenObtainPairView
-from my_site.settings import SECRET_KEY
-
-
-from apps.utils.views.base import BaseViewset, ResponseInfo
-from rest_framework.permissions import IsAuthenticated
-
-from apps.utils.services.s3_service import S3Service
-from apps.ads.serializers.create_serializers import UserImageSerializer
+from apps.ads.models import Ad
 
 
 class UserViewSet(BaseViewset):
@@ -55,6 +64,7 @@ class UserViewSet(BaseViewset):
             id=self.request.user.id
         )
     }
+    stripe_service = StripeService()
 
     @action(detail=False, url_path="validate-user", methods=["post"])
     def validate_user(self, request, *args, **kwargs):
@@ -141,12 +151,39 @@ class UserViewSet(BaseViewset):
     def delete_user(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user = request.user
         resp_status = status.HTTP_200_OK
+        user = request.user
 
         if user.check_password(serializer.validated_data.pop("password")):
+            if user.role_type == USER_ROLE_TYPES["VENDOR"]:
+                print("compaaaaaaaaaaaaa")
+                company = user.user_company
+                company_subscription = Subscription.objects.filter(
+                    company=company,
+                    status__in=[
+                        SUBSCRIPTION_STATUS["ACTIVE"],
+                        SUBSCRIPTION_STATUS["UNPAID"],
+                    ],
+                ).first()
+                free_type = SubscriptionType.objects.filter(
+                    type=SUBSCRIPTION_TYPES["FREE"]
+                ).first()
+
+                if company_subscription.type == free_type:
+                    Ad.objects.filter(company=company).update(
+                        status=AD_STATUS["INACTIVE"]
+                    )
+                    company_subscription.status = SUBSCRIPTION_STATUS["CANCELLED"]
+                    company_subscription.save()
+
+                else:
+                    self.stripe_service.cancel_subscription_immediately(
+                        company_subscription.subscription_id
+                    )
+
             user.delete_reason = serializer.validated_data.pop("delete_reason")
             user.is_active = False
+            user.newsletter = False
             user.save()
         else:
             resp_status = status.HTTP_400_BAD_REQUEST
