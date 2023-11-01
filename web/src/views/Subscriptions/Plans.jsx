@@ -51,6 +51,9 @@ const Plans = () => {
 
   useEffect(() => {
     if (user?.role === "client") navigate("/");
+  }, [user?.role]);
+
+  useEffect(() => {
     dispatch(listPlans(user?.userId !== null));
     dispatch(getPaymentMethod());
   }, [user?.userId]);

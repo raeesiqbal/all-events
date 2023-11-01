@@ -13,7 +13,7 @@ from apps.companies.models import Company
 from apps.utils.serializers.base import BaseSerializer
 
 
-class CreateUserSerializer(serializers.ModelSerializer): 
+class CreateUserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
         max_length=128,
         min_length=6,
@@ -100,8 +100,8 @@ class GetUserDetailSerializer(serializers.ModelSerializer):
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, value):
         data = super(CustomTokenObtainPairSerializer, self).validate(value)
-
-        data["user"] = GetUserDetailSerializer(self.user).data
+        # data["user"] = GetUserDetailSerializer(self.user).data
+        data["user"] = GetUserSerializer(self.user).data
         return data
 
 
