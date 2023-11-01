@@ -613,14 +613,15 @@ class SubscriptionsViewSet(BaseViewset):
             if latest_invoice_id:
                 latest_invoice = self.stripe.Invoice.retrieve(latest_invoice_id)
                 pdf_link = latest_invoice.invoice_pdf
-                return Response(
-                    status=status.HTTP_200_OK,
-                    data=ResponseInfo().format_response(
-                        data=pdf_link,
-                        status_code=status.HTTP_200_OK,
-                        message="Invoice downloaded successfully.",
-                    ),
-                )
+                if pdf_link:
+                    return Response(
+                        status=status.HTTP_200_OK,
+                        data=ResponseInfo().format_response(
+                            data=pdf_link,
+                            status_code=status.HTTP_200_OK,
+                            message="Invoice downloaded successfully.",
+                        ),
+                    )
         return Response(
             status=status.HTTP_400_BAD_REQUEST,
             data=ResponseInfo().format_response(
