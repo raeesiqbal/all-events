@@ -16,11 +16,13 @@ from apps.users.permissions import IsVendorUser
 # constants
 from apps.utils.constants import PRODUCT_NAMES
 from apps.subscriptions.constants import SUBSCRIPTION_STATUS, SUBSCRIPTION_TYPES
+from apps.ads.models import Gallery
 
 # models
 from apps.subscriptions.models import Subscription, SubscriptionType, PaymentMethod
-from apps.ads.models import Ad
+from apps.ads.models import Ad, FAQ
 from apps.companies.models import Company
+from apps.analytics.models import AdReview, Calender
 
 # serializers
 from apps.subscriptions.serializers.create_serializer import (
@@ -297,7 +299,7 @@ class SubscriptionsViewSet(BaseViewset):
                     updated_type = SUBSCRIPTION_TYPES["STANDARD"]
                 elif int(retrieve_product.metadata.allowed_ads) == 2:
                     updated_type = SUBSCRIPTION_TYPES["ADVANCED"]
-                if int(retrieve_product.metadata.allowed_ads) == 3:
+                elif int(retrieve_product.metadata.allowed_ads) == 3:
                     updated_type = SUBSCRIPTION_TYPES["FEATURED"]
                 updated_type = SubscriptionType.objects.filter(
                     type=updated_type
@@ -450,38 +452,91 @@ class SubscriptionsViewSet(BaseViewset):
     def update_subscription(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-
         subscription_id = serializer.validated_data.pop("subscription_id")
         price_id = serializer.validated_data.pop("price_id")
         allowed_ads = serializer.validated_data.pop("allowed_ads")
 
-        retrieve_subscription = self.stripe_service.retrieve_subscription(
-            subscription_id
-        )
+        old_subscription = Subscription.objects.filter(
+            subscription_id=subscription_id
+        ).first()
+        if old_subscription:
+            vendor_ads = Ad.objects.filter(company=request.user.user_company)
+            vendor_ads_count = Ad.objects.filter(
+                company=request.user.user_company
+            ).count()
+            if allowed_ads == 1:
+                updated_type = SUBSCRIPTION_TYPES["STANDARD"]
+            elif allowed_ads == 2:
+                updated_type = SUBSCRIPTION_TYPES["ADVANCED"]
+            elif allowed_ads == 3:
+                updated_type = SUBSCRIPTION_TYPES["FEATURED"]
+            updated_type = SubscriptionType.objects.filter(type=updated_type).first()
 
-        retrieve_old_product = self.stripe_service.retrieve_product(
-            retrieve_subscription["items"].data[0].price.product
-        )
+            if (
+                int(old_subscription.stripe_product["metadata"]["allowed_ads"])
+                > allowed_ads
+            ):
+                # if vendor_ads_count > allowed_ads:
+                #     return Response(
+                #         status=status.HTTP_400_BAD_REQUEST,
+                #         data=ResponseInfo().format_response(
+                #             data={},
+                #             status_code=status.HTTP_400_BAD_REQUEST,
+                #             message=f"You can't upgrade to this plan. Your current active Ads count is {vendor_ads_count}, while the plan you want to upgrade allow {allowed_ads} ads upload. Please delete your unwanted ads first.",
+                #         ),
+                #     )
+                error_list = []
+                if vendor_ads_count > 0:
+                    if vendor_ads_count > updated_type.allowed_ads:
+                        error_list.append(
+                            "Your current active Ads count is {vendor_ads_count}, while the plan you want to downgrade allows {allowed_ads} ads upload. Please delete your unwanted ads first."
+                        )
+                        for ad in vendor_ads:
+                            gallery = Gallery.objects.filter(ad=ad).first()
+                            if gallery:
+                                image_count = len(gallery.media_urls["images"])
+                                video_count = len(gallery.media_urls["video"])
+                                pdf_count = len(gallery.media_urls["pdf"])
+                                if image_count > updated_type.allowed_ad_photos:
+                                    error_list.append(
+                                        f"Your ad {ad.name} image count is {image_count}, while the while the plan you want to downgrade supports {updated_type.allowed_ad_photos} images"
+                                    )
+                                if video_count > updated_type.allowed_ad_videos:
+                                    error_list.append(
+                                        f"Your ad {ad.name} video count is {video_count}, while the while the plan you want to downgrade supports {updated_type.allowed_ad_videos} videos"
+                                    )
+                                if pdf_count > 0 and updated_type.pdf_upload == False:
+                                    error_list.append(
+                                        f"Your ad {ad.name} pdf count is {pdf_count}, while the while the plan you want to downgrade does not support uploading of pdfs"
+                                    )
+                        if error_list:
+                            return Response(
+                                status=status.HTTP_200_OK,
+                                data=ResponseInfo().format_response(
+                                    data={},
+                                    status_code=status.HTTP_200_OK,
+                                    message=error_list,
+                                ),
+                            )
 
-        if int(retrieve_old_product.metadata.allowed_ads) > allowed_ads:
-            vendor_ads = Ad.objects.filter(company=request.user.user_company).count()
-
-            if vendor_ads > allowed_ads:
-                return Response(
-                    status=status.HTTP_200_OK,
-                    data=ResponseInfo().format_response(
-                        data={},
-                        status_code=status.HTTP_400_BAD_REQUEST,
-                        message=f"You can't upgrade to this plan. Your current active Ads count is {vendor_ads}, while the plan you want to upgrade allow {allowed_ads} ads upload. Please delete your unwanted ads first.",
-                    ),
-                )
-
-        update_subscription = self.stripe_service.update_subscription(
-            subscription_id, retrieve_subscription["items"].data[0].id, price_id
-        )
+            update_subscription = self.stripe_service.update_subscription(
+                subscription_id,
+                old_subscription.stripe_subscription["items"]["data"][0]["id"],
+                price_id,
+            )
         status_code = status.HTTP_400_BAD_REQUEST
         message = "An error occur while updating your subscription, please try again."
         if update_subscription:
+            for ad in vendor_ads:
+                if updated_type.reviews == False:
+                    AdReview.objects.filter(ad=ad).delete()
+                if updated_type.offered_services == False:
+                    FAQ.objects.delete(ad=ad)
+                if updated_type.offered_services == False:
+                    ad.offered_services = None
+                    ad.save()
+                if updated_type.calender == False:
+                    Calender.objects.filter(ad=ad).update(hide=True)
             status_code = status.HTTP_200_OK
             message = "Your subscription will be changed after the invoice has been paid successfully"
         return Response(
