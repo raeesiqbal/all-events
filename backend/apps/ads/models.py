@@ -144,7 +144,7 @@ class Gallery(models.Model):
         verbose_name_plural = "Galleries"
 
 
-class FAQ(models.Model):
+class FAQ(models.Model): 
     ad = models.ForeignKey(
         "ads.Ad",
         verbose_name=_("Ad"),
