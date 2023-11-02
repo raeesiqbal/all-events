@@ -4,6 +4,7 @@ from apps.ads.models import Ad, Category, Gallery
 from rest_framework import serializers
 from apps.analytics.models import FavouriteAd
 from django.db.models import Avg
+from apps.users.constants import USER_ROLE_TYPES
 
 
 class AdFavChildSerializer(BaseSerializer):
@@ -244,6 +245,8 @@ class ChatListSerializer(BaseSerializer):
 
 
 class ChatMessageSerializer(BaseSerializer):
+    image = serializers.SerializerMethodField()
+
     class Meta:
         model = Message
         fields = [
@@ -251,4 +254,17 @@ class ChatMessageSerializer(BaseSerializer):
             "attachments",
             "created_at",
             "sender",
+            "image",
         ]
+
+    def get_image(self, obj):
+        if obj.sender.role_type == USER_ROLE_TYPES["VENDOR"]:
+            gallery = Gallery.objects.filter(ad=obj.chat.ad).first()
+            return (
+                gallery.media_urls.get("images")[0]
+                if gallery.media_urls.get("images")
+                and gallery.media_urls.get("images")[0]
+                else None
+            )
+        else:
+            return obj.sender.image
