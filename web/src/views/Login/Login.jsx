@@ -120,6 +120,9 @@ function Login() {
         /^[a-zA-Z\s-]*$/,
         "Must only contain letters, spaces, and hyphens"
       ),
+    // terms_acceptance: Yup.bool()
+    //   .required()
+    //   .oneOf([true], "Terms must be accepted"),
   });
 
   const step2Schema = Yup.object().shape({
@@ -273,9 +276,11 @@ function Login() {
 
   const handleStep1Submit = () => {
     dispatch(handleNextStep());
+    console.log("aaa");
   };
 
   const handleRegisterationSubmit = (values, { resetForm }) => {
+    console.log("Hellpo");
     let data = {
       user: {
         email: values.email,
@@ -347,7 +352,8 @@ function Login() {
     if (isLoggedInState) {
       handleClose();
       dispatch(handleLoginStatusFalse());
-      navigate(selectedRole === "client" ? "/" : "/dashboard");
+      navigate("/dashboard");
+      // navigate(selectedRole === "client" ? "/" : "/dashboard");
     }
   }, [isLoggedInState]);
 
@@ -359,7 +365,10 @@ function Login() {
       aria-labelledby="example-custom-modal-styling-title"
       centered="true"
     >
-      <div className="box" style={{ position: "absolute", right: "3.5px", top: "3px" }} />
+      <div
+        className="box"
+        style={{ position: "absolute", right: "3.5px", top: "3px" }}
+      />
       <div
         style={{
           position: "absolute",

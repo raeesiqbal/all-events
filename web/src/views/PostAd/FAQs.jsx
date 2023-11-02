@@ -77,6 +77,7 @@ function FAQs({
                         errors.faqs?.length > 0 &&
                         !!errors?.faqs[index]?.question
                       }
+                      maxLength={150}
                     />
                     <Form.Control.Feedback type="invalid">
                       {errors.faqs?.length > 0 && errors.faqs[index].question}
@@ -102,6 +103,7 @@ function FAQs({
                   isInvalid={
                     errors.faqs?.length > 0 && !!errors?.faqs[index]?.answer
                   }
+                  maxLength={500}
                 />
                 <Form.Control.Feedback type="invalid">
                   {errors.faqs?.length > 0 && errors.faqs[index].answer}

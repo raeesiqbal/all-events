@@ -1,11 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import {
-  Button,
-  Col,
-  Container,
-  Form,
-  Row,
-} from "react-bootstrap";
+import { Button, Col, Container, Form, Row } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import oldPasswordIcon from "../../assets/images/profile-settings/old-password.svg";
 import newPasswordIcon from "../../assets/images/profile-settings/new-password.svg";
@@ -89,7 +83,9 @@ const PaymentMethod = () => {
         <div
           className="d-flex mt-3"
           style={{ cursor: "pointer" }}
-          onClick={() => dispatch(handleProfileSettingsCurrentView("profileSettings"))}
+          onClick={() =>
+            dispatch(handleProfileSettingsCurrentView("profileSettings"))
+          }
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -109,7 +105,7 @@ const PaymentMethod = () => {
 
       <Container
         fluid
-        style={{ marginTop: "20px", marginBottom: "200px" }}
+        style={{ marginTop: "20px", marginBottom: "100px" }}
         className=""
       >
         <Row className="justify-content-center">
@@ -189,7 +185,9 @@ const PaymentMethod = () => {
                     className="hide-validation-icon lg-input-small-text"
                     size="lg"
                     placeholder="Expiry Date"
-                    value={`${currentPaymentMethod?.exp_month || "00"}/${currentPaymentMethod?.exp_year || "00"}`}
+                    value={`${currentPaymentMethod?.exp_month || "00"}/${
+                      currentPaymentMethod?.exp_year || "00"
+                    }`}
                     disabled
                   />
                 </Form.Group>
@@ -199,20 +197,35 @@ const PaymentMethod = () => {
                 <div className="payment-card-front p-4" ref={paymentCardFront}>
                   <div className="top-right-oval" />
                   <div className="bottom-left-oval" />
-                  <div className="d-flex justify-content-between pe-2" style={{ height: "60px" }}>
+                  <div
+                    className="d-flex justify-content-between pe-2"
+                    style={{ height: "60px" }}
+                  >
                     <img src={paymentCardLogo} alt="paymentCardLogo" />
-                    <div style={{ fontSize: "24px", fontWeight: "500", color: "rgba(255, 255, 255, 0.6)" }}>
+                    <div
+                      style={{
+                        fontSize: "24px",
+                        fontWeight: "500",
+                        color: "rgba(255, 255, 255, 0.6)",
+                      }}
+                    >
                       {currentPaymentMethod?.brand}
                     </div>
                   </div>
                   <div className="d-flex justify-content-between mt-auto px-2">
                     <div className="d-flex fw-bold text-light align-items-center">
-                      <div className="me-1" style={{ width: "115px", height: "12px", backgroundColor: "#A0C49D" }} />
+                      <div
+                        className="me-1"
+                        style={{
+                          width: "115px",
+                          height: "12px",
+                          backgroundColor: "#A0C49D",
+                        }}
+                      />
                       {currentPaymentMethod?.last_4}
                     </div>
                     <div className="fw-bold text-light">
-                      {currentPaymentMethod?.exp_month || "00"}
-                      /
+                      {currentPaymentMethod?.exp_month || "00"}/
                       {currentPaymentMethod?.exp_year || "00"}
                     </div>
                   </div>
@@ -222,17 +235,33 @@ const PaymentMethod = () => {
                 <div className="payment-card-back p-3" ref={paymentCardBack}>
                   <div className="top-right-oval" />
                   <div className="bottom-left-oval" />
-                  <div className="d-flex justify-content-between mt-3" style={{ height: "31px" }}>
+                  <div
+                    className="d-flex justify-content-between mt-3"
+                    style={{ height: "31px" }}
+                  >
                     <img src={paymentCardSingleLogo} alt="paymentCardLogo" />
-                    <div style={{ fontSize: "16px", fontWeight: "500", color: "rgba(255, 255, 255, 0.6)" }}>
+                    <div
+                      style={{
+                        fontSize: "16px",
+                        fontWeight: "500",
+                        color: "rgba(255, 255, 255, 0.6)",
+                      }}
+                    >
                       {currentPaymentMethod?.brand}
                     </div>
                   </div>
                   <div className="d-flex justify-content-between mt-auto px-2">
-                    <img src={sim} alt="paymentCardLogo" className="mb-3" style={{ height: "35px" }} />
-                    <div className="fw-bold text-light my-auto" style={{ fontSize: "11px" }}>
-                      {currentPaymentMethod?.exp_month || "00"}
-                      /
+                    <img
+                      src={sim}
+                      alt="paymentCardLogo"
+                      className="mb-3"
+                      style={{ height: "35px" }}
+                    />
+                    <div
+                      className="fw-bold text-light my-auto"
+                      style={{ fontSize: "11px" }}
+                    >
+                      {currentPaymentMethod?.exp_month || "00"}/
                       {currentPaymentMethod?.exp_year || "00"}
                     </div>
                   </div>

@@ -10,7 +10,11 @@ import "./Calendars.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Col, Form, Row } from "react-bootstrap";
 import { useDispatch } from "react-redux";
-import { setCalendarAvailability, updateCalendar, vendorCalendars } from "../redux/Calendars/CalendarsSlice";
+import {
+  setCalendarAvailability,
+  updateCalendar,
+  vendorCalendars,
+} from "../redux/Calendars/CalendarsSlice";
 
 const AdCalendar = ({ calendarData, index }) => {
   const dispatch = useDispatch();
@@ -40,26 +44,37 @@ const AdCalendar = ({ calendarData, index }) => {
   };
 
   const handleAdAvailability = () => {
-    dispatch(setCalendarAvailability({ id: calendarData.id, hide: !calendarData.hide, index }));
+    dispatch(
+      setCalendarAvailability({
+        id: calendarData.id,
+        hide: !calendarData.hide,
+        index,
+      })
+    );
   };
 
   const updateAdCalendar = () => {
-    dispatch(updateCalendar({
-      id: calendarData.id,
-      data: {
-        start_date: startDate.toISOString().split("T")[0],
-        end_date: endDate.toISOString().split("T")[0],
-        reason: "Event",
-        availability,
-      },
-    }));
+    dispatch(
+      updateCalendar({
+        id: calendarData.id,
+        data: {
+          start_date: startDate.toISOString().split("T")[0],
+          end_date: endDate.toISOString().split("T")[0],
+          reason: "Event",
+          availability,
+        },
+      })
+    );
     toggleModal();
     setTimeout(() => {
       dispatch(vendorCalendars());
     }, 500);
   };
 
-  const isBusyDate = (dt) => Object.keys(calendarData.dates).some((d) => new Date(d).toDateString() === dt.toDateString());
+  const isBusyDate = (dt) =>
+    Object.keys(calendarData.dates).some(
+      (d) => new Date(d).toDateString() === dt.toDateString()
+    );
 
   const busyClassName = ({ date }) => (isBusyDate(date) ? "busy-tile" : "");
 
@@ -85,11 +100,7 @@ const AdCalendar = ({ calendarData, index }) => {
             zIndex: "20",
           }}
         >
-          <div
-            role="presentation"
-            onClick={toggleModal}
-            className="close-icon"
-          >
+          <div role="presentation" onClick={toggleModal} className="close-icon">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="18"
@@ -108,12 +119,22 @@ const AdCalendar = ({ calendarData, index }) => {
           </div>
         </div>
         <Modal.Body className="p-4">
-          <div className="w-100 text-center" style={{ fontSize: "24px", fontWeight: "600" }}>Update Calendar</div>
+          <div
+            className="w-100 text-center"
+            style={{ fontSize: "24px", fontWeight: "600" }}
+          >
+            Update Calendar
+          </div>
           <Row className="pt-5">
             <div className="w-100 mb-4 d-grid">
               <div className="d-flex w-100 mb-3">
                 {/* <img src={titleIcon} alt="T" className="me-3" style={{ width: "32px", height: "32px" }} /> */}
-                <div className="my-auto" style={{ fontSize: "20px", fontWeight: "500" }}>Select Busy Date Range</div>
+                <div
+                  className="my-auto"
+                  style={{ fontSize: "20px", fontWeight: "500" }}
+                >
+                  Select Busy Date Range
+                </div>
               </div>
               <div className="mx-auto mt-3">
                 <DateRangePicker
@@ -149,25 +170,32 @@ const AdCalendar = ({ calendarData, index }) => {
               <span className="ms-2">Busy</span>
             </Col>
             <Col md={6}>
-              <Button variant="success" className="w-100" onClick={updateAdCalendar} disabled={isDisabled}>Update</Button>
+              <Button
+                variant="success"
+                className="w-100"
+                onClick={updateAdCalendar}
+                disabled={isDisabled}
+              >
+                Update
+              </Button>
             </Col>
           </Row>
         </Modal.Body>
       </Modal>
       <div className="d-flex w-100 justify-content-between py-3">
-        <h4>
-          {calendarData.ad}
-        </h4>
+        {/* <h4>{calendarData.ad}</h4> */}
+        <h4></h4>
         <Form.Check
           type="switch"
           className="ps-5"
-          label={(
-            <span className="ms-2" style={{ fontSize: "18px", lineHeight: "18px" }}>
-              Ad availability is turned
-              {" "}
-              {calendarData.hide ? "on" : "off"}
+          label={
+            <span
+              className="ms-2"
+              style={{ fontSize: "18px", lineHeight: "18px" }}
+            >
+              Ad availability is turned {calendarData.hide ? "on" : "off"}
             </span>
-          )}
+          }
           checked={calendarData.hide}
           onChange={handleAdAvailability}
         />
@@ -178,7 +206,11 @@ const AdCalendar = ({ calendarData, index }) => {
         className="mb-5"
       />
       <div className="w-100 mt-4 d-flex">
-        <Button variant="success" className="set-availability-button ms-auto" onClick={toggleModal}>
+        <Button
+          variant="success"
+          className="set-availability-button ms-auto"
+          onClick={toggleModal}
+        >
           Update
         </Button>
       </div>

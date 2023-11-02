@@ -1,12 +1,5 @@
 import React, { useState } from "react";
-import {
-  Button,
-  Col,
-  Container,
-  Form,
-  Row,
-  Spinner,
-} from "react-bootstrap";
+import { Button, Col, Container, Form, Row, Spinner } from "react-bootstrap";
 import * as formik from "formik";
 import * as Yup from "yup";
 import { useDispatch } from "react-redux";
@@ -133,7 +126,7 @@ function DeleteAccount() {
 
       <Container
         fluid
-        style={{ marginTop: "70px", marginBottom: "200px" }}
+        style={{ marginTop: "70px", marginBottom: "100px" }}
         className=""
       >
         <Row className="justify-content-center">

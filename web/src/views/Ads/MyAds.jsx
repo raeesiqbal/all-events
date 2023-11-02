@@ -1,8 +1,6 @@
 /* eslint-disable camelcase */
 import React, { useEffect } from "react";
-import {
-  Button, Card, Col, Container, Modal, Row,
-} from "react-bootstrap";
+import { Button, Card, Col, Container, Modal, Row } from "react-bootstrap";
 // import * as formik from "formik";
 // import * as Yup from "yup";
 import { Link, useNavigate } from "react-router-dom";
@@ -22,6 +20,8 @@ import { secureInstance } from "../../axios/config";
 import "./Ads.css";
 import { handleUpdateAds, listVendorAds } from "../redux/Posts/AdsSlice";
 import useWindowDimensions from "../../utilities/hooks/useWindowDimension";
+import { currentSubscriptionDetails } from "../redux/Subscriptions/SubscriptionsSlice";
+import ProfilePic from "../../components/ProfilePic/ProfilePic";
 import { handleProfileSettingsCurrentView } from "../redux/TabNavigation/TabNavigationSlice";
 
 function MyAds() {
@@ -33,7 +33,9 @@ function MyAds() {
 
   const user = useSelector((state) => state.auth.user);
   const vendorAds = useSelector((state) => state.Ads.vendorAds);
-  const currentSubscription = useSelector((state) => state.subscriptions.currentSubscriptionDetails);
+  const currentSubscription = useSelector(
+    (state) => state.subscriptions.currentSubscriptionDetails
+  );
   const { width } = useWindowDimensions();
 
   const infostyle = {
@@ -65,7 +67,8 @@ function MyAds() {
     }
   };
 
-  const isPaidSubscription = () => (currentSubscription && currentSubscription.status !== "unpaid");
+  const isPaidSubscription = () =>
+    currentSubscription && currentSubscription.status !== "unpaid";
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -73,7 +76,7 @@ function MyAds() {
   }, []);
 
   const sortedAdvertisements = [...vendorAds].sort(
-    (a, b) => new Date(b.created_at) - new Date(a.created_at),
+    (a, b) => new Date(b.created_at) - new Date(a.created_at)
   );
 
   return (
@@ -87,7 +90,10 @@ function MyAds() {
         aria-labelledby="example-custom-modal-styling-title"
         centered="true"
       >
-        <div className="box" style={{ position: "absolute", right: "3.5px", top: "3px" }} />
+        <div
+          className="box"
+          style={{ position: "absolute", right: "3.5px", top: "3px" }}
+        />
         <div
           style={{
             position: "absolute",
@@ -150,85 +156,66 @@ function MyAds() {
             Keep track of your posted ads with ease
           </div>
         </div>
+        <ProfilePic />
       </div>
 
-      <Container
-        fluid
-        style={{ marginTop: "60px", marginBottom: "200px" }}
-      >
+      <Container fluid style={{ marginTop: "60px", marginBottom: "200px" }}>
         {vendorAds.length > 0 && (
           <Container className="mb-4 px-0">
             <Row>
-              {
-                currentSubscription && currentSubscription.status !== "unpaid"
-                  && vendorAds.length >= currentSubscription?.type?.allowed_ads && (
+              {currentSubscription &&
+                currentSubscription.status !== "unpaid" &&
+                vendorAds.length >= currentSubscription?.type?.allowed_ads && (
                   <div className="d-flex align-items-center px-0">
                     <div
                       style={infostyle}
                       className="d-flex align-items-center justify-content-center me-2"
                     >
-                      <FontAwesomeIcon
-                        icon={faInfo}
-                        size="sm"
-                      />
+                      <FontAwesomeIcon icon={faInfo} size="sm" />
                     </div>
                     <div style={{ fontSize: "20px" }}>
                       Ad Limit Reached,
-                      {
-                        currentSubscription.type.type !== "featured" && (
-                          <>
-                            {" "}
-                            <Link to="/plans">Upgrade</Link>
-                            {" "}
-                            your package to post more Ads
-                          </>
-                        )
-                      }
+                      {currentSubscription.type.type !== "featured" && (
+                        <>
+                          {" "}
+                          <Link to="/plans">Upgrade</Link> your package to post
+                          more Ads
+                        </>
+                      )}
                     </div>
                   </div>
-                )
-              }
-              {
-                currentSubscription === null && (
+                )}
+              {currentSubscription === null && (
+                <div className="d-flex align-items-center px-0">
+                  <div
+                    style={infostyle}
+                    className="d-flex align-items-center justify-content-center me-2"
+                  >
+                    <FontAwesomeIcon icon={faInfo} size="sm" />
+                  </div>
+                  <div style={{ fontSize: "20px" }}>
+                    Please subscribe to a plan to active your Ads.{" "}
+                    <Link to="/plans">Click here</Link> to see our plans.
+                  </div>
+                </div>
+              )}
+              {currentSubscription &&
+                currentSubscription.status === "unpaid" && (
                   <div className="d-flex align-items-center px-0">
                     <div
                       style={infostyle}
                       className="d-flex align-items-center justify-content-center me-2"
                     >
-                      <FontAwesomeIcon
-                        icon={faInfo}
-                        size="sm"
-                      />
+                      <FontAwesomeIcon icon={faInfo} size="sm" />
                     </div>
                     <div style={{ fontSize: "20px" }}>
-                      Please subscribe to a plan to active your Ads.
-                      {" "}
-                      <Link to="/plans">Click here</Link>
-                      {" "}
-                      to see our plans.
-                    </div>
-                  </div>
-                )
-              }
-              {
-                currentSubscription && currentSubscription.status === "unpaid" && (
-                  <div className="d-flex align-items-center px-0">
-                    <div
-                      style={infostyle}
-                      className="d-flex align-items-center justify-content-center me-2"
-                    >
-                      <FontAwesomeIcon
-                        icon={faInfo}
-                        size="sm"
-                      />
-                    </div>
-                    <div style={{ fontSize: "20px" }}>
-                      Plan failed to renew, please update your payment method.
-                      {" "}
+                      Plan failed to renew, please update your payment method.{" "}
                       <span
                         className="click-here"
                         onClick={() => {
-                          dispatch(handleProfileSettingsCurrentView("PaymentMethod"));
+                          dispatch(
+                            handleProfileSettingsCurrentView("PaymentMethod")
+                          );
                           navigate("/profile-settings");
                         }}
                       >
@@ -236,8 +223,7 @@ function MyAds() {
                       </span>
                     </div>
                   </div>
-                )
-              }
+                )}
             </Row>
           </Container>
         )}
@@ -245,9 +231,9 @@ function MyAds() {
           className="justify-content-center"
           style={{
             flexDirection:
-              sortedAdvertisements.length === 0
-              && width <= 768
-              && "column-reverse",
+              sortedAdvertisements.length === 0 &&
+              width <= 768 &&
+              "column-reverse",
           }}
         >
           {sortedAdvertisements.length > 0 ? (
@@ -298,7 +284,11 @@ function MyAds() {
                                     className="roboto-regular-14px-information text-white px-2"
                                     style={{
                                       borderRadius: "8px",
-                                      background: `${status === "active" ? "#A0C49D" : "#C6A451"}`,
+                                      background: `${
+                                        status === "active"
+                                          ? "#A0C49D"
+                                          : "#C6A451"
+                                      }`,
                                       fontWeight: "500",
                                       height: "fit-content",
                                     }}
@@ -306,7 +296,12 @@ function MyAds() {
                                     {status}
                                   </div>
                                 </div>
-                                <div className="mt-1" style={{ fontSize: "20px", color: "#797979" }}>{sub_category.name}</div>
+                                <div
+                                  className="mt-1"
+                                  style={{ fontSize: "20px", color: "#797979" }}
+                                >
+                                  {sub_category.name}
+                                </div>
                                 <div className="roboto-regular-14px-information d-flex align-items-center mt-2">
                                   <img
                                     src={TimeIcon}
@@ -324,8 +319,8 @@ function MyAds() {
                                   maxWidth: "70%",
                                 }}
                               >
-                                {description
-                                  && (description.length > 200
+                                {description &&
+                                  (description.length > 200
                                     ? `${description.slice(0, 200)}...`
                                     : description)}
                               </Card.Text>
@@ -348,12 +343,23 @@ function MyAds() {
                                   {country.name}
                                 </div>
                                 <div>
-                                  <Tooltip title={isPaidSubscription() ? "Edit" : "Can't Edit"} placement="top">
+                                  <Tooltip
+                                    title={
+                                      isPaidSubscription()
+                                        ? "Edit"
+                                        : "Can't Edit"
+                                    }
+                                    placement="top"
+                                  >
                                     <img
                                       src={editIcon}
                                       alt="editIcon"
                                       className="me-3"
-                                      onClick={() => (isPaidSubscription() ? navigate(`/edit-ad/${id}`) : null)}
+                                      onClick={() =>
+                                        isPaidSubscription()
+                                          ? navigate(`/edit-ad/${id}`)
+                                          : null
+                                      }
                                       style={{ cursor: "pointer" }}
                                     />
                                   </Tooltip>
@@ -459,13 +465,9 @@ function MyAds() {
         {vendorAds.length > 0 && (
           <Container className="d-flex justify-content-end mt-5">
             <Row className="d-flex justify-content-end">
-              {
-                (
-                  (
-                    currentSubscription && currentSubscription.status !== "unpaid"
-                      && vendorAds.length < currentSubscription?.type?.allowed_ads
-                  )
-                ) && (
+              {currentSubscription &&
+                currentSubscription.status !== "unpaid" &&
+                vendorAds.length < currentSubscription?.type?.allowed_ads && (
                   <Button
                     variant="success"
                     type="submit"
@@ -474,8 +476,7 @@ function MyAds() {
                   >
                     Post another Ad
                   </Button>
-                )
-              }
+                )}
             </Row>
           </Container>
         )}
