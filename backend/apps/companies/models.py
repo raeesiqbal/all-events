@@ -16,6 +16,9 @@ class Company(NewAbstractModel):
     Company model containing the company's details.
     """
 
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, related_name="user_company"
+    )
     name = models.TextField(verbose_name=_("Denumire Firma"))
     is_active = models.BooleanField(default=True)
     postal_code = models.TextField(null=True, blank=True, verbose_name=_("Cod Postal"))
@@ -26,9 +29,6 @@ class Company(NewAbstractModel):
     )
     bank_name = models.TextField(null=True, blank=True, verbose_name=_("Banca"))
     bank_iban = models.TextField(null=True, blank=True, verbose_name=_("IBAN"))
-    user = models.OneToOneField(
-        User, on_delete=models.CASCADE, related_name="user_company"
-    )
     country = models.ForeignKey(
         Country,
         verbose_name=_("Judet"),
