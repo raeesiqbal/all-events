@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import {
@@ -8,10 +8,9 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart } from "@fortawesome/free-regular-svg-icons";
 import EmblaCarousel from "../../components/Carousel/Carousel";
 import placeholderIcon from "../../assets/images/placeholder.jpg";
-import { favoriteAd, listPublicAds } from "../redux/Posts/AdsSlice";
+import { favoriteAd } from "../redux/Posts/AdsSlice";
 
 function PremiumVenues() {
-  const user = useSelector((state) => state.auth.user);
   const publicAds = useSelector((state) => state.Ads.publicAds);
   const dispatch = useDispatch();
   const OPTIONS = { slidesToScroll: "auto", containScroll: "trimSnaps" };
@@ -113,10 +112,6 @@ function PremiumVenues() {
       </Card>
     </Link>
   );
-
-  useEffect(() => {
-    dispatch(listPublicAds(user?.userId !== null));
-  }, [user]);
 
   return (
     publicAds.length > 0 && (

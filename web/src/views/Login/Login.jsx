@@ -187,14 +187,13 @@ function Login() {
     newsletter: Yup.bool(),
   });
 
-  const isLoginModal = useSelector((state) => state.login.isLoginModal);
-  const isLoginView = useSelector((state) => state.login.isLoginView);
-  const isRegistered = useSelector((state) => state.auth.isRegistered);
-  const isLoggedInState = useSelector((state) => state.auth.isLoggedInState);
-  const error = useSelector((state) => state.auth.error);
-  const loading = useSelector((state) => state.auth.loading);
-  const isRegisterView = useSelector((state) => state.register.isRegisterView);
-  const activeStep = useSelector((state) => state.stepper.activeStep);
+  const { isLoginModal, isLoginView } = useSelector((state) => state.login);
+  const {
+    isRegistered, isLoggedInState, error, loading,
+  } = useSelector((state) => state.auth);
+  const { isRegisterView } = useSelector((state) => state.register);
+  const { activeStep } = useSelector((state) => state.stepper);
+  const { countries } = useSelector((state) => state.Ads);
 
   const [forgotPassword, setForgotPassword] = useState(false);
   const [isShowPassword, setIsShowPassword] = useState(false);
@@ -202,7 +201,6 @@ function Login() {
     email: "",
     password: "",
   });
-  const [countries, setCountries] = useState([]);
   const [selectedRole, setSelectedRole] = useState("client");
   const [hideRegisterStep1, setHideRegisterStep1] = useState(false);
 
@@ -223,18 +221,6 @@ function Login() {
       }
     }
   }, [error]);
-
-  const listCountries = async () => {
-    const request = await instance.request({
-      url: "/api/ads/country/",
-      method: "Get",
-    });
-    setCountries(request.data.data);
-  };
-
-  useEffect(() => {
-    listCountries();
-  }, []);
 
   const handleRegisterClick = () => {
     // hide login view

@@ -90,22 +90,6 @@ function PremiumVendors() {
     </div>
   );
 
-  const getVenueInfo = async () => {
-    try {
-      const request = await instance.request({
-        url: "/api/ads/public-list/",
-        method: "Post",
-      });
-      setPublicAds(request.data.data);
-    } catch (error) {
-      // handleFailedAlert();
-    }
-  };
-
-  useEffect(() => {
-    getVenueInfo();
-  }, []);
-
   return (
     publicAds.length > 0 && (
       <Container
