@@ -120,6 +120,9 @@ function Login() {
         /^[a-zA-Z\s-]*$/,
         "Must only contain letters, spaces, and hyphens"
       ),
+    // terms_acceptance: Yup.bool()
+    //   .required()
+    //   .oneOf([true], "Terms must be accepted"),
   });
 
   const step2Schema = Yup.object().shape({
@@ -184,14 +187,13 @@ function Login() {
     newsletter: Yup.bool(),
   });
 
-  const isLoginModal = useSelector((state) => state.login.isLoginModal);
-  const isLoginView = useSelector((state) => state.login.isLoginView);
-  const isRegistered = useSelector((state) => state.auth.isRegistered);
-  const isLoggedInState = useSelector((state) => state.auth.isLoggedInState);
-  const error = useSelector((state) => state.auth.error);
-  const loading = useSelector((state) => state.auth.loading);
-  const isRegisterView = useSelector((state) => state.register.isRegisterView);
-  const activeStep = useSelector((state) => state.stepper.activeStep);
+  const { isLoginModal, isLoginView } = useSelector((state) => state.login);
+  const {
+    isRegistered, isLoggedInState, error, loading,
+  } = useSelector((state) => state.auth);
+  const { isRegisterView } = useSelector((state) => state.register);
+  const { activeStep } = useSelector((state) => state.stepper);
+  const { countries } = useSelector((state) => state.Ads);
 
   const [forgotPassword, setForgotPassword] = useState(false);
   const [isShowPassword, setIsShowPassword] = useState(false);
@@ -199,7 +201,6 @@ function Login() {
     email: "",
     password: "",
   });
-  const [countries, setCountries] = useState([]);
   const [selectedRole, setSelectedRole] = useState("client");
   const [hideRegisterStep1, setHideRegisterStep1] = useState(false);
 
@@ -220,18 +221,6 @@ function Login() {
       }
     }
   }, [error]);
-
-  const listCountries = async () => {
-    const request = await instance.request({
-      url: "/api/ads/country/",
-      method: "Get",
-    });
-    setCountries(request.data.data);
-  };
-
-  useEffect(() => {
-    listCountries();
-  }, []);
 
   const handleRegisterClick = () => {
     // hide login view
@@ -287,9 +276,11 @@ function Login() {
 
   const handleStep1Submit = () => {
     dispatch(handleNextStep());
+    console.log("aaa");
   };
 
   const handleRegisterationSubmit = (values, { resetForm }) => {
+    console.log("Hellpo");
     let data = {
       user: {
         email: values.email,
@@ -361,7 +352,8 @@ function Login() {
     if (isLoggedInState) {
       handleClose();
       dispatch(handleLoginStatusFalse());
-      navigate(selectedRole === "client" ? "/" : "/dashboard");
+      navigate("/dashboard");
+      // navigate(selectedRole === "client" ? "/" : "/dashboard");
     }
   }, [isLoggedInState]);
 
@@ -373,7 +365,10 @@ function Login() {
       aria-labelledby="example-custom-modal-styling-title"
       centered="true"
     >
-      <div className="box" style={{ position: "absolute", right: "3.5px", top: "3px" }} />
+      <div
+        className="box"
+        style={{ position: "absolute", right: "3.5px", top: "3px" }}
+      />
       <div
         style={{
           position: "absolute",

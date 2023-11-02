@@ -34,6 +34,14 @@ from apps.companies.models import Company
 from apps.users.constants import USER_ROLE_TYPES
 
 
+class AdNameSerializer(BaseSerializer):
+    class Meta:
+        model = Ad
+        fields = [
+            "name",
+        ]
+
+
 class SiteQuestionChildGetSerializer(BaseSerializer):
     class Meta:
         model = SiteQuestion

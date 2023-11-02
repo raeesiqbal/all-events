@@ -100,6 +100,8 @@ class PaymentMethodAdmin(admin.ModelAdmin):
 
     get_company_email.short_description = "Company Email"
 
+    raw_id_fields = ("company",)
+
 
 admin.site.register(Subscription, SubscriptionAdmin)
 admin.site.register(SubscriptionType, SubscriptionTypeAdmin)

@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from "react";
 import * as formik from "formik";
 import * as Yup from "yup";
-import {
-  Button, Col, Container, Form, Row, Spinner,
-} from "react-bootstrap";
+import { Button, Col, Container, Form, Row, Spinner } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { Alert } from "@mui/material";
 import { useNavigate } from "react-router-dom";
@@ -56,10 +54,18 @@ function PostAd() {
   const navigate = useNavigate();
 
   const { isWelcomeUserAlert, user } = useSelector((state) => state.auth);
-  const currentSubscription = useSelector((state) => state.subscriptions.currentSubscriptionDetails);
+  const currentSubscription = useSelector(
+    (state) => state.subscriptions.currentSubscriptionDetails
+  );
   const imagesToUpload = useSelector((state) => state.Ads.media_urls.images);
   const {
-    AdPostErrorAlert, imagesError, isMediaUploading, mediaError, AdPostSuccessAlert, loading, vendorAds,
+    AdPostErrorAlert,
+    imagesError,
+    isMediaUploading,
+    mediaError,
+    AdPostSuccessAlert,
+    loading,
+    vendorAds,
   } = useSelector((state) => state.Ads);
 
   const handleSubmitAllForms = (values) => {
@@ -71,12 +77,12 @@ function PostAd() {
 
     const totalSiteFaqQuestionsLength = preDefinedFAQs.reduce(
       (accumulator, item) => accumulator + item.site_faq_questions.length,
-      0,
+      0
     );
 
     const totalSelectedValuesLength = selectedValuesServerFAQ.reduce(
       (accumulator, innerArray) => accumulator + innerArray.length,
-      0,
+      0
     );
     if (totalSelectedValuesLength !== totalSiteFaqQuestionsLength) {
       const el = document.querySelector(".server-faq-container");
@@ -85,10 +91,11 @@ function PostAd() {
     }
 
     const flattenedServerFAQs = selectedValuesServerFAQ.flatMap(
-      (sectionValues) => sectionValues.map((questionValues) => ({
-        site_question: questionValues.id,
-        answer: questionValues.value,
-      })),
+      (sectionValues) =>
+        sectionValues.map((questionValues) => ({
+          site_question: questionValues.id,
+          answer: questionValues.value,
+        }))
     );
 
     const FAQsMap = values.FAQ.faqs.map((faq) => ({
@@ -124,10 +131,10 @@ function PostAd() {
       ...(values.companyInformation.country.length > 0
         ? { activation_countries: values.companyInformation.country }
         : {
-          activation_countries: [
-            parseInt(values.contactInformation.country, 10),
-          ],
-        }),
+            activation_countries: [
+              parseInt(values.contactInformation.country, 10),
+            ],
+          }),
       ad_faq_ad: flattenedServerFAQs,
       faqs: FAQsMap,
     };
@@ -148,51 +155,52 @@ function PostAd() {
         .max(6667, "Must be at most 6667 characters")
         .matches(
           /^[a-zA-Z0-9.,;:'"/?!@&*()^+\-|\s]+$/,
-          'Only letters, digits, ".,;:\'/?!@&*()^+-|" signs, and spaces are allowed',
+          'Only letters, digits, ".,;:\'/?!@&*()^+-|" signs, and spaces are allowed'
         )
         .required("Description is required"),
       // MIXED TYPES ARE APPLIED BECAUSE THE FORM GETS AN OBJECT FROM API, WHILE SUBMITTING IT EXPECTS AN INTEGER
       country: Yup.mixed().when({
         is: (value) => value !== undefined,
-        then: () => Yup.lazy((value) => {
-          if (Array.isArray(value)) {
-            // If it's an array, apply array validation and validate the array elements
-            return Yup.array().of(
-              Yup.lazy((element) => {
-                // Define validation for each array element based on its type
-                if (typeof element === "string") {
-                  return Yup.string();
-                }
-                if (typeof element === "number") {
-                  return Yup.number().integer();
-                }
-                if (typeof element === "object") {
-                  return Yup.object({
-                    // Add your object schema here for array elements that are objects...
-                  });
-                }
-                // Return null or throw an error if none of the types match
-                throw new Error("Invalid array element");
-              }),
-            );
-          }
-          if (typeof value === "object") {
-            // If it's an object, define the object shape
-            return Yup.object({
-              // Add your object schema here...
-            });
-          }
-          if (typeof value === "number") {
-            // If it's a number, apply integer validation
-            return Yup.number().integer();
-          }
-          if (typeof value === "string") {
-            // If it's a string, apply string validation
-            return Yup.string();
-          }
-          // Return null or throw an error if none of the types match
-          throw new Error("Invalid field type");
-        }),
+        then: () =>
+          Yup.lazy((value) => {
+            if (Array.isArray(value)) {
+              // If it's an array, apply array validation and validate the array elements
+              return Yup.array().of(
+                Yup.lazy((element) => {
+                  // Define validation for each array element based on its type
+                  if (typeof element === "string") {
+                    return Yup.string();
+                  }
+                  if (typeof element === "number") {
+                    return Yup.number().integer();
+                  }
+                  if (typeof element === "object") {
+                    return Yup.object({
+                      // Add your object schema here for array elements that are objects...
+                    });
+                  }
+                  // Return null or throw an error if none of the types match
+                  throw new Error("Invalid array element");
+                })
+              );
+            }
+            if (typeof value === "object") {
+              // If it's an object, define the object shape
+              return Yup.object({
+                // Add your object schema here...
+              });
+            }
+            if (typeof value === "number") {
+              // If it's a number, apply integer validation
+              return Yup.number().integer();
+            }
+            if (typeof value === "string") {
+              // If it's a string, apply string validation
+              return Yup.string();
+            }
+            // Return null or throw an error if none of the types match
+            throw new Error("Invalid field type");
+          }),
       }),
     }),
     contactInformation: Yup.object().shape({
@@ -201,7 +209,7 @@ function PostAd() {
         .matches(
           // eslint-disable-next-line max-len
           /^((ftp|http|https):\/\/)?(www.)?(?!.*(ftp|http|https|www.))[a-zA-Z0-9_-]+(\.[a-zA-Z]+)+((\/)[\w#]+)*(\/\w+\?[a-zA-Z0-9_]+=\w+(&[a-zA-Z0-9_]+=\w+)*)?$/gm,
-          "Invalid characters",
+          "Invalid characters"
         ),
       county: Yup.array().min(1, "country is required"),
       city: Yup.string()
@@ -209,7 +217,7 @@ function PostAd() {
         .max(25, "Must be at most 25 characters")
         .matches(
           /^[a-zA-Z\s-]+$/,
-          'Only letters, spaces, and "-" sign are allowed',
+          'Only letters, spaces, and "-" sign are allowed'
         )
         .required("Required"),
       street: Yup.string()
@@ -217,7 +225,7 @@ function PostAd() {
         .max(27, "Must be at most 27 characters")
         .matches(
           /^[A-Za-z0-9\-,.\/\s]+$/,
-          'Only letters, digits, spaces, "-,./" signs are allowed',
+          'Only letters, digits, spaces, "-,./" signs are allowed'
         )
         .required("Required"),
       contact_number: Yup.string()
@@ -225,7 +233,7 @@ function PostAd() {
         .max(40, "Must be at most 40 characters")
         .matches(
           /^[a-zA-Z\s-]+$/,
-          'Only letters, spaces, and "-" signs are allowed',
+          'Only letters, spaces, and "-" signs are allowed'
         )
         .required("Required"),
       fullAddress: Yup.string()
@@ -234,33 +242,33 @@ function PostAd() {
         .max(80, "Must be at most 80 characters")
         .matches(
           /^[A-Za-z0-9\s,.\-\/]+$/,
-          'Only letters, digits, spaces, ", .", "-", and "/" characters are allowed',
+          'Only letters, digits, spaces, ", .", "-", and "/" characters are allowed'
         ),
     }),
     SocialMedia: Yup.object().shape({
       facebookURL: Yup.string().matches(
         /^((ftp|http|https):\/\/)?(www.)?(?!.*(ftp|http|https|www.))[a-zA-Z0-9_-]+(\.[a-zA-Z]+)+((\/)[\w#]+)*(\/\w+\?[a-zA-Z0-9_]+=\w+(&[a-zA-Z0-9_]+=\w+)*)?$/gm,
-        "Invalid characters",
+        "Invalid characters"
       ),
       instagramURL: Yup.string().matches(
         /^((ftp|http|https):\/\/)?(www.)?(?!.*(ftp|http|https|www.))[a-zA-Z0-9_-]+(\.[a-zA-Z]+)+((\/)[\w#]+)*(\/\w+\?[a-zA-Z0-9_]+=\w+(&[a-zA-Z0-9_]+=\w+)*)?$/gm,
-        "Invalid characters",
+        "Invalid characters"
       ),
       youtubeURL: Yup.string().matches(
         /^((ftp|http|https):\/\/)?(www.)?(?!.*(ftp|http|https|www.))[a-zA-Z0-9_-]+(\.[a-zA-Z]+)+((\/)[\w#]+)*(\/\w+\?[a-zA-Z0-9_]+=\w+(&[a-zA-Z0-9_]+=\w+)*)?$/gm,
-        "Invalid characters",
+        "Invalid characters"
       ),
       tiktokURL: Yup.string().matches(
         /^((ftp|http|https):\/\/)?(www.)?(?!.*(ftp|http|https|www.))[a-zA-Z0-9_-]+(\.[a-zA-Z]+)+((\/)[\w#]+)*(\/\w+\?[a-zA-Z0-9_]+=\w+(&[a-zA-Z0-9_]+=\w+)*)?$/gm,
-        "Invalid characters",
+        "Invalid characters"
       ),
       twitterURL: Yup.string().matches(
         /^((ftp|http|https):\/\/)?(www.)?(?!.*(ftp|http|https|www.))[a-zA-Z0-9_-]+(\.[a-zA-Z]+)+((\/)[\w#]+)*(\/\w+\?[a-zA-Z0-9_]+=\w+(&[a-zA-Z0-9_]+=\w+)*)?$/gm,
-        "Invalid characters",
+        "Invalid characters"
       ),
       otherURL: Yup.string().matches(
         /^((ftp|http|https):\/\/)?(www.)?(?!.*(ftp|http|https|www.))[a-zA-Z0-9_-]+(\.[a-zA-Z]+)+((\/)[\w#]+)*(\/\w+\?[a-zA-Z0-9_]+=\w+(&[a-zA-Z0-9_]+=\w+)*)?$/gm,
-        "Invalid characters",
+        "Invalid characters"
       ),
     }),
     FAQ: Yup.object().shape({
@@ -270,7 +278,7 @@ function PostAd() {
           answer: Yup.string().max(500, "Must be at most 500 characters"), // You can add validation for answer here if needed
           type: Yup.string(), // You can add validation for type here if needed
           added: Yup.boolean(), // You can add validation for added here if needed
-        }),
+        })
       ),
     }),
   });
@@ -316,8 +324,8 @@ function PostAd() {
     }
 
     if (
-      !values.contactInformation.country
-      || values.contactInformation.country.length === 0
+      !values.contactInformation.country ||
+      values.contactInformation.country.length === 0
     ) {
       errors.contactInformation = {
         ...errors.contactInformation,
@@ -390,7 +398,7 @@ function PostAd() {
   const handleRemoveService = (indexToRemove, values, setValues) => {
     const clonedServices = [...values.servicesOffered.services];
     const deletedService = clonedServices.filter(
-      (_, index) => index !== indexToRemove,
+      (_, index) => index !== indexToRemove
     );
     setValues({
       ...values,
@@ -430,8 +438,8 @@ function PostAd() {
       });
 
       if (
-        request.data.data[0] !== undefined
-        && Object.prototype.hasOwnProperty.call(request.data.data[0], "service")
+        request.data.data[0] !== undefined &&
+        Object.prototype.hasOwnProperty.call(request.data.data[0], "service")
       ) {
         setAdminServices(request.data.data[0].service);
       } else {
@@ -455,9 +463,10 @@ function PostAd() {
     setAdminServices([]);
   };
 
-  const hasUnsavedChanges = (values) => selectedCountries.length !== ""
-    || imagesToUpload.length > 0
-    || Object.keys(values).some((field) => values[field] !== initialValues[field]);
+  const hasUnsavedChanges = (values) =>
+    selectedCountries.length !== "" ||
+    imagesToUpload.length > 0 ||
+    Object.keys(values).some((field) => values[field] !== initialValues[field]);
 
   useEffect(() => {
     if (AdPostSuccessAlert) {
@@ -494,17 +503,22 @@ function PostAd() {
   }, []);
 
   useEffect(() => {
-    if (currentSubscription === null || (
-      currentSubscription
-        && (
-          currentSubscription.status === "unpaid"
-            || (vendorAds.length > 0 && currentSubscription?.type?.allowed_ads <= vendorAds.length)
-        )
-    )) navigate("/my-ads");
+    if (
+      currentSubscription === null ||
+      (currentSubscription &&
+        (currentSubscription.status === "unpaid" ||
+          (vendorAds.length > 0 &&
+            currentSubscription?.type?.allowed_ads <= vendorAds.length)))
+    )
+      navigate("/my-ads");
   }, [currentSubscription, vendorAds]);
 
   useEffect(() => {
-    if (currentSubscription === null || (currentSubscription && currentSubscription.status === "unpaid")) navigate("/my-ads");
+    if (
+      currentSubscription === null ||
+      (currentSubscription && currentSubscription.status === "unpaid")
+    )
+      navigate("/my-ads");
   }, [currentSubscription]);
 
   return (
@@ -556,8 +570,8 @@ function PostAd() {
         {AdPostErrorAlert?.website?.length > 0
           ? AdPostErrorAlert?.website
           : mediaError !== null
-            ? mediaError
-            : "Something went wrong"}
+          ? mediaError
+          : "Something went wrong"}
       </Alert>
 
       <div className="ad-banner d-flex align-items-center justify-content-between">
@@ -669,38 +683,47 @@ function PostAd() {
                 <ServicesOffered
                   values={values}
                   handleChange={handleChange}
-                  handleAddServices={(currentService) => handleAddServices(currentService, values, setValues)}
-                  handleRemoveService={(index) => handleRemoveService(index, values, setValues)}
+                  handleAddServices={(currentService) =>
+                    handleAddServices(currentService, values, setValues)
+                  }
+                  handleRemoveService={(index) =>
+                    handleRemoveService(index, values, setValues)
+                  }
                   adminServices={adminServices}
                   adminServicesSelected={adminServicesSelected}
                   setAdminServicesSelected={setAdminServicesSelected}
                 />
 
-                {
-                  currentSubscription && currentSubscription?.type?.pdf_upload && (
+                {currentSubscription &&
+                  currentSubscription?.type?.pdf_upload && (
                     <PdfUploader
                       setparentImagesUploadedImages={handlePdfsUpdates}
                       pdfsToUpload={pdfsToUpload}
                       imagesError={pdfsError}
                       setImagesError={setPdfsError}
                     />
-                  )
-                }
+                  )}
 
-                {
-                  currentSubscription && currentSubscription?.type?.faq && (
-                    <FAQs
-                      values={values}
-                      errors={errors.FAQ ?? errors}
-                      touched={touched.FAQ ?? touched}
-                      handleChange={handleChange}
-                      handleAddFieldsForFAQ={() => handleAddFAQsFields(values, setValues)}
-                      handleAddFAQ={(index) => handleAddFAQ(index, values, setValues)}
-                      handleRemoveFAQ={(index) => handleRemoveFAQ(index, values, setValues)}
-                      handleEditFAQ={(index) => handleEditFAQ(index, values, setValues)}
-                    />
-                  )
-                }
+                {currentSubscription && currentSubscription?.type?.faq && (
+                  <FAQs
+                    values={values}
+                    errors={errors.FAQ ?? errors}
+                    touched={touched.FAQ ?? touched}
+                    handleChange={handleChange}
+                    handleAddFieldsForFAQ={() =>
+                      handleAddFAQsFields(values, setValues)
+                    }
+                    handleAddFAQ={(index) =>
+                      handleAddFAQ(index, values, setValues)
+                    }
+                    handleRemoveFAQ={(index) =>
+                      handleRemoveFAQ(index, values, setValues)
+                    }
+                    handleEditFAQ={(index) =>
+                      handleEditFAQ(index, values, setValues)
+                    }
+                  />
+                )}
 
                 {preDefinedFAQs.length > 0 && (
                   <ServerFAQs
@@ -710,7 +733,7 @@ function PostAd() {
                   />
                 )}
 
-                <div style={{ paddingBottom: "300px" }} />
+                <div style={{ paddingBottom: "100px" }} />
                 <Col
                   className="d-flex justify-content-end"
                   style={{ marginRight: "100px" }}
@@ -731,7 +754,7 @@ function PostAd() {
                   </Button>
                 </Col>
 
-                <div style={{ paddingBottom: "200px" }} />
+                <div style={{ paddingBottom: "100px" }} />
               </Form>
             )}
           </Formik>

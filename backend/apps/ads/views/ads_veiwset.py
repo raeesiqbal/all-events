@@ -52,6 +52,7 @@ from apps.ads.serializers.create_serializers import (
     SearchStringSerializer,
 )
 from apps.ads.serializers.get_serializers import (
+    AdNameSerializer,
     AdGetSerializer,
     AdPublicGetSerializer,
     CategoryKeywordSerializer,
@@ -77,6 +78,7 @@ class AdViewSet(BaseViewset):
     queryset = Ad.objects.all()
     action_serializers = {
         "default": AdPublicGetSerializer,
+        "my_ads": AdNameSerializer,
         "create": AdCreateSerializer,
         "partial_update": AdUpdateSerializer,
         "get_upload_url": GetUploadPresignedUrlSerializer,
@@ -96,6 +98,7 @@ class AdViewSet(BaseViewset):
     action_permissions = {
         "default": [],
         "create": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
+        "my_ads": [IsAuthenticated, IsVendorUser],
         "list": [IsAuthenticated, IsSuperAdmin | IsVendorUser | IsClient],
         "retrieve": [IsAuthenticated, IsSuperAdmin | IsVendorUser | IsClient],
         "partial_update": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
@@ -143,7 +146,7 @@ class AdViewSet(BaseViewset):
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
-        
+
         self.perform_destroy(instance)
 
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -213,6 +216,22 @@ class AdViewSet(BaseViewset):
                 data=AdGetSerializer(ad).data,
                 status_code=status.HTTP_200_OK,
                 message="Ad created",
+            ),
+        )
+
+    @action(detail=False, url_path="my-ads", methods=["get"])
+    def my_ads(self, request, *args, **kwargs):
+        my_ads = Ad.objects.filter(company__user=request.user)
+        if my_ads:
+            serializer = self.get_serializer(my_ads, many=True).data
+        else:
+            serializer = []
+        return Response(
+            status=status.HTTP_200_OK,
+            data=ResponseInfo().format_response(
+                data=serializer,
+                status_code=status.HTTP_200_OK,
+                message="My ads",
             ),
         )
 

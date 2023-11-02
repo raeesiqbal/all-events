@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Button,
   Col,
   Container,
   Form,
-  Modal,
   Row,
   Spinner,
 } from "react-bootstrap";
@@ -23,28 +22,24 @@ import bankIcon from "../../assets/images/profile-settings/bank.svg";
 import "./ProfileSettings.css";
 import { secureInstance } from "../../axios/config";
 import { handleProfileSettingsCurrentView } from "../redux/TabNavigation/TabNavigationSlice";
-import { setCompanyInformation } from "../redux/Settings/SettingsSlice";
-import ProfilePic from "../../components/ProfilePic/ProfilePic";
 import CompanyPic from "../../components/CompanyPic/CompanyPic";
 
 function CompanyInformationSettings() {
   const { Formik } = formik;
   const dispatch = useDispatch();
+  const { countries } = useSelector((state) => state.Ads.countries);
 
-  const [countriesList, setCountries] = useState([]);
-
-  const countryOptions = countriesList.map((country) => ({
+  const countryOptions = countries.map((country) => ({
     value: country.id,
     label: country.name,
   }));
 
-  // const [companyInformation, setCompanyInformation] = useState("");
   const [isAlert, setIsAlert] = useState(false);
   const [isFailedAlert, setIsFailedAlert] = useState(false);
   const [loading, setLoading] = useState(false);
   const user = useSelector((state) => state.auth.user);
   const companyInformation = useSelector(
-    (state) => state.settings.companyInformation
+    (state) => state.settings.companyInformation,
   );
 
   const initialValues = {
@@ -158,18 +153,6 @@ function CompanyInformationSettings() {
     }
   };
 
-  const listCountries = async () => {
-    const request = await secureInstance.request({
-      url: "/api/ads/country/",
-      method: "Get",
-    });
-    setCountries(request.data.data);
-  };
-
-  useEffect(() => {
-    listCountries();
-  }, []);
-
   return (
     <>
       <div className="profile-settings-banner d-flex align-items-center justify-content-between">
@@ -241,7 +224,7 @@ function CompanyInformationSettings() {
 
       <Container
         fluid
-        style={{ marginTop: "70px", marginBottom: "200px" }}
+        style={{ marginTop: "70px", marginBottom: "100px" }}
         className=""
       >
         <Row className="justify-content-center">

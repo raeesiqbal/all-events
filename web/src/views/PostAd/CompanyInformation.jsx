@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import {
   Button, Col, Container, Form, Modal, Row,
 } from "react-bootstrap";
@@ -23,12 +24,13 @@ function CompanyInformation({
   relatedSubCategoryId,
   handleChange,
   handleBlur,
-  isEditView,
   isMultipleCountries,
   setIsMultipleCountries,
   handleIsSubCategoryChanged,
   handleCategoryClicked,
 }) {
+  const { countries } = useSelector((state) => state.Ads.countries);
+
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
   const [relatedSubCategory, setRelatedSubCategory] = useState(
@@ -37,11 +39,7 @@ function CompanyInformation({
 
   const [modalShow, setModalShow] = React.useState(false);
 
-  const [countriesList, setCountries] = useState(
-    values.country.length > 0 ? values.country : [],
-  );
-
-  const countryOptions = countriesList.map((country) => ({
+  const countryOptions = countries.map((country) => ({
     value: country.id,
     label: country.name,
   }));
@@ -109,17 +107,8 @@ function CompanyInformation({
     }
   };
 
-  const listCountries = async () => {
-    const request = await secureInstance.request({
-      url: "/api/ads/country/",
-      method: "Get",
-    });
-    setCountries(request.data.data);
-  };
-
   useEffect(() => {
     listCategories();
-    listCountries();
   }, []);
 
   useEffect(() => {
