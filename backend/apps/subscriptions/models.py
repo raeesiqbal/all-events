@@ -36,7 +36,7 @@ class SubscriptionType(NewAbstractModel):
 
     def __str__(self):
         return f"{self.id}"
-
+ 
 
 class Subscription(NewAbstractModel):
     SUBSCRIPTION_STATUS = (
