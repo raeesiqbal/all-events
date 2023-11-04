@@ -114,10 +114,6 @@ function PremiumVendors() {
     </Link>
   );
 
-  useEffect(() => {
-    dispatch(listPremiumVendors(user?.userId !== null));
-  }, [user]);
-
   return (
     premiumVendorAds.length > 0 && (
       <Container

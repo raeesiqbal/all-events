@@ -26,7 +26,6 @@ const initialState = {
     pdf: [],
   },
   publicAds: [],
-  vendorAds: [],
   venueCountries: [],
 };
 

@@ -114,10 +114,6 @@ function PremiumVenues() {
     </Link>
   );
 
-  useEffect(() => {
-    dispatch(listPremiumVenues(user?.userId !== null));
-  }, [user]);
-
   return (
     premiumVenueAds.length > 0 && (
       <Container

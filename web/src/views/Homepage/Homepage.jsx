@@ -8,7 +8,7 @@ import PremiumVenues from "./PremiumVenues";
 import PremiumVendors from "./PremiumVendors";
 import VendorsByCountry from "./VendorsByCOuntry";
 import StartPlanning from "./StartPlanning";
-import { listPublicAds } from "../redux/Posts/AdsSlice";
+import { listPremiumVenues, listPremiumVendors } from "../redux/Posts/AdsSlice";
 import "./Homepage.css";
 
 function Homepage() {
@@ -16,7 +16,8 @@ function Homepage() {
   const user = useSelector((state) => state.auth.user);
 
   useEffect(() => {
-    dispatch(listPublicAds(user?.userId !== null));
+    dispatch(listPremiumVenues(user?.userId !== null));
+    dispatch(listPremiumVendors(user?.userId !== null));
   }, [user?.userId]);
 
   return (

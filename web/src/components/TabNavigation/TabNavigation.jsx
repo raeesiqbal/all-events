@@ -22,11 +22,6 @@ const vendorTabs = [
     path: "/my-ads",
   },
   {
-    label: "Calendars",
-    icon: faCalendarCheck,
-    path: "/calendars",
-  },
-  {
     label: "Messages",
     icon: faEnvelope,
     path: "/messages",
@@ -88,12 +83,30 @@ const TabNavigation = ({ role }) => {
 
   useEffect(() => {
     const hasAnalyticsTab = tabs.filter((tab) => tab.label === "Analytics");
-    if (currentSubscription && role === "vendor" && currentSubscription?.type?.analytics && hasAnalyticsTab.length === 0) {
-      setTabs([...tabs, {
-        label: "Analytics",
-        icon: faChartLine,
-        path: "/analytics",
-      }]);
+    const hasCalendarsTab = tabs.filter((tab) => tab.label === "Calendars");
+    if (currentSubscription && role === "vendor") {
+      let temp = tabs;
+      if (currentSubscription?.type?.analytics && hasAnalyticsTab.length === 0) {
+        temp = [
+          ...temp,
+          {
+            label: "Analytics",
+            icon: faChartLine,
+            path: "/analytics",
+          },
+        ];
+      }
+      if (currentSubscription?.type?.calender && hasCalendarsTab.length === 0) {
+        temp = [
+          ...temp,
+          {
+            label: "Calendars",
+            icon: faCalendarCheck,
+            path: "/calendars",
+          },
+        ];
+      }
+      setTabs([...temp]);
     }
   }, [currentSubscription]);
 
