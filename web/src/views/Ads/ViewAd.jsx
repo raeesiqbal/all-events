@@ -1,31 +1,27 @@
-/* eslint-disable jsx-a11y/click-events-have-key-events */
-/* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
-/* eslint-disable no-shadow */
-/* eslint-disable camelcase */
 import React, { useCallback, useEffect, useState } from "react";
-import {
-  Button, Col, Container, Form, Row,
-} from "react-bootstrap";
-// import * as formik from "formik";
-// import * as Yup from "yup";
-import { useNavigate, useParams } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import useEmblaCarousel from "embla-carousel-react";
 import { useDispatch, useSelector } from "react-redux";
-import { faHeart } from "@fortawesome/free-regular-svg-icons";
-import MapIcon from "../../assets/images/post-ad/map-outlined.svg";
-import { handleStartContact } from "../redux/Contacts/ContactsSlice";
-
-import { instance, secureInstance } from "../../axios/config";
-import "./Ads.css";
-import { handleStartChat } from "../redux/Chats/ChatsSlice";
-import Reviews from "../Reviews/Reviews";
-import useWindowDimensions from "../../utilities/hooks/useWindowDimension";
-import { adCalendar, favoriteAd } from "../redux/Posts/AdsSlice";
-import StarRating from "../../components/Rating/StarRating";
-import { faFacebook, faInstagram, faTiktok, faTwitter, faYoutube } from "@fortawesome/free-brands-svg-icons";
-import { faLink } from "@fortawesome/free-solid-svg-icons";
+import { useNavigate, useParams } from "react-router-dom";
 import Calendar from "react-calendar";
+import useEmblaCarousel from "embla-carousel-react";
+import {
+  Button, Col, Container, Form, Modal, Row,
+} from "react-bootstrap";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faHeart } from "@fortawesome/free-regular-svg-icons";
+import { faLink } from "@fortawesome/free-solid-svg-icons";
+import {
+  faFacebook, faInstagram, faTiktok, faTwitter, faYoutube,
+} from "@fortawesome/free-brands-svg-icons";
+import useWindowDimensions from "../../utilities/hooks/useWindowDimension";
+import Reviews from "../Reviews/Reviews";
+import StarRating from "../../components/Rating/StarRating";
+import MapIcon from "../../assets/images/post-ad/map-outlined.svg";
+import DiscountTag from "../../assets/images/discount-tag.svg";
+import { instance, secureInstance } from "../../axios/config";
+import { handleStartContact } from "../redux/Contacts/ContactsSlice";
+import { handleStartChat } from "../redux/Chats/ChatsSlice";
+import { adCalendar, favoriteAd } from "../redux/Posts/AdsSlice";
+import "./Ads.css";
 
 export function PrevButton(props) {
   const { enabled, onClick } = props;
@@ -69,12 +65,16 @@ export function NextButton(props) {
 function ViewAd() {
   const [currentTab, setCurrentTab] = useState(1);
   const [currentAd, setCurrentAd] = useState(null);
+  const [offeredServices, setOfferedServices] = useState([]);
   const [text, setText] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [eventDate, setEventDate] = useState(new Date());
   const [chatId, setChatId] = useState(null);
+  const [openImage, setOpenImage] = useState(false);
+  const [openVideoModal, setOpenVideoModal] = useState(false);
+  const [imageSrc, setImageSrc] = useState("");
 
   const params = useParams();
   const navigate = useNavigate();
@@ -150,6 +150,21 @@ function ViewAd() {
     }
   };
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    if (user?.role === "client") isChatExists();
+  }, [user]);
+
+  useEffect(() => {
+    if (currentAd && offeredServices.length === 0) {
+      setOfferedServices(currentAd.offered_services.concat(currentAd.site_services).slice(0, 12));
+    }
+  }, [currentAd]);
+
+  const displayAllOfferedServices = () => {
+    setOfferedServices(currentAd.offered_services.concat(currentAd.site_services));
+  };
+
   const onSelect = useCallback((emblaApi) => {
     // setSelectedIndex(emblaApi.selectedScrollSnap());
     setPrevBtnEnabled(emblaApi.canScrollPrev());
@@ -206,569 +221,733 @@ function ViewAd() {
   const busyClassName = ({ date }) => (isBusyDate(date) ? "busy-tile" : "");
 
   return (
-    <Container
-      // fluid
-      style={{ marginTop: "40px", marginBottom: "200px" }}
-      className=""
-    >
-      <Row>
-        <div className="d-flex align-items-center justify-content-between">
-          <div className="roboto-bold-36px-h1 ps-4">
-            {
-              currentAd && user?.role && (
-                <FontAwesomeIcon
-                  icon={currentAd.fav ? "fa-heart fa-solid" : faHeart}
-                  style={{ color: "#A0C49D", cursor: "pointer" }}
-                  className="me-2"
-                  onClick={() => {
-                    dispatch(favoriteAd(currentAd.id));
-                    setTimeout(() => {
-                      getAdInfo();
-                    }, 100);
-                  }}
-                />
-              )
-            }
-            {currentAd?.name}
-          </div>
-
-          <div>
-            <img src={MapIcon} alt="MapIcon" className="me-2" />
-            <span className="roboto-regular-16px-information">
-              {currentAd?.city}
-              {", "}
-              {currentAd?.country.name}
-            </span>
+    <>
+      <Modal
+        show={openImage}
+        onHide={() => {
+          setOpenImage(false);
+        }}
+        dialogClassName="view-image-modal"
+        aria-labelledby="example-custom-modal-styling-title"
+        centered="true"
+      >
+        <div className="box" style={{ position: "absolute", right: "3.5px", top: "3px" }} />
+        <div
+          style={{
+            position: "absolute",
+            right: "11px",
+            top: "6px",
+            zIndex: "20",
+          }}
+        >
+          <div
+            role="presentation"
+            onClick={() => {
+              setOpenImage(false);
+            }}
+            className="close-icon"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 18 18"
+              fill="none"
+              style={{ cursor: "pointer" }}
+            >
+              <path
+                d="M17 1L1 17M1 1L17 17"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
           </div>
         </div>
-        <Col lg={8}>
-          <Row>
-            <div className="carousel__container__view__ad">
-              <div className="embla__view__ad">
-                <div className="embla__viewport__view__ad" ref={emblaRef}>
-                  {mediaQuery.width > 441 ? (
-                    <div className="embla__container__view__ad">
-                      {slidesModified.map((slide, index) => (
-                        <div key={index} className="carousel-slide">
-                          <Row>
-                            <Col
-                              sm={6}
-                              md={6}
-                              lg={
-                                slide[`image${index * 3 + 2}`]
-                                || slide[`image${index * 3 + 3}`]
-                                  ? 6
-                                  : 12
-                              }
-                              xl={
-                                slide[`image${index * 3 + 2}`]
-                                || slide[`image${index * 3 + 3}`]
-                                  ? 6
-                                  : 12
-                              }
-                              className="main-image-container"
-                            >
-                              <img
-                                src={slide[`image${index * 3 + 1}`]}
-                                alt={`image${index * 3 + 1}`}
-                                className="main-image"
-                              />
-                            </Col>
+        <Modal.Body className="p-4">
+          <img src={imageSrc} alt="" style={{ width: "100%" }} />
+        </Modal.Body>
+      </Modal>
 
-                            <Col
-                              sm={6}
-                              md={6}
-                              lg={6}
-                              xl={6}
-                              className="image-stack"
-                            >
-                              {slide[`image${index * 3 + 2}`] && (
+      <Modal
+        show={openVideoModal}
+        onHide={() => {
+          setOpenVideoModal(false);
+        }}
+        dialogClassName="view-image-modal"
+        aria-labelledby="example-custom-modal-styling-title"
+        centered="true"
+      >
+        <div className="box" style={{ position: "absolute", right: "3.5px", top: "3px" }} />
+        <div
+          style={{
+            position: "absolute",
+            right: "11px",
+            top: "6px",
+            zIndex: "20",
+          }}
+        >
+          <div
+            role="presentation"
+            onClick={() => {
+              setOpenVideoModal(false);
+            }}
+            className="close-icon"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 18 18"
+              fill="none"
+              style={{ cursor: "pointer" }}
+            >
+              <path
+                d="M17 1L1 17M1 1L17 17"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
+        </div>
+        <Modal.Body className="p-4">
+          <h1 className="text-center">All Videos</h1>
+          {
+            currentAd?.ad_media[0]?.media_urls?.video && currentAd?.ad_media[0]?.media_urls?.video.map((video_url) => (
+              <video
+                style={{ width: "100%", maxHeight: "700px", marginTop: "30px" }}
+                src={video_url}
+                controls
+              />
+            ))
+          }
+        </Modal.Body>
+      </Modal>
+
+      <Container
+        // fluid
+        style={{ marginTop: "40px", marginBottom: "200px" }}
+        className=""
+      >
+        <Row>
+          <div className="d-flex align-items-center justify-content-between">
+            <div className="roboto-bold-36px-h1 ps-4">
+              {
+                currentAd && currentAd.fav !== null && (
+                  <FontAwesomeIcon
+                    icon={currentAd.fav ? "fa-heart fa-solid" : faHeart}
+                    style={{ color: "#A0C49D", cursor: "pointer" }}
+                    className="me-2"
+                    onClick={() => {
+                      dispatch(favoriteAd(currentAd.id));
+                      setTimeout(() => {
+                        getAdInfo();
+                      }, 100);
+                    }}
+                  />
+                )
+              }
+              {currentAd?.name}
+            </div>
+
+            <div>
+              <img src={MapIcon} alt="MapIcon" className="me-2" />
+              <span className="roboto-regular-16px-information">
+                {currentAd?.city}
+                {", "}
+                {currentAd?.country.name}
+              </span>
+            </div>
+          </div>
+          <Col lg={8}>
+            <Row>
+              <div className="carousel__container__view__ad">
+                <div className="embla__view__ad">
+                  <div className="embla__viewport__view__ad" ref={emblaRef}>
+                    {mediaQuery.width > 441 ? (
+                      <div className="embla__container__view__ad">
+                        {slidesModified.map((slide, index) => (
+                          <div className="carousel-slide">
+                            <Row className="mx-0">
+                              <Col
+                                sm={6}
+                                md={6}
+                                lg={
+                                  slide[`image${index * 3 + 2}`]
+                                  || slide[`image${index * 3 + 3}`]
+                                    ? 6
+                                    : 12
+                                }
+                                xl={
+                                  slide[`image${index * 3 + 2}`]
+                                  || slide[`image${index * 3 + 3}`]
+                                    ? 6
+                                    : 12
+                                }
+                                className="main-image-container"
+                              >
                                 <img
-                                  src={slide[`image${index * 3 + 2}`]}
-                                  alt={`image${index * 3 + 2}`}
-                                  className="stacked-image"
-                                  style={{
-                                    minHeight: slide[`image${index * 3 + 3}`]
-                                      ? "100%"
-                                      : "464px",
+                                  src={slide[`image${index * 3 + 1}`]}
+                                  alt={`image${index * 3 + 1}`}
+                                  className="main-image"
+                                  style={{ cursor: "pointer" }}
+                                  onClick={() => {
+                                    setImageSrc(slide[`image${index * 3 + 1}`]);
+                                    setOpenImage(true);
                                   }}
                                 />
-                              )}
-                              {slide[`image${index * 3 + 3}`] && (
+                              </Col>
+
+                              <Col
+                                sm={6}
+                                md={6}
+                                lg={6}
+                                xl={6}
+                                className="image-stack"
+                              >
+                                {slide[`image${index * 3 + 2}`] && (
+                                  <img
+                                    src={slide[`image${index * 3 + 2}`]}
+                                    alt={`image${index * 3 + 2}`}
+                                    className="stacked-image"
+                                    style={{
+                                      minHeight: slide[`image${index * 3 + 3}`]
+                                        ? "96%"
+                                        : "464px",
+                                      cursor: "pointer",
+                                    }}
+                                    onClick={() => {
+                                      setImageSrc(slide[`image${index * 3 + 2}`]);
+                                      setOpenImage(true);
+                                    }}
+                                  />
+                                )}
+                                {slide[`image${index * 3 + 3}`] && (
+                                  <img
+                                    src={slide[`image${index * 3 + 3}`]}
+                                    alt={`image${index * 3 + 3}`}
+                                    className="stacked-image"
+                                    style={{ cursor: "pointer" }}
+                                    onClick={() => {
+                                      setImageSrc(slide[`image${index * 3 + 3}`]);
+                                      setOpenImage(true);
+                                    }}
+                                  />
+                                )}
+                              </Col>
+                            </Row>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="embla__container__view__ad">
+                        {imageLinks?.map((slide, index) => (
+                          <div key={index} className="carousel-slide">
+                            <Row>
+                              <Col>
                                 <img
-                                  src={slide[`image${index * 3 + 3}`]}
-                                  alt={`image${index * 3 + 3}`}
-                                  className="stacked-image"
+                                  src={slide}
+                                  alt={index}
+                                  className="main-image"
+                                  style={{ cursor: "pointer" }}
+                                  onClick={() => {
+                                    setImageSrc(slide);
+                                    setOpenImage(true);
+                                  }}
                                 />
-                              )}
-                            </Col>
-                          </Row>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="embla__container__view__ad">
-                      {imageLinks?.map((slide, index) => (
-                        <div key={index} className="carousel-slide">
-                          <Row>
-                            <Col>
-                              <img
-                                src={slide}
-                                alt={index}
-                                className="main-image"
-                              />
-                            </Col>
-                          </Row>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                              </Col>
+                            </Row>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <PrevButton onClick={scrollPrev} enabled={prevBtnEnabled} />
+                  <NextButton onClick={scrollNext} enabled={nextBtnEnabled} />
+                  {
+                    currentAd?.ad_media[0]?.media_urls?.video?.length > 0 && (
+                      <Button variant="light" className="px-4 py-2 w-auto" onClick={() => setOpenVideoModal(true)}>View videos</Button>
+                    )
+                  }
                 </div>
-                <PrevButton onClick={scrollPrev} enabled={prevBtnEnabled} />
-                <NextButton onClick={scrollNext} enabled={nextBtnEnabled} />
               </div>
-            </div>
-          </Row>
-        </Col>
-        <Col lg={4}>
-          <div className="d-flex justify-content-between flex-column h-100">
-            <div className="d-flex flex-column">
-              <Calendar
-                value={new Date()}
-                tileClassName={busyClassName}
-                className="mb-5"
-              />
-              <div className="d-flex w-100 align-items-center pt-3">
-                <StarRating
-                  averageRating={currentAd?.average_rating?.toFixed(1) || 0}
-                  style={{ width: "fit-content", fontSize: "18px", marginRight: "7px" }}
+            </Row>
+          </Col>
+          <Col lg={4}>
+            <div className="d-flex justify-content-between flex-column h-100">
+              <div className="d-flex flex-column">
+                <Calendar
+                  value={new Date()}
+                  tileClassName={busyClassName}
+                  className="mb-5"
                 />
-                <strong>{currentAd?.average_rating?.toFixed(1) || "0.0"}</strong>
-                <div className="ms-2" style={{ color: "#797979" }}>
-                  {currentAd?.total_reviews || 0}
-                  {" "}
-                  Reviews
-                </div>
-              </div>
-              {(currentAd?.facebook !== ""
-                || currentAd?.instagram !== ""
-                || currentAd?.youtube !== ""
-                || currentAd?.tiktok !== ""
-                || currentAd?.twitter !== ""
-                || currentAd?.others !== null) && (
-                <div className="d-grid align-items-center justify-content-between mt-3">
-                  <div className="roboto-regular-16px-information mb-2">
-                    Follow
-                    {" "}
-                    <strong>{currentAd?.name}</strong>
-                    {" "}
-                    on
-                  </div>
-
-                  <div className="d-flex">
-                    {currentAd?.facebook !== "" && (
-                      <a
-                        className="d-flex align-items-center justify-content-center me-1"
-                        style={{
-                          border: "1px solid #A0C49D",
-                          background: "#A0C49D30",
-                          width: "32px",
-                          height: "32px",
-                          borderRadius: "50%",
-                          cursor: "pointer",
-                          color: "#A0C49D",
-                        }}
-                        href={currentAd?.facebook}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        <FontAwesomeIcon icon={faFacebook} />
-                      </a>
-                    )}
-                    {currentAd?.instagram !== "" && (
-                      <a
-                        className="d-flex align-items-center justify-content-center me-1"
-                        style={{
-                          border: "1px solid #A0C49D",
-                          background: "#A0C49D30",
-                          width: "32px",
-                          height: "32px",
-                          borderRadius: "50%",
-                          cursor: "pointer",
-                          color: "#A0C49D",
-                        }}
-                        href={currentAd?.instagram}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        <FontAwesomeIcon icon={faInstagram} />
-                      </a>
-                    )}
-                    {currentAd?.youtube !== "" && (
-                      <a
-                        className="d-flex align-items-center justify-content-center me-1"
-                        style={{
-                          border: "1px solid #A0C49D",
-                          background: "#A0C49D30",
-                          width: "32px",
-                          height: "32px",
-                          borderRadius: "50%",
-                          cursor: "pointer",
-                          color: "#A0C49D",
-                        }}
-                        href={currentAd?.youtube}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        <FontAwesomeIcon icon={faYoutube} />
-                      </a>
-                    )}
-                    {currentAd?.tiktok !== "" && (
-                      <a
-                        className="d-flex align-items-center justify-content-center me-1"
-                        style={{
-                          border: "1px solid #A0C49D",
-                          background: "#A0C49D30",
-                          width: "32px",
-                          height: "32px",
-                          borderRadius: "50%",
-                          cursor: "pointer",
-                          color: "#A0C49D",
-                        }}
-                        href={currentAd?.tiktok}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        <FontAwesomeIcon icon={faTiktok} />
-                      </a>
-                    )}
-                    {currentAd?.twitter !== "" && (
-                      <a
-                        className="d-flex align-items-center justify-content-center me-1"
-                        style={{
-                          border: "1px solid #A0C49D",
-                          background: "#A0C49D30",
-                          width: "32px",
-                          height: "32px",
-                          borderRadius: "50%",
-                          cursor: "pointer",
-                          color: "#A0C49D",
-                        }}
-                        href={currentAd?.twitter}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        <FontAwesomeIcon icon={faTwitter} />
-                      </a>
-                    )}
-                    {currentAd?.others !== "" && (
-                      <a
-                        className="d-flex align-items-center justify-content-center me-1"
-                        style={{
-                          border: "1px solid #A0C49D",
-                          background: "#A0C49D30",
-                          width: "32px",
-                          height: "32px",
-                          borderRadius: "50%",
-                          cursor: "pointer",
-                          color: "#A0C49D",
-                        }}
-                        href={currentAd?.others}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        <FontAwesomeIcon icon={faLink} />
-                      </a>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* <div className="d-flex">
-              <Button
-                type="submit"
-                // onClick={() => navigate("/post-ad")}
-                className="btn btn-success roboto-semi-bold-16px-information w-100 mt-5"
-                style={{}}
-                // style={{ padding: "0 100px" }}
-              >
-                Request pricing
-              </Button>
-            </div> */}
-          </div>
-        </Col>
-      </Row>
-
-      <Row className="mt-5">
-        <Col lg={8}>
-          <div
-            className="d-flex align-items-center px-4"
-            style={{
-              height: "50px",
-              width: "100%",
-              background: "#F4F4F4",
-            }}
-          >
-            <div
-              className={`${
-                currentTab === 1 && "active-tab"
-              } roboto-regular-16px-information tab me-1`}
-              onClick={() => setCurrentTab(1)}
-            >
-              About
-            </div>
-            <div
-              className={`${
-                currentTab === 2 && "active-tab"
-              } roboto-regular-16px-information tab`}
-              onClick={() => setCurrentTab(2)}
-            >
-              FAQs
-            </div>
-            <div
-              className={`${
-                currentTab === 3 && "active-tab"
-              } roboto-regular-16px-information tab`}
-              onClick={() => setCurrentTab(3)}
-            >
-              Reviews
-            </div>
-          </div>
-
-          {currentTab === 1 && currentAd?.description !== null && (
-            <div className="d-flex flex-column ps-4 my-4">
-              <div className="d-flex roboto-semi-bold-24px-h3">About</div>
-
-              <div
-                className="roboto-regular-16px-information mt-2"
-                style={{ overflowWrap: "break-word" }}
-                // dangerouslySetInnerHTML={{ __html: currentAd?.description?.replace(/\n/g, "<br>") }}
-              >
-                {
-                  currentAd?.description?.split("\n").map((content) => (
-                    <>
-                      {content}
-                      <br />
-                    </>
-                  ))
-                }
-                {/* {currentAd?.description} */}
-              </div>
-            </div>
-          )}
-
-          {currentTab === 1 && (currentAd?.offered_services.length > 0 || currentAd?.site_services.length > 0) && (
-            <div className="d-flex flex-column ps-4 my-4">
-              <div className="d-flex roboto-semi-bold-24px-h3">
-                Offered services
-              </div>
-
-              <Row className="mt-2">
-                {currentAd.offered_services.map((service, index) => (
-                  <Col key={index} lg={4}>
-                    <ul className="custom-lists roboto-regular-16px-information">
-                      <li className="ps-2">{service}</li>
-                    </ul>
-                  </Col>
-                ))}
-                {currentAd?.site_services.map((service, index) => (
-                  <Col key={index} lg={4}>
-                    <ul className="custom-lists roboto-regular-16px-information">
-                      <li className="ps-2">{service}</li>
-                    </ul>
-                  </Col>
-                ))}
-              </Row>
-            </div>
-          )}
-
-          {currentTab === 2 && (
-            <div className="d-flex flex-column ps-4 my-4">
-              <div className="d-flex roboto-semi-bold-24px-h3">
-                Frequently Asked Questions
-              </div>
-
-              {currentAd?.ad_faqs.map((faq, index) => (
-                <div>
-                  <div
-                    className="d-flex roboto-regular-18px-body3 mt-4"
-                    style={{ fontWeight: "700" }}
-                  >
-                    {faq.question}
-                  </div>
-                  <Row className="mt-3">
-                    <Col key={index} lg={4}>
-                      {/* ----------- FOR THE CHECKBOX TYPE ANSWERS, USE THIS LI UL ELEMENT----------- */}
-                      {/* <li>{faq.question}</li> */}
-                      {/* <ul className="custom-lists-tick-icon roboto-regular-16px-information">
-                      <li>{faq.question}</li>
-                    </ul> */}
-                      <div
-                        className="roboto-regular-18px-body3 mb-2"
-                      >
-                        {faq.answer}
-                      </div>
-                    </Col>
-                  </Row>
-
-                  <div
-                    style={{
-                      border: "1px solid #D9D9D9",
-                      width: "100%",
-                      marginTop: "10px",
-                    }}
+                <div className="d-flex w-100 align-items-center pt-3">
+                  <StarRating
+                    averageRating={currentAd?.average_rating?.toFixed(1) || 0}
+                    style={{ width: "fit-content", fontSize: "18px", marginRight: "7px" }}
                   />
-                </div>
-              ))}
-
-              {currentAd?.ad_faq_ad.map((faq, index) => (
-                <div>
-                  <div
-                    className="d-flex roboto-regular-18px-body3 mt-4"
-                    style={{ fontWeight: "700" }}
-                  >
-                    {faq.site_question.question}
+                  <strong>{currentAd?.average_rating?.toFixed(1) || "0.0"}</strong>
+                  <div className="ms-2" style={{ color: "#797979" }}>
+                    {currentAd?.total_reviews || 0}
+                    {" "}
+                    Reviews
                   </div>
-                  <Row className="mt-3">
-                    <Col key={index} lg={4}>
-                      {/* ----------- FOR THE CHECKBOX TYPE ANSWERS, USE THIS LI UL ELEMENT----------- */}
-                      {/* <li>{faq.question}</li> */}
-                      {/* <ul className="custom-lists-tick-icon roboto-regular-16px-information">
-                      <li>{faq.question}</li>
-                    </ul> */}
-                      <div
-                        className="roboto-regular-18px-body3 mb-2"
-                      >
-                        {faq.answer}
-                      </div>
-                    </Col>
-                  </Row>
-
-                  <div
-                    style={{
-                      border: "1px solid #D9D9D9",
-                      width: "100%",
-                      marginTop: "10px",
-                    }}
-                  />
                 </div>
-              ))}
-            </div>
-          )}
+                {(currentAd?.facebook !== ""
+                  || currentAd?.instagram !== ""
+                  || currentAd?.youtube !== ""
+                  || currentAd?.tiktok !== ""
+                  || currentAd?.twitter !== ""
+                  || currentAd?.others !== null) && (
+                  <div className="d-grid align-items-center justify-content-between mt-3">
+                    <div className="roboto-regular-16px-information mb-2">
+                      Follow
+                      {" "}
+                      <strong>{currentAd?.name}</strong>
+                      {" "}
+                      on
+                    </div>
 
-          {currentTab === 3 && (
-            <Reviews adId={currentAd?.id} adName={currentAd?.name} />
-          )}
-        </Col>
-        <Col lg={4}>
-          {user?.userId === null
-          || (user?.userId !== null && user?.role === "client") ? (
-              chatId !== null ? (
-                <Button variant="success" className="w-100" onClick={() => navigate(`/messages?chatId=${chatId}`)}>Go to Chat</Button>
-              ) : (
-                <Form
-                  className="message-vendor-form"
+                    <div className="d-flex">
+                      {currentAd?.facebook !== "" && (
+                        <a
+                          className="d-flex align-items-center justify-content-center me-1"
+                          style={{
+                            border: "1px solid #A0C49D",
+                            background: "#A0C49D30",
+                            width: "32px",
+                            height: "32px",
+                            borderRadius: "50%",
+                            cursor: "pointer",
+                            color: "#A0C49D",
+                          }}
+                          href={currentAd?.facebook}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <FontAwesomeIcon icon={faFacebook} />
+                        </a>
+                      )}
+                      {currentAd?.instagram !== "" && (
+                        <a
+                          className="d-flex align-items-center justify-content-center me-1"
+                          style={{
+                            border: "1px solid #A0C49D",
+                            background: "#A0C49D30",
+                            width: "32px",
+                            height: "32px",
+                            borderRadius: "50%",
+                            cursor: "pointer",
+                            color: "#A0C49D",
+                          }}
+                          href={currentAd?.instagram}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <FontAwesomeIcon icon={faInstagram} />
+                        </a>
+                      )}
+                      {currentAd?.youtube !== "" && (
+                        <a
+                          className="d-flex align-items-center justify-content-center me-1"
+                          style={{
+                            border: "1px solid #A0C49D",
+                            background: "#A0C49D30",
+                            width: "32px",
+                            height: "32px",
+                            borderRadius: "50%",
+                            cursor: "pointer",
+                            color: "#A0C49D",
+                          }}
+                          href={currentAd?.youtube}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <FontAwesomeIcon icon={faYoutube} />
+                        </a>
+                      )}
+                      {currentAd?.tiktok !== "" && (
+                        <a
+                          className="d-flex align-items-center justify-content-center me-1"
+                          style={{
+                            border: "1px solid #A0C49D",
+                            background: "#A0C49D30",
+                            width: "32px",
+                            height: "32px",
+                            borderRadius: "50%",
+                            cursor: "pointer",
+                            color: "#A0C49D",
+                          }}
+                          href={currentAd?.tiktok}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <FontAwesomeIcon icon={faTiktok} />
+                        </a>
+                      )}
+                      {currentAd?.twitter !== "" && (
+                        <a
+                          className="d-flex align-items-center justify-content-center me-1"
+                          style={{
+                            border: "1px solid #A0C49D",
+                            background: "#A0C49D30",
+                            width: "32px",
+                            height: "32px",
+                            borderRadius: "50%",
+                            cursor: "pointer",
+                            color: "#A0C49D",
+                          }}
+                          href={currentAd?.twitter}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <FontAwesomeIcon icon={faTwitter} />
+                        </a>
+                      )}
+                      {currentAd?.others !== "" && (
+                        <a
+                          className="d-flex align-items-center justify-content-center me-1"
+                          style={{
+                            border: "1px solid #A0C49D",
+                            background: "#A0C49D30",
+                            width: "32px",
+                            height: "32px",
+                            borderRadius: "50%",
+                            cursor: "pointer",
+                            color: "#A0C49D",
+                          }}
+                          href={currentAd?.others}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <FontAwesomeIcon icon={faLink} />
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* <div className="d-flex">
+                <Button
+                  type="submit"
+                  // onClick={() => navigate("/post-ad")}
+                  className="btn btn-success roboto-semi-bold-16px-information w-100 mt-5"
+                  style={{}}
+                  // style={{ padding: "0 100px" }}
                 >
-                  <div
-                    className="d-flex justify-content-center align-items-center roboto-semi-bold-28px-h2"
-                    style={{ marginBottom: "26px" }}
-                  >
-                    {user.userId === null ? "Contact" : "Message"}
-                    {" "}
-                    Vendor
-                  </div>
+                  Request pricing
+                </Button>
+              </div> */}
+            </div>
+          </Col>
+        </Row>
 
-                  <Form.Control
-                    style={{ minHeight: "120px" }}
-                    className="lg-input-small-text mb-4"
-                    name="message.text"
-                    as="textarea"
-                    rows={3}
-                    type="text"
-                    size="lg"
-                    placeholder="Message"
-                    value={text || ""}
-                    onChange={(e) => setText(e.target.value)}
-                  />
+        <Row className="mt-5">
+          <Col lg={8}>
+            <div
+              className="d-flex align-items-center px-4"
+              style={{
+                height: "50px",
+                width: "100%",
+                background: "#F4F4F4",
+              }}
+            >
+              <div
+                className={`${
+                  currentTab === 1 && "active-tab"
+                } roboto-regular-16px-information tab me-1`}
+                onClick={() => setCurrentTab(1)}
+              >
+                About
+              </div>
+              <div
+                className={`${
+                  currentTab === 2 && "active-tab"
+                } roboto-regular-16px-information tab`}
+                onClick={() => setCurrentTab(2)}
+              >
+                FAQs
+              </div>
+              <div
+                className={`${
+                  currentTab === 3 && "active-tab"
+                } roboto-regular-16px-information tab`}
+                onClick={() => setCurrentTab(3)}
+              >
+                Reviews
+              </div>
+            </div>
 
-                  {user?.userId === null ? (
-                    <>
-                      <Form.Control
-                        style={{ height: "56px" }}
-                        className="lg-input-small-text mb-4"
-                        type="text"
-                        name="message.full_name"
-                        size="sm"
-                        placeholder="First and Last Name"
-                        value={name || ""}
-                        onChange={(e) => setName(e.target.value)}
-                      />
+            {currentTab === 1 && currentAd?.description !== null && (
+              <div className="d-flex flex-column ps-4 my-4">
+                <div className="d-flex roboto-semi-bold-24px-h3">About</div>
 
-                      <Form.Control
-                        style={{ height: "56px" }}
-                        className="lg-input-small-text mb-4"
-                        type="email"
-                        name="message.email"
-                        size="sm"
-                        placeholder="Email"
-                        value={email || ""}
-                        onChange={(e) => setEmail(e.target.value)}
-                      />
-
-                      <Form.Control
-                        style={{ height: "56px" }}
-                        className="lg-input-small-text mb-4"
-                        type="text"
-                        name="message.phone"
-                        size="sm"
-                        placeholder="Phone"
-                        value={phone || ""}
-                        onChange={(e) => setPhone(e.target.value)}
-                      />
-                    </>
-                  ) : (
-                    ""
-                  )}
-
-                  <Form.Control
-                    style={{ height: "56px" }}
-                    className="lg-input-small-text mb-4"
-                    type="date"
-                    name="message.event_date"
-                    size="sm"
-                    placeholder="Event date"
-                    value={eventDate || ""}
-                    onChange={(e) => setEventDate(e.target.value)}
-                  />
-
-                  <p className="roboto-regular-14px-information">
-                    By clicking ‘Send’, I agree to Allevents
-                    {" "}
-                    <a className="roboto-regular-14px-information" href="#">
-                      Privacy Policy
-                    </a>
-                    , and
-                    {" "}
-                    <a className="roboto-regular-14px-information" href="#">
-                      Terms of Use
-                    </a>
-                  </p>
-
-                  <Button
-                    type="button"
-                    className="btn btn-success roboto-semi-bold-16px-information w-100"
-                    onClick={submitVendorRequestForm}
-                  >
-                    Send
-                  </Button>
-                </Form>
-              )) : (
-              ""
+                <div
+                  className="roboto-regular-16px-information mt-2"
+                  style={{ overflowWrap: "break-word" }}
+                  // dangerouslySetInnerHTML={{ __html: currentAd?.description?.replace(/\n/g, "<br>") }}
+                >
+                  {
+                    currentAd?.description?.split("\n").map((content) => (
+                      <>
+                        {content}
+                        <br />
+                      </>
+                    ))
+                  }
+                  {/* {currentAd?.description} */}
+                </div>
+              </div>
             )}
-        </Col>
-      </Row>
-    </Container>
+
+            {currentTab === 1 && offeredServices.length > 0 && (
+              <div className="d-flex flex-column ps-4 my-4">
+                <div className="d-flex roboto-semi-bold-24px-h3">
+                  Offered services
+                </div>
+
+                <Row className="mt-2">
+                  {offeredServices.map((service, index) => (
+                    <Col key={index} lg={4}>
+                      <ul className="custom-lists roboto-regular-16px-information">
+                        <li className="ps-2">{service}</li>
+                      </ul>
+                    </Col>
+                  ))}
+                </Row>
+
+                {
+                  currentAd.offered_services.concat(currentAd.site_services).length > 12 && offeredServices.length === 12 && (
+                    <Row className="mt-2">
+                      <Col lg={4} />
+                      <Col lg={4}>
+                        <Button variant="success" className="px-5 w-auto" onClick={displayAllOfferedServices}>View more</Button>
+                      </Col>
+                      <Col lg={4} />
+                    </Row>
+                  )
+                }
+              </div>
+            )}
+
+            {currentTab === 1 && currentAd && currentAd.ad_media[0].media_urls.pdf.length > 0 && (
+              <div className="d-flex flex-column ps-4 my-4">
+                <div className="d-flex roboto-semi-bold-24px-h3">Discounts</div>
+
+                <Row>
+                  {
+                    currentAd.ad_media[0].media_urls.pdf.map((pdf) => (
+                      <Col sm={1} md={2} lg={4} className="mt-4">
+                        <a
+                          className="w-100 h-100"
+                          style={{ textDecoration: "none", color: "black" }}
+                          href={pdf}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <div className="discount px-4 py-3">
+                            <img src={DiscountTag} alt="discount-tag" className="me-2" />
+                            <span style={{ overflowWrap: "break-word", maxWidth: "180px" }}>
+                              {pdf.split("/").slice(-1)}
+                            </span>
+                          </div>
+                        </a>
+                      </Col>
+                    ))
+                  }
+                </Row>
+              </div>
+            )}
+
+            {currentTab === 2 && (
+              <div className="d-flex flex-column ps-4 my-4">
+                <div className="d-flex roboto-semi-bold-24px-h3">
+                  Frequently Asked Questions
+                </div>
+
+                {currentAd?.ad_faqs.map((faq, index) => (
+                  <div>
+                    <div
+                      className="d-flex roboto-regular-18px-body3 mt-4"
+                      style={{ fontWeight: "700" }}
+                    >
+                      {faq.question}
+                    </div>
+                    <Row className="mt-3">
+                      <Col key={index} lg={4}>
+                        {/* ----------- FOR THE CHECKBOX TYPE ANSWERS, USE THIS LI UL ELEMENT----------- */}
+                        {/* <li>{faq.question}</li> */}
+                        {/* <ul className="custom-lists-tick-icon roboto-regular-16px-information">
+                        <li>{faq.question}</li>
+                      </ul> */}
+                        <div
+                          className="roboto-regular-18px-body3 mb-2"
+                        >
+                          {faq.answer}
+                        </div>
+                      </Col>
+                    </Row>
+
+                    <div
+                      style={{
+                        border: "1px solid #D9D9D9",
+                        width: "100%",
+                        marginTop: "10px",
+                      }}
+                    />
+                  </div>
+                ))}
+
+                {currentAd?.ad_faq_ad.map((faq, index) => (
+                  <div>
+                    <div
+                      className="d-flex roboto-regular-18px-body3 mt-4"
+                      style={{ fontWeight: "700" }}
+                    >
+                      {faq.site_question.question}
+                    </div>
+                    <Row className="mt-3">
+                      <Col key={index} lg={4}>
+                        {/* ----------- FOR THE CHECKBOX TYPE ANSWERS, USE THIS LI UL ELEMENT----------- */}
+                        {/* <li>{faq.question}</li> */}
+                        {/* <ul className="custom-lists-tick-icon roboto-regular-16px-information">
+                        <li>{faq.question}</li>
+                      </ul> */}
+                        <div
+                          className="roboto-regular-18px-body3 mb-2"
+                        >
+                          {faq.answer}
+                        </div>
+                      </Col>
+                    </Row>
+
+                    <div
+                      style={{
+                        border: "1px solid #D9D9D9",
+                        width: "100%",
+                        marginTop: "10px",
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {currentTab === 3 && (
+              <Reviews adId={currentAd?.id} adName={currentAd?.name} />
+            )}
+          </Col>
+          <Col lg={4}>
+            {user?.userId === null
+            || (user?.userId !== null && user?.role === "client") ? (
+                chatId !== null ? (
+                  <Button variant="success" className="w-100" onClick={() => navigate(`/messages?chatId=${chatId}`)}>Go to Chat</Button>
+                ) : (
+                  <Form
+                    className="message-vendor-form"
+                  >
+                    <div
+                      className="d-flex justify-content-center align-items-center roboto-semi-bold-28px-h2"
+                      style={{ marginBottom: "26px" }}
+                    >
+                      {user.userId === null ? "Contact" : "Message"}
+                      {" "}
+                      Vendor
+                    </div>
+
+                    <Form.Control
+                      style={{ minHeight: "120px" }}
+                      className="lg-input-small-text mb-4"
+                      name="message.text"
+                      as="textarea"
+                      rows={3}
+                      type="text"
+                      size="lg"
+                      placeholder="Message"
+                      value={text || ""}
+                      onChange={(e) => setText(e.target.value)}
+                    />
+
+                    {user?.userId === null ? (
+                      <>
+                        <Form.Control
+                          style={{ height: "56px" }}
+                          className="lg-input-small-text mb-4"
+                          type="text"
+                          name="message.full_name"
+                          size="sm"
+                          placeholder="First and Last Name"
+                          value={name || ""}
+                          onChange={(e) => setName(e.target.value)}
+                        />
+
+                        <Form.Control
+                          style={{ height: "56px" }}
+                          className="lg-input-small-text mb-4"
+                          type="email"
+                          name="message.email"
+                          size="sm"
+                          placeholder="Email"
+                          value={email || ""}
+                          onChange={(e) => setEmail(e.target.value)}
+                        />
+
+                        <Form.Control
+                          style={{ height: "56px" }}
+                          className="lg-input-small-text mb-4"
+                          type="text"
+                          name="message.phone"
+                          size="sm"
+                          placeholder="Phone"
+                          value={phone || ""}
+                          onChange={(e) => setPhone(e.target.value)}
+                        />
+                      </>
+                    ) : (
+                      ""
+                    )}
+
+                    <Form.Control
+                      style={{ height: "56px" }}
+                      className="lg-input-small-text mb-4"
+                      type="date"
+                      name="message.event_date"
+                      size="sm"
+                      placeholder="Event date"
+                      value={eventDate || ""}
+                      onChange={(e) => setEventDate(e.target.value)}
+                    />
+
+                    <p className="roboto-regular-14px-information">
+                      By clicking ‘Send’, I agree to Allevents
+                      {" "}
+                      <a className="roboto-regular-14px-information" href="#">
+                        Privacy Policy
+                      </a>
+                      , and
+                      {" "}
+                      <a className="roboto-regular-14px-information" href="#">
+                        Terms of Use
+                      </a>
+                    </p>
+
+                    <Button
+                      type="button"
+                      className="btn btn-success roboto-semi-bold-16px-information w-100"
+                      onClick={submitVendorRequestForm}
+                    >
+                      Send
+                    </Button>
+                  </Form>
+                )) : (
+                ""
+              )}
+          </Col>
+        </Row>
+      </Container>
+    </>
   );
 }
 

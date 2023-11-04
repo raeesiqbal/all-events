@@ -13,7 +13,8 @@ const initialState = {
   error: null,
   vendorAds: [],
   vendorAdNames: [],
-  publicAds: [],
+  premiumVenueAds: [],
+  premiumVendorAds: [],
   favoriteAds: [],
   imagesError: false,
   isMediaUploading: false,
@@ -152,14 +153,32 @@ export const getVendorAdNames = createAsyncThunk(
   },
 );
 
-export const listPublicAds = createAsyncThunk(
-  "Ads/public_list",
+export const listPremiumVenues = createAsyncThunk(
+  "Ads/premiumVenues",
   async (isLoggedIn, { rejectWithValue }) => {
     try {
       const request = isLoggedIn ? secureInstance : instance;
       const response = await request.request({
-        url: "/api/ads/public-list/",
-        method: "Post",
+        url: "/api/ads/premium-venues/",
+        method: "Get",
+      });
+      return response.data; // Assuming your loginAPI returns data with access_token, user_id, and role_id
+    } catch (err) {
+      // Use `err.response.data` as `action.payload` for a `rejected` action,
+      // by explicitly returning it using the `rejectWithValue()` utility
+      return rejectWithValue(err.response.data);
+    }
+  },
+);
+
+export const listPremiumVendors = createAsyncThunk(
+  "Ads/premiumVendors",
+  async (isLoggedIn, { rejectWithValue }) => {
+    try {
+      const request = isLoggedIn ? secureInstance : instance;
+      const response = await request.request({
+        url: "/api/ads/premium-vendors/",
+        method: "Get",
       });
       return response.data; // Assuming your loginAPI returns data with access_token, user_id, and role_id
     } catch (err) {
@@ -322,15 +341,27 @@ export const AdsSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-      .addCase(listPublicAds.pending, (state) => {
+      .addCase(listPremiumVenues.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(listPublicAds.fulfilled, (state, action) => {
+      .addCase(listPremiumVenues.fulfilled, (state, action) => {
         state.loading = false;
-        state.publicAds = action.payload.data.data;
+        state.premiumVenueAds = action.payload.data;
       })
-      .addCase(listPublicAds.rejected, (state, action) => {
+      .addCase(listPremiumVenues.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(listPremiumVendors.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(listPremiumVendors.fulfilled, (state, action) => {
+        state.loading = false;
+        state.premiumVendorAds = action.payload.data;
+      })
+      .addCase(listPremiumVendors.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
@@ -388,7 +419,11 @@ export const AdsSlice = createSlice({
         state.loading = false;
         state.AdPostSuccessAlert = true;
         if ([200, 201, 202, 203, 204].includes(action.payload.status_code)) {
-          state.publicAds = state.publicAds.map((ad) => {
+          state.premiumVenueAds = state.premiumVenueAds.map((ad) => {
+            if (ad.id === action.payload.id) ad.fav = !ad.fav;
+            return ad;
+          });
+          state.premiumVendorAds = state.premiumVendorAds.map((ad) => {
             if (ad.id === action.payload.id) ad.fav = !ad.fav;
             return ad;
           });

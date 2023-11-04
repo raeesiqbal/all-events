@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import {
@@ -8,10 +8,11 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart } from "@fortawesome/free-regular-svg-icons";
 import EmblaCarousel from "../../components/Carousel/Carousel";
 import placeholderIcon from "../../assets/images/placeholder.jpg";
-import { favoriteAd } from "../redux/Posts/AdsSlice";
+import { favoriteAd, listPremiumVenues } from "../redux/Posts/AdsSlice";
 
 function PremiumVenues() {
-  const publicAds = useSelector((state) => state.Ads.publicAds);
+  const user = useSelector((state) => state.auth.user);
+  const { premiumVenueAds } = useSelector((state) => state.Ads);
   const dispatch = useDispatch();
   const OPTIONS = { slidesToScroll: "auto", containScroll: "trimSnaps" };
 
@@ -113,8 +114,12 @@ function PremiumVenues() {
     </Link>
   );
 
+  useEffect(() => {
+    dispatch(listPremiumVenues(user?.userId !== null));
+  }, [user]);
+
   return (
-    publicAds.length > 0 && (
+    premiumVenueAds.length > 0 && (
       <Container
         fluid
         style={{ padding: "100px 0", backgroundColor: "#F5F5F5" }}
@@ -124,7 +129,7 @@ function PremiumVenues() {
             Find our Premium Venues
           </div>
           <EmblaCarousel
-            slides={publicAds}
+            slides={premiumVenueAds}
             options={OPTIONS}
             componentToRender={componentToRender}
           />

@@ -11,8 +11,7 @@ const Filters = () => {
   const dispatch = useDispatch();
   const filters = useSelector((state) => state.search.data.filters);
   const keyword = useSelector((state) => state.search.data.keyword);
-  const limit = useSelector((state) => state.search.data.pagination.limit);
-  const offset = useSelector((state) => state.search.data.pagination.offset);
+  const { limit, offset } = useSelector((state) => state.search.data.pagination);
   const {
     categories, subcategories, questions, commercialName, country,
   } = useSelector((state) => state.search.data.payload);

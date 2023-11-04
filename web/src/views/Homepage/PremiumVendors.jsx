@@ -1,19 +1,27 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 import {
   Button, Card, Col, Container,
 } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart } from "@fortawesome/free-regular-svg-icons";
 import EmblaCarousel from "../../components/Carousel/Carousel";
-import { instance } from "../../axios/config";
 import placeholderIcon from "../../assets/images/placeholder.jpg";
+import { favoriteAd, listPremiumVendors } from "../redux/Posts/AdsSlice";
 
 function PremiumVendors() {
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.auth.user);
+  const { premiumVendorAds } = useSelector((state) => state.Ads);
   const OPTIONS = { slidesToScroll: "auto", containScroll: "trimSnaps" };
-  const [publicAds, setPublicAds] = useState([]);
+
+  const handlefavoriteAd = (id) => {
+    dispatch(favoriteAd(id));
+  };
 
   const componentToRender = (slide, index) => (
-    <div className="embla__slide" key={index}>
+    <Link className="embla__slide" key={index} to={`/view-ad/${slide.id}`}>
       <Card
         style={{
           padding: "10px",
@@ -32,27 +40,35 @@ function PremiumVendors() {
           style={{ height: "100%", minHeight: "186px", objectFit: "cover" }}
         />
         <Card.Body>
-          <div
-            className="position-absolute"
-            style={{ top: "20px", right: "20px" }}
-          >
-            <div
-              className="d-flex align-items-center justify-content-center"
-              style={{
-                background: "#00000080",
-                width: "40px",
-                height: "40px",
-                borderRadius: "50%",
-              }}
-            >
-              <FontAwesomeIcon
-                icon={faHeart}
-                size="lg"
-                style={{ color: "#fff" }}
-              />
-            </div>
-          </div>
-
+          {
+            slide.fav !== null && (
+              <div
+                className="position-absolute"
+                style={{ top: "20px", right: "20px", zIndex: "2" }}
+              >
+                <div
+                  className="d-flex align-items-center justify-content-center"
+                  style={{
+                    background: "#00000080",
+                    width: "40px",
+                    height: "40px",
+                    borderRadius: "50%",
+                  }}
+                >
+                  <FontAwesomeIcon
+                    icon={slide.fav ? "fa-heart fa-solid" : faHeart}
+                    size="lg"
+                    style={{ color: "#A0C49D", cursor: "pointer" }}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handlefavoriteAd(slide.id);
+                    }}
+                  />
+                </div>
+              </div>
+            )
+          }
           <Card.Title
             style={{ margin: "0" }}
             className="roboto-medium-20px-body1 card-title-custom"
@@ -65,21 +81,29 @@ function PremiumVendors() {
                 icon="fa-solid fa-star"
                 style={{ color: "#f0be41" }}
               />
-              <span
-                className="d-flex align-items-center roboto-regular-14px-information"
-                style={{ margin: "0 6px" }}
-              >
-                <strong>
-                  {" "}
-                  {slide.average_rating?.toFixed(1) || "0.0"}
-                  {" "}
-                </strong>
-              </span>
-              <span className="d-flex align-items-center text-muted roboto-regular-14px-information">
-                (
-                {slide.total_reviews}
+              {
+                slide.total_reviews !== 0 ? (
+                  <>
+                    <span
+                      className="d-flex align-items-center roboto-regular-14px-information"
+                      style={{ margin: "0 6px" }}
+                    >
+                      <strong>
+                        {" "}
+                        {slide.average_rating?.toFixed(1) || "0.0"}
+                        {" "}
+                      </strong>
+                    </span>
+                    <span className="d-flex align-items-center text-muted roboto-regular-14px-information">
+                      (
+                      {slide.total_reviews}
+                      )
+                    </span>
+                  </>
+                ) : (
+                  <span className="text-muted roboto-regular-14px-information ms-1 mt-1">Not Rated</span>
                 )
-              </span>
+              }
             </div>
           </Card.Text>
           <Card.Text className="text-muted roboto-regular-14px-information">
@@ -87,11 +111,15 @@ function PremiumVendors() {
           </Card.Text>
         </Card.Body>
       </Card>
-    </div>
+    </Link>
   );
 
+  useEffect(() => {
+    dispatch(listPremiumVendors(user?.userId !== null));
+  }, [user]);
+
   return (
-    publicAds.length > 0 && (
+    premiumVendorAds.length > 0 && (
       <Container
         fluid
         style={{ padding: "100px 0", backgroundColor: "#F5F5F5" }}
@@ -101,16 +129,16 @@ function PremiumVendors() {
             Find our Premium Vendors
           </div>
           <EmblaCarousel
-            slides={publicAds}
+            slides={premiumVendorAds}
             options={OPTIONS}
             componentToRender={componentToRender}
           />
           <div className="d-flex justify-content-center mt-5 w-100">
-            <Col xs={12} md={7} lg={2}>
+            <Col xs={10} md={6} lg={2}>
               <Button
                 variant="success"
                 type="submit"
-                className="roboto-semi-bold-16px-information btn btn-height w-100"
+                className="roboto-semi-bold-16px-information btn-height w-100"
               >
                 See all Vendors
               </Button>

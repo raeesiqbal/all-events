@@ -24,12 +24,8 @@ function HeroSection() {
   const navigate = useNavigate();
   const [showSuggestions, setShowSuggestions] = React.useState(false);
   const [isDisabled, setIsDisabled] = React.useState(true);
-  const suggestionsList = useSelector(
-    (state) => state.search.data.suggestionsList
-  );
-  const keyword = useSelector((state) => state.search.data.keyword);
-  const limit = useSelector((state) => state.search.data.pagination.limit);
-  const offset = useSelector((state) => state.search.data.pagination.offset);
+  const { suggestionsList, keyword } = useSelector((state) => state.search.data);
+  const { limit, offset } = useSelector((state) => state.search.data.pagination);
   const suggestionDropdown = useRef();
 
   const handleSuggestions = (e) => {
@@ -56,8 +52,7 @@ function HeroSection() {
 
   useEffect(() => {
     if (suggestionDropdown.current) {
-      suggestionDropdown.current.style.overflowY =
-        suggestionDropdown.current.clientHeight > 400 ? "scroll" : "auto";
+      suggestionDropdown.current.style.overflowY = suggestionDropdown.current.clientHeight > 400 ? "scroll" : "auto";
     }
   }, [suggestionsList]);
 

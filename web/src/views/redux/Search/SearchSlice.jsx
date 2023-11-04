@@ -18,7 +18,8 @@ const initialState = {
     pagination: {
       count: 0,
       offset: 0,
-      page: 1,
+      currentPage: 1,
+      totalPages: 1,
       limit: 9,
       next: null,
       previous: null,
@@ -144,9 +145,6 @@ export const SearchSlice = createSlice({
   name: "Search",
   initialState,
   reducers: {
-    handleResgisterationStatus: (state) => {
-      state.isRegistered = false;
-    },
     setSearchKeyword: (state, action) => {
       state.data.keyword.name = action.payload.name || "";
       state.data.keyword.type = action.payload.type || "";
@@ -197,7 +195,10 @@ export const SearchSlice = createSlice({
         state.data.adsList = action.payload.data.data.results;
         state.data.pagination.count = action.payload.data.data.count;
         state.data.pagination.offset = 0;
-        state.data.pagination.page = 1;
+        state.data.pagination.currentPage = 1;
+        state.data.pagination.totalPages = parseInt((action.payload.data.data.count / state.data.pagination.limit), 10) + 1;
+        console.log("Total Pages ===> ", state.data.pagination.totalPages);
+        console.log("Current Pages ===> ", state.data.pagination.currentPage);
         state.data.pagination.next = action.payload.data.data.next;
         state.data.pagination.previous = action.payload.data.data.previous;
         state.data.filters = action.payload.data.filter;
@@ -216,7 +217,10 @@ export const SearchSlice = createSlice({
         state.data.adsList = action.payload.data.data.results;
         state.data.pagination.count = action.payload.data.data.count;
         state.data.pagination.offset = 0;
-        state.data.pagination.page = 1;
+        state.data.pagination.currentPage = 1;
+        state.data.pagination.totalPages = parseInt((action.payload.data.data.count / state.data.pagination.limit), 10) + 1;
+        console.log("Total Pages ===> ", state.data.pagination.totalPages);
+        console.log("Current Pages ===> ", state.data.pagination.currentPage);
         state.data.pagination.next = action.payload.data.data.next;
         state.data.pagination.previous = action.payload.data.data.previous;
       })
@@ -233,7 +237,10 @@ export const SearchSlice = createSlice({
         state.data.adsList = action.payload.data.data.results;
         state.data.pagination.count = action.payload.data.data.count;
         state.data.pagination.offset = action.payload.offset;
-        state.data.pagination.page = (action.payload.offset / state.data.pagination.limit) + 1;
+        state.data.pagination.currentPage = (action.payload.offset / state.data.pagination.limit) + 1;
+        state.data.pagination.totalPages = parseInt((action.payload.data.data.count / state.data.pagination.limit), 10) + 1;
+        console.log("Total Pages ===> ", state.data.pagination.totalPages);
+        console.log("Current Pages ===> ", state.data.pagination.currentPage);
         state.data.pagination.next = action.payload.data.data.next;
         state.data.pagination.previous = action.payload.data.data.previous;
       })

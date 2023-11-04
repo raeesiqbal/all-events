@@ -12,7 +12,7 @@ const Ads = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const adsList = useSelector((state) => state.search.data.adsList);
-  const count = useSelector((state) => state.search.data.pagination.count);
+  const { count } = useSelector((state) => state.search.data.pagination);
 
   const [activeView, setActiveView] = useState("list");
   const [maxWords, setMaxWords] = useState(250);
@@ -48,7 +48,7 @@ const Ads = () => {
         {
           adsList?.map((ad) => (
             <Col md={activeView === "list" ? 12 : 4} className={`mb-4 p-0 ${activeView === "list" ? "" : "pe-2"}`}>
-              <Row className="rounded bg-white p-3 mx-0 h-100">
+              <Row className={`rounded bg-white ${activeView === "list" ? "p-3" : "py-2"} mx-0 h-100`}>
                 <Col md={activeView === "list" ? 4 : 12} className="position-relative">
                   {
                     ad.fav !== null && (

@@ -10,8 +10,7 @@ import Ads from "./Ads";
 const Search = () => {
   const dispatch = useDispatch();
   const keyword = useSelector((state) => state.search.data.keyword);
-  const offset = useSelector((state) => state.search.data.pagination.offset);
-  const limit = useSelector((state) => state.search.data.pagination.limit);
+  const { offset, limit } = useSelector((state) => state.search.data.pagination);
 
   useEffect(() => {
     dispatch(listAdsByKeyword({ keyword, limit, offset }));
