@@ -30,6 +30,7 @@ const AdCalendar = ({ calendarData, index }) => {
     setStartDate(null);
     setEndDate(null);
     setAvailability("ad");
+    setIsBusy(true);
     setIsDisabled(true);
   };
 
@@ -49,11 +50,15 @@ const AdCalendar = ({ calendarData, index }) => {
         id: calendarData.id,
         hide: !calendarData.hide,
         index,
-      })
+      }),
     );
   };
 
   const updateAdCalendar = () => {
+    // console.log("startDate before ===>", startDate);
+    // console.log("startDate after ====>", startDate.toISOString().split("T")[0]);
+    // console.log("endDate before ===>", endDate);
+    // console.log("endDate after ====>", endDate.toISOString().split("T")[0]);
     dispatch(
       updateCalendar({
         id: calendarData.id,
@@ -63,7 +68,7 @@ const AdCalendar = ({ calendarData, index }) => {
           reason: "Event",
           availability,
         },
-      })
+      }),
     );
     toggleModal();
     setTimeout(() => {
@@ -71,10 +76,9 @@ const AdCalendar = ({ calendarData, index }) => {
     }, 500);
   };
 
-  const isBusyDate = (dt) =>
-    Object.keys(calendarData.dates).some(
-      (d) => new Date(d).toDateString() === dt.toDateString()
-    );
+  const isBusyDate = (dt) => Object.keys(calendarData.dates).some(
+    (d) => new Date(d).toDateString() === dt.toDateString(),
+  );
 
   const busyClassName = ({ date }) => (isBusyDate(date) ? "busy-tile" : "");
 
@@ -184,18 +188,19 @@ const AdCalendar = ({ calendarData, index }) => {
       </Modal>
       <div className="d-flex w-100 justify-content-between py-3">
         {/* <h4>{calendarData.ad}</h4> */}
-        <h4></h4>
         <Form.Check
           type="switch"
           className="ps-5"
-          label={
+          label={(
             <span
               className="ms-2"
               style={{ fontSize: "18px", lineHeight: "18px" }}
             >
-              Ad availability is turned {calendarData.hide ? "on" : "off"}
+              Ad availability is turned
+              {" "}
+              {calendarData.hide ? "on" : "off"}
             </span>
-          }
+          )}
           checked={calendarData.hide}
           onChange={handleAdAvailability}
         />

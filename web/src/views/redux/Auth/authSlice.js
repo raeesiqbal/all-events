@@ -116,10 +116,13 @@ export const authSlice = createSlice({
         const { access, user } = action.payload;
         state.user.accessToken = access;
         state.user.userId = user.id;
+        state.user.userImage = user.image;
+        state.user.userCompanyId = user.user_company.id;
         state.user.first_name = user.first_name;
         state.user.last_name = user.last_name;
         state.user.role = user.role_type;
         state.isLoggedInState = true;
+        state.userCompany = user.user_company;
       })
       .addCase(handleLogin.rejected, (state, action) => {
         state.loading = false;
