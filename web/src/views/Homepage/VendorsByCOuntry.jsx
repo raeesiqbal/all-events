@@ -33,6 +33,7 @@ function VendorsByCountry() {
       <img
         className="embla__slide__img"
         src={venuesCountries[index].image_url}
+        style={{ borderRadius: "5px" }}
         alt="Your alt text"
       />
       <div className="roboto-medium-20px-body1 mt-2">{venuesCountries[index].name}</div>

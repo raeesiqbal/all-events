@@ -33,8 +33,8 @@ function PremiumVenues() {
         <Card.Img
           variant="top"
           src={
-            slide.ad_media[0].media_urls.images !== undefined
-              ? slide?.ad_media[0]?.media_urls.images[0]
+            slide.ad_image !== undefined
+              ? slide.ad_image
               : placeholderIcon
           }
           style={{ height: "100%", minHeight: "186px", objectFit: "cover" }}
@@ -107,7 +107,7 @@ function PremiumVenues() {
             </div>
           </Card.Text>
           <Card.Text className="text-muted roboto-regular-14px-information">
-            {slide.country.name}
+            {slide.country_name}
           </Card.Text>
         </Card.Body>
       </Card>

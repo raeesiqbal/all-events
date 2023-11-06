@@ -6,7 +6,7 @@ import PlanYourEvents from "./PlanYourEvents";
 import HeroSection from "./HeroSection";
 import PremiumVenues from "./PremiumVenues";
 import PremiumVendors from "./PremiumVendors";
-import VendorsByCountry from "./VendorsByCOuntry";
+import VendorsByCountry from "./VendorsByCountry";
 import StartPlanning from "./StartPlanning";
 import { listPremiumVenues, listPremiumVendors } from "../redux/Posts/AdsSlice";
 import "./Homepage.css";
