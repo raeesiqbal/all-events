@@ -339,8 +339,8 @@ class SuggestionGetSerializer(BaseSerializer):
 
 
 class PremiumAdGetSerializer(BaseSerializer):
-    country = CountryGetSerializer()
-    ad_media = GalleryChildSerializer(many=True)
+    country_name = serializers.SerializerMethodField()
+    ad_image = serializers.SerializerMethodField()
     fav = serializers.SerializerMethodField()
     total_reviews = serializers.SerializerMethodField()
     average_rating = serializers.SerializerMethodField()
@@ -349,11 +349,11 @@ class PremiumAdGetSerializer(BaseSerializer):
         model = Ad
         fields = [
             "name",
-            "country",
-            "ad_media",
+            "country_name",
             "fav",
             "total_reviews",
             "average_rating",
+            "ad_image",
         ]
 
     def get_fav(self, obj):
@@ -371,9 +371,21 @@ class PremiumAdGetSerializer(BaseSerializer):
     def get_total_reviews(self, obj):
         return AdReview.objects.filter(ad=obj).count()
 
+    def get_country_name(self, obj):
+        return obj.country.name
+
     def get_average_rating(self, obj):
         avg_rating = AdReview.objects.filter(ad=obj).aggregate(Avg("rating"))
         return avg_rating["rating__avg"]
+
+    def get_ad_image(self, obj):
+        gallery = Gallery.objects.filter(ad=obj).first()
+
+        return (
+            gallery.media_urls.get("images")[0]
+            if gallery.media_urls.get("images") and gallery.media_urls.get("images")[0]
+            else None
+        )
 
 
 class SubCategoryChildGetSerializer(BaseSerializer):
