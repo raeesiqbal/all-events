@@ -17,6 +17,11 @@ import "./TabNavigation.css";
 
 const vendorTabs = [
   {
+    label: "Dashboard",
+    icon: faGauge,
+    path: "/dashboard",
+  },
+  {
     label: "My Ads",
     icon: faListUl,
     path: "/my-ads",
@@ -27,19 +32,14 @@ const vendorTabs = [
     path: "/messages",
   },
   {
-    label: "Settings",
-    icon: faGear,
-    path: "/profile-settings",
-  },
-  {
-    label: "Dashboard",
-    icon: faGauge,
-    path: "/dashboard",
-  },
-  {
     label: "My Subscriptions",
     icon: faCircleDollarToSlot,
     path: "/subscriptions",
+  },
+  {
+    label: "Settings",
+    icon: faGear,
+    path: "/profile-settings",
   },
 ];
 
@@ -88,22 +88,24 @@ const TabNavigation = ({ role }) => {
       let temp = tabs;
       if (currentSubscription?.type?.analytics && hasAnalyticsTab.length === 0) {
         temp = [
-          ...temp,
+          ...(temp.slice(0, -1)),
           {
             label: "Analytics",
             icon: faChartLine,
             path: "/analytics",
           },
+          ...(temp.slice(-1)),
         ];
       }
       if (currentSubscription?.type?.calender && hasCalendarsTab.length === 0) {
         temp = [
-          ...temp,
+          ...(temp.slice(0, -1)),
           {
             label: "Calendars",
             icon: faCalendarCheck,
             path: "/calendars",
           },
+          ...(temp.slice(-1)),
         ];
       }
       setTabs([...temp]);

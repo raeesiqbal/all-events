@@ -95,8 +95,8 @@ export const authSlice = createSlice({
     handleResgisterationStatus: (state) => {
       state.isRegistered = false;
     },
-    handleLoginStatusFalse: (state) => {
-      state.isLoggedInState = false;
+    handleLoginStatus: (state, action) => {
+      state.isLoggedInState = action.payload;
     },
     handleWelcomeUserAlert: (state, action) => {
       state.isWelcomeUserAlert = action.payload;
@@ -117,7 +117,7 @@ export const authSlice = createSlice({
         state.user.accessToken = access;
         state.user.userId = user.id;
         state.user.userImage = user.image;
-        state.user.userCompanyId = user.user_company.id;
+        state.user.userCompanyId = user.user_company?.id;
         state.user.first_name = user.first_name;
         state.user.last_name = user.last_name;
         state.user.role = user.role_type;
@@ -143,6 +143,7 @@ export const authSlice = createSlice({
       .addCase(refreshToken.fulfilled, (state, action) => {
         const { access } = action.payload;
         state.user.accessToken = access;
+        state.isLoggedInState = true;
       })
       .addCase(refreshToken.rejected, (state) => {
         state.loading = false;
@@ -172,7 +173,7 @@ export const authSlice = createSlice({
 
 export const {
   handleResgisterationStatus,
-  handleLoginStatusFalse,
+  handleLoginStatus,
   handleWelcomeUserAlert,
   setScreenLoading,
 } = authSlice.actions;

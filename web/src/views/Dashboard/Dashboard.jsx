@@ -80,11 +80,11 @@ function Dashboard() {
 
   useEffect(() => {
     dispatch(listPlans(user?.userId !== null));
-    if (user?.userId !== null) getDashboardInfo();
+    if (user?.userId !== null && user?.role === "vendor") getDashboardInfo();
   }, [user?.userId]);
 
   return (
-    <div>
+    <div style={{ paddingBottom: "100px" }}>
       <div className="profile-settings-banner d-flex align-items-center">
         <div className="banner-text-heading">
           <div className="roboto-bold-36px-h1">Dashboard</div>
@@ -210,7 +210,7 @@ function Dashboard() {
                         marginBottom: "8px",
                       }}
                     >
-                      {dashboardData?.total_views}
+                      {dashboardData?.total_views || "0"}
                     </Card.Text>
                   </Card.Body>
                 </Card>
@@ -255,7 +255,7 @@ function Dashboard() {
                         marginBottom: "8px",
                       }}
                     >
-                      {dashboardData?.total_saves}
+                      {dashboardData?.total_saves || "0"}
                     </Card.Text>
                   </Card.Body>
                 </Card>
@@ -299,7 +299,7 @@ function Dashboard() {
                         marginBottom: "8px",
                       }}
                     >
-                      {dashboardData?.total_reviews}
+                      {dashboardData?.total_reviews || "0"}
                     </Card.Text>
                   </Card.Body>
                 </Card>
@@ -341,7 +341,7 @@ function Dashboard() {
                         marginBottom: "8px",
                       }}
                     >
-                      {dashboardData?.total_messages}
+                      {dashboardData?.total_messages || "0"}
                     </Card.Text>
                   </Card.Body>
                 </Card>

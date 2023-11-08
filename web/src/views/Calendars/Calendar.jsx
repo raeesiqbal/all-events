@@ -54,17 +54,21 @@ const AdCalendar = ({ calendarData, index }) => {
     );
   };
 
+  const formattedDate = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-indexed, so add 1 and pad with 0 if necessary.
+    const day = String(date.getDate()).padStart(2, "0"); // Pad with 0 if necessary.
+
+    return `${year}-${month}-${day}`;
+  };
+
   const updateAdCalendar = () => {
-    // console.log("startDate before ===>", startDate);
-    // console.log("startDate after ====>", startDate.toISOString().split("T")[0]);
-    // console.log("endDate before ===>", endDate);
-    // console.log("endDate after ====>", endDate.toISOString().split("T")[0]);
     dispatch(
       updateCalendar({
         id: calendarData.id,
         data: {
-          start_date: startDate.toISOString().split("T")[0],
-          end_date: endDate.toISOString().split("T")[0],
+          start_date: formattedDate(startDate),
+          end_date: formattedDate(endDate),
           reason: "Event",
           availability,
         },

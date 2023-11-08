@@ -9,6 +9,7 @@ import {
 
 const Filters = () => {
   const dispatch = useDispatch();
+  const { isLoggedInState } = useSelector((state) => state.auth);
   const filters = useSelector((state) => state.search.data.filters);
   const keyword = useSelector((state) => state.search.data.keyword);
   const { limit, offset } = useSelector((state) => state.search.data.pagination);
@@ -69,13 +70,14 @@ const Filters = () => {
           data: {
             categories, subcategories, questions, commercial_name: commercialName, country,
           },
-          filter: false,
+          filter: true,
         },
         limit,
         offset,
+        isLoggedIn: isLoggedInState,
       }));
     }
-  }, [categories, subcategories, questions, commercialName, country]);
+  }, [categories, subcategories, questions, commercialName, country, isLoggedInState]);
 
   useEffect(() => {
     if (keyword.type === "commercial_name") dispatch(setCommercialName({ commercialName: keyword.name }));

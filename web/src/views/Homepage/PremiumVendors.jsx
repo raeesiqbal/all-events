@@ -1,6 +1,6 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Button, Card, Col, Container,
 } from "react-bootstrap";
@@ -8,11 +8,12 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart } from "@fortawesome/free-regular-svg-icons";
 import EmblaCarousel from "../../components/Carousel/Carousel";
 import placeholderIcon from "../../assets/images/placeholder.jpg";
-import { favoriteAd, listPremiumVendors } from "../redux/Posts/AdsSlice";
+import { favoriteAd } from "../redux/Posts/AdsSlice";
+import { setCategories } from "../redux/Search/SearchSlice";
 
 function PremiumVendors() {
   const dispatch = useDispatch();
-  const user = useSelector((state) => state.auth.user);
+  const navigate = useNavigate();
   const { premiumVendorAds } = useSelector((state) => state.Ads);
   const OPTIONS = { slidesToScroll: "auto", containScroll: "trimSnaps" };
 
@@ -135,6 +136,10 @@ function PremiumVendors() {
                 variant="success"
                 type="submit"
                 className="roboto-semi-bold-16px-information btn-height w-100"
+                onClick={() => {
+                  dispatch(setCategories({ categories: ["Vendors"] }));
+                  navigate("/search");
+                }}
               >
                 See all Vendors
               </Button>

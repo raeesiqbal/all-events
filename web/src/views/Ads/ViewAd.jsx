@@ -734,7 +734,7 @@ function ViewAd() {
 
             {currentTab === 1 && currentAd && currentAd.ad_media[0].media_urls.pdf.length > 0 && (
               <div className="d-flex flex-column ps-4 my-4">
-                <div className="d-flex roboto-semi-bold-24px-h3">Discounts</div>
+                <div className="d-flex roboto-semi-bold-24px-h3">PDF's</div>
 
                 <Row>
                   {
@@ -747,9 +747,9 @@ function ViewAd() {
                           target="_blank"
                           rel="noreferrer"
                         >
-                          <div className="discount px-4 py-3">
+                          <div className="discount p-4">
                             <img src={DiscountTag} alt="discount-tag" className="me-2" />
-                            <span style={{ overflowWrap: "break-word", maxWidth: "180px" }}>
+                            <span style={{ maxWidth: "180px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                               {pdf.split("/").slice(-1)}
                             </span>
                           </div>
@@ -836,7 +836,7 @@ function ViewAd() {
             )}
 
             {currentTab === 3 && (
-              <Reviews adId={currentAd?.id} adName={currentAd?.name} />
+              <Reviews adId={currentAd?.id} adName={currentAd?.name} reviewPosting={currentAd?.review_posting} />
             )}
           </Col>
           <Col lg={4}>

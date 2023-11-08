@@ -14,7 +14,6 @@ import {
 import heroImg1 from "../../assets/images/harold.jpg";
 // import heroImg1 from "../../assets/images/heroImg.svg";
 import {
-  listAdsByKeyword,
   listSuggestions,
   setSearchKeyword,
 } from "../redux/Search/SearchSlice";
@@ -25,7 +24,6 @@ function HeroSection() {
   const [showSuggestions, setShowSuggestions] = React.useState(false);
   const [isDisabled, setIsDisabled] = React.useState(true);
   const { suggestionsList, keyword } = useSelector((state) => state.search.data);
-  const { limit, offset } = useSelector((state) => state.search.data.pagination);
   const suggestionDropdown = useRef();
 
   const handleSuggestions = (e) => {
@@ -45,9 +43,6 @@ function HeroSection() {
 
   const handleSearchButton = () => {
     if (window.location.pathname === "/") navigate("/search");
-    if (window.location.pathname === "/search") {
-      dispatch(listAdsByKeyword({ keyword, limit, offset }));
-    }
   };
 
   useEffect(() => {

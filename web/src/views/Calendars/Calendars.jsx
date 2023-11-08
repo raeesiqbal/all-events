@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { Col, Container, Row } from "react-bootstrap";
 import { vendorCalendars } from "../redux/Calendars/CalendarsSlice";
 import AdCalendar from "./Calendar";
-import { Col, Container, Row } from "react-bootstrap";
 import ProfilePic from "../../components/ProfilePic/ProfilePic";
 
 const Calendars = () => {
@@ -24,9 +24,8 @@ const Calendars = () => {
   const truncateString = (inputString) => {
     if (inputString.length <= 12) {
       return inputString;
-    } else {
-      return inputString.slice(0, 12) + "...";
     }
+    return `${inputString.slice(0, 12)}...`;
   };
 
   return (

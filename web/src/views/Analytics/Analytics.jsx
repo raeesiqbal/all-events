@@ -24,6 +24,7 @@ function Analytics() {
 
   const [selectedAd, setSelectedAd] = useState("0");
   const [period, setPeriod] = useState("last_month");
+  const [chartPeriod, setChartPeriod] = useState("last_month");
 
   useEffect(() => {
     dispatch(getVendorAdNames());
@@ -54,6 +55,7 @@ function Analytics() {
                 width: "fit-content", minWidth: "328px", height: "56px", fontSize: "16px", color: "#797979",
               }}
               defaultValue={selectedAd}
+              value={selectedAd}
               onChange={(e) => setSelectedAd(e.target.value)}
             >
               <option value="0">Select Ad</option>
@@ -69,6 +71,7 @@ function Analytics() {
                 width: "fit-content", minWidth: "328px", height: "56px", fontSize: "16px", color: "#797979",
               }}
               defaultValue={period}
+              value={period}
               onChange={(e) => setPeriod(e.target.value)}
             >
               <option value="last_month">Last Month</option>
@@ -83,6 +86,7 @@ function Analytics() {
               onClick={() => {
                 setSelectedAd("0");
                 setPeriod("last_month");
+                setChartPeriod("last_month");
               }}
             >
               Clear all
@@ -91,7 +95,10 @@ function Analytics() {
               variant="success"
               type="submit"
               className="roboto-semi-bold-16px-information btn btn-height w-auto px-5"
-              onClick={() => dispatch(analyticsHome({ adId: selectedAd, period }))}
+              onClick={() => {
+                setChartPeriod(period);
+                dispatch(analyticsHome({ adId: selectedAd, period }));
+              }}
             >
               Search
             </Button>
@@ -273,11 +280,11 @@ function Analytics() {
           </Col>
         </Row>
         <h4 className="py-3 text-center">Favourite Ads Analytics</h4>
-        <LineChart period={period} analytics={favAdsAnalytics} />
+        <LineChart period={chartPeriod} analytics={favAdsAnalytics} />
         <h4 className="py-3 text-center">Ad Reviews Analytics</h4>
-        <LineChart period={period} analytics={reviewsAdsAnalytics} />
+        <LineChart period={chartPeriod} analytics={reviewsAdsAnalytics} />
         <h4 className="py-3 text-center">Ad Messages Analytics</h4>
-        <LineChart period={period} analytics={messagesAdsAnalytics} />
+        <LineChart period={chartPeriod} analytics={messagesAdsAnalytics} />
       </Container>
     </div>
   );

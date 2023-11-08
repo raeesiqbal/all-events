@@ -4,17 +4,32 @@ import { Row } from "react-bootstrap";
 import HeroSection from "../Homepage/HeroSection";
 import "./Search.css";
 import Filters from "./Filters";
-import { listAdsByKeyword } from "../redux/Search/SearchSlice";
 import Ads from "./Ads";
+import { listAdsByFilter, setPayloadData } from "../redux/Search/SearchSlice";
 
 const Search = () => {
   const dispatch = useDispatch();
-  const keyword = useSelector((state) => state.search.data.keyword);
+  const { isLoggedInState } = useSelector((state) => state.auth);
   const { offset, limit } = useSelector((state) => state.search.data.pagination);
+  const { keyword } = useSelector((state) => state.search.data);
+  const {
+    categories, subcategories, questions, commercialName, country,
+  } = useSelector((state) => state.search.data.payload);
 
   useEffect(() => {
-    dispatch(listAdsByKeyword({ keyword, limit, offset }));
-  }, []);
+    dispatch(setPayloadData({ data: keyword }));
+    dispatch(listAdsByFilter({
+      data: {
+        data: {
+          categories, subcategories, questions, commercial_name: commercialName, country,
+        },
+        filter: true,
+      },
+      limit,
+      offset,
+      isLoggedIn: isLoggedInState,
+    }));
+  }, [isLoggedInState]);
 
   return (
     <>

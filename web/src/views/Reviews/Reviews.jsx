@@ -14,7 +14,7 @@ import Review from "./Review";
 import "./Reviews.css";
 import { setScreenLoading } from "../redux/Auth/authSlice";
 
-const Reviews = ({ adId, adName }) => {
+const Reviews = ({ adId, adName, reviewPosting }) => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const reviews = useSelector((state) => state.reviews.reviews);
@@ -195,9 +195,9 @@ const Reviews = ({ adId, adName }) => {
   }, [isHide]);
 
   useEffect(() => {
-    if (postReview.title !== "" && postReview.message !== "" && postReview.rating !== 0) {
-      setIsDisabled(user.userId === null ? postReview.name === "" : false);
-    }
+    setIsDisabled(
+      postReview.title === "" || postReview.message === "" || postReview.rating === 0 || (user.userId ? false : postReview.name === ""),
+    );
   }, [postReview.title, postReview.message, postReview.rating, postReview.name]);
 
   useEffect(() => {
@@ -410,7 +410,7 @@ const Reviews = ({ adId, adName }) => {
               Reviews
             </h3>
             {
-              user?.role !== "vendor" && (
+              user?.role !== "vendor" && reviewPosting && (
                 <div>
                   <Button
                     className="btn text-success bg-white border-success px-5 py-2 border-2 font-weight-bold"

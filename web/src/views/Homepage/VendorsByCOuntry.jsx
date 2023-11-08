@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Button, Col, Container } from "react-bootstrap";
 import EmblaCarousel from "../../components/Carousel/Carousel";
 import { venueCountries } from "../redux/Posts/AdsSlice";
-import { setCategories, setCountry, setSearchKeyword } from "../redux/Search/SearchSlice";
+import { setCategories, setCountry } from "../redux/Search/SearchSlice";
 
 function VendorsByCountry() {
   const dispatch = useDispatch();
