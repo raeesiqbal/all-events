@@ -1,4 +1,3 @@
-# imports
 from django.conf import settings
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -34,11 +33,11 @@ from apps.subscriptions.serializers.get_serializer import (
     CurrentSubscriptionSerializer,
     GetPaymentMethodSerializer,
     MySubscriptionSerializer,
+    SubscriptionValidateSerializer,
 )
 
 from apps.subscriptions.serializers.update_serializer import (
-    InputSubscriptionIdSerializer,
-    CancelSubscriptionSerializer,
+    SubscriptionUpdateSerializer,
 )
 
 
@@ -51,13 +50,12 @@ class SubscriptionsViewSet(BaseViewset):
     action_serializers = {
         "default": TestSerializer,
         "create_subscription": CreateCustomerSerializer,
-        "update_subscription": InputSubscriptionIdSerializer,
-        "cancel_subscription": CancelSubscriptionSerializer,
-        "resume_subscription": CancelSubscriptionSerializer,
+        "update_subscription": SubscriptionUpdateSerializer,
         "product_subscription_list": InputPriceIdSerializer,
         "current_subscription": CurrentSubscriptionSerializer,
         "get_payment_method": GetPaymentMethodSerializer,
         "my_subscriptions": MySubscriptionSerializer,
+        "validate_update_subscription": SubscriptionValidateSerializer,
     }
     action_permissions = {
         "default": [],
@@ -72,6 +70,7 @@ class SubscriptionsViewSet(BaseViewset):
         "update_payment_method": [IsAuthenticated, IsVendorUser],
         "get_payment_method": [IsAuthenticated, IsVendorUser],
         "download_invoice": [IsAuthenticated, IsVendorUser],
+        "validate_update_subscription": [IsAuthenticated, IsVendorUser],
     }
     stripe_service = StripeService()
     webhook_service = WebHookService()
@@ -438,7 +437,6 @@ class SubscriptionsViewSet(BaseViewset):
                     Ad.objects.filter(company=subscription.company).update(
                         status="inactive"
                     )
-
                 payment_method = PaymentMethod.objects.filter(
                     company=subscription.company
                 ).first()
@@ -448,16 +446,68 @@ class SubscriptionsViewSet(BaseViewset):
 
         return Response({"message": "Webhook received successfully"})
 
+    @action(detail=False, url_path="validate-update-subscription", methods=["post"])
+    def validate_update_subscription(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        allowed_ads = serializer.validated_data.pop("allowed_ads")
+        old_subscription = Subscription.objects.filter(
+            company=request.user.user_company, status=SUBSCRIPTION_STATUS["ACTIVE"]
+        ).first()
+        if old_subscription:
+            consent_list = []
+            if allowed_ads == 1:
+                updated_type = SUBSCRIPTION_TYPES["STANDARD"]
+            elif allowed_ads == 2:
+                updated_type = SUBSCRIPTION_TYPES["ADVANCED"]
+            elif allowed_ads == 3:
+                updated_type = SUBSCRIPTION_TYPES["FEATURED"]
+            updated_type = SubscriptionType.objects.filter(type=updated_type).first()
+            if old_subscription.type.reviews == True and updated_type.reviews == False:
+                consent_list.append("Ads reviews will be deleted if any")
+            if (
+                old_subscription.type.calender == True
+                and updated_type.calender == False
+            ):
+                consent_list.append("Ads calendars will be disabled")
+
+            if old_subscription.type.faq == True and updated_type.faq == False:
+                consent_list.append("Ads FAQ'S will be deleted if any")
+            if (
+                old_subscription.type.offered_services == True
+                and updated_type.offered_services == False
+            ):
+                consent_list.append("Ads offered services will be deleted if any")
+            if (
+                old_subscription.type.analytics == True
+                and updated_type.analytics == False
+            ):
+                consent_list.append("Ads analytics will be disabled")
+            return Response(
+                status=status.HTTP_200_OK,
+                data=ResponseInfo().format_response(
+                    data=consent_list,
+                    status_code=status.HTTP_200_OK,
+                    message="Consent information",
+                ),
+            )
+        return Response(
+            status=status.HTTP_400_BAD_REQUEST,
+            data=ResponseInfo().format_response(
+                data={},
+                status_code=status.HTTP_400_BAD_REQUEST,
+                message="Action not allowed",
+            ),
+        )
+
     @action(detail=False, url_path="update-subscription", methods=["post"])
     def update_subscription(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        subscription_id = serializer.validated_data.pop("subscription_id")
         price_id = serializer.validated_data.pop("price_id")
         allowed_ads = serializer.validated_data.pop("allowed_ads")
-
         old_subscription = Subscription.objects.filter(
-            subscription_id=subscription_id
+            company=request.user.user_company, status=SUBSCRIPTION_STATUS["ACTIVE"]
         ).first()
         if old_subscription:
             vendor_ads = Ad.objects.filter(company=request.user.user_company)
@@ -476,20 +526,11 @@ class SubscriptionsViewSet(BaseViewset):
                 int(old_subscription.stripe_product["metadata"]["allowed_ads"])
                 > allowed_ads
             ):
-                # if vendor_ads_count > allowed_ads:
-                #     return Response(
-                #         status=status.HTTP_400_BAD_REQUEST,
-                #         data=ResponseInfo().format_response(
-                #             data={},
-                #             status_code=status.HTTP_400_BAD_REQUEST,
-                #             message=f"You can't upgrade to this plan. Your current active Ads count is {vendor_ads_count}, while the plan you want to upgrade allow {allowed_ads} ads upload. Please delete your unwanted ads first.",
-                #         ),
-                #     )
                 error_list = []
                 if vendor_ads_count > 0:
                     if vendor_ads_count > updated_type.allowed_ads:
                         error_list.append(
-                            "Your current active Ads count is {vendor_ads_count}, while the plan you want to downgrade allows {allowed_ads} ads upload. Please delete your unwanted ads first."
+                            f"Your current active ads count is {vendor_ads_count}, while the plan you want to downgrade allows {allowed_ads} ads upload. Please delete your unwanted ads first <br/>"
                         )
                         for ad in vendor_ads:
                             gallery = Gallery.objects.filter(ad=ad).first()
@@ -499,28 +540,27 @@ class SubscriptionsViewSet(BaseViewset):
                                 pdf_count = len(gallery.media_urls["pdf"])
                                 if image_count > updated_type.allowed_ad_photos:
                                     error_list.append(
-                                        f"Your ad {ad.name} image count is {image_count}, while the while the plan you want to downgrade supports {updated_type.allowed_ad_photos} images"
+                                        f"Your ad {ad.name} image count is {image_count}, while the while the plan you want to downgrade supports {updated_type.allowed_ad_photos} images <br/>"
                                     )
                                 if video_count > updated_type.allowed_ad_videos:
                                     error_list.append(
-                                        f"Your ad {ad.name} video count is {video_count}, while the while the plan you want to downgrade supports {updated_type.allowed_ad_videos} videos"
+                                        f"Your ad {ad.name} video count is {video_count}, while the while the plan you want to downgrade supports {updated_type.allowed_ad_videos} videos <br/>"
                                     )
                                 if pdf_count > 0 and updated_type.pdf_upload == False:
                                     error_list.append(
-                                        f"Your ad {ad.name} pdf count is {pdf_count}, while the while the plan you want to downgrade does not support uploading of pdfs"
+                                        f"Your ad  {ad.name}  pdf count is {pdf_count}, while the while the plan you want to downgrade does not support uploading of pdfs <br/>"
                                     )
                         if error_list:
                             return Response(
-                                status=status.HTTP_200_OK,
+                                status=status.HTTP_400_BAD_REQUEST,
                                 data=ResponseInfo().format_response(
                                     data={},
-                                    status_code=status.HTTP_200_OK,
-                                    message=error_list,
+                                    status_code=status.HTTP_400_BAD_REQUEST,
+                                    message=" ".join(error_list),
                                 ),
                             )
-
             update_subscription = self.stripe_service.update_subscription(
-                subscription_id,
+                old_subscription.subscription_id,
                 old_subscription.stripe_subscription["items"]["data"][0]["id"],
                 price_id,
             )
@@ -538,7 +578,7 @@ class SubscriptionsViewSet(BaseViewset):
                 if updated_type.calender == False:
                     Calender.objects.filter(ad=ad).update(hide=True)
             status_code = status.HTTP_200_OK
-            message = "Your subscription will be changed after the invoice has been paid successfully"
+            message = "Your subscription will be updated after the invoice has been paid successfully"
         return Response(
             status=status_code,
             data=ResponseInfo().format_response(
@@ -548,22 +588,26 @@ class SubscriptionsViewSet(BaseViewset):
             ),
         )
 
-    @action(detail=False, url_path="cancel-subscription", methods=["post"])
+    @action(detail=False, url_path="cancel-subscription", methods=["patch"])
     def cancel_subscription(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        subscription_id = serializer.validated_data.pop("subscription_id")
-        cancel_subscription = self.stripe_service.cancel_subscription(subscription_id)
-
+        subscription = Subscription.objects.filter(
+            company=request.user.user_company,
+            status__in=[SUBSCRIPTION_STATUS["ACTIVE"], SUBSCRIPTION_STATUS["UNPAID"]],
+        ).first()
         status_code = status.HTTP_400_BAD_REQUEST
-        message = "An error occur while cancelling your subscription, please try again."
-
-        if cancel_subscription:
-            status_code = status.HTTP_200_OK
+        message = "There is no active/unapid subscription"
+        if subscription:
             message = (
-                "Subscription will be cancelled at the end of current billing cycle"
+                "An error occur while cancelling your subscription, please try again."
             )
-
+            cancel_subscription = self.stripe_service.cancel_subscription(
+                subscription.subscription_id
+            )
+            if cancel_subscription:
+                status_code = status.HTTP_200_OK
+                message = (
+                    "Subscription will be cancelled at the end of current billing cycle"
+                )
         return Response(
             status=status_code,
             data=ResponseInfo().format_response(
@@ -573,18 +617,23 @@ class SubscriptionsViewSet(BaseViewset):
             ),
         )
 
-    @action(detail=False, url_path="resume-subscription", methods=["post"])
+    @action(detail=False, url_path="resume-subscription", methods=["patch"])
     def resume_subscription(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        subscription_id = serializer.validated_data.pop("subscription_id")
-        resume_subscription = self.stripe_service.resume_subscription(subscription_id)
-
+        subscription = Subscription.objects.filter(
+            company=request.user.user_company, status=SUBSCRIPTION_STATUS["ACTIVE"]
+        ).first()
         status_code = status.HTTP_400_BAD_REQUEST
-        message = "An error occur while resuming your subscription, please try again."
-        if resume_subscription:
-            status_code = status.HTTP_200_OK
-            message = "Subscription has been resumed successfully."
+        message = "There is no active subscription"
+        if subscription:
+            resume_subscription = self.stripe_service.resume_subscription(
+                subscription.subscription_id
+            )
+            message = (
+                "An error occured while resuming your subscription, please try again."
+            )
+            if resume_subscription:
+                status_code = status.HTTP_200_OK
+                message = "Subscription has been resumed successfully."
         return Response(
             status=status_code,
             data=ResponseInfo().format_response(
@@ -597,7 +646,8 @@ class SubscriptionsViewSet(BaseViewset):
     @action(detail=False, url_path="update-payment-method", methods=["get"])
     def update_payment_method(self, request, *args, **kwargs):
         subscription = Subscription.objects.filter(
-            company=request.user.user_company, subscription_id__isnull=False
+            company=request.user.user_company,
+            status__in=[SUBSCRIPTION_STATUS["ACTIVE"], SUBSCRIPTION_STATUS["UNPAID"]],
         ).first()
         session = None
 
@@ -614,13 +664,20 @@ class SubscriptionsViewSet(BaseViewset):
                 success_url="http://localhost:5173/dashboard?",
                 cancel_url="http://localhost:5173/dashboard",
             )
-
+            return Response(
+                status=status.HTTP_200_OK,
+                data=ResponseInfo().format_response(
+                    data=session,
+                    status_code=status.HTTP_200_OK,
+                    message="Checkout session",
+                ),
+            )
         return Response(
-            status=status.HTTP_200_OK,
+            status=status.HTTP_400_BAD_REQUEST,
             data=ResponseInfo().format_response(
-                data=session,
-                status_code=status.HTTP_200_OK,
-                message="Checkout session",
+                data={},
+                status_code=status.HTTP_400_BAD_REQUEST,
+                message="You don't have any active or unpaid subscription",
             ),
         )
 
