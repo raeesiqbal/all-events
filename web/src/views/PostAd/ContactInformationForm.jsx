@@ -1,14 +1,15 @@
-import React, { useEffect, useState } from "react";
-import { Col, Container, Form, Row } from "react-bootstrap";
+import React from "react";
+import { useSelector } from "react-redux";
+import {
+  Col, Container, Form, Row,
+} from "react-bootstrap";
 import contactIcon from "../../assets/images/post-ad/contact.svg";
 import mapIcon from "../../assets/images/post-ad/map.svg";
-import { secureInstance } from "../../axios/config";
-import { useSelector } from "react-redux";
 
 function ContactInformationForm({
   values, errors, touched, handleChange,
 }) {
-  const { countries } = useSelector((state) => state.Ads.countries);
+  const { countries } = useSelector((state) => state.Ads);
 
   const countryOptions = countries.map((country) => ({
     value: country.id,

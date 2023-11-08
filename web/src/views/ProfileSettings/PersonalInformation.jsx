@@ -1,14 +1,7 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 import React, { useEffect, useState } from "react";
-import {
-  Button,
-  Col,
-  Container,
-  Form,
-  Row,
-  Spinner,
-} from "react-bootstrap";
+import { Button, Col, Container, Form, Row, Spinner } from "react-bootstrap";
 import * as formik from "formik";
 import * as Yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
@@ -180,7 +173,7 @@ function PersonalInformation() {
 
       <Container
         // fluid="md"
-        style={{ marginTop: "50px", marginBottom: "200px" }}
+        style={{ marginTop: "50px", marginBottom: "100px" }}
         className=""
       >
         <Row className="justify-content-center">

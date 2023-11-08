@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Button, Col, Container } from "react-bootstrap";
 import EmblaCarousel from "../../components/Carousel/Carousel";
 import { venueCountries } from "../redux/Posts/AdsSlice";
-import { setCategories, setCountry, setSearchKeyword } from "../redux/Search/SearchSlice";
+import { setCategories, setCountry } from "../redux/Search/SearchSlice";
 
 function VendorsByCountry() {
   const dispatch = useDispatch();
@@ -33,6 +33,7 @@ function VendorsByCountry() {
       <img
         className="embla__slide__img"
         src={venuesCountries[index].image_url}
+        style={{ borderRadius: "5px" }}
         alt="Your alt text"
       />
       <div className="roboto-medium-20px-body1 mt-2">{venuesCountries[index].name}</div>

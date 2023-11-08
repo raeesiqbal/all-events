@@ -6,7 +6,7 @@ from rest_framework import status
 from django.db.models import Avg
 
 # constants
-from apps.users.constants import USER_ROLE_TYPES
+from apps.subscriptions.constants import SUBSCRIPTION_STATUS
 
 # permissions
 from apps.users.permissions import IsClient
@@ -23,6 +23,7 @@ from apps.analytics.serializers.get_serializer import (
 # models
 from apps.analytics.models import AdReview
 from apps.ads.models import Ad
+from apps.subscriptions.models import Subscription
 
 
 class AdReviewViewSet(BaseViewset):
@@ -76,17 +77,34 @@ class AdReviewViewSet(BaseViewset):
     def custom_create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-
         ad = Ad.objects.filter(id=kwargs.get("pk")).first()
-        AdReview.objects.create(
-            **serializer.validated_data, client=request.user.client_profile, ad=ad
-        )
-
+        ad_company_subscription = Subscription.objects.filter(
+            company=ad.company, status=SUBSCRIPTION_STATUS["ACTIVE"]
+        ).first()
+        if ad_company_subscription:
+            if ad_company_subscription.type.reviews:
+                if not AdReview.objects.filter(
+                    client=request.user.client_profile, ad=ad
+                ).exists():
+                    ad_review = AdReview.objects.create(
+                        **serializer.validated_data,
+                        client=request.user.client_profile,
+                        ad=ad
+                    )
+                    serialzier = AdReviewGetSerializer(ad_review)
+                    return Response(
+                        status=status.HTTP_201_CREATED,
+                        data=ResponseInfo().format_response(
+                            data=serialzier.data,
+                            status_code=status.HTTP_201_CREATED,
+                            message="Review created",
+                        ),
+                    )
         return Response(
-            status=status.HTTP_201_CREATED,
+            status=status.HTTP_400_BAD_REQUEST,
             data=ResponseInfo().format_response(
                 data={},
-                status_code=status.HTTP_201_CREATED,
-                message="Review created",
+                status_code=status.HTTP_400_BAD_REQUEST,
+                message="Action not allowed",
             ),
         )

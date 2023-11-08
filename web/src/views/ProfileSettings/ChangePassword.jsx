@@ -166,7 +166,7 @@ function ChangePassword() {
 
       <Container
         fluid
-        style={{ marginTop: "70px", marginBottom: "200px" }}
+        style={{ marginTop: "70px", marginBottom: "100px" }}
         className=""
       >
         <Row className="justify-content-center">

@@ -8,7 +8,6 @@ from apps.users.serializers import GetUserDashboardSerializer
 from apps.utils.constants import DATE_RANGE_MAPPING
 from apps.utils.views.base import BaseViewset, ResponseInfo
 from rest_framework.decorators import action
-from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework import status
 from django.db.models import Q, Count
@@ -16,7 +15,6 @@ from django.utils import timezone
 from datetime import timedelta
 from django.db.models.functions import TruncDate
 from django.utils import timezone
-from datetime import timedelta
 from django.db.models import Sum, F
 
 # filters
@@ -33,7 +31,6 @@ from apps.users.constants import USER_ROLE_TYPES
 
 # models
 from apps.analytics.models import AdReview, Chat, FavouriteAd, Message
-from apps.clients.models import Client
 from apps.ads.models import Ad
 
 # serializers
@@ -79,20 +76,20 @@ class AnalyticViewSet(BaseViewset):
 
         if DATE_RANGE_MAPPING.get(date_range, False):
             # Vendor ad favourite analytics
-            ad_fav_queryset = vendor_ad_fav.filter(
+            vendor_ad_fav = vendor_ad_fav.filter(
                 created_at__gte=DATE_RANGE_MAPPING[date_range]
             )
-            ad_fav_queryset = ad_fav_queryset.annotate(day=TruncDate("created_at"))
+            ad_fav_queryset = vendor_ad_fav.annotate(day=TruncDate("created_at"))
             ad_fav_queryset = ad_fav_queryset.values("day").annotate(count=Count("id"))
             ad_favourite_analytics = [
                 {entry["day"].strftime("%Y-%m-%d"): entry["count"]}
                 for entry in ad_fav_queryset
             ]
             # Vendor ad reviews analytics
-            ad_reviews_queryset = vendor_ad_reviews.filter(
+            vendor_ad_reviews = vendor_ad_reviews.filter(
                 created_at__gte=DATE_RANGE_MAPPING[date_range]
             )
-            ad_reviews_queryset = ad_reviews_queryset.annotate(
+            ad_reviews_queryset = vendor_ad_reviews.annotate(
                 day=TruncDate("created_at")
             )
             ad_reviews_queryset = ad_reviews_queryset.values("day").annotate(
@@ -103,10 +100,10 @@ class AnalyticViewSet(BaseViewset):
                 for entry in ad_reviews_queryset
             ]
             # Vendor ad messages analytics
-            ad_messages_queryset = vendor_ad_messages.filter(
+            vendor_ad_messages = vendor_ad_messages.filter(
                 created_at__gte=DATE_RANGE_MAPPING[date_range]
             )
-            ad_messages_queryset = ad_messages_queryset.annotate(
+            ad_messages_queryset = vendor_ad_messages.annotate(
                 day=TruncDate("created_at")
             )
             ad_messages_queryset = ad_messages_queryset.values("day").annotate(

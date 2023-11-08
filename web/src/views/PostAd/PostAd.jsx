@@ -56,10 +56,18 @@ function PostAd() {
   const navigate = useNavigate();
 
   const { isWelcomeUserAlert, user } = useSelector((state) => state.auth);
-  const currentSubscription = useSelector((state) => state.subscriptions.currentSubscriptionDetails);
+  const currentSubscription = useSelector(
+    (state) => state.subscriptions.currentSubscriptionDetails,
+  );
   const imagesToUpload = useSelector((state) => state.Ads.media_urls.images);
   const {
-    AdPostErrorAlert, imagesError, isMediaUploading, mediaError, AdPostSuccessAlert, loading, vendorAds,
+    AdPostErrorAlert,
+    imagesError,
+    isMediaUploading,
+    mediaError,
+    AdPostSuccessAlert,
+    loading,
+    vendorAds,
   } = useSelector((state) => state.Ads);
 
   const handleSubmitAllForms = (values) => {
@@ -224,8 +232,8 @@ function PostAd() {
         .min(2, "Must be at least 2 characters")
         .max(40, "Must be at most 40 characters")
         .matches(
-          /^[a-zA-Z\s-]+$/,
-          'Only letters, spaces, and "-" signs are allowed',
+          /^[a-zA-Z0-9\s-]+$/,
+          'Only letters, numbers, spaces, and "-" signs are allowed',
         )
         .required("Required"),
       fullAddress: Yup.string()
@@ -494,17 +502,20 @@ function PostAd() {
   }, []);
 
   useEffect(() => {
-    if (currentSubscription === null || (
-      currentSubscription
-        && (
-          currentSubscription.status === "unpaid"
-            || (vendorAds.length > 0 && currentSubscription?.type?.allowed_ads <= vendorAds.length)
-        )
-    )) navigate("/my-ads");
+    if (
+      currentSubscription === null
+      || (currentSubscription
+        && (currentSubscription.status === "unpaid"
+          || (vendorAds.length > 0
+            && currentSubscription?.type?.allowed_ads <= vendorAds.length)))
+    ) { navigate("/my-ads"); }
   }, [currentSubscription, vendorAds]);
 
   useEffect(() => {
-    if (currentSubscription === null || (currentSubscription && currentSubscription.status === "unpaid")) navigate("/my-ads");
+    if (
+      currentSubscription === null
+      || (currentSubscription && currentSubscription.status === "unpaid")
+    ) { navigate("/my-ads"); }
   }, [currentSubscription]);
 
   return (
@@ -553,11 +564,11 @@ function PostAd() {
           // width: "150px",
         }}
       >
-        {AdPostErrorAlert?.website?.length > 0
-          ? AdPostErrorAlert?.website
-          : mediaError !== null
-            ? mediaError
-            : "Something went wrong"}
+        {
+          AdPostErrorAlert?.website?.length > 0 ? AdPostErrorAlert?.website : (
+            mediaError !== null ? mediaError : "Something went wrong"
+          )
+        }
       </Alert>
 
       <div className="ad-banner d-flex align-items-center justify-content-between">
@@ -676,31 +687,28 @@ function PostAd() {
                   setAdminServicesSelected={setAdminServicesSelected}
                 />
 
-                {
-                  currentSubscription && currentSubscription?.type?.pdf_upload && (
+                {currentSubscription
+                  && currentSubscription?.type?.pdf_upload && (
                     <PdfUploader
                       setparentImagesUploadedImages={handlePdfsUpdates}
                       pdfsToUpload={pdfsToUpload}
                       imagesError={pdfsError}
                       setImagesError={setPdfsError}
                     />
-                  )
-                }
+                )}
 
-                {
-                  currentSubscription && currentSubscription?.type?.faq && (
-                    <FAQs
-                      values={values}
-                      errors={errors.FAQ ?? errors}
-                      touched={touched.FAQ ?? touched}
-                      handleChange={handleChange}
-                      handleAddFieldsForFAQ={() => handleAddFAQsFields(values, setValues)}
-                      handleAddFAQ={(index) => handleAddFAQ(index, values, setValues)}
-                      handleRemoveFAQ={(index) => handleRemoveFAQ(index, values, setValues)}
-                      handleEditFAQ={(index) => handleEditFAQ(index, values, setValues)}
-                    />
-                  )
-                }
+                {currentSubscription && currentSubscription?.type?.faq && (
+                  <FAQs
+                    values={values}
+                    errors={errors.FAQ ?? errors}
+                    touched={touched.FAQ ?? touched}
+                    handleChange={handleChange}
+                    handleAddFieldsForFAQ={() => handleAddFAQsFields(values, setValues)}
+                    handleAddFAQ={(index) => handleAddFAQ(index, values, setValues)}
+                    handleRemoveFAQ={(index) => handleRemoveFAQ(index, values, setValues)}
+                    handleEditFAQ={(index) => handleEditFAQ(index, values, setValues)}
+                  />
+                )}
 
                 {preDefinedFAQs.length > 0 && (
                   <ServerFAQs
@@ -710,7 +718,7 @@ function PostAd() {
                   />
                 )}
 
-                <div style={{ paddingBottom: "300px" }} />
+                <div style={{ paddingBottom: "100px" }} />
                 <Col
                   className="d-flex justify-content-end"
                   style={{ marginRight: "100px" }}
@@ -731,7 +739,7 @@ function PostAd() {
                   </Button>
                 </Col>
 
-                <div style={{ paddingBottom: "200px" }} />
+                <div style={{ paddingBottom: "100px" }} />
               </Form>
             )}
           </Formik>

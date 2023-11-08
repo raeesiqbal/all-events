@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "react-date-range/dist/styles.css"; // main style file
 import "react-date-range/dist/theme/default.css"; // theme css file
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   Button,
   Card, Col, Container, Row,
@@ -16,7 +15,6 @@ import editIcon from "../../assets/images/post-ad/edit.svg";
 import timeIcon from "../../assets/images/post-ad/carbon_time.svg";
 import "./Dashboard.css";
 import { handleProfileSettingsCurrentView } from "../redux/TabNavigation/TabNavigationSlice";
-import { setCompanyInformation } from "../redux/Settings/SettingsSlice";
 import MyAdsDashboard from "./MyAdsDashboard";
 import ProfilePic from "../../components/ProfilePic/ProfilePic";
 import { secureInstance } from "../../axios/config";
@@ -54,12 +52,7 @@ function Dashboard() {
     date(d).toLocaleString("en-US", { month: "long" })}, ${
     date(d).getFullYear()}`}`;
 
-  const getCompanyInfo = async () => {
-    dispatch(setCompanyInformation({ id: user.userCompanyId }));
-  };
-
   const handleProfileEdit = () => {
-    // dispatch(setCompanyInformation({ id: user.userCompanyId }));
     navigate("/profile-settings");
     setTimeout(() => {
       dispatch(handleProfileSettingsCurrentView("PersonalInformation"));
@@ -67,7 +60,6 @@ function Dashboard() {
   };
 
   const getDashboardInfo = async () => {
-    // dispatch(setCompanyInformation({ id: user.userCompanyId }));
     try {
       const request = await secureInstance.request({
         url: "/api/analytics/ad-analytics/dashboard/",
@@ -87,18 +79,12 @@ function Dashboard() {
   };
 
   useEffect(() => {
-    if (user?.userCompanyId !== null) {
-      getCompanyInfo();
-      getDashboardInfo();
-    }
-  }, [user?.userCompanyId]);
-
-  useEffect(() => {
     dispatch(listPlans(user?.userId !== null));
+    if (user?.userId !== null && user?.role === "vendor") getDashboardInfo();
   }, [user?.userId]);
 
   return (
-    <div>
+    <div style={{ paddingBottom: "100px" }}>
       <div className="profile-settings-banner d-flex align-items-center">
         <div className="banner-text-heading">
           <div className="roboto-bold-36px-h1">Dashboard</div>
@@ -224,7 +210,7 @@ function Dashboard() {
                         marginBottom: "8px",
                       }}
                     >
-                      {dashboardData?.total_views}
+                      {dashboardData?.total_views || "0"}
                     </Card.Text>
                   </Card.Body>
                 </Card>
@@ -269,7 +255,7 @@ function Dashboard() {
                         marginBottom: "8px",
                       }}
                     >
-                      {dashboardData?.total_saves}
+                      {dashboardData?.total_saves || "0"}
                     </Card.Text>
                   </Card.Body>
                 </Card>
@@ -313,7 +299,7 @@ function Dashboard() {
                         marginBottom: "8px",
                       }}
                     >
-                      {dashboardData?.total_reviews}
+                      {dashboardData?.total_reviews || "0"}
                     </Card.Text>
                   </Card.Body>
                 </Card>
@@ -355,7 +341,7 @@ function Dashboard() {
                         marginBottom: "8px",
                       }}
                     >
-                      {dashboardData?.total_messages}
+                      {dashboardData?.total_messages || "0"}
                     </Card.Text>
                   </Card.Body>
                 </Card>

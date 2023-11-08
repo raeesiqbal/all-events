@@ -3,6 +3,12 @@ from apps.subscriptions.constants import SUBSCRIPTION_TYPES, SUBSCRIPTION_STATUS
 from apps.utils.models.base import NewAbstractModel
 from django.utils.translation import gettext_lazy as _
 
+# constants
+from apps.ads.constants import AD_SORTING_ORDER
+
+# models
+from apps.ads.models import Ad
+
 
 class SubscriptionType(NewAbstractModel):
     SUBSCRIPTION_TYPES = (
@@ -71,6 +77,17 @@ class Subscription(NewAbstractModel):
 
     def __str__(self):
         return f"{self.id}"
+
+    def save(self, *args, **kwargs):
+        if self.status == SUBSCRIPTION_STATUS["ACTIVE"]:
+            # Get the subscription type order
+            subscription_type = self.type.type.upper()
+            # Set the sort order based on the company's subscription type
+            sort_order = AD_SORTING_ORDER.get(subscription_type)
+            # Update company ads
+            Ad.objects.filter(company=self.company).update(sort_order=sort_order)
+
+        super().save(*args, **kwargs)
 
 
 class PaymentMethod(NewAbstractModel):

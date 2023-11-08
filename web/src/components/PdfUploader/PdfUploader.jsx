@@ -7,6 +7,7 @@ import { Button, Col, Container, Row } from "react-bootstrap";
 import InfoIcon from "../../assets/images/gg_info.svg";
 import "../ImageUploader/ImageUploader.css";
 import { secureInstance } from "../../axios/config";
+import { CircularProgress } from "@mui/material";
 
 function PdfUploader({
   setparentImagesUploadedImages,
@@ -15,6 +16,7 @@ function PdfUploader({
   pdfsToUpload,
 }) {
   const [pdfs, setPdfs] = useState([]);
+  const [deletePdfButton, setDeletePdfButton] = useState(true);
 
   const uploadFileToCloud = async (uploadedPdf) => {
     const formData = new FormData(); // pass in the form
@@ -39,6 +41,7 @@ function PdfUploader({
   };
 
   const handleImageUpload = (event, index) => {
+    setDeletePdfButton(false);
     event.preventDefault();
     const uploadedPdf = event.target.files[0];
     const updatedPdfs = [...pdfs];
@@ -56,13 +59,30 @@ function PdfUploader({
     uploadFileToCloud(uploadedPdf);
     setparentImagesUploadedImages(updatedPdfs);
     reader.readAsDataURL(uploadedPdf);
+    setDeletePdfButton(true);
   };
 
-  const removeImage = (index) => {
+  const removeImage = async (index) => {
+    setDeletePdfButton(false);
     const updatedImages = [...pdfs];
-    updatedImages[index] = null;
-    setPdfs(updatedImages);
-    setparentImagesUploadedImages(updatedImages);
+    const urlToDelete = updatedImages[index];
+    try {
+      const request = await secureInstance.request({
+        url: "/api/ads/delete-url/",
+        method: "Post",
+        data: {
+          url: urlToDelete,
+        },
+      });
+      // ----------------do this inside redux
+      if (request.status === 200) {
+        updatedImages[index] = null;
+        const newUpdatedImages = updatedImages.filter((item) => item !== null);
+        setPdfs(newUpdatedImages);
+        setparentImagesUploadedImages(newUpdatedImages);
+        setDeletePdfButton(true);
+      }
+    } catch (err) {}
   };
 
   const handlePDFView = (pdf) => {
@@ -161,67 +181,96 @@ function PdfUploader({
                           <span>Preview PDF</span>
                         </a>
                       </div>
-                      <button
-                        type="button"
-                        style={{ position: "absolute", top: "0", right: "0" }}
-                        className="upload-img-close-btn"
-                        onClick={() => removeImage(index)}
-                      >
-                        <FontAwesomeIcon
-                          icon={faClose}
-                          style={{
-                            position: "absolute",
-                            top: "2px",
-                            right: "5px",
-                            color: "#FFF",
-                          }}
-                        />
-                      </button>
+
+                      {deletePdfButton ? (
+                        <button
+                          type="button"
+                          style={{ position: "absolute", top: "0", right: "0" }}
+                          className="upload-img-close-btn"
+                          onClick={() => removeImage(index)}
+                        >
+                          <FontAwesomeIcon
+                            icon={faClose}
+                            style={{
+                              position: "absolute",
+                              top: "2px",
+                              right: "5px",
+                              color: "#FFF",
+                            }}
+                          />
+                        </button>
+                      ) : null}
+                      {!deletePdfButton ? (
+                        <>
+                          <div
+                            style={{
+                              position: "absolute",
+                              top: 0,
+                              right: "0",
+                              // left: "20px",
+                              maxWidth: "100%",
+                              maxHeight: "100%",
+                              width: "160px",
+                              height: "120px",
+                              objectFit: "cover",
+                              // borderRadius: "50%",
+                            }}
+                            className="d-flex justify-content-center align-items-center"
+                          />
+
+                          <CircularProgress
+                            style={{
+                              position: "absolute",
+                              top: "30px",
+                              left: "60px",
+                              color: "#51f742",
+                            }}
+                          />
+                        </>
+                      ) : null}
                     </div>
                   )}
                 </div>
               </Col>
             ))}
 
-            {
-              pdfs.length < 10 && (
-                <div
+            {pdfs.length < 10 && (
+              <div
+                style={{
+                  border: "2px dashed #A0C49D",
+                  width: "141px",
+                  height: "122px",
+                }}
+              >
+                <label
+                  htmlFor="pdf-input"
+                  className="d-flex align-items-center justify-content-center"
                   style={{
-                    border: "2px dashed #A0C49D",
                     width: "141px",
                     height: "122px",
+                    cursor: "pointer",
                   }}
                 >
-                  <label
-                    htmlFor="pdf-input"
-                    className="d-flex align-items-center justify-content-center"
+                  <FontAwesomeIcon
+                    icon={faAdd}
                     style={{
-                      width: "141px",
-                      height: "122px",
-                      cursor: "pointer",
+                      color: "#A0C49D",
+                      width: "40px",
+                      height: "40px",
+                      marginRight: "10px",
+                      marginBottom: "8px",
                     }}
-                  >
-                    <FontAwesomeIcon
-                      icon={faAdd}
-                      style={{
-                        color: "#A0C49D",
-                        width: "40px",
-                        height: "40px",
-                        marginRight: "10px",
-                        marginBottom: "8px",
-                      }}
-                    />
-                  </label>
-                  <input
-                    id="pdf-input"
-                    type="file"
-                    accept="application/pdf"
-                    onChange={(event) => handleImageUpload(event)}
-                    style={{ display: "none" }}
                   />
-                </div>
-              )
-            }
+                </label>
+                <input
+                  id="pdf-input"
+                  type="file"
+                  accept="application/pdf"
+                  onChange={(event) => handleImageUpload(event)}
+                  style={{ display: "none" }}
+                />
+              </div>
+            )}
           </div>
         </Row>
       </div>

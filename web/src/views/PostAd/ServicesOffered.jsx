@@ -18,7 +18,9 @@ function ServicesOffered({
 
   const [currentService, setCurrentService] = useState("");
   const [serviceError, setServiceError] = useState("");
-  const currentSubscription = useSelector((state) => state.subscriptions.currentSubscriptionDetails);
+  const currentSubscription = useSelector(
+    (state) => state.subscriptions.currentSubscriptionDetails
+  );
 
   const handleServiceChange = (e) => {
     if (e.target.value.length > 40) {
@@ -66,48 +68,49 @@ function ServicesOffered({
         className="roboto-semi-bold-28px-h2"
         style={{ marginBottom: "24px" }}
       >
-        What Services You Offer?
+        {(currentSubscription && currentSubscription?.type?.offered_services) ||
+        adminServices.length > 0 ? (
+          <>What Services You Offer?</>
+        ) : null}
       </div>
       {/* className="justify-content-md-left" */}
       <Row>
         {/* <div className="roboto-regular-14px-information mt-2 mb-3">
           Add Questions and answers for your potential buyers
         </div> */}
-        {
-          currentSubscription && currentSubscription?.type?.offered_services && (
-            <>
-              <Col md={6} lg={4}>
-                <Form.Group className="form-group mb-3" controlId="form3Example">
-                  <Form.Control
-                    style={{ height: "56px" }}
-                    className="lg-input-small-text"
-                    type="text"
-                    name="currentService"
-                    size="sm"
-                    placeholder="Type your service"
-                    value={currentService}
-                    onChange={handleServiceChange}
-                    // isValid={touched.FAQ && !errors.FAQ}
-                    isInvalid={serviceError}
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    {serviceError}
-                  </Form.Control.Feedback>
-                </Form.Group>
-              </Col>
-              <Col md={12} className="mb-3">
-                <Button
-                  type="submit"
-                  onClick={addService}
-                  disabled={currentService.length === 0}
-                  className="btn btn-success roboto-semi-bold-16px-information mt-1"
-                >
-                  Add Another
-                </Button>
-              </Col>
-            </>
-          )
-        }
+        {currentSubscription && currentSubscription?.type?.offered_services && (
+          <>
+            <Col md={6} lg={4}>
+              <Form.Group className="form-group mb-3" controlId="form3Example">
+                <Form.Control
+                  style={{ height: "56px" }}
+                  className="lg-input-small-text"
+                  type="text"
+                  name="currentService"
+                  size="sm"
+                  placeholder="Type your service"
+                  value={currentService}
+                  onChange={handleServiceChange}
+                  // isValid={touched.FAQ && !errors.FAQ}
+                  isInvalid={serviceError}
+                />
+                <Form.Control.Feedback type="invalid">
+                  {serviceError}
+                </Form.Control.Feedback>
+              </Form.Group>
+            </Col>
+            <Col md={12} className="mb-3">
+              <Button
+                type="submit"
+                onClick={addService}
+                disabled={currentService.length === 0}
+                className="btn btn-success roboto-semi-bold-16px-information mt-1"
+              >
+                Add Another
+              </Button>
+            </Col>
+          </>
+        )}
         <div>
           {adminServices?.map((service, index) => (
             <Chip

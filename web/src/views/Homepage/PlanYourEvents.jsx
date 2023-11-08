@@ -47,7 +47,7 @@ function PlanYourEvents() {
           className="justify-content-left roboto-bold-36px-h1"
           style={{ marginBottom: "50px" }}
         >
-          Easily plan your event
+          Upcoming Features
         </div>
 
         <Row>
@@ -76,7 +76,7 @@ function PlanYourEvents() {
                           >
                             {description}
                           </Card.Text>
-                          <Button
+                          {/* <Button
                             type="button"
                             className="btn-no-border roboto-semi-bold-16px-information btn-height"
                             style={{
@@ -87,7 +87,7 @@ function PlanYourEvents() {
                             }}
                           >
                             {button}
-                          </Button>
+                          </Button> */}
                         </Card.Body>
                       </Col>
                       <Col
@@ -108,7 +108,7 @@ function PlanYourEvents() {
             })}
         </Row>
 
-        <div className="d-flex justify-content-center mt-5 w-100">
+        {/* <div className="d-flex justify-content-center mt-5 w-100">
           <Col xs={12} md={7} lg={3}>
             <Button
               variant="success"
@@ -118,7 +118,7 @@ function PlanYourEvents() {
               Try all planning tools
             </Button>
           </Col>
-        </div>
+        </div> */}
       </div>
     </Container>
   );

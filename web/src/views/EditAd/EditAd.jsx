@@ -63,7 +63,9 @@ function EditAd() {
   const imagesError = useSelector((state) => state.Ads.imagesError);
   const isMediaUploading = useSelector((state) => state.Ads.isMediaUploading);
   const mediaError = useSelector((state) => state.Ads.mediaError);
-  const currentSubscription = useSelector((state) => state.subscriptions.currentSubscriptionDetails);
+  const currentSubscription = useSelector(
+    (state) => state.subscriptions.currentSubscriptionDetails,
+  );
 
   const dispatch = useDispatch();
   const params = useParams();
@@ -211,8 +213,8 @@ function EditAd() {
         .min(2, "Must be at least 2 characters")
         .max(40, "Must be at most 40 characters")
         .matches(
-          /^[a-zA-Z\s-]+$/,
-          'Only letters, spaces, and "-" signs are allowed',
+          /^[a-zA-Z0-9\s-]+$/,
+          'Only letters, numbers, spaces, and "-" signs are allowed',
         )
         .required("Required"),
       fullAddress: Yup.string()
@@ -749,31 +751,28 @@ function EditAd() {
                     setAdminServicesSelected={setAdminServicesSelected}
                   />
 
-                  {
-                    currentSubscription && currentSubscription?.type?.pdf_upload && (
+                  {currentSubscription
+                    && currentSubscription?.type?.pdf_upload && (
                       <PdfUploader
                         setparentImagesUploadedImages={handlePdfsUpdates}
                         pdfsToUpload={pdfsToUpload}
                         imagesError={pdfsError}
                         setImagesError={setPdfsError}
                       />
-                    )
-                  }
+                  )}
 
-                  {
-                    currentSubscription && currentSubscription?.type?.faq && (
-                      <FAQs
-                        values={values}
-                        errors={errors.FAQ ?? errors}
-                        touched={touched.FAQ ?? touched}
-                        handleChange={handleChange}
-                        handleAddFieldsForFAQ={() => handleAddFAQsFields(values, setValues)}
-                        handleAddFAQ={(index) => handleAddFAQ(index, values, setValues)}
-                        handleRemoveFAQ={(index) => handleRemoveFAQ(index, values, setValues)}
-                        handleEditFAQ={(index) => handleEditFAQ(index, values, setValues)}
-                      />
-                    )
-                  }
+                  {currentSubscription && currentSubscription?.type?.faq && (
+                    <FAQs
+                      values={values}
+                      errors={errors.FAQ ?? errors}
+                      touched={touched.FAQ ?? touched}
+                      handleChange={handleChange}
+                      handleAddFieldsForFAQ={() => handleAddFAQsFields(values, setValues)}
+                      handleAddFAQ={(index) => handleAddFAQ(index, values, setValues)}
+                      handleRemoveFAQ={(index) => handleRemoveFAQ(index, values, setValues)}
+                      handleEditFAQ={(index) => handleEditFAQ(index, values, setValues)}
+                    />
+                  )}
 
                   {preDefinedFAQs.length > 0 && (
                     <ServerFAQs
@@ -783,7 +782,7 @@ function EditAd() {
                     />
                   )}
 
-                  <div style={{ paddingBottom: "300px" }} />
+                  <div style={{ paddingBottom: "100px" }} />
                   <Col
                     className="d-flex justify-content-end"
                     style={{ marginRight: "150px" }}
@@ -804,7 +803,7 @@ function EditAd() {
                     </Button>
                   </Col>
 
-                  <div style={{ paddingBottom: "200px" }} />
+                  <div style={{ paddingBottom: "100px" }} />
                 </Form>
               )}
             </Formik>

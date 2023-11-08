@@ -5,7 +5,7 @@ from apps.ads.filters import AdCustomFilterBackend
 from rest_framework.response import Response
 from rest_framework import status
 from django.db.models import Value, F, Q
-from django.db.models.functions import Random
+from rest_framework.permissions import IsAuthenticated
 from django.db import connection
 from rest_framework.decorators import action
 from apps.utils.tasks import delete_s3_object_by_urls
@@ -19,14 +19,10 @@ from rest_framework.filters import OrderingFilter, SearchFilter
 from apps.users.permissions import IsClient, IsSuperAdmin, IsVendorUser
 
 
-from rest_framework.permissions import IsAuthenticated
-
-
 # constants
-from apps.utils.constants import KEYWORD_MODEL_MAPPING, SUBSCRIPTION_TYPES
+from apps.utils.constants import KEYWORD_MODEL_MAPPING
 from apps.users.constants import USER_ROLE_TYPES
-from apps.ads.constants import SEARCH_TYPE_MAPPING
-
+from apps.ads.constants import SEARCH_TYPE_MAPPING, AD_STATUS
 
 # models
 from apps.ads.models import (
@@ -69,6 +65,7 @@ from apps.ads.serializers.get_serializers import (
 from apps.analytics.serializers.get_serializer import (
     AdCalenderGetSerializer,
 )
+import pdb
 
 
 class AdViewSet(BaseViewset):
@@ -104,7 +101,7 @@ class AdViewSet(BaseViewset):
         "retrieve": [IsAuthenticated, IsSuperAdmin | IsVendorUser | IsClient],
         "partial_update": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
         "destroy": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
-        "get_upload_url": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
+        "get_upload_url": [IsAuthenticated, IsClient | IsVendorUser],
         "delete_urls": [],
         "remove_url_on_update": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
         "fetch_suggestion_list": [],
@@ -307,7 +304,6 @@ class AdViewSet(BaseViewset):
         # Build Q objects for filtering Ads based on categories and subcategories
         category_q = Q()
         subcategory_q = Q()
-        country_q = Q()
 
         if categories:
             category_q = Q(sub_category__category__name__in=categories)
@@ -339,7 +335,11 @@ class AdViewSet(BaseViewset):
             # Apply the FAQ conditions to filter Ads
             combined_q |= faq_conditions
 
-        queryset = Ad.objects.filter(combined_q).distinct()
+        queryset = (
+            Ad.objects.filter(combined_q, status=AD_STATUS["ACTIVE"])
+            .order_by("sort_order")
+            .distinct()
+        )
 
         filter_data = []
 
@@ -523,157 +523,89 @@ class AdViewSet(BaseViewset):
 
     @action(detail=False, url_path="premium-venues", methods=["get"])
     def premium_venue_ads(self, request, *args, **kwargs):
-        subscription_type = SubscriptionType.objects.filter(
-            type=SUBSCRIPTION_TYPES["FEATURED"]
-        ).first()
-        featured_companies = Subscription.objects.filter(
-            type=subscription_type
-        ).values_list("company", flat=True)
+        venue_ads = Ad.objects.filter(
+            sub_category__category__name__icontains="venues",
+            status=AD_STATUS["ACTIVE"],
+        ).order_by("-sort_order")[:10]
 
-        featured_ads = Ad.objects.filter(
-            company__in=featured_companies,
-            sub_category__category__name__icontains="venue",
-        ).order_by(Random())[:10]
-        data = self.get_serializer(featured_ads, many=True).data
-
-        # queryset = self.filter_queryset(feature_ads)
-        # page = self.paginate_queryset(queryset)
-
-        # if page != None:
-        #     serializer = self.get_serializer(page, many=True)
-        # else:
-        #     serializer = self.get_serializer(queryset, many=True)
-
-        # data = serializer.data
-        # if page != None:
-        #     data = self.get_paginated_response(data).data
+        data = self.get_serializer(venue_ads, many=True).data
 
         return Response(
             status=status.HTTP_200_OK,
             data=ResponseInfo().format_response(
                 data=data,
                 status_code=status.HTTP_200_OK,
-                message="Premium Venue Ads List",
+                message="Premium venue ads",
             ),
         )
 
     @action(detail=False, url_path="premium-vendors", methods=["get"])
     def premium_vendor_ads(self, request, *args, **kwargs):
-        subscription_type = SubscriptionType.objects.filter(
-            type=SUBSCRIPTION_TYPES["FEATURED"]
-        ).first()
-        featured_companies = Subscription.objects.filter(
-            type=subscription_type
-        ).values_list("company", flat=True)
-        feature_ads = Ad.objects.filter(
-            company__in=featured_companies,
-            sub_category__category__name__icontains="vendor",
-        ).order_by(Random())[:10]
-        data = self.get_serializer(feature_ads, many=True).data
+        vendor_ads = Ad.objects.filter(
+            sub_category__category__name__icontains="vendors",
+            status=AD_STATUS["ACTIVE"],
+        ).order_by("-sort_order")[:10]
 
-        # queryset = self.filter_queryset(feature_ads)
-        # page = self.paginate_queryset(queryset)
-
-        # if page != None:
-        #     serializer = self.get_serializer(page, many=True)
-        # else:
-        #     serializer = self.get_serializer(queryset, many=True)
-
-        # data = serializer.data
-        # if page != None:
-        #     data = self.get_paginated_response(data).data
+        data = self.get_serializer(vendor_ads, many=True).data
 
         return Response(
             status=status.HTTP_200_OK,
             data=ResponseInfo().format_response(
                 data=data,
                 status_code=status.HTTP_200_OK,
-                message="Premimun Vendor Ads List",
-            ),
-        )
-
-    @action(detail=False, url_path="premium-venue-countries", methods=["get"])
-    def premium_venue_countries(self, request, *args, **kwargs):
-        subscription_type = SubscriptionType.objects.filter(
-            type=SUBSCRIPTION_TYPES["FEATURED"]
-        ).first()
-        featured_companies = Subscription.objects.filter(
-            type=subscription_type
-        ).values_list("company", flat=True)
-        feature_ads = (
-            Ad.objects.filter(
-                company__in=featured_companies,
-                sub_category__category__name__icontains="venue",
-            )
-            .values_list("country", flat=True)
-            .order_by(Random())[:10]
-        )
-        data = self.get_serializer(feature_ads, many=True).data
-
-        # queryset = self.filter_queryset(feature_ads)
-        # page = self.paginate_queryset(queryset)
-
-        # if page != None:
-        #     serializer = self.get_serializer(page, many=True)
-        # else:
-        #     serializer = self.get_serializer(queryset, many=True)
-
-        # data = serializer.data
-        # if page != None:
-        #     data = self.get_paginated_response(data).data
-
-        return Response(
-            status=status.HTTP_200_OK,
-            data=ResponseInfo().format_response(
-                data=data,
-                status_code=status.HTTP_200_OK,
-                message="Premium Venue Ads List",
+                message="Premium vendor ads",
             ),
         )
 
     @action(detail=False, url_path="venue-countries", methods=["get"])
     def venue_countries(self, request, *args, **kwargs):
         category_name = "Venues"
-
-        query = """
-    SELECT DISTINCT country_id
-    FROM ads_ad
-    LEFT JOIN ads_country ON ads_ad.country_id = ads_country.id
-    WHERE ads_ad.sub_category_id IN (
-        SELECT id
-        FROM ads_subcategory
-        WHERE category_id IN (
-            SELECT id
-            FROM ads_category
-            WHERE LOWER(name) = LOWER(%s)
-        )
-    )
-    UNION
-    SELECT DISTINCT country_id
-    FROM ads_ad_activation_countries
-    LEFT JOIN ads_country ON ads_ad_activation_countries.country_id = ads_country.id
-    WHERE ads_ad_activation_countries.ad_id IN (
-        SELECT id
-        FROM ads_ad
-        WHERE sub_category_id IN (
-            SELECT id
-            FROM ads_subcategory
-            WHERE category_id IN (
-                SELECT id
-                FROM ads_category
-                WHERE LOWER(name) = LOWER(%s)
+        # query = """
+        #     SELECT DISTINCT country_id
+        #     FROM ads_ad
+        #     LEFT JOIN ads_country ON ads_ad.country_id = ads_country.id
+        #     WHERE ads_ad.sub_category_id IN (
+        #         SELECT id
+        #         FROM ads_subcategory
+        #         WHERE category_id IN (
+        #             SELECT id
+        #             FROM ads_category
+        #             WHERE LOWER(name) = LOWER(%s)
+        #         )
+        #     )
+        #     UNION
+        #     SELECT DISTINCT country_id
+        #     FROM ads_ad_activation_countries
+        #     LEFT JOIN ads_country ON ads_ad_activation_countries.country_id = ads_country.id
+        #     WHERE ads_ad_activation_countries.ad_id IN (
+        #         SELECT id
+        #         FROM ads_ad
+        #         WHERE sub_category_id IN (
+        #             SELECT id
+        #             FROM ads_subcategory
+        #             WHERE category_id IN (
+        #                 SELECT id
+        #                 FROM ads_category
+        #                 WHERE LOWER(name) = LOWER(%s)
+        #             )
+        #         )
+        #     )
+        # """
+        # with connection.cursor() as cursor:
+        #     cursor.execute(query, [category_name, category_name])
+        #     country_ids = cursor.fetchall()
+        # countries = Country.objects.filter(
+        #     id__in=[country_id for country_id, in country_ids]
+        # )
+        countries = (
+            Ad.objects.filter(
+                sub_category__category__name__icontains=category_name,
+                status=AD_STATUS["ACTIVE"],
             )
-        )
-    )
-"""
-
-        with connection.cursor() as cursor:
-            cursor.execute(query, [category_name, category_name])
-            country_ids = cursor.fetchall()
-
-        countries = Country.objects.filter(
-            id__in=[country_id for country_id, in country_ids]
-        )
+            .values_list("country", flat=True)
+            .distinct()
+        )[:10]
+        countries = Country.objects.filter(id__in=countries)
         data = self.get_serializer(countries, many=True).data
 
         return Response(
@@ -681,7 +613,7 @@ class AdViewSet(BaseViewset):
             data=ResponseInfo().format_response(
                 data=data,
                 status_code=status.HTTP_200_OK,
-                message="Venues by Countries",
+                message="Venue countries",
             ),
         )
 

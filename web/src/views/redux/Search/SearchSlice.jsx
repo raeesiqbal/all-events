@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 /* eslint-disable no-useless-catch */
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { instance } from "../../../axios/config";
+import { instance, secureInstance } from "../../../axios/config";
 
 // Create an initial state for the auth slice
 const initialState = {
@@ -18,7 +18,8 @@ const initialState = {
     pagination: {
       count: 0,
       offset: 0,
-      page: 1,
+      currentPage: 1,
+      totalPages: 1,
       limit: 9,
       next: null,
       previous: null,
@@ -53,66 +54,19 @@ export const listSuggestions = createAsyncThunk(
   },
 );
 
-const getDataForSearchKeyword = (data) => {
-  let payload = {
-    data: {
-      categories: [],
-      sub_categories: [],
-      questions: [],
-      commercial_name: "",
-      country: "",
-    },
-    filter: true,
-  };
-
-  switch (data.type) {
-    case "category":
-      payload = { ...payload, data: { categories: [...payload.data.categories, data.name] } };
-      break;
-    case "sub_categories":
-      payload = { ...payload, data: { sub_categories: [...payload.data.sub_categories, data.name] } };
-      break;
-    case "country":
-      payload = { ...payload, data: { country: data.name } };
-      break;
-    default:
-      payload = { ...payload, data: { commercial_name: data.name } };
-      break;
-  }
-
-  return payload;
-};
-
-export const listAdsByKeyword = createAsyncThunk(
-  "Ads/listByKeyword",
-  async ({ keyword, limit, offset }, { rejectWithValue }) => {
-    try {
-      const data = getDataForSearchKeyword(keyword);
-      const response = await instance.request({
-        url: `/api/ads/public-list/?limit=${limit}&offset=${offset}`,
-        method: "Post",
-        data,
-      });
-
-      return { ...response.data, keyword };
-    } catch (err) {
-      // Use `err.response.data` as `action.payload` for a `rejected` action,
-      // by explicitly returning it using the `rejectWithValue()` utility
-      return rejectWithValue(err.response.data);
-    }
-  },
-);
-
 export const listAdsByFilter = createAsyncThunk(
   "Ads/listByFilter",
-  async ({ data, limit, offset }, { rejectWithValue }) => {
+  async ({
+    data, limit, offset, isLoggedIn,
+  }, { rejectWithValue }) => {
     try {
-      const response = await instance.request({
+      const req = isLoggedIn ? secureInstance : instance;
+      const response = await req.request({
         url: `/api/ads/public-list/?limit=${limit}&offset=${offset}`,
         method: "Post",
         data,
       });
-      return response.data;
+      return { ...response.data, filter: data.filter };
     } catch (err) {
       // Use `err.response.data` as `action.payload` for a `rejected` action,
       // by explicitly returning it using the `rejectWithValue()` utility
@@ -144,9 +98,6 @@ export const SearchSlice = createSlice({
   name: "Search",
   initialState,
   reducers: {
-    handleResgisterationStatus: (state) => {
-      state.isRegistered = false;
-    },
     setSearchKeyword: (state, action) => {
       state.data.keyword.name = action.payload.name || "";
       state.data.keyword.type = action.payload.type || "";
@@ -169,6 +120,37 @@ export const SearchSlice = createSlice({
     setCountry: (state, action) => {
       state.data.payload.country = action.payload.country;
     },
+    setAdsList: (state, action) => {
+      state.data.adsList = action.payload;
+    },
+    setPayloadData: (state, action) => {
+      switch (action.payload.data.type) {
+        case "category":
+          state.data.payload = {
+            ...state.data.payload,
+            categories: [action.payload.data.name],
+          };
+          break;
+        case "sub_categories":
+          state.data.payload = {
+            ...state.data.payload,
+            sub_categories: [action.payload.data.name],
+          };
+          break;
+        case "country":
+          state.data.payload = {
+            ...state.data.payload,
+            country: action.payload.data.name,
+          };
+          break;
+        default:
+          state.data.payload = {
+            ...state.data.payload,
+            commercial_name: action.payload.data.name,
+          };
+          break;
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -188,25 +170,6 @@ export const SearchSlice = createSlice({
         state.data.keyword.name = "";
         state.data.keyword.type = "";
       })
-      .addCase(listAdsByKeyword.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(listAdsByKeyword.fulfilled, (state, action) => {
-        state.loading = false;
-        state.data.adsList = action.payload.data.data.results;
-        state.data.pagination.count = action.payload.data.data.count;
-        state.data.pagination.offset = 0;
-        state.data.pagination.page = 1;
-        state.data.pagination.next = action.payload.data.data.next;
-        state.data.pagination.previous = action.payload.data.data.previous;
-        state.data.filters = action.payload.data.filter;
-        state.data.keyword = action.payload.keyword;
-      })
-      .addCase(listAdsByKeyword.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
       .addCase(listAdsByFilter.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -216,9 +179,13 @@ export const SearchSlice = createSlice({
         state.data.adsList = action.payload.data.data.results;
         state.data.pagination.count = action.payload.data.data.count;
         state.data.pagination.offset = 0;
-        state.data.pagination.page = 1;
+        state.data.pagination.currentPage = 1;
+        state.data.pagination.totalPages = parseInt((action.payload.data.data.count / state.data.pagination.limit), 10) + 1;
         state.data.pagination.next = action.payload.data.data.next;
         state.data.pagination.previous = action.payload.data.data.previous;
+        if (action.payload.filter) {
+          state.data.filters = action.payload.data.filter;
+        }
       })
       .addCase(listAdsByFilter.rejected, (state, action) => {
         state.loading = false;
@@ -233,7 +200,8 @@ export const SearchSlice = createSlice({
         state.data.adsList = action.payload.data.data.results;
         state.data.pagination.count = action.payload.data.data.count;
         state.data.pagination.offset = action.payload.offset;
-        state.data.pagination.page = (action.payload.offset / state.data.pagination.limit) + 1;
+        state.data.pagination.currentPage = (action.payload.offset / state.data.pagination.limit) + 1;
+        state.data.pagination.totalPages = parseInt((action.payload.data.data.count / state.data.pagination.limit), 10) + 1;
         state.data.pagination.next = action.payload.data.data.next;
         state.data.pagination.previous = action.payload.data.data.previous;
       })
@@ -252,6 +220,8 @@ export const {
   setSubcategories,
   setQuestions,
   setCountry,
+  setAdsList,
+  setPayloadData,
 } = SearchSlice.actions;
 
 // Export the reducer and actions

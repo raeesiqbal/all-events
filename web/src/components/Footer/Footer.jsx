@@ -5,6 +5,8 @@ import {
   faInstagram,
   faFacebook,
   faLinkedin,
+  faYoutube,
+  faTiktok,
 } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Container } from "react-bootstrap";
@@ -127,26 +129,34 @@ function Footer() {
                       className="col item social d-flex align-items-center justify-content-between mt-5"
                       style={{ width: "204px" }}
                     >
-                      <FontAwesomeIcon
-                        icon={faInstagram}
-                        style={{ color: "#FFF" }}
-                        size="2xl"
-                      />
-                      <FontAwesomeIcon
-                        icon={faFacebook}
-                        style={{ color: "#FFF" }}
-                        size="2xl"
-                      />
-                      <FontAwesomeIcon
-                        icon={faTwitter}
-                        style={{ color: "#FFF" }}
-                        size="2xl"
-                      />
-                      <FontAwesomeIcon
-                        icon={faLinkedin}
-                        style={{ color: "#FFF" }}
-                        size="2xl"
-                      />
+                      <a href="https://www.facebook.com/profile.php?id=61552595200834" target="_blank" rel="noreferrer">
+                        <FontAwesomeIcon
+                          icon={faFacebook}
+                          style={{ color: "#FFF" }}
+                          size="2xl"
+                        />
+                      </a>
+                      <a href="https://www.instagram.com/allevents.romania/" target="_blank" rel="noreferrer">
+                        <FontAwesomeIcon
+                          icon={faInstagram}
+                          style={{ color: "#FFF" }}
+                          size="2xl"
+                        />
+                      </a>
+                      <a href="https://www.youtube.com/@AllEventsRomania" target="_blank" rel="noreferrer">
+                        <FontAwesomeIcon
+                          icon={faYoutube}
+                          style={{ color: "#FFF" }}
+                          size="2xl"
+                        />
+                      </a>
+                      <a href="https://www.tiktok.com/@all.events_romania" target="_blank" rel="noreferrer">
+                        <FontAwesomeIcon
+                          icon={faTiktok}
+                          style={{ color: "#FFF" }}
+                          size="2xl"
+                        />
+                      </a>
                     </div>
                   </li>
                 </ul>
