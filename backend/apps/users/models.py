@@ -76,7 +76,7 @@ class User(AbstractUser):
     delete_reason = models.TextField(null=True, blank=True)
 
     image = models.TextField(null=True, blank=True)
-
+    is_verified = models.BooleanField(default=False)
     USERNAME_FIELD = "email"
     EMAIL_FIELD = "email"
     REQUIRED_FIELDS = ["first_name", "last_name"]
