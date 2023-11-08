@@ -6,6 +6,8 @@
 /* eslint-disable no-nested-ternary */
 /* eslint-disable max-len */
 import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import {
   Button,
   Col,
@@ -15,20 +17,16 @@ import {
   Row,
   Spinner,
 } from "react-bootstrap";
-import { useDispatch, useSelector } from "react-redux";
 import * as formik from "formik";
 import * as Yup from "yup";
 import { Alert } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faStore } from "@fortawesome/free-solid-svg-icons";
+import { faCircleUser } from "@fortawesome/free-regular-svg-icons";
 import Featured from "../../assets/images/Featured.svg";
 import arrowBack from "../../assets/images/arrow-back.svg";
 import visibility from "../../assets/images/visibility.svg";
 import visibilityHide from "../../assets/images/visibility-hide.svg";
-import documentIcon from "../../assets/images/ep_document.svg";
-import vendorIcon from "../../assets/images/vendor-icon.svg";
-import userIcon from "../../assets/images/user-icon.png";
-import arctIcon from "../../assets/images/arcticons_samsung-shop.svg";
-import "./Login.css";
 import { toggleLoginModal, toggleLoginView } from "../redux/Login/loginSlice";
 import { toggleRegisterView } from "../redux/Register/RegisterSlice";
 import StepperForm from "../../components/Stepper/Stepper";
@@ -41,16 +39,13 @@ import ForgotPassword from "./ForgotPassword";
 import CarouselFadeExample from "../../components/Carousel/SingleImgCarousel";
 import {
   handleLogin,
-  handleLoginStatusFalse,
+  handleLoginStatus,
   handleRegister,
   handleResgisterationStatus,
   handleWelcomeUserAlert,
 } from "../redux/Auth/authSlice";
-import { instance } from "../../axios/config";
 import DynamicRegisterationView from "./ViewHelper";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faStore } from "@fortawesome/free-solid-svg-icons";
-import { faCircleUser } from "@fortawesome/free-regular-svg-icons";
+import "./Login.css";
 
 function Login() {
   const dispatch = useDispatch();
@@ -110,7 +105,7 @@ function Login() {
       .max(20, "Must be at most 20 characters")
       .matches(
         /^[a-zA-Z\s-]*$/,
-        "Must only contain letters, spaces, and hyphens"
+        "Must only contain letters, spaces, and hyphens",
       ),
     contact_person_last_name: Yup.string()
       .required("Last name is required")
@@ -118,7 +113,7 @@ function Login() {
       .max(20, "Must be at most 20 characters")
       .matches(
         /^[a-zA-Z\s-]*$/,
-        "Must only contain letters, spaces, and hyphens"
+        "Must only contain letters, spaces, and hyphens",
       ),
     // terms_acceptance: Yup.bool()
     //   .required()
@@ -132,7 +127,7 @@ function Login() {
       .max(50, "Must be at most 50 characters")
       .matches(
         /^[a-zA-Z0-9, .&\s]*$/,
-        'Must only contain letters, numbers, spaces, ", . &" signs'
+        'Must only contain letters, numbers, spaces, ", . &" signs',
       ),
     // .matches(
     //   /^[a-zA-Z, .&\s]*$/,
@@ -150,7 +145,7 @@ function Login() {
       .max(80, "Must be at most 80 characters")
       .matches(
         /^[a-zA-Z0-9, .\-/]*$/,
-        'Can only contain letters, digits, spaces, ",", ".", "-", and "/" signs'
+        'Can only contain letters, digits, spaces, ",", ".", "-", and "/" signs',
       ),
     postal_code: Yup.string()
       .min(5, "Must be at least 5 digits")
@@ -162,7 +157,7 @@ function Login() {
       .max(20, "Must be at most 20 characters")
       .matches(
         /^[a-zA-Z0-9\s]*$/,
-        "Can only contain letters, digits, and spaces"
+        "Can only contain letters, digits, and spaces",
       ),
     firm_number: Yup.string()
       .required("Firm number is required")
@@ -170,13 +165,13 @@ function Login() {
       .max(20, "Must be at most 20 characters")
       .matches(
         /^[a-zA-Z0-9/.]*$/,
-        'Can only contain letters, digits, "/", and "." signs'
+        'Can only contain letters, digits, "/", and "." signs',
       ),
     bank_name: Yup.string()
       .max(30, "Must be at most 30 characters")
       .matches(
         /^[a-zA-Z0-9\s]*$/,
-        "Can only contain letters, digits, and spaces"
+        "Can only contain letters, digits, and spaces",
       ),
     bank_iban: Yup.string()
       .max(30, "Bank IBAN must be at most 30 characters")
@@ -189,7 +184,7 @@ function Login() {
 
   const { isLoginModal, isLoginView } = useSelector((state) => state.login);
   const {
-    isRegistered, isLoggedInState, error, loading,
+    isRegistered, isLoggedInState, user, error, loading,
   } = useSelector((state) => state.auth);
   const { isRegisterView } = useSelector((state) => state.register);
   const { activeStep } = useSelector((state) => state.stepper);
@@ -276,11 +271,9 @@ function Login() {
 
   const handleStep1Submit = () => {
     dispatch(handleNextStep());
-    console.log("aaa");
   };
 
   const handleRegisterationSubmit = (values, { resetForm }) => {
-    console.log("Hellpo");
     let data = {
       user: {
         email: values.email,
@@ -329,7 +322,7 @@ function Login() {
       handleLogin({
         email: values.email,
         password: values.password,
-      })
+      }),
     );
   };
 
@@ -339,7 +332,7 @@ function Login() {
         handleLogin({
           email: tempCredentials.email,
           password: tempCredentials.password,
-        })
+        }),
       );
       dispatch(handleResgisterationStatus());
       setTimeout(() => {
@@ -349,11 +342,9 @@ function Login() {
   }, [isRegistered]);
 
   useEffect(() => {
-    if (isLoggedInState) {
+    if (isLoggedInState && user && user.role) {
       handleClose();
-      dispatch(handleLoginStatusFalse());
-      navigate("/dashboard");
-      // navigate(selectedRole === "client" ? "/" : "/dashboard");
+      navigate(user.role === "vendor" ? "/dashboard" : "/favorite-ads");
     }
   }, [isLoggedInState]);
 
@@ -468,7 +459,9 @@ function Login() {
                 validateOnBlur={false}
                 validateOnChange={false}
               >
-                {({ handleSubmit, handleChange, values, touched, errors }) => (
+                {({
+                  handleSubmit, handleChange, values, touched, errors,
+                }) => (
                   <Form noValidate onSubmit={handleSubmit}>
                     <Form.Group className="mb-4" controlId="form3Example3">
                       <Form.Control
@@ -546,7 +539,7 @@ function Login() {
                         }}
                       >
                         {loading ? (
-                          // "Loading…"
+                        // "Loading…"
                           <Spinner animation="border" size="sm" />
                         ) : (
                           "Login"
@@ -566,7 +559,8 @@ function Login() {
                       </h4>
                       <div className="row" style={{ textAlign: "center" }}>
                         <p className="roboto-regular-16px-information mt-2 mb-0 ">
-                          {" Don't have an account?"}{" "}
+                          {" Don't have an account?"}
+                          {" "}
                           <span
                             style={{
                               color: "#0558FF",
@@ -663,8 +657,8 @@ function Login() {
                   </Button>
                 </div>
               )}
-              {hideRegisterStep1 &&
-                (selectedRole === "client" ? (
+              {hideRegisterStep1
+                && (selectedRole === "client" ? (
                   <DynamicRegisterationView
                     activeStep={activeStep}
                     step1Schema={step1Schema}

@@ -8,7 +8,6 @@ class AdReviewCreateSerializer(BaseSerializer):
         model = AdReview
         fields = [
             "title",
-            "name",
             "rating",
             "message",
             "photos",

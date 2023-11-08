@@ -67,6 +67,8 @@ INSTALLED_APPS = [
     "apps.analytics",
     "apps.clients",
     "apps.subscriptions",
+    "django_celery_results",
+    "celery_progress",
 ]
 
 MIDDLEWARE = [
@@ -95,6 +97,8 @@ REST_FRAMEWORK = {
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
     "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.coreapi.AutoSchema",
 }
+
+
 SWAGGER_SETTINGS = {
     "USE_SESSION_AUTH": False,
     "JSON_EDITOR": True,
@@ -276,13 +280,9 @@ BLEACH_ALLOWED_PROTOCOLS = ["http", "https", "mailto", "tel"]
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
 LANGUAGE_CODE = "en-us"
-
 TIME_ZONE = "UTC"
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
 
 
@@ -303,11 +303,18 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 DJANGO_REST_MULTITOKENAUTH_RESET_TOKEN_EXPIRY_TIME = 1
 
 
-EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)
-EMAIL_HOST = env.str("EMAIL_HOST", default="smtp.gmail.com")
-EMAIL_PORT = env.int("EMAIL_PORT", default=587)
-EMAIL_HOST_USER = env.str("EMAIL_HOST_USER", default="")
-EMAIL_HOST_PASSWORD = env.str("EMAIL_HOST_PASSWORD", default="")
+# EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)
+# EMAIL_HOST = env.str("EMAIL_HOST", default="smtp.gmail.com")
+# EMAIL_PORT = env.int("EMAIL_PORT", default=587)
+
+# EMAIL_HOST_PASSWORD = env.str("EMAIL_HOST_PASSWORD", default="")
+
+SITE_ID = 1
+EMAIL_BACKEND = "django_ses.SESBackend"
+AWS_SES_REGION_NAME = "us-east-1"
+AWS_SES_REGION_ENDPOINT = "email.us-east-1.amazonaws.com"
+DEFAULT_FROM_EMAIL = "rayiszafar@gmail.com"
+EMAIL_HOST_USER = env.str("EMAIL_HOST_USER", default="rayiszafar@gmail.com")
 
 
 FRONTEND_URL = env.str("FRONTEND_URL", default="")
@@ -315,3 +322,16 @@ FRONTEND_URL = env.str("FRONTEND_URL", default="")
 STRIPE_PUBLISHABLE_KEY = env.str("STRIPE_PUBLISHABLE_KEY")
 STRIPE_SECRET_KEY = env.str("STRIPE_SECRET_KEY")
 STRIPE_WEBHOOK_SECRET = env.str("STRIPE_WEBHOOK_SECRET")
+
+
+# celery
+CELERY_BROKER_URL = "pyamqp://guest@localhost//"
+# CELERY_BROKER_URL = "redis://localhost:6379/0"
+# CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
+
+CELERY_RESULT_BACKEND = "django-db"
+CELERY_CACHE_BACKEND = "django-cache"
+CELERY_TASK_TRACK_STARTED = True
+# CELERY_TASK_TIME_LIMIT = 30 * 60
+CELERY_TASK_SERIALIZER = "pickle"
+CELERY_ACCEPT_CONTENT = ["json", "pickle", "application/text"]

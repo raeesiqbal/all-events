@@ -1,17 +1,22 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 // eslint-disable-next-line import/no-extraneous-dependencies
 import CircularProgress from "@mui/material/CircularProgress";
 import { refreshToken } from "./redux/Auth/authSlice";
-import { useNavigate } from "react-router-dom";
+import { getCookie } from "../utilities/utils";
 
 const ProtectedRoute = ({ children, role }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const user = useSelector((state) => state.auth.user);
+  const { user } = useSelector((state) => state.auth);
 
   useEffect(() => {
-    dispatch(refreshToken());
+    if (getCookie("refresh_token")) {
+      dispatch(refreshToken());
+    } else {
+      navigate("/");
+    }
   }, [dispatch]);
 
   useEffect(() => {

@@ -262,9 +262,7 @@ export const SubscriptionsSlice = createSlice({
         state.loading = false;
         state.SubscriptionSuccessAlert = true;
         state.error = action.payload.message;
-        if (action.payload.data.updated) {
-          action.payload.navigate("/subscriptions");
-        }
+        action.payload.navigate("/subscriptions");
       })
       .addCase(updateSubscription.rejected, (state, action) => {
         state.loading = false;

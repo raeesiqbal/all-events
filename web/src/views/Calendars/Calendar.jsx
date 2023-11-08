@@ -30,6 +30,7 @@ const AdCalendar = ({ calendarData, index }) => {
     setStartDate(null);
     setEndDate(null);
     setAvailability("ad");
+    setIsBusy(true);
     setIsDisabled(true);
   };
 
@@ -49,8 +50,16 @@ const AdCalendar = ({ calendarData, index }) => {
         id: calendarData.id,
         hide: !calendarData.hide,
         index,
-      })
+      }),
     );
+  };
+
+  const formattedDate = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-indexed, so add 1 and pad with 0 if necessary.
+    const day = String(date.getDate()).padStart(2, "0"); // Pad with 0 if necessary.
+
+    return `${year}-${month}-${day}`;
   };
 
   const updateAdCalendar = () => {
@@ -58,12 +67,12 @@ const AdCalendar = ({ calendarData, index }) => {
       updateCalendar({
         id: calendarData.id,
         data: {
-          start_date: startDate.toISOString().split("T")[0],
-          end_date: endDate.toISOString().split("T")[0],
+          start_date: formattedDate(startDate),
+          end_date: formattedDate(endDate),
           reason: "Event",
           availability,
         },
-      })
+      }),
     );
     toggleModal();
     setTimeout(() => {
@@ -71,10 +80,9 @@ const AdCalendar = ({ calendarData, index }) => {
     }, 500);
   };
 
-  const isBusyDate = (dt) =>
-    Object.keys(calendarData.dates).some(
-      (d) => new Date(d).toDateString() === dt.toDateString()
-    );
+  const isBusyDate = (dt) => Object.keys(calendarData.dates).some(
+    (d) => new Date(d).toDateString() === dt.toDateString(),
+  );
 
   const busyClassName = ({ date }) => (isBusyDate(date) ? "busy-tile" : "");
 
@@ -184,18 +192,19 @@ const AdCalendar = ({ calendarData, index }) => {
       </Modal>
       <div className="d-flex w-100 justify-content-between py-3">
         {/* <h4>{calendarData.ad}</h4> */}
-        <h4></h4>
         <Form.Check
           type="switch"
           className="ps-5"
-          label={
+          label={(
             <span
               className="ms-2"
               style={{ fontSize: "18px", lineHeight: "18px" }}
             >
-              Ad availability is turned {calendarData.hide ? "on" : "off"}
+              Ad availability is turned
+              {" "}
+              {calendarData.hide ? "on" : "off"}
             </span>
-          }
+          )}
           checked={calendarData.hide}
           onChange={handleAdAvailability}
         />

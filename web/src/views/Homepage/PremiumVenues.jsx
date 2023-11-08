@@ -1,6 +1,6 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Button, Card, Col, Container,
 } from "react-bootstrap";
@@ -9,10 +9,12 @@ import { faHeart } from "@fortawesome/free-regular-svg-icons";
 import EmblaCarousel from "../../components/Carousel/Carousel";
 import placeholderIcon from "../../assets/images/placeholder.jpg";
 import { favoriteAd } from "../redux/Posts/AdsSlice";
+import { setCategories } from "../redux/Search/SearchSlice";
 
 function PremiumVenues() {
-  const publicAds = useSelector((state) => state.Ads.publicAds);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { premiumVenueAds } = useSelector((state) => state.Ads);
   const OPTIONS = { slidesToScroll: "auto", containScroll: "trimSnaps" };
 
   const handlefavoriteAd = (id) => {
@@ -32,8 +34,8 @@ function PremiumVenues() {
         <Card.Img
           variant="top"
           src={
-            slide.ad_media[0].media_urls.images !== undefined
-              ? slide?.ad_media[0]?.media_urls.images[0]
+            slide.ad_image !== undefined
+              ? slide.ad_image
               : placeholderIcon
           }
           style={{ height: "100%", minHeight: "186px", objectFit: "cover" }}
@@ -106,7 +108,7 @@ function PremiumVenues() {
             </div>
           </Card.Text>
           <Card.Text className="text-muted roboto-regular-14px-information">
-            {slide.country.name}
+            {slide.country_name}
           </Card.Text>
         </Card.Body>
       </Card>
@@ -114,7 +116,7 @@ function PremiumVenues() {
   );
 
   return (
-    publicAds.length > 0 && (
+    premiumVenueAds.length > 0 && (
       <Container
         fluid
         style={{ padding: "100px 0", backgroundColor: "#F5F5F5" }}
@@ -124,7 +126,7 @@ function PremiumVenues() {
             Find our Premium Venues
           </div>
           <EmblaCarousel
-            slides={publicAds}
+            slides={premiumVenueAds}
             options={OPTIONS}
             componentToRender={componentToRender}
           />
@@ -134,6 +136,10 @@ function PremiumVenues() {
                 variant="success"
                 type="submit"
                 className="roboto-semi-bold-16px-information btn-height w-100"
+                onClick={() => {
+                  dispatch(setCategories({ categories: ["Venues"] }));
+                  navigate("/search");
+                }}
               >
                 See all Venues
               </Button>

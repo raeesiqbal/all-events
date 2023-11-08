@@ -7,4 +7,14 @@ SEARCH_TYPE_MAPPING = {
 }
 
 
-AD_STATUS = {"ACTIVE": "active", "INACTIVE": "inactive"}
+AD_STATUS = {
+    "ACTIVE": "active",
+    "INACTIVE": "inactive",
+}
+
+AD_SORTING_ORDER = {
+    "FREE": 0,
+    "STANDARD": 1,
+    "ADVANCED": 2,
+    "FEATURED": 3,
+}

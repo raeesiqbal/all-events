@@ -59,7 +59,7 @@ function MyAdsDashboard({ userAds }) {
     userAds?.length > 0 && (
       <Container
         fluid
-        style={{ padding: "40px 0 100px 0", backgroundColor: "#F5F5F5" }}
+        className="pt-5 mt-4 px-0"
       >
         <Container>
           <div className="roboto-semi-bold-28px-h2 mb-5">My Ads</div>

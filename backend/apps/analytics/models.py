@@ -30,12 +30,15 @@ class FavouriteAd(NewAbstractModel):
 class AdReview(NewAbstractModel):
     title = models.TextField()
     name = models.TextField(null=True, blank=True)
-    rating = models.FloatField(null=True, blank=True)
-    message = models.TextField(null=True, blank=True)
+    rating = models.FloatField()
+    message = models.TextField()
     photos = ArrayField(base_field=models.TextField(), null=True, blank=True)
 
     client = models.ForeignKey(
-        "clients.Client", on_delete=models.CASCADE, related_name="my_reviews"
+        "clients.Client",
+        verbose_name=_("Client"),
+        on_delete=models.CASCADE,
+        related_name="my_reviews",
     )
     ad = models.ForeignKey(
         "ads.Ad",

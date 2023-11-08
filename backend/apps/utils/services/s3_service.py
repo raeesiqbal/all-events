@@ -1,13 +1,8 @@
-import re
 import boto3
-from datetime import date, datetime
+from datetime import datetime
 import environ
 from botocore.exceptions import ClientError
-from urllib.parse import unquote
 import logging
-import os
-from django.conf import settings
-from base64 import b64encode
 
 
 class S3Service:
@@ -38,27 +33,6 @@ class S3Service:
 
         try:
             s3_client.delete_object(Bucket=bucket_name, Key=object_key)
-            return True
-        except Exception as e:
-            return False
-
-    def delete_s3_object_by_urls(self, media_list):
-        bucket_name = self.bucket_name
-        object_key = s3_object_url.replace(
-            f"https://s3.amazonaws.com/{bucket_name}/", ""
-        )
-
-        s3_client = boto3.client("s3")
-
-        try:
-            s3_client.delete_objects(
-                Bucket=bucket_name,
-                Delete={
-                    "Objects": [
-                        {"Key": "string", "VersionId": "string"},
-                    ],
-                },
-            )
             return True
         except Exception as e:
             return False

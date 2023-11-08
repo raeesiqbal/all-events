@@ -53,8 +53,23 @@ class AdAdmin(admin.ModelAdmin):
         "id",
         "get_company_email",
         "name",
+        "get_category",
+        "sub_category",
         "status",
     )
+
+    def get_category(self, obj):
+        category_url = reverse(
+            "admin:%s_%s_change"
+            % (
+                obj.sub_category.category._meta.app_label,
+                obj.sub_category.category._meta.model_name,
+            ),
+            args=[obj.sub_category.category.pk],
+        )
+        return format_html(
+            '<a href="{}">{}</a>', category_url, obj.sub_category.category
+        )
 
     def get_company_email(self, obj):
         company_admin_url = reverse(
@@ -68,6 +83,9 @@ class AdAdmin(admin.ModelAdmin):
         return format_html(
             '<a href="{}">{}</a>', company_admin_url, obj.company.user.email
         )
+
+    get_company_email.short_description = "Company"
+    get_category.short_description = "Category"
 
     search_fields = [
         "id",
@@ -93,6 +111,7 @@ class AdAdmin(admin.ModelAdmin):
                     "company",
                     "status",
                     "activation_countries",
+                    "sort_order",
                 )
             },
         ),

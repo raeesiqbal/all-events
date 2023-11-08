@@ -84,8 +84,3 @@ urlpatterns = [
         include("django_rest_passwordreset.urls", namespace="password_reset"),
     ),
 ]
-# if env.bool('DEBUG', default=False):
-#     import debug_toolbar
-#     urlpatterns.append(
-#         path('__debug__/', include(debug_toolbar.urls)),
-#     )

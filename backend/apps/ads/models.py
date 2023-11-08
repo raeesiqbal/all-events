@@ -7,7 +7,7 @@ from apps.utils.utils import unique_slugify
 
 
 # constants
-from apps.ads.constants import AD_STATUS
+from apps.ads.constants import AD_STATUS, AD_SORTING_ORDER
 
 
 class Country(models.Model):
@@ -111,13 +111,26 @@ class Ad(NewAbstractModel):
     status = models.CharField(
         _("Status"), choices=AD_STATUS, default="active", max_length=50
     )
+    sort_order = models.IntegerField(_("Sort Order"), default=0)
 
     def __str__(self):
         return f"{self.name}"
 
     def save(self, *args, **kwargs):
         self.slug = unique_slugify(Ad, self.name, self.id)
-        super(Ad, self).save(*args, **kwargs)
+
+        # Get the subscription type order
+        active_subscription = self.company.my_subscriptions.filter(
+            status="active"
+        ).first()
+        if active_subscription:
+            subscription_type = active_subscription.type.type.upper()
+        else:
+            subscription_type = "FREE"
+        # Set the sort order based on the company's subscription type
+        self.sort_order = AD_SORTING_ORDER.get(subscription_type)
+
+        super().save(*args, **kwargs)
 
     class Meta:
         ordering = ["-id"]
@@ -129,10 +142,10 @@ class Gallery(models.Model):
     ad = models.ForeignKey(
         "ads.Ad",
         verbose_name=_("Ad"),
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
+        null=True,
         related_name="ad_media",
     )
-    # media = models.TextField(_("Media"), null=True, blank=True)
     media_urls = models.JSONField(_("Media"), default=dict, null=True, blank=True)
 
     def __str__(self):

@@ -14,7 +14,6 @@ import {
 import heroImg1 from "../../assets/images/harold.jpg";
 // import heroImg1 from "../../assets/images/heroImg.svg";
 import {
-  listAdsByKeyword,
   listSuggestions,
   setSearchKeyword,
 } from "../redux/Search/SearchSlice";
@@ -24,12 +23,7 @@ function HeroSection() {
   const navigate = useNavigate();
   const [showSuggestions, setShowSuggestions] = React.useState(false);
   const [isDisabled, setIsDisabled] = React.useState(true);
-  const suggestionsList = useSelector(
-    (state) => state.search.data.suggestionsList
-  );
-  const keyword = useSelector((state) => state.search.data.keyword);
-  const limit = useSelector((state) => state.search.data.pagination.limit);
-  const offset = useSelector((state) => state.search.data.pagination.offset);
+  const { suggestionsList, keyword } = useSelector((state) => state.search.data);
   const suggestionDropdown = useRef();
 
   const handleSuggestions = (e) => {
@@ -49,15 +43,11 @@ function HeroSection() {
 
   const handleSearchButton = () => {
     if (window.location.pathname === "/") navigate("/search");
-    if (window.location.pathname === "/search") {
-      dispatch(listAdsByKeyword({ keyword, limit, offset }));
-    }
   };
 
   useEffect(() => {
     if (suggestionDropdown.current) {
-      suggestionDropdown.current.style.overflowY =
-        suggestionDropdown.current.clientHeight > 400 ? "scroll" : "auto";
+      suggestionDropdown.current.style.overflowY = suggestionDropdown.current.clientHeight > 400 ? "scroll" : "auto";
     }
   }, [suggestionsList]);
 
