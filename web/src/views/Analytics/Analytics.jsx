@@ -87,6 +87,7 @@ function Analytics() {
                 setSelectedAd("0");
                 setPeriod("last_month");
                 setChartPeriod("last_month");
+                dispatch(analyticsHome({ adId: "0", period: "last_month" }));
               }}
             >
               Clear all
