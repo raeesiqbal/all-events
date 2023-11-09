@@ -45,7 +45,6 @@ const Plan = ({
       dispatch(createSubscription({ data: { price_id: currentPlanPrice?.price_id, allowed_ads: plan.allowed_ads }, navigate }));
     } else {
       const data = {
-        subscription_id: currentSubscription.subscriptionId,
         price_id: currentPlanPrice.price_id,
         allowed_ads: plan.allowed_ads,
       };
@@ -254,7 +253,10 @@ const Plan = ({
                     variant="success"
                     className="w-75"
                     onClick={() => setShowModal(true)}
-                    disabled={user.userId !== null && currentSubscription.priceId === currentPlanPrice?.price_id}
+                    disabled={
+                      (user.userId !== null && currentSubscription.priceId === currentPlanPrice?.price_id)
+                        || currentSubscription.status === "unpaid"
+                    }
                   >
                     {
                       getSubscribeButtonText()

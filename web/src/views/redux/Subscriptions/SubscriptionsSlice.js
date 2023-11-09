@@ -94,7 +94,7 @@ export const cancelSubscription = createAsyncThunk(
     try {
       const response = await secureInstance.request({
         url: "/api/subscriptions/cancel-subscription/",
-        method: "Post",
+        method: "Patch",
         data,
       });
       return response.data;
@@ -112,7 +112,7 @@ export const resumeSubscription = createAsyncThunk(
     try {
       const response = await secureInstance.request({
         url: "/api/subscriptions/resume-subscription/",
-        method: "Post",
+        method: "Patch",
         data,
       });
       return response.data;
