@@ -19,6 +19,7 @@ const Plans = () => {
   } = useSelector((state) => state.subscriptions);
   const user = useSelector((state) => state.auth.user);
 
+  const [isHovered, setIsHovered] = useState(false);
   const [currentInterval, setCurrentInterval] = useState({
     interval: "month",
     intervalCount: 1,
@@ -67,19 +68,33 @@ const Plans = () => {
     }
   }, [currentSubscription]);
 
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+  };
+
   useEffect(() => {
     if (SubscriptionSuccessAlert || SubscriptionErrorAlert) {
-      setTimeout(() => {
-        dispatch(handleMessageAlerts());
+      const timeoutId = setTimeout(() => {
+        if (!isHovered) {
+          dispatch(handleMessageAlerts());
+        }
       }, 4000);
+
+      return () => clearTimeout(timeoutId);
     }
-  }, [SubscriptionSuccessAlert, SubscriptionErrorAlert]);
+  }, [SubscriptionSuccessAlert, SubscriptionErrorAlert, isHovered, dispatch]);
 
   return (
     <>
       <Alert
         severity={SubscriptionErrorAlert ? "error" : "success"}
         variant="filled"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
         style={{
           position: "fixed",
           top: (SubscriptionSuccessAlert || SubscriptionErrorAlert) ? "80px" : "-80px",
@@ -90,7 +105,7 @@ const Plans = () => {
           zIndex: 2,
         }}
       >
-        {error}
+        <div dangerouslySetInnerHTML={{ __html: error }} />
       </Alert>
       <Container className="py-5">
         <h1 className="mb-5 fw-bold ps-2">Plans</h1>

@@ -267,7 +267,7 @@ export const SubscriptionsSlice = createSlice({
       .addCase(updateSubscription.rejected, (state, action) => {
         state.loading = false;
         state.SubscriptionErrorAlert = true;
-        state.error = action.payload;
+        state.error = action.payload.message;
       })
       .addCase(cancelSubscription.pending, (state) => {
         state.loading = true;

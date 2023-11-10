@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from "react";
 import {
-  Col, Card, Button, OverlayTrigger, Tooltip, Modal,
+  Col, Card, Button, OverlayTrigger, Tooltip, Modal, Row,
 } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCheck, faCircleDollarToSlot, faInfo } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCheck, faCircleDollarToSlot, faInfo, faTriangleExclamation,
+} from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { createSubscription, updateSubscription } from "../redux/Subscriptions/SubscriptionsSlice";
+import { secureInstance } from "../../axios/config";
 
 const Plan = ({
   plan, index, currentInterval, currentSubscription,
@@ -17,7 +20,9 @@ const Plan = ({
   const { currentPaymentMethod } = useSelector((state) => state.subscriptions);
 
   const [currentPlanPrice, setCurrentPlanPrice] = useState();
-  const [showModal, setShowModal] = useState();
+  const [showModal, setShowModal] = useState(false);
+  const [showValidateModal, setShowValidateModal] = useState(false);
+  const [warnings, setWarings] = useState([]);
 
   const regex = /\[(.*?)\]\((.*?)\)/;
   const cardColors = ["#e8e8e8", "#FFFAD6", "#D8FFFB", "#DBE5FF"];
@@ -39,6 +44,29 @@ const Plan = ({
   };
 
   const notSubscribed = () => (user.userId === null || (user.userId !== null && currentSubscription.priceId === ""));
+
+  const handleUpgradeValidation = async () => {
+    try {
+      const response = await secureInstance.request({
+        url: "/api/subscriptions/validate-update-subscription/",
+        method: "Post",
+        data: {
+          allowed_ads: plan.allowed_ads,
+        },
+      });
+
+      if (["", null, undefined].includes(response.data.data)) {
+        setShowModal(true);
+      } else {
+        setWarings(response.data.data);
+        setShowValidateModal(true);
+      }
+    } catch (err) {
+      // error handling
+    }
+  };
+
+  const handlePlanButtonClick = () => (notSubscribed() ? setShowModal(true) : handleUpgradeValidation());
 
   const handlePlanSubscription = async () => {
     if (notSubscribed()) {
@@ -73,7 +101,7 @@ const Plan = ({
         <Modal
           show={showModal}
           onHide={() => {
-            dispatch(setShowModal(false));
+            setShowModal(false);
           }}
           size="md"
           aria-labelledby="example-custom-modal-styling-title"
@@ -91,7 +119,7 @@ const Plan = ({
             <div
               role="presentation"
               onClick={() => {
-                dispatch(setShowModal(false));
+                setShowModal(false);
               }}
               className="close-icon"
             >
@@ -114,9 +142,9 @@ const Plan = ({
           </div>
           <Modal.Body className="text-center">
             <h4 className="w-100 mb-5 mt-3 fw-bold">{notSubscribed() ? "Ready to become a Pro Seller?" : "Are you ready to upgrade?"}</h4>
-            <h5 className="mx-5 my-3 text-secondary fw-normal">
+            <div className="mx-5 my-3 text-secondary fw-normal">
               {notSubscribed() ? "" : "Upgrading brings more clients and more perks!"}
-            </h5>
+            </div>
             <div
               className="mx-5 my-3 px-4 py-3 d-flex justify-content-between align-items-center"
               style={{ backgroundColor: cardColors[index % 4], borderRadius: "5px" }}
@@ -201,6 +229,90 @@ const Plan = ({
           </Modal.Body>
         </Modal>
 
+        <Modal
+          show={showValidateModal}
+          onHide={() => {
+            setShowValidateModal(false);
+          }}
+          size="md"
+          aria-labelledby="example-custom-modal-styling-title"
+          centered="true"
+        >
+          <div className="box" style={{ position: "absolute", right: "3.5px", top: "3px" }} />
+          <div
+            style={{
+              position: "absolute",
+              right: "11px",
+              top: "6px",
+              zIndex: "20",
+            }}
+          >
+            <div
+              role="presentation"
+              onClick={() => {
+                setShowValidateModal(false);
+              }}
+              className="close-icon"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 18 18"
+                fill="none"
+                style={{ cursor: "pointer" }}
+              >
+                <path
+                  d="M17 1L1 17M1 1L17 17"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </div>
+          </div>
+          <Modal.Body>
+            <h4 className="w-100 mb-2 mt-4 fw-bold text-center">Are you sure you want to downgrade?</h4>
+            <div className="mx-5 mb-5 text-secondary text-center">
+              Downgrading means less perks, less clients!
+            </div>
+            <div className="mx-4 mb-5">
+              <div className="px-3 mb-2 text-secondary">
+                If you will downgrade your subscription, here are some actions that will be performed after downgrading:
+              </div>
+              {
+                warnings.map((warning) => (
+                  <div className="d-flex w-100 align-items-top ps-3 fw-bold">
+                    <FontAwesomeIcon icon={faTriangleExclamation} color="#F7D926" size="lg" className="me-2" />
+                    {warning}
+                  </div>
+                ))
+              }
+            </div>
+            <Row className="mb-3 mx-0">
+              <Col sm={4}>
+                <Button
+                  className="px-3 btn btn-no-border"
+                  style={{ width: "-webkit-fill-available" }}
+                  onClick={handlePlanSubscription}
+                >
+                  Downgrade
+                </Button>
+              </Col>
+              <Col sm={8}>
+                <Button
+                  variant="success"
+                  className="px-5"
+                  style={{ width: "-webkit-fill-available" }}
+                  onClick={() => setShowValidateModal(false)}
+                >
+                  Cancel
+                </Button>
+              </Col>
+            </Row>
+          </Modal.Body>
+        </Modal>
+
         <Col key={index} className="mb-4" sm={12} md={6} lg={3}>
           <Card
             className="p-sm-3 h-100"
@@ -252,7 +364,7 @@ const Plan = ({
                   <Button
                     variant="success"
                     className="w-75"
-                    onClick={() => setShowModal(true)}
+                    onClick={() => handlePlanButtonClick()}
                     disabled={
                       (user.userId !== null && currentSubscription.priceId === currentPlanPrice?.price_id)
                         || currentSubscription.status === "unpaid"
