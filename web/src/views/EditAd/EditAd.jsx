@@ -591,7 +591,11 @@ function EditAd() {
   }, [AdPostErrorAlert, mediaError]);
 
   useEffect(() => {
-    if (currentSubscription === null || (currentSubscription && currentSubscription.status === "unpaid")) navigate("/my-ads");
+    if (
+      currentSubscription === null ||
+      (currentSubscription && currentSubscription.status === "unpaid")
+    )
+      navigate("/my-ads");
   }, [currentSubscription]);
 
   return (
