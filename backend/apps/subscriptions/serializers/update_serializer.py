@@ -1,11 +1,6 @@
 from rest_framework import serializers
 
 
-class InputSubscriptionIdSerializer(serializers.Serializer):
-    subscription_id = serializers.CharField(required=True)
+class SubscriptionUpdateSerializer(serializers.Serializer):
     price_id = serializers.CharField(required=True)
     allowed_ads = serializers.IntegerField(required=True)
-
-
-class CancelSubscriptionSerializer(serializers.Serializer):
-    subscription_id = serializers.CharField(required=True)

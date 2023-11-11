@@ -27,7 +27,13 @@ class UpdateProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["first_name", "last_name", "phone", "old_password", "new_password"]
+        fields = [
+            "first_name",
+            "last_name",
+            "phone",
+            "old_password",
+            "new_password",
+        ]
 
 
 class GetUserSerializer(serializers.ModelSerializer):

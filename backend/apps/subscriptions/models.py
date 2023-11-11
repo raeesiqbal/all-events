@@ -23,10 +23,12 @@ class SubscriptionType(NewAbstractModel):
     allowed_ads = models.IntegerField(_("Allowed Ads"))
     allowed_ad_photos = models.IntegerField(_("Allowed Ad Photos"))
     allowed_ad_videos = models.IntegerField(_("Allowed Ad Videos"))
+    pdf_upload = models.BooleanField(_("Pdf Upload"))
+
     reviews = models.BooleanField(_("Reviews"))
     faq = models.BooleanField(_("FAQ"))
     offered_services = models.BooleanField(_("Offered Services"))
-    pdf_upload = models.BooleanField(_("Pdf Upload"))
+
     analytics = models.BooleanField(_("Analytics"))
     calender = models.BooleanField(_("Calender"))
 
