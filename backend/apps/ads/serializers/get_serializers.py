@@ -1,6 +1,17 @@
-from apps.ads.models import FAQ, Ad, Category, Country, Gallery, SubCategory
-from apps.ads.serializers.create_serializers import CategoryCreateSerializer
+# imports
+from apps.utils.serializers.base import BaseSerializer
 from rest_framework import serializers
+from django.db.models import Avg
+
+# constants
+from apps.subscriptions.constants import SUBSCRIPTION_STATUS
+from apps.users.constants import USER_ROLE_TYPES
+
+
+# serializers
+from apps.ads.serializers.create_serializers import CategoryCreateSerializer
+
+# models
 from apps.ads.models import (
     FAQ,
     Ad,
@@ -16,14 +27,13 @@ from apps.ads.models import (
     SiteQuestion,
     SiteFAQ,
 )
-from apps.analytics.models import AdReview, Calender
-from django.db.models import Avg
-from apps.analytics.models import FavouriteAd
+from apps.analytics.models import (
+    AdReview,
+    Calender,
+    FavouriteAd,
+)
+from apps.subscriptions.models import Subscription
 from apps.companies.models import Company
-from apps.users.constants import USER_ROLE_TYPES
-from apps.utils.serializers.base import BaseSerializer
-from apps.analytics.models import FavouriteAd
-from django.db.models import Q
 
 
 class AdNameSerializer(BaseSerializer):
@@ -264,10 +274,7 @@ class AdPublicGetSerializer(BaseSerializer):
     total_reviews = serializers.SerializerMethodField()
     average_rating = serializers.SerializerMethodField()
     calendar_display = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Ad
-        fields = "__all__"
+    review_posting = serializers.SerializerMethodField()
 
     def get_fav(self, obj):
         request = self.context["request"]
@@ -289,10 +296,37 @@ class AdPublicGetSerializer(BaseSerializer):
         return avg_rating["rating__avg"]
 
     def get_calendar_display(self, obj):
-        if Calender.objects.filter(ad=obj, hide=True).exists():
-            return False
-        else:
-            return True
+        display = False
+        ad_company_subscription = Subscription.objects.filter(
+            company=obj.company, status=SUBSCRIPTION_STATUS["ACTIVE"]
+        ).first()
+        if ad_company_subscription:
+            if ad_company_subscription.type.calender:
+                if Calender.objects.filter(ad=obj, hide=True).exists():
+                    display = True
+        return display
+
+    def get_review_posting(self, obj):
+        review_posting = False
+        request = self.context["request"]
+        if (
+            request.user.is_authenticated
+            and request.user.role_type == USER_ROLE_TYPES["CLIENT"]
+        ):
+            ad_company_subscription = Subscription.objects.filter(
+                company=obj.company, status=SUBSCRIPTION_STATUS["ACTIVE"]
+            ).first()
+            if ad_company_subscription:
+                if ad_company_subscription.type.reviews:
+                    if not AdReview.objects.filter(
+                        client=request.user.client_profile, ad=obj
+                    ).exists():
+                        review_posting = True
+        return review_posting
+
+    class Meta:
+        model = Ad
+        fields = "__all__"
 
 
 class SuggestionGetSerializer(BaseSerializer):
@@ -305,14 +339,22 @@ class SuggestionGetSerializer(BaseSerializer):
 
 
 class PremiumAdGetSerializer(BaseSerializer):
-    sub_category = SubCategoryGetSerializer()
-    related_sub_categories = SubCategoryGetSerializer()
-    activation_countries = CountryGetSerializer(many=True)
-    company = VendorChildSerializer()
-    country = CountryGetSerializer()
-    ad_media = GalleryChildSerializer(many=True)
-    ad_faqs = FaqsGetSerializer(many=True)
+    country_name = serializers.SerializerMethodField()
+    ad_image = serializers.SerializerMethodField()
     fav = serializers.SerializerMethodField()
+    total_reviews = serializers.SerializerMethodField()
+    average_rating = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Ad
+        fields = [
+            "name",
+            "country_name",
+            "fav",
+            "total_reviews",
+            "average_rating",
+            "ad_image",
+        ]
 
     def get_fav(self, obj):
         request = self.context["request"]
@@ -326,9 +368,24 @@ class PremiumAdGetSerializer(BaseSerializer):
         else:
             return None
 
-    class Meta:
-        model = Ad
-        fields = "__all__"
+    def get_total_reviews(self, obj):
+        return AdReview.objects.filter(ad=obj).count()
+
+    def get_country_name(self, obj):
+        return obj.country.name
+
+    def get_average_rating(self, obj):
+        avg_rating = AdReview.objects.filter(ad=obj).aggregate(Avg("rating"))
+        return avg_rating["rating__avg"]
+
+    def get_ad_image(self, obj):
+        gallery = Gallery.objects.filter(ad=obj).first()
+
+        return (
+            gallery.media_urls.get("images")[0]
+            if gallery.media_urls.get("images") and gallery.media_urls.get("images")[0]
+            else None
+        )
 
 
 class SubCategoryChildGetSerializer(BaseSerializer):

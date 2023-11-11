@@ -6,13 +6,13 @@ import {
 import Select from "react-select";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClose } from "@fortawesome/free-solid-svg-icons";
+import { secureInstance } from "../../axios/config";
 import commercialNameIcon from "../../assets/images/post-ad/commercial_name.svg";
 import categoryIcon from "../../assets/images/post-ad/category.svg";
 import subCategoryIcon from "../../assets/images/post-ad/sub-category.svg";
 import descriptionIcon from "../../assets/images/post-ad/description.svg";
 import mapIcon from "../../assets/images/post-ad/map.svg";
 import "./PostAd.css";
-import { secureInstance } from "../../axios/config";
 
 function CompanyInformation({
   values,
@@ -29,7 +29,7 @@ function CompanyInformation({
   handleIsSubCategoryChanged,
   handleCategoryClicked,
 }) {
-  const { countries } = useSelector((state) => state.Ads.countries);
+  const { countries } = useSelector((state) => state.Ads);
 
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
@@ -365,7 +365,7 @@ function CompanyInformation({
           </Col>
 
           <Col md={6} lg={4}>
-            {(isMultipleCountries) && (
+            {isMultipleCountries && (
               <Form.Group className="form-group mb-3" controlId="form3Example6">
                 <Form.Label
                   className="roboto-medium-20px-body1 d-flex align-items-center"

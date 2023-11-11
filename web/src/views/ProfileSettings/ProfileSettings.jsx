@@ -19,13 +19,9 @@ function ProfileSettings() {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
 
-  const getCompanyInfo = async () => {
-    dispatch(setCompanyInformation({ id: user.userCompanyId }));
-  };
-
   useEffect(() => {
     if (user?.userCompanyId !== null && user?.role === "vendor") {
-      getCompanyInfo();
+      dispatch(setCompanyInformation({ id: user.userCompanyId }));
     }
   }, [user?.userCompanyId, user?.role]);
 

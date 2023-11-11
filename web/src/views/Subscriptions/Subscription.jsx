@@ -104,13 +104,13 @@ const Subscription = ({ subscription }) => {
   };
 
   useEffect(() => {
-    if (message !== "") {
+    if (message.text !== null) {
       setTimeout(() => {
         setMessage({
-          type: null,
+          ...message,
           text: null,
         });
-      }, 4000);
+      }, 3000);
     }
   }, [message]);
 
