@@ -393,7 +393,7 @@
   /* } */
   .embla {
     /* --slide-size: 40%; */
-    --slide-size-for-5: 45%;
+    --slide-size-for-5: 100%;
   }
   .carousel__container__view__ad {
     padding: 0;

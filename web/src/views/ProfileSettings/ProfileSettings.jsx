@@ -156,30 +156,32 @@ function ProfileSettings() {
                   </Card.Body>
                 </Card>
               </Col>
-              <Col md={6} className="mb-5">
-                <Card
-                  style={{ minHeight: "180px" }}
-                  className="custom-card"
-                  onClick={() => dispatch(handleProfileSettingsCurrentView("PaymentMethod"))}
-                >
-                  <Card.Body>
-                    <div className="d-flex justify-content-between">
-                      <img src={paymentIcon} alt="deleteIcon" className="mb-4" />
-                      <FontAwesomeIcon
-                        icon={faArrowRight}
-                        style={{
-                          fontSize: "30px",
-                          color: "#878787",
-                          marginTop: "12px",
-                        }}
-                        className="cards-arrow"
-                      />
-                    </div>
-                    <Card.Title>Payment Method</Card.Title>
-                    <Card.Text>Update your card details</Card.Text>
-                  </Card.Body>
-                </Card>
-              </Col>
+              {user?.role !== "client" && (
+                <Col md={6} className="mb-5">
+                  <Card
+                    style={{ minHeight: "180px" }}
+                    className="custom-card"
+                    onClick={() => dispatch(handleProfileSettingsCurrentView("PaymentMethod"))}
+                  >
+                    <Card.Body>
+                      <div className="d-flex justify-content-between">
+                        <img src={paymentIcon} alt="deleteIcon" className="mb-4" />
+                        <FontAwesomeIcon
+                          icon={faArrowRight}
+                          style={{
+                            fontSize: "30px",
+                            color: "#878787",
+                            marginTop: "12px",
+                          }}
+                          className="cards-arrow"
+                        />
+                      </div>
+                      <Card.Title>Payment Method</Card.Title>
+                      <Card.Text>Update your card details</Card.Text>
+                    </Card.Body>
+                  </Card>
+                </Col>
+              )}
             </Row>
           </Col>
         </Row>

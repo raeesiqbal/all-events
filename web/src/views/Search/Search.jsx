@@ -34,7 +34,7 @@ const Search = () => {
   return (
     <>
       <HeroSection />
-      <Row className="py-4 p-md-5 mx-md-5 mx-3">
+      <Row className="py-4 p-xl-5 mx-lg-5 mx-3">
         <Filters />
         <Ads />
       </Row>

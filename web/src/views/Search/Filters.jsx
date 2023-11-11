@@ -1,17 +1,18 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { Col, Form } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronDown, faChevronUp } from "@fortawesome/fontawesome-free-solid";
 import {
-  listAdsByFilter, setCategories, setSubcategories, setQuestions, setCommercialName,
+  listAdsByFilter, setCategories, setSubcategories, setQuestions, setCommercialName, setShowFilters,
 } from "../redux/Search/SearchSlice";
 
 const Filters = () => {
   const dispatch = useDispatch();
+  // const colRef = useRef(null);
+
   const { isLoggedInState } = useSelector((state) => state.auth);
-  const filters = useSelector((state) => state.search.data.filters);
-  const keyword = useSelector((state) => state.search.data.keyword);
+  const { filters, keyword, showFilters } = useSelector((state) => state.search.data);
   const { limit, offset } = useSelector((state) => state.search.data.pagination);
   const {
     categories, subcategories, questions, commercialName, country,
@@ -64,19 +65,17 @@ const Filters = () => {
   };
 
   useEffect(() => {
-    if (categories.length > 0 || subcategories.length > 0 || questions.length > 0 || commercialName !== "" || country !== "") {
-      dispatch(listAdsByFilter({
+    dispatch(listAdsByFilter({
+      data: {
         data: {
-          data: {
-            categories, subcategories, questions, commercial_name: commercialName, country,
-          },
-          filter: true,
+          categories, subcategories, questions, commercial_name: commercialName, country,
         },
-        limit,
-        offset,
-        isLoggedIn: isLoggedInState,
-      }));
-    }
+        filter: true,
+      },
+      limit,
+      offset,
+      isLoggedIn: isLoggedInState,
+    }));
   }, [categories, subcategories, questions, commercialName, country, isLoggedInState]);
 
   useEffect(() => {
@@ -85,8 +84,38 @@ const Filters = () => {
     if (keyword.type === "sub_categories") dispatch(setSubcategories({ subcategories: [keyword.name] }));
   }, [keyword]);
 
+  // useEffect(() => {
+  //   const handleClickOutside = (event) => {
+  //     // Check if the click is outside the Col element
+  //     if (colRef.current && !colRef.current.contains(event.target)) {
+  //       dispatch(setShowFilters(false));
+  //     }
+  //   };
+
+  //   // Attach the event listener to the document
+  //   document.addEventListener("click", handleClickOutside);
+
+  //   // Clean up the event listener when the component is unmounted
+  //   return () => {
+  //     document.removeEventListener("click", handleClickOutside);
+  //   };
+  // }, []);
+
   return (
-    <Col className="d-none d-md-block" md={3}>
+    <Col
+      // ref={colRef}
+      className={`${showFilters ? "" : "d-none d-lg-block"} filters`}
+      style={showFilters ? {
+        position: "fixed",
+        backgroundColor: "white",
+        zIndex: 1000,
+        left: "0px",
+        top: "0px",
+        bottom: "0px",
+        width: "50%",
+        minWidth: "320px",
+      } : {}}
+    >
       <div className="w-100 d-flex justify-content-between mb-5">
         <span style={{ fontSize: "24px", lineHeight: "28.2px", fontWeight: "700" }}>Filter</span>
         <span
@@ -105,10 +134,10 @@ const Filters = () => {
             onClick={toggleChildDiv}
           >
             <span style={{ fontSize: "18px", fontWeight: "700" }}>Categories</span>
-            <FontAwesomeIcon icon={faChevronDown} />
-            <FontAwesomeIcon icon={faChevronUp} className="d-none" />
+            <FontAwesomeIcon icon={faChevronDown} className="d-none" />
+            <FontAwesomeIcon icon={faChevronUp} />
           </div>
-          <div className="ps-4 d-none">
+          <div className="ps-4">
             {
               filters?.map((category) => (
                 <Form.Group className="mb-2">
@@ -131,10 +160,10 @@ const Filters = () => {
             onClick={toggleChildDiv}
           >
             <span style={{ fontSize: "18px", fontWeight: "700" }}>Subcategories</span>
-            <FontAwesomeIcon icon={faChevronDown} />
-            <FontAwesomeIcon icon={faChevronUp} className="d-none" />
+            <FontAwesomeIcon icon={faChevronDown} className="d-none" />
+            <FontAwesomeIcon icon={faChevronUp} />
           </div>
-          <div className="ps-4 d-none">
+          <div className="ps-4">
             {
               filters?.map((category) => category.subcategories?.map((subcategory) => (
                 <Form.Group className="mb-2">
@@ -162,10 +191,10 @@ const Filters = () => {
                   <span style={{ fontSize: "18px", fontWeight: "700" }}>{siteFaq.section}</span>
                   {/* <span> (Questions)</span> */}
                 </div>
-                <FontAwesomeIcon icon={faChevronDown} />
-                <FontAwesomeIcon icon={faChevronUp} className="d-none" />
+                <FontAwesomeIcon icon={faChevronDown} className="d-none" />
+                <FontAwesomeIcon icon={faChevronUp} />
               </div>
-              <div className="d-none">
+              <div>
                 <ol className="ps-4">
                   {
                     siteFaq.site_faq_questions.map((faq) => (

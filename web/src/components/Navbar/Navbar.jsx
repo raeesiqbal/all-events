@@ -306,7 +306,7 @@ function Header() {
                   className="mb-2 mobile-btn"
                   onClick={(e) => {
                     e.preventDefault();
-                    navigate(user?.role === "client" ? "/" : "/dashboard");
+                    navigate(user?.role === "client" ? "/favorite-ads" : "/dashboard");
                   }}
                 >
                   Dashboard

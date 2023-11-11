@@ -102,7 +102,7 @@ function PremiumVenues() {
                     </span>
                   </>
                 ) : (
-                  <span className="text-muted roboto-regular-14px-information ms-1 mt-1">Not Rated</span>
+                  <span className="text-muted roboto-regular-14px-information ms-1 mt-1">0.0 (0)</span>
                 )
               }
             </div>
@@ -122,7 +122,7 @@ function PremiumVenues() {
         style={{ padding: "100px 0", backgroundColor: "#F5F5F5" }}
       >
         <Container>
-          <div className="roboto-bold-36px-h1" style={{ marginLeft: "26px" }}>
+          <div className="roboto-bold-36px-h1">
             Find our Premium Venues
           </div>
           <EmblaCarousel
