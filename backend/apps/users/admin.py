@@ -34,6 +34,7 @@ class UserAdmin(DjanoAdmin):
                 "fields": (
                     "role_type",
                     "is_active",
+                    "is_verified",
                 )
             },
         ),

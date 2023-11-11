@@ -13,7 +13,9 @@ const initialState = {
     userImage: null,
     first_name: null,
     last_name: null,
+    is_verified: true,
   },
+  showVerifyModal: false,
   userCompany: null,
   screenLoading: false,
   isRegistered: false,
@@ -104,6 +106,9 @@ export const authSlice = createSlice({
     setScreenLoading: (state, action) => {
       state.screenLoading = action.payload;
     },
+    setShowVerifyModal: (state, action) => {
+      state.showVerifyModal = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -121,6 +126,7 @@ export const authSlice = createSlice({
         state.user.first_name = user.first_name;
         state.user.last_name = user.last_name;
         state.user.role = user.role_type;
+        state.user.is_verified = user.is_verified;
         state.isLoggedInState = true;
         state.userCompany = user.user_company;
       })
@@ -135,6 +141,7 @@ export const authSlice = createSlice({
       .addCase(handleRegister.fulfilled, (state) => {
         state.loading = false;
         state.isRegistered = true;
+        state.showVerifyModal = true;
       })
       .addCase(handleRegister.rejected, (state, action) => {
         state.loading = false;
@@ -160,13 +167,13 @@ export const authSlice = createSlice({
         state.user.last_name = data.last_name;
         state.user.userCompanyId = data.user_company?.id;
         state.user.userImage = data?.image;
+        state.user.is_verified = data.is_verified;
         state.userCompany = data?.user_company;
         // state.loading = false;
         // state.error = action.error.message;
         // state.user.accessToken = access;
       })
       .addCase(getAuthenticatedUser.rejected, () => {
-
       });
   },
 });
@@ -176,6 +183,7 @@ export const {
   handleLoginStatus,
   handleWelcomeUserAlert,
   setScreenLoading,
+  setShowVerifyModal,
 } = authSlice.actions;
 
 // Export the reducer and actions

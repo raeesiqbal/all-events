@@ -22,10 +22,10 @@ const Calendars = () => {
   }, [calendars]);
 
   const truncateString = (inputString) => {
-    if (inputString.length <= 12) {
+    if (inputString.length <= 10) {
       return inputString;
     }
-    return `${inputString.slice(0, 12)}...`;
+    return `${inputString.slice(0, 10)}...`;
   };
 
   return (
@@ -45,7 +45,10 @@ const Calendars = () => {
           <Col md={9} lg={adTabSize} className="mx-auto">
             <Row className="mx-0 bg-white rounded">
               {calendars?.map((calendar, index) => (
-                <Col className="p-2 text-center" style={{ height: "56px" }}>
+                <Col
+                  className="p-2 text-center"
+                  style={{ height: "56px", width: "28%" }}
+                >
                   <div
                     className={`p-2 rounded interval ${
                       currentAd === index + 1 ? "active-interval" : ""

@@ -64,6 +64,7 @@ class GetUserSerializer(serializers.ModelSerializer):
             "phone",
             "user_company",
             "image",
+            "is_verified",
         ]
 
 

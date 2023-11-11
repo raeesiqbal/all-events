@@ -62,7 +62,7 @@ const Subscription = ({ subscription }) => {
     date(d).getFullYear().toString()}`;
 
   const handleCancelSubscription = async () => {
-    dispatch(cancelSubscription({ subscription_id: subscription.subscription_id }));
+    dispatch(cancelSubscription());
     setDeleteModal(false);
     setTimeout(() => {
       dispatch(listSubscriptions());
@@ -70,7 +70,7 @@ const Subscription = ({ subscription }) => {
   };
 
   const handleResumeSubscription = async () => {
-    dispatch(resumeSubscription({ subscription_id: subscription.subscription_id }));
+    dispatch(resumeSubscription());
     setDeleteModal(false);
     setTimeout(() => {
       dispatch(listSubscriptions());
@@ -246,6 +246,7 @@ const Subscription = ({ subscription }) => {
                         type="button"
                         variant="success"
                         className="me-3 px-5 py-0"
+                        disabled={subscription.status === "unpaid"}
                         style={{ fontSize: "12px !important", height: "32px" }}
                         onClick={() => navigate("/plans")}
                       >

@@ -169,6 +169,28 @@ function App() {
         </Modal.Body>
       </Modal>
 
+      <Modal
+        show={!user.is_verified && shouldRenderTabNavigation}
+        size="lg"
+        aria-labelledby="example-custom-modal-styling-title"
+        centered="true"
+      >
+        <Modal.Body className="text-center">
+          <h1 className="w-100 mb-5 mt-3 fw-bold">Account Verification Reminder</h1>
+          <h5 className="my-5 mx-5 px-5 text-secondary fw-normal">
+            Please verify your account to perform actions.
+          </h5>
+          <Button
+            variant="success"
+            className="mx-5 mb-3"
+            style={{ width: "-webkit-fill-available" }}
+            // onClick={handleSubscription}
+          >
+            Resend Verification Link
+          </Button>
+        </Modal.Body>
+      </Modal>
+
       <Login />
       {
         user === null && (

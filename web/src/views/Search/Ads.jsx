@@ -73,7 +73,7 @@ const Ads = () => {
         {
           adsList?.map((ad) => (
             <Col
-              md={activeView === "list" ? 12 : 3}
+              md={activeView === "list" ? 12 : 4}
               className={`mb-4 p-0 ${activeView === "list" ? "" : "pe-3"}`}
               style={{ cursor: "pointer" }}
               onClick={() => navigate(`/view-ad/${ad.id}`)}
@@ -84,7 +84,7 @@ const Ads = () => {
                     ad.fav !== null && (
                       <div
                         className="position-absolute"
-                        style={{ top: "20px", right: "20px", zIndex: "2" }}
+                        style={{ top: "15px", right: "18px", zIndex: "2" }}
                       >
                         <div
                           className="d-flex align-items-center justify-content-center"
@@ -98,7 +98,7 @@ const Ads = () => {
                           <FontAwesomeIcon
                             icon={ad.fav ? "fa-heart fa-solid" : faHeart}
                             size="lg"
-                            style={{ color: "#fff", cursor: "pointer" }}
+                            style={{ color: "#A0C49D", cursor: "pointer" }}
                             onClick={(e) => {
                               e.preventDefault();
                               e.stopPropagation();

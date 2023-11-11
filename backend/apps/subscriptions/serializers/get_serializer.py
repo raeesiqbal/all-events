@@ -19,6 +19,10 @@ class SubscriptionTypeChildSerializer(BaseSerializer):
         fields = "__all__"
 
 
+class SubscriptionValidateSerializer(serializers.Serializer):
+    allowed_ads = serializers.IntegerField(required=True)
+
+
 class CurrentSubscriptionSerializer(BaseSerializer):
     type = SubscriptionTypeChildSerializer()
     unit_amount = serializers.SerializerMethodField()

@@ -17,7 +17,7 @@ function Chats() {
   const dispatch = useDispatch();
   const { chats, inboxCount, archivedCount, suggestionsList, loading } =
     useSelector((state) => state.chats);
-
+  const currentUser = useSelector((state) => state.auth.user);
   const limit = 10;
   const [offset, setOffset] = React.useState(0);
   const [activeTab, setActiveTab] = React.useState("Inbox");
@@ -146,7 +146,7 @@ function Chats() {
             <div className="position-relative me-3">
               <FormControl
                 className="shadow-none roboto-regular-16px-information border border-success"
-                placeholder="Select Ad"
+                placeholder="Search by Ad"
                 value={adName}
                 onChange={(e) => handleSuggestions(e, "ad_name")}
               />
@@ -165,28 +165,30 @@ function Chats() {
                 </div>
               )}
             </div>
-            <div className="position-relative">
-              <FormControl
-                className="shadow-none roboto-regular-16px-information border border-success"
-                placeholder="Select Sender Name"
-                value={senderName}
-                onChange={(e) => handleSuggestions(e, "sender_name")}
-              />
-              {showSenderList && (
-                <div className="suggestion-dropdown" ref={suggestionDropdown}>
-                  {suggestionsList.map((suggestion) => (
-                    <div
-                      className="w-100 px-3 py-2"
-                      onClick={() =>
-                        handleSuggestionClick(suggestion, "sender_name")
-                      }
-                    >
-                      <span className="my-auto px-2">{suggestion}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            {currentUser.role === "vendor" ? (
+              <div className="position-relative">
+                <FormControl
+                  className="shadow-none roboto-regular-16px-information border border-success"
+                  placeholder="Search by Sender"
+                  value={senderName}
+                  onChange={(e) => handleSuggestions(e, "sender_name")}
+                />
+                {showSenderList && (
+                  <div className="suggestion-dropdown" ref={suggestionDropdown}>
+                    {suggestionsList.map((suggestion) => (
+                      <div
+                        className="w-100 px-3 py-2"
+                        onClick={() =>
+                          handleSuggestionClick(suggestion, "sender_name")
+                        }
+                      >
+                        <span className="my-auto px-2">{suggestion}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : null}
           </div>
           <Button
             variant="success"

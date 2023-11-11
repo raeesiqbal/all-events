@@ -101,6 +101,17 @@ class MessageViewSet(BaseViewset):
         if self.request.user.is_authenticated:
             serializer.save(user=self.request.user)
 
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+
+        if request.user.role_type == USER_ROLE_TYPES["CLIENT"]:
+            instance.is_delete_client = True
+        elif request.user.role_type == USER_ROLE_TYPES["VENDOR"]:
+            instance.is_delete_vendor = True
+        instance.save()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
 
@@ -312,17 +323,6 @@ class MessageViewSet(BaseViewset):
                 message="Chat does not existes",
             ),
         )
-
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-
-        if request.user.role_type == USER_ROLE_TYPES["CLIENT"]:
-            instance.is_delete_client = True
-        elif request.user.role_type == USER_ROLE_TYPES["VENDOR"]:
-            instance.is_delete_vendor = True
-        instance.save()
-
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=True, url_path="message-create", methods=["post"])
     def message_create(self, request, *args, **kwargs):

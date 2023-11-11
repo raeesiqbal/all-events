@@ -440,7 +440,7 @@ class AdDashboardSerializer(BaseSerializer):
     ad_image = serializers.SerializerMethodField("get_ad_image")
     sub_category = serializers.SerializerMethodField()
 
-    def get_ad_image(self, obj):
+    def get_ad_image(self, obj): 
         gallery = Gallery.objects.filter(ad=obj).first()
 
         return (

@@ -307,7 +307,8 @@ const Chat = ({ chat, isOpenChat }) => {
                         <img
                           alt={currentUser.first_name}
                           className="mx-2 mb-auto"
-                          src={currentUser.userImage || defaultProfilePhoto}
+                          // src={currentUser.userImage || defaultProfilePhoto}
+                          src={message.image || defaultProfilePhoto}
                           style={{
                             borderRadius: "50%",
                             width: "31px",
@@ -328,11 +329,12 @@ const Chat = ({ chat, isOpenChat }) => {
                           //     ? chat?.ad_image
                           //     : additionalInfo.image || defaultProfilePhoto
                           // }
-                          src={
-                            currentUser.role === "client"
-                              ? chat?.ad_image
-                              : defaultProfilePhoto || defaultProfilePhoto
-                          }
+                          // src={
+                          //   currentUser.role === "client"
+                          //     ? chat?.ad_image
+                          //     : defaultProfilePhoto || defaultProfilePhoto
+                          // }
+                          src={message.image || defaultProfilePhoto}
                           style={{
                             borderRadius: "50%",
                             width: "31px",
@@ -406,6 +408,7 @@ const Chat = ({ chat, isOpenChat }) => {
                 className="send-message-button"
                 disabled={loading}
                 onClick={sendChatMessage}
+                style={loading ? { backgroundColor: "silver" } : {}}
               >
                 Send
               </button>
@@ -491,9 +494,7 @@ const Chat = ({ chat, isOpenChat }) => {
             onClick={() => {
               setDeleteModal(false);
               dispatch(deleteChat(chat.id));
-              setTimeout(() => {
-                dispatch(listChats({ archive: "False", limit: 10, offset: 0 }));
-              }, 2000);
+              dispatch(listChats({ archive: "False", limit: 10, offset: 0 }));
             }}
           >
             Yes
