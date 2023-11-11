@@ -47,7 +47,7 @@ function VendorsByCountry() {
   return (
     <Container fluid style={{ padding: "100px 0", backgroundColor: "#FFF" }}>
       <Container>
-        <div className="roboto-bold-36px-h1" style={{ marginLeft: "26px" }}>
+        <div className="roboto-bold-36px-h1">
           Find Venues in your County
         </div>
         <EmblaCarousel

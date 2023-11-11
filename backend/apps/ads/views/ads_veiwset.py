@@ -278,10 +278,13 @@ class AdViewSet(BaseViewset):
         # Extract data from the payload
         payload_data = payload.get("data", {})
         categories = payload_data.get("categories", [])
-        sub_categories = payload_data.get("sub_categories", [])
+        sub_categories = payload_data.get("subcategories", [])
         questions = payload_data.get("questions", [])
         commercial_name = payload_data.get("commercial_name", "")
         country = payload_data.get("country", "")
+
+        print("payload ====> ", payload)
+        print("subcat ====> ", sub_categories)
 
         # Build Q objects for filtering Ads based on categories and subcategories
         category_q = Q()
@@ -292,6 +295,7 @@ class AdViewSet(BaseViewset):
 
         if sub_categories:
             subcategory_q = Q(sub_category__name__in=sub_categories)
+            print("if cond ===> ", subcategory_q)
 
         # Combine the Q objects
         combined_q = category_q | subcategory_q
