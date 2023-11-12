@@ -19,12 +19,10 @@ class CustomCompanyNameValidator:
             regex_validator(value)
         except serializers.ValidationError as e:
             raise serializers.ValidationError({"name": e.detail[0]})
-        # if value.startswith(" ") or value.endswith(" "):
-        #     raise serializers.ValidationError(self.message)
 
 
 class CustomCityValidator:
-    regex = r"^[a-zA-Z $]+$"
+    regex = r"^(?!.*--)[a-zA-Z -]+$"
     message = (
         "City must be between 3 and 25 characters long"
         "only contain letters, spaces, and hyphens"
@@ -38,13 +36,6 @@ class CustomCityValidator:
             regex_validator(value)
         except serializers.ValidationError as e:
             raise serializers.ValidationError({"city": e.detail[0]})
-        if (
-            "--" in value
-            or "  " in value
-            or value.startswith(" ")
-            or value.endswith(" ")
-        ):
-            raise serializers.ValidationError(self.message)
 
 
 class CustomAddressValidator:
@@ -61,8 +52,6 @@ class CustomAddressValidator:
             regex_validator(value)
         except serializers.ValidationError as e:
             raise serializers.ValidationError({"address": e.detail[0]})
-        # if "  " in value or value.startswith(" ") or value.endswith(" "):
-        #     raise serializers.ValidationError(self.message)
 
 
 class CustomPostalCodeValidator:
@@ -74,12 +63,11 @@ class CustomPostalCodeValidator:
 
     def __call__(self, value):
         regex_validator = RegexValidator(regex=self.regex, message=self.message)
+        value = re.sub(r"\s+", " ", value.strip())
         try:
             regex_validator(value)
         except serializers.ValidationError as e:
             raise serializers.ValidationError({"postal_code": e.detail[0]})
-        if not (5 <= len(str(value)) <= 7):
-            raise serializers.ValidationError(self.message)
 
 
 class CustomFiscalCodeValidator:
@@ -96,8 +84,6 @@ class CustomFiscalCodeValidator:
             regex_validator(value)
         except serializers.ValidationError as e:
             raise serializers.ValidationError({"fiscal_code": e.detail[0]})
-        # if "  " in value or value.startswith(" ") or value.endswith(" "):
-        #     raise serializers.ValidationError(self.message)
 
 
 class CustomFirmNumberValidator:
@@ -109,6 +95,7 @@ class CustomFirmNumberValidator:
     )
 
     def __call__(self, value):
+        value = re.sub(r"\s+", " ", value.strip())
         if not any(c.isalpha() or c.isdigit() for c in value):
             raise serializers.ValidationError(self.message)
         value = re.sub(r"\s+", " ", value.strip())
@@ -117,28 +104,22 @@ class CustomFirmNumberValidator:
             regex_validator(value)
         except serializers.ValidationError as e:
             raise serializers.ValidationError({"firm_number": e.detail[0]})
-        if "  " in value or value.startswith(" ") or value.endswith(" "):
-            raise serializers.ValidationError(self.message)
 
 
 class CustomBankNameValidator:
-    regex = r"^[a-zA-Z\d]+$"
+    regex = r"^[a-zA-Z0-9\s]*[a-zA-Z0-9][a-zA-Z0-9\s]*$"
     message = (
         "Bank Name must be between 1 and 30 characters long"
         "only letters and digits are allowed"
     )
 
     def __call__(self, value):
-        if not any(c.isalpha() or c.isdigit() for c in value):
-            raise serializers.ValidationError(self.message)
         value = re.sub(r"\s+", " ", value.strip())
         regex_validator = RegexValidator(regex=self.regex, message=self.message)
         try:
             regex_validator(value)
         except serializers.ValidationError as e:
             raise serializers.ValidationError({"bank_name": e.detail[0]})
-        if "  " in value or value.startswith(" ") or value.endswith(" "):
-            raise serializers.ValidationError(self.message)
 
 
 class CustomBankIBANValidator:
@@ -156,5 +137,3 @@ class CustomBankIBANValidator:
             regex_validator(value)
         except serializers.ValidationError as e:
             raise serializers.ValidationError({"bank_name": e.detail[0]})
-        if " " in value or value.startswith(" ") or value.endswith(" "):
-            raise serializers.ValidationError(self.message)

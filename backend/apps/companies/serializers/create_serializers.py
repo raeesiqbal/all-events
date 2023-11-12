@@ -5,7 +5,8 @@ from rest_framework import serializers
 from apps.users.field_validators import (
     CustomPasswordValidator,
     CustomPhoneValidator,
-    CustomNameValidator,
+    CustomFirstNameValidator,
+    CustomLastNameValidator,
 )
 from apps.companies.field_validators import (
     CustomCompanyNameValidator,
@@ -52,12 +53,12 @@ class UserChildSerializer(BaseSerializer):
     first_name = serializers.CharField(
         max_length=20,
         min_length=2,
-        validators=[CustomNameValidator()],
+        validators=[CustomFirstNameValidator()],
     )
     last_name = serializers.CharField(
         max_length=20,
         min_length=2,
-        validators=[CustomNameValidator()],
+        validators=[CustomLastNameValidator()],
     )
 
     class Meta:
@@ -92,8 +93,10 @@ class VendorCreateSerializer(BaseSerializer):
         min_length=5,
         validators=[CustomAddressValidator()],
     )
-    postal_code = serializers.IntegerField(
-        required=False,
+    postal_code = serializers.CharField(
+        max_length=7,
+        min_length=5,
+        allow_blank=True,
         validators=[CustomPostalCodeValidator()],
     )
     fiscal_code = serializers.CharField(

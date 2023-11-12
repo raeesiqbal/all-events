@@ -1,6 +1,7 @@
 # imports
 from django.core.validators import RegexValidator
 from rest_framework import serializers
+import re
 
 
 class CustomPasswordValidator:
@@ -13,6 +14,7 @@ class CustomPasswordValidator:
 
     def __call__(self, value):
         regex_validator = RegexValidator(regex=self.regex, message=self.message)
+
         try:
             regex_validator(value)
         except serializers.ValidationError as e:
@@ -30,14 +32,16 @@ class CustomPhoneValidator:
         if value == "":
             return
         regex_validator = RegexValidator(regex=self.regex, message=self.message)
+        value = re.sub(r"\s+", " ", value.strip())
+
         try:
             regex_validator(value)
         except serializers.ValidationError as e:
             raise serializers.ValidationError({"phone": e.detail[0]})
 
 
-class CustomNameValidator:
-    regex = r"^[a-zA-Z.\- $]+$"
+class CustomFirstNameValidator:
+    regex = r"^(?!.*--)[a-zA-Z][a-zA-Z -]*[a-zA-Z]$"
 
     message = (
         "First name must be between 2 and 20 characters long"
@@ -47,14 +51,26 @@ class CustomNameValidator:
 
     def __call__(self, value):
         regex_validator = RegexValidator(regex=self.regex, message=self.message)
+        value = re.sub(r"\s+", " ", value.strip())
         try:
             regex_validator(value)
         except serializers.ValidationError as e:
-            raise serializers.ValidationError({"phone": e.detail[0]})
-        if (
-            "--" in value
-            or "  " in value
-            or value.startswith(" ")
-            or value.endswith(" ")
-        ):
-            raise serializers.ValidationError(self.message)
+            raise serializers.ValidationError({"first_name": e.detail[0]})
+
+
+class CustomLastNameValidator:
+    regex = r"^(?!.*--)[a-zA-Z][a-zA-Z -]*[a-zA-Z]$"
+
+    message = (
+        "First name must be between 2 and 20 characters long"
+        "only contain letters, spaces, and hyphens"
+        "It should not have two consecutive spaces or hyphens"
+    )
+
+    def __call__(self, value):
+        regex_validator = RegexValidator(regex=self.regex, message=self.message)
+        value = re.sub(r"\s+", " ", value.strip())
+        try:
+            regex_validator(value)
+        except serializers.ValidationError as e:
+            raise serializers.ValidationError({"last_name": e.detail[0]})
