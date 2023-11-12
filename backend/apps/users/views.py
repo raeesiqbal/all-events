@@ -131,22 +131,23 @@ class UserViewSet(BaseViewset):
             user = token.user
             user.is_verified = True
             user.save()
-            token_data = {}
-            if not request.user.is_authenticated:
-                # Log in the user and generate a new JWT token
-                login(request, user)
+            VerificationToken.objects.filter(user=user).delete()
+            # token_data = {}
+            # if not request.user.is_authenticated:
+            #     # Log in the user and generate a new JWT token
+            #     login(request, user)
 
-                # Generate a new JWT token using CustomTokenObtainPairView
-                serializer = CustomTokenObtainPairSerializer(
-                    data={"email": user.email, "password": "Pakchk12345"}
-                )
-                serializer.is_valid(raise_exception=True)
-                token_data = serializer.validated_data
+            #     # Generate a new JWT token using CustomTokenObtainPairView
+            #     serializer = CustomTokenObtainPairSerializer(
+            #         data={"email": user.email, "password": user.password}
+            #     )
+            #     serializer.is_valid(raise_exception=True)
+            #     token_data = serializer.validated_data
 
             return Response(
                 status=status.HTTP_200_OK,
                 data=ResponseInfo().format_response(
-                    data=token_data,
+                    data={},
                     status_code=status.HTTP_200_OK,
                     message="User has been verified successfully",
                 ),
