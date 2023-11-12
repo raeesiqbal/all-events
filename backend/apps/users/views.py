@@ -160,7 +160,7 @@ class UserViewSet(BaseViewset):
             ),
         )
 
-    @action(detail=True, url_path="verify-account-email", methods=["get"])
+    @action(detail=False, url_path="verify-account-email", methods=["get"])
     def verify_account_email(self, request, *args, **kwargs):
         user = request.user
         if not user:
