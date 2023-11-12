@@ -12,6 +12,8 @@ from datetime import date, datetime, timedelta
 from apps.utils.tasks import send_email_to_user
 from django.template.loader import render_to_string
 from django.core.signing import TimestampSigner, BadSignature, SignatureExpired
+from django.contrib.auth import login
+from rest_framework_simplejwt.tokens import RefreshToken
 
 
 # constants
@@ -127,21 +129,26 @@ class UserViewSet(BaseViewset):
                     ),
                 )
             user = token.user
-            if not user.is_verified:
-                user.is_verified = True
-                user.save()
-                message = "User has been verified successfully"
-            else:
-                message = "User is already verified"
-            # Delete the verification token after use
-            VerificationToken.objects.filter(user=user).delete()
+            user.is_verified = True
+            user.save()
+            token_data = {}
+            if not request.user.is_authenticated:
+                # Log in the user and generate a new JWT token
+                login(request, user)
+
+                # Generate a new JWT token using CustomTokenObtainPairView
+                serializer = CustomTokenObtainPairSerializer(
+                    data={"email": user.email, "password": "Pakchk12345"}
+                )
+                serializer.is_valid(raise_exception=True)
+                token_data = serializer.validated_data
 
             return Response(
                 status=status.HTTP_200_OK,
                 data=ResponseInfo().format_response(
-                    data={},
+                    data=token_data,
                     status_code=status.HTTP_200_OK,
-                    message=message,
+                    message="User has been verified successfully",
                 ),
             )
         return Response(
@@ -233,10 +240,19 @@ class UserViewSet(BaseViewset):
             )
         user.set_password(new_password)
         user.save()
+        # Log in the user and generate a new JWT token
+        login(request, user)
+
+        # Generate a new JWT token using CustomTokenObtainPairView
+        serializer = CustomTokenObtainPairSerializer(
+            data={"email": user.email, "password": "Pakchk12345"}
+        )
+        serializer.is_valid(raise_exception=True)
+        token_data = serializer.validated_data
         return Response(
             status=status.HTTP_200_OK,
             data=ResponseInfo().format_response(
-                data={},
+                data=token_data,
                 message="Password Updated",
                 status_code=status.HTTP_200_OK,
             ),

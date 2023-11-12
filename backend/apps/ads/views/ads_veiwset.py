@@ -6,10 +6,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.db.models import Value, F, Q
 from rest_framework.permissions import IsAuthenticated
-from django.db import connection
 from rest_framework.decorators import action
 from apps.utils.tasks import delete_s3_object_by_urls
-
 
 # filters
 from rest_framework.filters import OrderingFilter, SearchFilter
