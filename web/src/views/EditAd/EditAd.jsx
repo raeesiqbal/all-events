@@ -559,15 +559,9 @@ function EditAd() {
   }, []);
 
   useEffect(() => {
-    if (currentAd?.ad_media[0].media_urls?.images?.length > 0) {
-      dispatch(setImagesToUpload(currentAd?.ad_media[0]?.media_urls?.images));
-    }
-    if (currentAd?.ad_media[0].media_urls?.video?.length > 0) {
-      setVideoToUpload(currentAd?.ad_media[0]?.media_urls?.video);
-    }
-    if (currentAd?.ad_media[0].media_urls?.pdf?.length > 0) {
-      setPdfsToUpload(currentAd?.ad_media[0]?.media_urls?.pdf);
-    }
+    dispatch(setImagesToUpload(currentAd?.ad_media[0].media_urls?.images?.length > 0 ? currentAd?.ad_media[0]?.media_urls?.images : []));
+    setVideoToUpload(currentAd?.ad_media[0].media_urls?.video?.length > 0 ? currentAd?.ad_media[0]?.media_urls?.video : []);
+    setPdfsToUpload(currentAd?.ad_media[0].media_urls?.pdf?.length > 0 ? currentAd?.ad_media[0]?.media_urls?.pdf : []);
     if (currentAd?.related_sub_categories?.id) {
       setRelatedSubCategoryId(currentAd?.related_sub_categories.id);
     }

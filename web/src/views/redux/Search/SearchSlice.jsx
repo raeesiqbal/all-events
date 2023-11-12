@@ -217,7 +217,6 @@ export const SearchSlice = createSlice({
 });
 
 export const {
-  handleResgisterationStatus,
   setCategories,
   setCommercialName,
   setSearchKeyword,

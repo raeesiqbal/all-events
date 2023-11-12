@@ -132,11 +132,6 @@ export const deleteChat = createAsyncThunk(
 export const ChatsSlice = createSlice({
   name: "Chats",
   initialState,
-  reducers: {
-    handleResgisterationStatus: (state) => {
-      state.isRegistered = false;
-    },
-  },
   extraReducers: (builder) => {
     builder
       .addCase(handleStartChat.pending, (state) => {
@@ -220,8 +215,6 @@ export const ChatsSlice = createSlice({
       });
   },
 });
-
-export const { handleResgisterationStatus } = ChatsSlice.actions;
 
 // Export the reducer and actions
 export default ChatsSlice.reducer;

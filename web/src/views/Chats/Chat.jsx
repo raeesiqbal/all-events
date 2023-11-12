@@ -31,7 +31,7 @@ const Chat = ({ chat, isOpenChat }) => {
   const messageBody = useRef(null);
 
   const { messages, additionalInfo, count } = useSelector(
-    (state) => state.messages
+    (state) => state.messages,
   );
   const currentUser = useSelector((state) => state.auth.user);
 
@@ -57,9 +57,7 @@ const Chat = ({ chat, isOpenChat }) => {
       setOffset(offset + limit);
       dispatch(listChatMessages({ id: chat.id, limit, offset }));
       setTimeout(() => {
-        if (messageBody.current)
-          messageBody.current.scrollTop =
-            messageBody.current.scrollHeight - scrollHeight;
+        if (messageBody.current) { messageBody.current.scrollTop = messageBody.current.scrollHeight - scrollHeight; }
       }, 500);
     }
   };
@@ -70,7 +68,7 @@ const Chat = ({ chat, isOpenChat }) => {
         sendMessage({
           id: chat.id,
           data: { text: messageText, attachments: attachment },
-        })
+        }),
       );
     }
     setMessageText("");
@@ -134,11 +132,11 @@ const Chat = ({ chat, isOpenChat }) => {
   };
 
   const date = (d) => new Date(d);
-  // const getTime = (d) => date(d).toLocaleTimeString("en-US", { hour12: true });
+
   const getTime = (d) => {
-    const date = new Date(d);
-    return `${date.getHours() % 12 || 12}:${date.getMinutes()} ${
-      date.getHours() >= 12 ? "PM" : "AM"
+    const actualDate = date(d);
+    return `${actualDate.getHours() % 12 || 12}:${actualDate.getMinutes()} ${
+      actualDate.getHours() >= 12 ? "PM" : "AM"
     }`;
   };
 
@@ -160,17 +158,15 @@ const Chat = ({ chat, isOpenChat }) => {
   };
 
   // Get the formatted date with ordinal day
-  const formattedDate = (d) =>
-    `${`${date(d).getDate() + getOrdinalSuffix(date(d).getDate())} ${date(
-      d
-    ).toLocaleString("en-US", { month: "long" })}, ${date(d).getFullYear()}`}`;
+  const formattedDate = (d) => `${`${date(d).getDate() + getOrdinalSuffix(date(d).getDate())} ${date(
+    d,
+  ).toLocaleString("en-US", { month: "long" })}, ${date(d).getFullYear()}`}`;
 
   useEffect(() => {
     if (modalShow) {
       dispatch(listChatMessages({ id: chat.id, limit, offset }));
       setTimeout(() => {
-        if (messageBody.current)
-          messageBody.current.scrollTop = messageBody.current.scrollHeight;
+        if (messageBody.current) { messageBody.current.scrollTop = messageBody.current.scrollHeight; }
       }, 500);
       setIsRead(true);
     }
@@ -235,7 +231,7 @@ const Chat = ({ chat, isOpenChat }) => {
               .reverse()
               .map((message) => {
                 const dateContent = !dates.includes(
-                  formattedDate(message.created_at)
+                  formattedDate(message.created_at),
                 ) ? (
                   <div
                     className="mx-auto text-white px-2 py-1 mb-4"
@@ -248,9 +244,9 @@ const Chat = ({ chat, isOpenChat }) => {
                   >
                     {formattedDate(message.created_at)}
                   </div>
-                ) : (
-                  ""
-                );
+                  ) : (
+                    ""
+                  );
 
                 dates.push(formattedDate(message.created_at));
 
@@ -322,7 +318,7 @@ const Chat = ({ chat, isOpenChat }) => {
                           alt={currentUser.first_name}
                           className="me-2 mb-auto"
                           // I created the below logic but then came to know that on
-                          //Vendor side we have no access to client's photo.
+                          // Vendor side we have no access to client's photo.
                           // Either I am missing something or we will have to add it in additional info from getting it from backend.
                           // src={
                           //   currentUser.role === "client"
@@ -418,8 +414,8 @@ const Chat = ({ chat, isOpenChat }) => {
               style={{ width: "14%" }}
             >
               <div className="upload-message-img">
-                {!loading &&
-                  (attachment === null ? (
+                {!loading
+                  && (attachment === null ? (
                     <>
                       <span>+</span>
                       <input
@@ -532,7 +528,7 @@ const Chat = ({ chat, isOpenChat }) => {
                           className="me-2 my-auto"
                         />
                         {dayjs(chat.latest_message.created_at).format(
-                          "MMM D[th], YYYY"
+                          "MMM D[th], YYYY",
                         )}
                       </div>
                     </div>
@@ -613,7 +609,7 @@ const Chat = ({ chat, isOpenChat }) => {
                               archiveChat({
                                 id: chat.id,
                                 is_archived: !chat.archived,
-                              })
+                              }),
                             );
                             window.location.reload();
                           }}

@@ -54,11 +54,6 @@ export const listContacts = createAsyncThunk(
 export const ContactsSlice = createSlice({
   name: "Contacts",
   initialState,
-  reducers: {
-    handleResgisterationStatus: (state) => {
-      state.isRegistered = false;
-    },
-  },
   extraReducers: (builder) => {
     builder
       .addCase(handleStartContact.pending, (state) => {
@@ -88,10 +83,6 @@ export const ContactsSlice = createSlice({
       });
   },
 });
-
-export const {
-  handleResgisterationStatus,
-} = ContactsSlice.actions;
 
 // Export the reducer and actions
 export default ContactsSlice.reducer;

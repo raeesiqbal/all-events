@@ -21,7 +21,7 @@ import arrowBack from "../../assets/images/arrow-back.svg";
 import visibility from "../../assets/images/visibility.svg";
 import visibilityHide from "../../assets/images/visibility-hide.svg";
 import { toggleLoginModal, toggleLoginView } from "../redux/Login/loginSlice";
-import { toggleRegisterView } from "../redux/Register/RegisterSlice";
+import { toggleRegisterModal, toggleRegisterView } from "../redux/Register/RegisterSlice";
 import StepperForm from "../../components/Stepper/Stepper";
 import {
   handleNextStep,
@@ -32,10 +32,10 @@ import ForgotPassword from "./ForgotPassword";
 import CarouselFadeExample from "../../components/Carousel/SingleImgCarousel";
 import {
   handleLogin,
-  handleLoginStatus,
   handleRegister,
   handleResgisterationStatus,
   handleWelcomeUserAlert,
+  sendVerifyAccountEmail,
   setShowVerifyModal,
 } from "../redux/Auth/authSlice";
 import DynamicRegisterationView from "./ViewHelper";
@@ -88,7 +88,7 @@ function Login() {
     phone_number: Yup.string()
       .min(8, "Must be at least 8 digits")
       .max(15, "Must be less than 15 digits")
-      .matches(/^\+?[0-9]{1,15}$/, "Must be a valid phone number"),
+      .matches(/^\+?[0-9]{8,15}$/, "Must be a valid phone number"),
     // .matches(/^\+?\d/, "Must include digits only"),
     password_check: Yup.string()
       .required("Passwords must match")
@@ -98,7 +98,7 @@ function Login() {
       .min(2, "Must be at least 2 characters")
       .max(20, "Must be at most 20 characters")
       .matches(
-        /^[a-zA-Z\s-]*$/,
+        /^(?!.*--)[a-zA-Z][a-zA-Z -]*[a-zA-Z]$/,
         "Must only contain letters, spaces, and hyphens",
       ),
     contact_person_last_name: Yup.string()
@@ -106,70 +106,63 @@ function Login() {
       .min(2, "Must be at least 2 characters")
       .max(20, "Must be at most 20 characters")
       .matches(
-        /^[a-zA-Z\s-]*$/,
+        /^(?!.*--)[a-zA-Z][a-zA-Z -]*[a-zA-Z]$/,
         "Must only contain letters, spaces, and hyphens",
       ),
-    // terms_acceptance: Yup.bool()
-    //   .required()
-    //   .oneOf([true], "Terms must be accepted"),
   });
 
   const step2Schema = Yup.object().shape({
     company_name: Yup.string()
       .required("Company Name is required")
       .min(6, "Must be at least 6 characters")
-      .max(50, "Must be at most 50 characters")
+      .max(25, "Must be at most 25 characters")
       .matches(
-        /^[a-zA-Z0-9, .&\s]*$/,
-        'Must only contain letters, numbers, spaces, ", . &" signs',
+        /^[a-zA-Z., $]+$/,
+        "Must only contain letters, spaces and , . & signs are allowed",
       ),
-    // .matches(
-    //   /^[a-zA-Z, .&\s]*$/,
-    //   'Must only contain letters, spaces ", . &" signs'
-    // ),
     county: Yup.string().required(),
     city: Yup.string()
       .required("City is required")
       .min(3, "Must be at least 3 characters")
       .max(25, "Must be at most 25 characters")
-      .matches(/^[a-zA-Z\s-]*$/, 'Must only contain letters, spaces, and "-"'),
+      .matches(/^(?!.*--)[a-zA-Z -]+$/, "Must only contain letters, spaces, and hyphens"),
     address: Yup.string()
       .required("Address is required")
       .min(5, "Must be at least 5 characters")
       .max(80, "Must be at most 80 characters")
       .matches(
-        /^[a-zA-Z0-9, .\-/]*$/,
-        'Can only contain letters, digits, spaces, ",", ".", "-", and "/" signs',
+        /^[a-zA-Z\d,.\-/\s]+$/,
+        "Can only contain letters, digits, spaces, and . , - / signs",
       ),
     postal_code: Yup.string()
       .min(5, "Must be at least 5 digits")
       .max(7, "Must be at most 7 digits")
-      .matches(/^\d{5,7}$/, "Must only contain digits"),
+      .matches(/^\d{5,7}$/, "Must contain digits only"),
     fiscal_code: Yup.string()
       .required("Fiscal code is required")
       .min(4, "Must be at least 4 characters")
       .max(20, "Must be at most 20 characters")
       .matches(
-        /^[a-zA-Z0-9\s]*$/,
-        "Can only contain letters, digits, and spaces",
+        /^[a-zA-Z\d-]+$/,
+        "Can contain only letters and digits",
       ),
     firm_number: Yup.string()
       .required("Firm number is required")
       .min(4, "Must be at least 4 characters")
       .max(20, "Must be at most 20 characters")
       .matches(
-        /^[a-zA-Z0-9/.]*$/,
+        /^[a-zA-Z\d./]+$/,
         'Can only contain letters, digits, "/", and "." signs',
       ),
     bank_name: Yup.string()
       .max(30, "Must be at most 30 characters")
       .matches(
-        /^[a-zA-Z0-9\s]*$/,
-        "Can only contain letters, digits, and spaces",
+        /^[a-zA-Z0-9\s]*[a-zA-Z0-9][a-zA-Z0-9\s]*$/,
+        "Can only contain letters and digits",
       ),
     bank_iban: Yup.string()
       .max(30, "Bank IBAN must be at most 30 characters")
-      .matches(/^[a-zA-Z0-9]*$/, "Can only contain letters and digits"),
+      .matches(/^[a-zA-Z\d]+$/, "Can only contain letters and digits"),
     terms_acceptance: Yup.bool()
       .required()
       .oneOf([true], "Terms must be accepted"),
@@ -322,6 +315,7 @@ function Login() {
 
   useEffect(() => {
     if (isRegistered) {
+      dispatch(toggleRegisterModal());
       dispatch(
         handleLogin({
           email: tempCredentials.email,
@@ -331,6 +325,7 @@ function Login() {
       dispatch(handleResgisterationStatus());
       setTimeout(() => {
         dispatch(handleWelcomeUserAlert(true));
+        dispatch(sendVerifyAccountEmail());
       }, 1000);
     }
   }, [isRegistered]);
@@ -389,14 +384,6 @@ function Login() {
           <h5 className="my-5 mx-5 px-5 text-secondary fw-normal">
             Account verification email has been sent. Please verify your account in order to enjoy our services
           </h5>
-          <Button
-            variant="success"
-            className="mx-5 mb-3"
-            style={{ width: "-webkit-fill-available" }}
-            // onClick={handleSubscription}
-          >
-            Resend Verification Link
-          </Button>
         </Modal.Body>
       </Modal>
 

@@ -58,7 +58,7 @@ class CustomPostalCodeValidator:
     regex = r"^\d+$"
     message = (
         "Postal Code must be between 5 and 7 characters long"
-        "only contain digits are allowed"
+        "only digits are allowed"
     )
 
     def __call__(self, value):
@@ -74,7 +74,7 @@ class CustomFiscalCodeValidator:
     regex = r"^[a-zA-Z\d-]+$"
     message = (
         "Fiscal Code must be between 4 and 20 characters long"
-        "only contain letters, digits are allowed"
+        "only letters and digits are allowed"
     )
 
     def __call__(self, value):
@@ -90,8 +90,7 @@ class CustomFirmNumberValidator:
     regex = r"^[a-zA-Z\d./]+$"
     message = (
         "Firm Numer must be between 4 and 20 characters long"
-        "only contain letters, digits, / . are allowed"
-        "only signs are not allowed"
+        "only letters, digits, / . are allowed"
     )
 
     def __call__(self, value):

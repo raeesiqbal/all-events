@@ -261,9 +261,6 @@ export const AdsSlice = createSlice({
   name: "Ads",
   initialState,
   reducers: {
-    handleResgisterationStatus: (state) => {
-      state.isRegistered = false;
-    },
     handleUpdateAds: (state, action) => {
       state.vendorAds = action.payload;
     },
@@ -462,7 +459,6 @@ export const AdsSlice = createSlice({
 });
 
 export const {
-  handleResgisterationStatus,
   handleUpdateAds,
   handleUpdateAdPostSuccessAlerting,
   handleUpdateAdPostErrorAlerting,

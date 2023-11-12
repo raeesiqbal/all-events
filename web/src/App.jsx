@@ -31,14 +31,16 @@ import "./App.css";
 import Calendars from "./views/Calendars/Calendars";
 import { handleProfileSettingsCurrentView } from "./views/redux/TabNavigation/TabNavigationSlice";
 import { currentSubscriptionDetails, setShowModal } from "./views/redux/Subscriptions/SubscriptionsSlice";
-import { getAuthenticatedUser } from "./views/redux/Auth/authSlice";
+import { getAuthenticatedUser, handleUserAlerts, sendVerifyAccountEmail } from "./views/redux/Auth/authSlice";
 import { listCountries } from "./views/redux/Posts/AdsSlice";
+import VerifyAccount from "./views/Login/VerifyAccount";
+import { Alert } from "@mui/material";
 
 function App() {
   const location = useLocation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { user, screenLoading } = useSelector((state) => state.auth);
+  const { user, screenLoading, UserSuccessAlert, UserErrorAlert, error } = useSelector((state) => state.auth);
   const currentSubscription = useSelector((state) => state.subscriptions.currentSubscriptionDetails);
   const {
     showModal, modalMessage, modalType, buttonText, modalTitle,
@@ -111,8 +113,34 @@ function App() {
     }
   }, [user?.role]);
 
+  useEffect(() => {
+    if (UserSuccessAlert || UserErrorAlert) {
+      setTimeout(() => {
+        dispatch(handleUserAlerts());
+      }, 4000);
+    }
+  }, [UserSuccessAlert, UserErrorAlert]);
+
   return (
     <>
+      {
+        (UserSuccessAlert || UserErrorAlert) && (
+          <Alert
+            severity={UserSuccessAlert ? "success" : "error"}
+            variant="filled"
+            style={{
+              position: "fixed",
+              top: (UserSuccessAlert || UserErrorAlert) ? "80px" : "-80px",
+              left: "50%",
+              transform: "translateX(-50%)",
+              transition: "ease 200ms",
+              opacity: (UserSuccessAlert || UserErrorAlert) ? 1 : 0,
+            }}
+          >
+            {error || ""}
+          </Alert>
+        )
+      }
       <Modal
         show={showModal}
         onHide={() => {
@@ -184,7 +212,7 @@ function App() {
             variant="success"
             className="mx-5 mb-3"
             style={{ width: "-webkit-fill-available" }}
-            // onClick={handleSubscription}
+            onClick={() => dispatch(sendVerifyAccountEmail())}
           >
             Resend Verification Link
           </Button>
@@ -219,6 +247,10 @@ function App() {
         <Route
           path="/view-ad/:adId"
           element={(<ViewAd />)}
+        />
+        <Route
+          path="/verify-account"
+          element={(<VerifyAccount />)}
         />
         <Route
           path="/calendars"
