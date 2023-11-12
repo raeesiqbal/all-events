@@ -226,9 +226,12 @@ class UserViewSet(BaseViewset):
     def update_password(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+
         old_password = serializer.validated_data.get("old_password")
         new_password = serializer.validated_data.get("new_password")
+
         user = request.user
+
         if not user.check_password(old_password):
             return Response(
                 status=status.HTTP_403_FORBIDDEN,
@@ -238,21 +241,14 @@ class UserViewSet(BaseViewset):
                     status_code=status.HTTP_403_FORBIDDEN,
                 ),
             )
+
         user.set_password(new_password)
         user.save()
-        # Log in the user and generate a new JWT token
-        login(request, user)
 
-        # Generate a new JWT token using CustomTokenObtainPairView
-        serializer = CustomTokenObtainPairSerializer(
-            data={"email": user.email, "password": "Pakchk12345"}
-        )
-        serializer.is_valid(raise_exception=True)
-        token_data = serializer.validated_data
         return Response(
             status=status.HTTP_200_OK,
             data=ResponseInfo().format_response(
-                data=token_data,
+                data={},
                 message="Password Updated",
                 status_code=status.HTTP_200_OK,
             ),
