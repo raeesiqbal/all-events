@@ -2,16 +2,11 @@
 from apps.utils.views.base import BaseViewset, ResponseInfo
 from django_filters.rest_framework.backends import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter, SearchFilter
-from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 from apps.utils.services.s3_service import S3Service
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from django.conf import settings
 from rest_framework import status
-from datetime import datetime
-from apps.utils.tasks import send_email_to_user
-from django.template.loader import render_to_string
-from datetime import date
+
 
 # permissions
 from rest_framework.permissions import IsAuthenticated
@@ -58,7 +53,7 @@ class CompanyViewSet(BaseViewset):
         "public_companies_list": [],
         "public_company_retrieve": [],
         "upload_company_image": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
-        "verify_account_email": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
+        "verify_account_email": [],
     }
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     search_param = "search"
@@ -149,80 +144,5 @@ class CompanyViewSet(BaseViewset):
                 data={"file_url": image_url},
                 status_code=status.HTTP_200_OK,
                 message="company image uploaded",
-            ),
-        )
-
-    @action(detail=False, url_path="verify-company", methods=["get"])
-    def verify_company(self, request, *args, **kwargs):
-        token = request.data.get("token")
-        try:
-            access_token = AccessToken(token)
-            user_id = access_token["user_id"]
-            user = User.objects.get(id=user_id)
-
-            # Check token expiration
-            if access_token["exp"] < datetime.utcnow():
-                return Response(
-                    status=status.HTTP_400_BAD_REQUEST,
-                    data=ResponseInfo().format_response(
-                        data={},
-                        status_code=status.HTTP_400_BAD_REQUEST,
-                        message="Token has expired",
-                    ),
-                )
-
-            user.user_company.is_verified = True
-            user.user_company.save()
-            return Response(
-                status=status.HTTP_200_OK,
-                data=ResponseInfo().format_response(
-                    data={},
-                    status_code=status.HTTP_200_OK,
-                    message="Company has been verified successfully",
-                ),
-            )
-        except User.DoesNotExist:
-            return Response(
-                status=status.HTTP_400_BAD_REQUEST,
-                data=ResponseInfo().format_response(
-                    data={},
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    message="Company not found",
-                ),
-            )
-
-    @action(detail=False, url_path="verify-account-email", methods=["get"])
-    def verify_account_email(self, request, *args, **kwargs):
-        user = request.user
-        # Generate token
-        token = RefreshToken.for_user(user)
-        email_verification_token = str(token.access_token)
-
-        # Sending verify email
-        url = settings.FRONTEND_URL
-        context = {
-            "full_name": "{} {}".format(
-                user.first_name.title(), user.last_name.title()
-            ),
-            "year": date.today().year,
-            "verify_company_url": "{}/verify-company?token={}".format(
-                url, email_verification_token
-            ),
-        }
-
-        send_email_to_user.delay(
-            "Verify your account",
-            render_to_string("emails/verify_account/verify-account.html", context),
-            render_to_string("emails/reset_password/user_reset_password.txt", context),
-            settings.EMAIL_HOST_USER,
-            user.email,
-        )
-
-        return Response(
-            status=status.HTTP_200_OK,
-            data=ResponseInfo().format_response(
-                data={},
-                status_code=status.HTTP_200_OK,
-                message="email sent",
             ),
         )

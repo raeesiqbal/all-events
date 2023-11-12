@@ -2,6 +2,8 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from apps.users.constants import USER_ROLE_TYPES
+from django.utils import timezone
+
 
 
 class UserManager(BaseUserManager):
@@ -85,3 +87,16 @@ class User(AbstractUser):
         ordering = ["-id"]
         verbose_name = "User"
         verbose_name_plural = "Users"
+
+
+class VerificationToken(models.Model):
+    user = models.ForeignKey(
+        "users.User", verbose_name=_("User"), on_delete=models.CASCADE
+    )
+    token = models.CharField(max_length=255)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ["-id"]
+        verbose_name = "Verification Token"
+        verbose_name_plural = "Verification Tokens"

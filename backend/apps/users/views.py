@@ -6,8 +6,13 @@ from apps.utils.services.s3_service import S3Service
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
-import datetime
 import jwt
+from django.conf import settings
+from datetime import date, datetime, timedelta
+from apps.utils.tasks import send_email_to_user
+from django.template.loader import render_to_string
+from django.core.signing import TimestampSigner, BadSignature, SignatureExpired
+
 
 # constants
 from apps.subscriptions.constants import SUBSCRIPTION_STATUS, SUBSCRIPTION_TYPES
@@ -34,7 +39,7 @@ from apps.users.serializers import (
 
 # models
 from apps.subscriptions.models import Subscription, SubscriptionType
-from apps.users.models import User
+from apps.users.models import User, VerificationToken
 from apps.ads.models import Ad
 
 
@@ -58,6 +63,8 @@ class UserViewSet(BaseViewset):
         "retrieve": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
         "delete_user": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
         "upload_user_image": [IsAuthenticated],
+        "verify_account_email": [],
+        "verify_account": [],
     }
     user_role_queryset = {
         USER_ROLE_TYPES["VENDOR"]: lambda self: User.objects.filter(
@@ -71,7 +78,6 @@ class UserViewSet(BaseViewset):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         password = serializer.validated_data.get("password", None)
-
         user = request.user
         if not user.check_password(password):
             return Response(
@@ -82,7 +88,6 @@ class UserViewSet(BaseViewset):
                     status_code=status.HTTP_403_FORBIDDEN,
                 ),
             )
-
         token = jwt.encode(
             {
                 "id": user.id,
@@ -92,13 +97,108 @@ class UserViewSet(BaseViewset):
             SECRET_KEY,
             algorithm="HS256",
         )
-
         return Response(
             status=status.HTTP_200_OK,
             data=ResponseInfo().format_response(
                 data={"token": token},
                 message="token generated",
                 status_code=status.HTTP_200_OK,
+            ),
+        )
+
+    # account verify
+    @action(detail=False, url_path="verify-account", methods=["patch"])
+    def verify_account(self, request, *args, **kwargs):
+        token = request.data.get("token")
+        token = VerificationToken.objects.filter(token=token).first()
+        if token and token.user.is_verified == False:
+            signer = TimestampSigner()
+            try:
+                # Verify the token and check if it's expired
+                user_id = signer.unsign(token.token, max_age=timedelta(days=7))
+                # Check token expiration
+            except (BadSignature, SignatureExpired):
+                return Response(
+                    status=status.HTTP_400_BAD_REQUEST,
+                    data=ResponseInfo().format_response(
+                        data={},
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        message="Invalid or expired token",
+                    ),
+                )
+            user = token.user
+            if not user.is_verified:
+                user.is_verified = True
+                user.save()
+                message = "User has been verified successfully"
+            else:
+                message = "User is already verified"
+            # Delete the verification token after use
+            VerificationToken.objects.filter(user=user).delete()
+
+            return Response(
+                status=status.HTTP_200_OK,
+                data=ResponseInfo().format_response(
+                    data={},
+                    status_code=status.HTTP_200_OK,
+                    message=message,
+                ),
+            )
+        return Response(
+            status=status.HTTP_400_BAD_REQUEST,
+            data=ResponseInfo().format_response(
+                data={},
+                status_code=status.HTTP_400_BAD_REQUEST,
+                message="Invalid or expired token",
+            ),
+        )
+
+    @action(detail=True, url_path="verify-account-email", methods=["get"])
+    def verify_account_email(self, request, *args, **kwargs):
+        user_id = kwargs["pk"]
+        user = User.objects.filter(id=user_id).first()
+        if not user:
+            message = "User does not exits"
+        else:
+            if user.is_verified:
+                message = "User is already verified"
+        if user and user.is_verified == False:
+            # Generate token
+            token = TimestampSigner().sign(str(user.id))
+            # Create VerificationToken
+            VerificationToken.objects.create(user=user, token=token)
+            # Sending verify email
+            url = settings.FRONTEND_URL
+            context = {
+                "full_name": "{} {}".format(
+                    user.first_name.title(), user.last_name.title()
+                ),
+                "year": date.today().year,
+                "verify_account_url": "{}/verify-account?token={}".format(url, token),
+            }
+            send_email_to_user.delay(
+                "Verify your account",
+                render_to_string("emails/verify_account/verify-account.html", context),
+                render_to_string(
+                    "emails/reset_password/user_reset_password.txt", context
+                ),
+                settings.EMAIL_HOST_USER,
+                user.email,
+            )
+            return Response(
+                status=status.HTTP_200_OK,
+                data=ResponseInfo().format_response(
+                    data={},
+                    status_code=status.HTTP_200_OK,
+                    message="Account verification email has been sent",
+                ),
+            )
+        return Response(
+            status=status.HTTP_400_BAD_REQUEST,
+            data=ResponseInfo().format_response(
+                data={},
+                status_code=status.HTTP_400_BAD_REQUEST,
+                message=message,
             ),
         )
 
@@ -119,12 +219,9 @@ class UserViewSet(BaseViewset):
     def update_password(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-
         old_password = serializer.validated_data.get("old_password")
         new_password = serializer.validated_data.get("new_password")
-
         user = request.user
-
         if not user.check_password(old_password):
             return Response(
                 status=status.HTTP_403_FORBIDDEN,
@@ -134,10 +231,8 @@ class UserViewSet(BaseViewset):
                     status_code=status.HTTP_403_FORBIDDEN,
                 ),
             )
-
         user.set_password(new_password)
         user.save()
-
         return Response(
             status=status.HTTP_200_OK,
             data=ResponseInfo().format_response(
@@ -156,7 +251,6 @@ class UserViewSet(BaseViewset):
 
         if user.check_password(serializer.validated_data.pop("password")):
             if user.role_type == USER_ROLE_TYPES["VENDOR"]:
-                print("compaaaaaaaaaaaaa")
                 company = user.user_company
                 company_subscription = Subscription.objects.filter(
                     company=company,
@@ -212,9 +306,7 @@ class UserViewSet(BaseViewset):
         # # Uploading resume to S3.
         s3_service = S3Service()
         image_url = s3_service.upload_file(file, content_type, upload_folder)
-
         user = request.user
-
         if user.image:
             s3_service.delete_s3_object_by_url(user.image)
         user.image = image_url
