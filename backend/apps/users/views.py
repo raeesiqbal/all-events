@@ -65,7 +65,7 @@ class UserViewSet(BaseViewset):
         "retrieve": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
         "delete_user": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
         "upload_user_image": [IsAuthenticated],
-        "verify_account_email": [IsAuthenticated],
+        "verify_account_email": [],
         "verify_account": [],
     }
     user_role_queryset = {
