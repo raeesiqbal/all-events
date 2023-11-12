@@ -482,6 +482,11 @@ class SubscriptionsViewSet(BaseViewset):
                 and updated_type.analytics == False
             ):
                 consent_list.append("Ads analytics will be disabled")
+            if (
+                old_subscription.type.pdf_upload == True
+                and updated_type.pdf_upload == False
+            ):
+                consent_list.append("Ads pdf's will be deleted if any")
             return Response(
                 status=status.HTTP_200_OK,
                 data=ResponseInfo().format_response(
@@ -520,7 +525,6 @@ class SubscriptionsViewSet(BaseViewset):
             elif allowed_ads == 3:
                 updated_type = SUBSCRIPTION_TYPES["FEATURED"]
             updated_type = SubscriptionType.objects.filter(type=updated_type).first()
-
             if (
                 int(old_subscription.stripe_product["metadata"]["allowed_ads"])
                 > allowed_ads
@@ -536,7 +540,7 @@ class SubscriptionsViewSet(BaseViewset):
                             if gallery:
                                 image_count = len(gallery.media_urls["images"])
                                 video_count = len(gallery.media_urls["video"])
-                                pdf_count = len(gallery.media_urls["pdf"])
+                                # pdf_count = len(gallery.media_urls["pdf"])
                                 if image_count > updated_type.allowed_ad_photos:
                                     error_list.append(
                                         f"Your ad {ad.name} image count is {image_count}, while the while the plan you want to downgrade supports {updated_type.allowed_ad_photos} images <br/>"
@@ -545,10 +549,10 @@ class SubscriptionsViewSet(BaseViewset):
                                     error_list.append(
                                         f"Your ad {ad.name} video count is {video_count}, while the while the plan you want to downgrade supports {updated_type.allowed_ad_videos} videos <br/>"
                                     )
-                                if pdf_count > 0 and updated_type.pdf_upload == False:
-                                    error_list.append(
-                                        f"Your ad  {ad.name}  pdf count is {pdf_count}, while the while the plan you want to downgrade does not support uploading of pdfs <br/>"
-                                    )
+                                # if pdf_count > 0 and updated_type.pdf_upload == False:
+                                #     error_list.append(
+                                #         f"Your ad  {ad.name}  pdf count is {pdf_count}, while the while the plan you want to downgrade does not support uploading of pdfs <br/>"
+                                #     )
                         if error_list:
                             return Response(
                                 status=status.HTTP_400_BAD_REQUEST,
@@ -565,12 +569,13 @@ class SubscriptionsViewSet(BaseViewset):
             )
         status_code = status.HTTP_400_BAD_REQUEST
         message = "An error occur while updating your subscription, please try again."
+
         if update_subscription:
             for ad in vendor_ads:
                 if updated_type.reviews == False:
                     AdReview.objects.filter(ad=ad).delete()
                 if updated_type.offered_services == False:
-                    FAQ.objects.delete(ad=ad)
+                    FAQ.objects.filter(ad=ad).delete()
                 if updated_type.offered_services == False:
                     ad.offered_services = None
                     ad.save()
@@ -578,6 +583,7 @@ class SubscriptionsViewSet(BaseViewset):
                     Calender.objects.filter(ad=ad).update(hide=True)
             status_code = status.HTTP_200_OK
             message = "Your subscription will be updated after the invoice has been paid successfully"
+
         return Response(
             status=status_code,
             data=ResponseInfo().format_response(

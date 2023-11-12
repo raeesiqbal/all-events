@@ -65,7 +65,7 @@ class UserViewSet(BaseViewset):
         "retrieve": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
         "delete_user": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
         "upload_user_image": [IsAuthenticated],
-        "verify_account_email": [],
+        "verify_account_email": [IsAuthenticated],
         "verify_account": [],
     }
     user_role_queryset = {
@@ -162,8 +162,7 @@ class UserViewSet(BaseViewset):
 
     @action(detail=True, url_path="verify-account-email", methods=["get"])
     def verify_account_email(self, request, *args, **kwargs):
-        user_id = kwargs["pk"]
-        user = User.objects.filter(id=user_id).first()
+        user = request.user
         if not user:
             message = "User does not exits"
         else:

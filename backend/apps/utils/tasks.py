@@ -23,7 +23,6 @@ def delete_s3_object_by_urls(media):
     env = environ.Env()
     bucket_name = env.str("S3_BUCKET_NAME")
     objects_to_delete = []
-
     for category, urls in media.items():
         for url in urls:
             object_key = url.replace(f"https://s3.amazonaws.com/{bucket_name}/", "")

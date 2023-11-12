@@ -21,6 +21,7 @@ from apps.users.permissions import IsClient, IsSuperAdmin, IsVendorUser
 from apps.utils.constants import KEYWORD_MODEL_MAPPING
 from apps.users.constants import USER_ROLE_TYPES
 from apps.ads.constants import SEARCH_TYPE_MAPPING, AD_STATUS
+from apps.subscriptions.constants import SUBSCRIPTION_STATUS
 
 # models
 from apps.ads.models import (
@@ -32,7 +33,7 @@ from apps.ads.models import (
     SubCategory,
     Country,
 )
-from apps.subscriptions.models import Subscription, SubscriptionType
+from apps.subscriptions.models import Subscription
 from apps.companies.models import Company
 from apps.analytics.models import Calender
 
@@ -63,7 +64,6 @@ from apps.ads.serializers.get_serializers import (
 from apps.analytics.serializers.get_serializer import (
     AdCalenderGetSerializer,
 )
-import pdb
 
 
 class AdViewSet(BaseViewset):
@@ -160,7 +160,9 @@ class AdViewSet(BaseViewset):
         activation_countries = serializer.validated_data.pop("activation_countries", [])
 
         company = Company.objects.filter(user_id=request.user.id).first()
-        subscription = Subscription.objects.filter(company=company).first()
+        subscription = Subscription.objects.filter(
+            company=company, status=SUBSCRIPTION_STATUS["ACTIVE"]
+        ).first()
         if company and subscription:
             company_ad_count = Ad.objects.filter(company=company).count()
             if company_ad_count >= subscription.type.allowed_ads:
