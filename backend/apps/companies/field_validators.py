@@ -57,11 +57,12 @@ class CustomAddressValidator:
 class CustomPostalCodeValidator:
     regex = r"^\d+$"
     message = (
-        "Postal Code must be between 5 and 7 characters long"
-        "only digits are allowed"
+        "Postal Code must be between 5 and 7 characters long" "only digits are allowed"
     )
 
     def __call__(self, value):
+        if value == "":
+            return
         regex_validator = RegexValidator(regex=self.regex, message=self.message)
         value = re.sub(r"\s+", " ", value.strip())
         try:
@@ -113,6 +114,8 @@ class CustomBankNameValidator:
     )
 
     def __call__(self, value):
+        if value == "":
+            return
         value = re.sub(r"\s+", " ", value.strip())
         regex_validator = RegexValidator(regex=self.regex, message=self.message)
         try:
@@ -129,6 +132,8 @@ class CustomBankIBANValidator:
     )
 
     def __call__(self, value):
+        if value == "":
+            return
         if not any(c.isalpha() or c.isdigit() for c in value):
             raise serializers.ValidationError(self.message)
         regex_validator = RegexValidator(regex=self.regex, message=self.message)

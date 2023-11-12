@@ -10,12 +10,12 @@
         }
 
         @font-face {
-            font-family: "Roboto";
-            src: url("https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap");
+            font-family: 'Roboto';
+            src: url('https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap');
         }
 
         body {
-            font-family: "Roboto", sans-serif;
+            font-family: 'Roboto', sans-serif;
         }
 
         .container {
@@ -26,20 +26,20 @@
         }
 
         .banner {
-            background-color: #eaf0f3;
+            background-color: #EAF0F3;
             text-align: center;
-            padding: 104px 20px;
+            padding: 10px 20px 50px 20px;
         }
 
         .banner h1 {
-            font-size: 3.25rem;
+            font-size: 2.25rem;
             font-weight: 400;
-            margin-top: 14px;
+            margin-top: 10px;
         }
 
         .banner p {
-            font-size: 1.5rem;
-            color: #5e5e5e;
+            font-size: 1.25rem;
+            color: #5E5E5E;
         }
 
         .logo {
@@ -48,80 +48,91 @@
         }
 
         .inner {
-            background: rgba(121, 121, 121, 0.1);
-            padding: 52px 20px;
+            background: rgba(121, 121, 121, 0.10);
+            padding: 40px 20px;
             text-align: center;
         }
 
         .inner h2 {
-            color: #5e5e5e;
+            color: #5E5E5E;
             font-weight: 700;
-            font-size: 32px;
+            font-size: 27px;
         }
 
         .inner h2 span {
-            color: #386c34;
+            color: #386C34;
         }
 
         .inner h3 {
-            margin-top: 1.5rem;
-            font-size: 1.5rem;
-            color: #1a1a1a;
+            margin-top: 1.25rem;
+            font-size: 1.17rem;
+            color: #1A1A1A;
         }
 
         .inner p {
-            margin: 4.375rem 0 5.5rem 0;
-            font-size: 1.5rem;
-            color: #5e5e5e;
+            margin: 3rem 0 3.5rem 0;
+            font-size: 1.17rem;
+            color: #5E5E5E;
         }
 
         .button {
             display: inline-block;
-            padding: 18px 125px;
-            background-color: #a0c49d;
+            padding: 15px 125px;
+            background-color: #A0C49D;
             color: #ffffff;
             font-weight: 600;
             font-size: 1rem;
             text-decoration: none;
             border-radius: 8px;
-            margin-bottom: 150px;
+            margin-bottom: 50px;
         }
 
         .footer {
             text-align: center;
             background-color: black;
-            padding: 144px 20px;
+            padding: 100px 20px;
         }
 
         .footer p {
-            color: #d9d9d9;
-            font-size: 24px;
+            color: #D9D9D9;
+            font-size: 20px;
             margin-top: 14px;
         }
 
         .footer h6 {
-            color: #d9d9d9;
-            font-size: 24px;
+            color: #D9D9D9;
+            font-size: 20px;
             font-weight: 700;
             margin-top: 54px;
         }
 
         .footer p:nth-child(4) {
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 24px;
+            color: rgba(255, 255, 255, 0.50);
+            font-size: 20px;
             margin-top: 14px;
         }
 
         .social-icons {
             list-style: none;
             padding: 0;
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            display: flex;
+            place-content: center;
+
+        }
+
+        .social-icons img {
+            height: 70px;
+            width: 70px;
         }
 
         .social-icons li {
             display: flex;
             justify-content: center;
+        }
+
+        .insta {
+            height: 50px !important;
+            width: 50px !important;
         }
 
         .social-icons .insta {
@@ -130,7 +141,6 @@
 
         .social-icons a {
             text-decoration: none;
-            color: #3498db;
         }
     </style>
 </head>

@@ -5,7 +5,6 @@ from apps.users.constants import USER_ROLE_TYPES
 from django.utils import timezone
 
 
-
 class UserManager(BaseUserManager):
     """
     Define a model manager for User model with no username field.
