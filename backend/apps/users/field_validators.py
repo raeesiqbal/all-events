@@ -5,11 +5,10 @@ import re
 
 
 class CustomPasswordValidator:
-    regex = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{6,}$"
+    regex = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$"
     message = (
         "Password must be at least 6 characters long"
         "contain at least one digit, one lowercase letter, and one uppercase letter"
-        "Spaces are not allowed"
     )
 
     def __call__(self, value):

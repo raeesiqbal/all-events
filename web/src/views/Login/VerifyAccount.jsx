@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { verifyAccount } from "../redux/Auth/authSlice";
@@ -10,11 +11,20 @@ const VerifyAccount = () => {
   const searchParams = new URLSearchParams(location.search);
   const token = searchParams.get("token");
 
-  const { isLoggedInState } = useSelector((state) => state.auth);
+  const { user } = useSelector((state) => state.auth);
 
-  if (token) dispatch(verifyAccount({ data: { token }, isLoggedInState }));
+  useEffect(() => {
+    const verifyAndRedirect = async () => {
+      if (token) {
+        await dispatch(verifyAccount({ data: { token }, isLoggedInState: user.userId !== null }));
+        navigate("/");
+      }
+    };
 
-  navigate("/");
+    verifyAndRedirect();
+  }, [token]);
+
+  return null;
 };
 
 export default VerifyAccount;
