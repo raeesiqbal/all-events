@@ -42,6 +42,7 @@ class UserChildSerializer(BaseSerializer):
         max_length=15,
         min_length=8,
         allow_blank=True,
+        required=False,
         validators=[CustomPhoneValidator()],
     )
     password = serializers.CharField(
@@ -97,6 +98,7 @@ class VendorCreateSerializer(BaseSerializer):
         max_length=7,
         min_length=5,
         allow_blank=True,
+        required=False,
         validators=[CustomPostalCodeValidator()],
     )
     fiscal_code = serializers.CharField(
@@ -113,12 +115,14 @@ class VendorCreateSerializer(BaseSerializer):
         max_length=30,
         min_length=1,
         allow_blank=True,
+        required=False,
         validators=[CustomBankNameValidator()],
     )
     bank_iban = serializers.CharField(
         max_length=30,
         min_length=1,
         allow_blank=True,
+        required=False,
         validators=[CustomBankIBANValidator()],
     )
 
