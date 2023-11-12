@@ -19,7 +19,7 @@ function ImageUploader({ imagesError }) {
   const [images, setImages] = useState([]);
   const imagesToUpload = useSelector((state) => state.Ads.media_urls.images);
   const currentSubscription = useSelector(
-    (state) => state.subscriptions.currentSubscriptionDetails
+    (state) => state.subscriptions.currentSubscriptionDetails,
   );
   const [deleteImageButton, setDeleteImageButton] = useState(true);
 

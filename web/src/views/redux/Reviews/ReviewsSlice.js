@@ -57,11 +57,6 @@ export const listAdReviews = createAsyncThunk(
 export const ReviewsSlice = createSlice({
   name: "Reviews",
   initialState,
-  reducers: {
-    handleResgisterationStatus: (state) => {
-      state.isRegistered = false;
-    },
-  },
   extraReducers: (builder) => {
     builder
       .addCase(addReview.pending, (state) => {
@@ -95,10 +90,6 @@ export const ReviewsSlice = createSlice({
       });
   },
 });
-
-export const {
-  handleResgisterationStatus,
-} = ReviewsSlice.actions;
 
 // Export the reducer and actions
 export default ReviewsSlice.reducer;

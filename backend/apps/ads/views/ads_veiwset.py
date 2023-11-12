@@ -5,10 +5,9 @@ from apps.ads.filters import AdCustomFilterBackend
 from rest_framework.response import Response
 from rest_framework import status
 from django.db.models import Value, F, Q
-from django.db.models.functions import Random
-from django.db import connection
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
-
+from apps.utils.tasks import delete_s3_object_by_urls
 
 # filters
 from rest_framework.filters import OrderingFilter, SearchFilter
@@ -16,13 +15,13 @@ from rest_framework.filters import OrderingFilter, SearchFilter
 
 # permissions
 from apps.users.permissions import IsClient, IsSuperAdmin, IsVendorUser
-from apps.users.constants import USER_ROLE_TYPES
-from rest_framework.permissions import IsAuthenticated
 
 
 # constants
 from apps.utils.constants import KEYWORD_MODEL_MAPPING
+from apps.users.constants import USER_ROLE_TYPES
 from apps.ads.constants import SEARCH_TYPE_MAPPING, AD_STATUS
+from apps.subscriptions.constants import SUBSCRIPTION_STATUS
 
 # models
 from apps.ads.models import (
@@ -34,7 +33,7 @@ from apps.ads.models import (
     SubCategory,
     Country,
 )
-from apps.subscriptions.models import Subscription, SubscriptionType
+from apps.subscriptions.models import Subscription
 from apps.companies.models import Company
 from apps.analytics.models import Calender
 
@@ -60,18 +59,16 @@ from apps.ads.serializers.get_serializers import (
     CategoryGetSerializer,
     SubCategoryFilterSerializer,
     CountryGetSerializer,
-    VenueCountryGetSerializer,
 )
 
 from apps.analytics.serializers.get_serializer import (
     AdCalenderGetSerializer,
 )
-import pdb
 
 
 class AdViewSet(BaseViewset):
     """
-    API endpoints that manages company.
+    API endpoints that manages Company Ads.
     """
 
     queryset = Ad.objects.all()
@@ -91,7 +88,7 @@ class AdViewSet(BaseViewset):
         "premium_vendor_ads": PremiumAdGetSerializer,
         "premium_venue_countries": CountryGetSerializer,
         "public_ad_retrieve": AdPublicGetSerializer,
-        "venue_countries": VenueCountryGetSerializer,
+        "venue_countries": CountryGetSerializer,
         "calender": AdCalenderGetSerializer,
     }
     action_permissions = {
@@ -143,64 +140,85 @@ class AdViewSet(BaseViewset):
 
     s3_service = S3Service()
 
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        media = Gallery.objects.filter(ad=instance).first()
+        if media:
+            if media.media_urls and any(media.media_urls.values()):
+                delete_s3_object_by_urls.delay(media.media_urls)
+                media.delete()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-
         media_urls = serializer.validated_data.pop("media_urls", {})
-
         faqs = serializer.validated_data.pop("faqs", [])
         ad_faqs = serializer.validated_data.pop("ad_faq_ad", [])
-
         offered_services = serializer.validated_data.pop("offered_services")
         activation_countries = serializer.validated_data.pop("activation_countries", [])
+
         company = Company.objects.filter(user_id=request.user.id).first()
-
-        if company:
-            """subscription based checks"""
-            subscription = Subscription.objects.filter(company=company).first()
-
-            # pending
-
-            ad = Ad.objects.create(
-                **serializer.validated_data,
-                offered_services=offered_services,
-                company=company,
-            )
-
-            ad.activation_countries.add(*activation_countries)
-
-            """ads gallery created"""
-            Gallery.objects.create(ad=ad, media_urls=media_urls)
-
-            # faqs
-            faqs_list = []
-            for faq in faqs:
-                faqs_list.append(FAQ(**faq, ad=ad))
-            FAQ.objects.bulk_create(faqs_list)
-
-            # ad faqs
-            ad_faqs_list = []
-            for faq in ad_faqs:
-                ad_faqs_list.append(AdFAQ(**faq, ad=ad))
-            AdFAQ.objects.bulk_create(ad_faqs_list)
-            Calender.objects.create(company=company, ad=ad)
-
-            return Response(
-                status=status.HTTP_200_OK,
-                data=ResponseInfo().format_response(
-                    data=AdGetSerializer(ad).data,
-                    status_code=status.HTTP_200_OK,
-                    message="Ad created",
-                ),
-            )
+        subscription = Subscription.objects.filter(
+            company=company, status=SUBSCRIPTION_STATUS["ACTIVE"]
+        ).first()
+        if company and subscription:
+            company_ad_count = Ad.objects.filter(company=company).count()
+            if company_ad_count >= subscription.type.allowed_ads:
+                return Response(
+                    status=status.HTTP_200_OK,
+                    data=ResponseInfo().format_response(
+                        data={},
+                        status_code=status.HTTP_200_OK,
+                        message="You have reached maximum ads as per your subscription",
+                    ),
+                )
         else:
             return Response(
                 status=status.HTTP_200_OK,
                 data=ResponseInfo().format_response(
-                    data={}, status_code=status.HTTP_200_OK, message="Ad cannot created"
+                    data={},
+                    status_code=status.HTTP_200_OK,
+                    message="Action not allowed",
                 ),
             )
+
+        ad = Ad.objects.create(
+            **serializer.validated_data,
+            offered_services=offered_services,
+            company=company,
+        )
+
+        ad.activation_countries.add(*activation_countries)
+
+        """ads gallery created"""
+        Gallery.objects.create(ad=ad, media_urls=media_urls)
+
+        # faqs
+        if faqs:
+            faqs_list = []
+            for faq in faqs:
+                print("tttttttttttttttttt")
+                faqs_list.append(FAQ(**faq, ad=ad))
+            FAQ.objects.bulk_create(faqs_list)
+
+        # ad faqs
+        if ad_faqs:
+            ad_faqs_list = []
+            for faq in ad_faqs:
+                ad_faqs_list.append(AdFAQ(**faq, ad=ad))
+            AdFAQ.objects.bulk_create(ad_faqs_list)
+        Calender.objects.create(company=company, ad=ad)
+
+        return Response(
+            status=status.HTTP_200_OK,
+            data=ResponseInfo().format_response(
+                data=AdGetSerializer(ad).data,
+                status_code=status.HTTP_200_OK,
+                message="Ad created",
+            ),
+        )
 
     @action(detail=False, url_path="my-ads", methods=["get"])
     def my_ads(self, request, *args, **kwargs):
@@ -283,9 +301,6 @@ class AdViewSet(BaseViewset):
         commercial_name = payload_data.get("commercial_name", "")
         country = payload_data.get("country", "")
 
-        print("payload ====> ", payload)
-        print("subcat ====> ", sub_categories)
-
         # Build Q objects for filtering Ads based on categories and subcategories
         category_q = Q()
         subcategory_q = Q()
@@ -295,7 +310,6 @@ class AdViewSet(BaseViewset):
 
         if sub_categories:
             subcategory_q = Q(sub_category__name__in=sub_categories)
-            print("if cond ===> ", subcategory_q)
 
         # Combine the Q objects
         combined_q = category_q | subcategory_q

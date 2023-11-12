@@ -1,6 +1,6 @@
 from django.dispatch import Signal
 from django.db.models import Model
-from django.db.models import BooleanField, DateTimeField, ForeignKey, SET_NULL
+from django.db.models import DateTimeField, ForeignKey, SET_NULL
 from django.utils import timezone
 
 post_archive = Signal()

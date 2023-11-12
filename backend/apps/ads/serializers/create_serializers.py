@@ -9,6 +9,7 @@ from apps.ads.models import (
     FAQ,
     AdFAQ,
 )
+from apps.ads.mixins import SubscriptionTypeValidationMixin
 
 
 class FaqsChildCreateSerializer(BaseSerializer):
@@ -29,11 +30,10 @@ class AdFAQChildCreateSerializer(BaseSerializer):
         ]
 
 
-class AdCreateSerializer(BaseSerializer):
+class AdCreateSerializer(SubscriptionTypeValidationMixin, BaseSerializer):
     faqs = serializers.ListField(child=FaqsChildCreateSerializer())
     ad_faq_ad = serializers.ListField(child=AdFAQChildCreateSerializer())
     media_urls = serializers.JSONField(default=dict)
-    
 
     class Meta:
         model = Ad

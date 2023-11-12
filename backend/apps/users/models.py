@@ -2,6 +2,7 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from apps.users.constants import USER_ROLE_TYPES
+from django.utils import timezone
 
 
 class UserManager(BaseUserManager):
@@ -64,17 +65,15 @@ class User(AbstractUser):
 
     username = None
     email = models.EmailField(_("email address"), unique=True)
-
+    first_name = models.TextField()
+    last_name = models.TextField()
     role_type = models.CharField(
         max_length=50, choices=ROLE_TYPES, default=USER_ROLE_TYPES["VENDOR"]
     )
-
     phone = models.TextField(null=True, blank=True)
-
     newsletter = models.BooleanField(default=False)
     terms_acceptance = models.BooleanField(default=False)
     delete_reason = models.TextField(null=True, blank=True)
-
     image = models.TextField(null=True, blank=True)
     is_verified = models.BooleanField(default=False)
     USERNAME_FIELD = "email"
@@ -87,3 +86,16 @@ class User(AbstractUser):
         ordering = ["-id"]
         verbose_name = "User"
         verbose_name_plural = "Users"
+
+
+class VerificationToken(models.Model):
+    user = models.ForeignKey(
+        "users.User", verbose_name=_("User"), on_delete=models.CASCADE
+    )
+    token = models.CharField(max_length=255)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ["-id"]
+        verbose_name = "Verification Token"
+        verbose_name_plural = "Verification Tokens"

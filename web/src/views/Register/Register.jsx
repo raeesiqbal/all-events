@@ -3,7 +3,9 @@ import React, { useState } from "react";
 // import Container from 'react-bootstrap/Container';
 // import Row from 'react-bootstrap/Row';
 // import Col from 'react-bootstrap/Col';
-import { Button, Col, Container, Form, Modal, Row } from "react-bootstrap";
+import {
+  Button, Col, Container, Form, Modal, Row,
+} from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 // import Featured from "../../assets/images/Featured.svg";
 import loginImg1 from "../../assets/images/login-img-1.svg";
@@ -33,7 +35,7 @@ function Register() {
   const dispatch = useDispatch();
 
   const isRegisterModal = useSelector(
-    (state) => state.register.isRegisterModal
+    (state) => state.register.isRegisterModal,
   );
 
   const handleClose = () => dispatch(toggleRegisterModal());
@@ -163,7 +165,8 @@ function Register() {
 
                 <div className="row" style={{ textAlign: "center" }}>
                   <p className="small fw-bold mt-3 pt-1 mb-0 ">
-                    Already have an account?{" "}
+                    Already have an account?
+                    {" "}
                     <a href="#!" className="link-danger">
                       Login
                     </a>

@@ -1,13 +1,8 @@
-import re
 import boto3
-from datetime import date, datetime
+from datetime import datetime
 import environ
 from botocore.exceptions import ClientError
-from urllib.parse import unquote
 import logging
-import os
-from django.conf import settings
-from base64 import b64encode
 
 
 class S3Service:

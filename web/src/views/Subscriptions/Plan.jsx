@@ -55,7 +55,7 @@ const Plan = ({
         },
       });
 
-      if (["", null, undefined].includes(response.data.data)) {
+      if (["", null, undefined].includes(response.data.data) || response.data.data.length === 0) {
         setShowModal(true);
       } else {
         setWarings(response.data.data);

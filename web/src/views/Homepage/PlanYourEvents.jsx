@@ -1,5 +1,7 @@
 import React from "react";
-import { Button, Card, Col, Container, Row } from "react-bootstrap";
+import {
+  Card, Col, Container, Row,
+} from "react-bootstrap";
 
 import "./Homepage.css";
 import imageByIndex from "../../components/Carousel/ImagesByIndex";
@@ -51,9 +53,11 @@ function PlanYourEvents() {
         </div>
 
         <Row>
-          {eventsList &&
-            eventsList.map((product) => {
-              const { id, title, description, button, image } = product;
+          {eventsList
+            && eventsList.map((product) => {
+              const {
+                id, title, description,
+              } = product;
               return (
                 <Col xs={12} md={12} lg={6}>
                   <Card className="event-card" key={id}>

@@ -27,8 +27,9 @@ function Chats() {
   const [showSenderList, setShowSenderList] = React.useState(false);
   const [isDisabled, setIsDisabled] = React.useState(true);
 
-  const location = useLocation();
   const suggestionDropdown = useRef();
+
+  const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const chatId = searchParams.get("chatId");
 

@@ -1,14 +1,26 @@
+# imports
 from rest_framework import serializers
+from apps.users.field_validators import CustomPasswordValidator
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from generic_relations.relations import GenericRelatedField
-from apps.companies.models import Company
+
+
+# serializers
 from apps.companies.serializers.get_serializers import CompanyListSerializer
 
+# models
 from apps.users.models import User
+from apps.companies.models import Company
 from apps.utils.serializers.base import BaseSerializer
 
 
 class CreateUserSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(
+        max_length=128,
+        min_length=6,
+        write_only=True,
+        validators=[CustomPasswordValidator()],
+    )
+
     class Meta:
         model = User
         fields = [
@@ -107,4 +119,10 @@ class ValidatePasswordSerializer(serializers.ModelSerializer):
 class GetUserDashboardSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["email", "first_name", "last_name", "phone", "image"]
+        fields = [
+            "email",
+            "first_name",
+            "last_name",
+            "phone",
+            "image",
+        ]

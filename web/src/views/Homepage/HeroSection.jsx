@@ -12,6 +12,7 @@ import {
 import heroImg1 from "../../assets/images/harold.jpg";
 import {
   listSuggestions,
+  setPayloadData,
   setSearchKeyword,
 } from "../redux/Search/SearchSlice";
 
@@ -40,6 +41,10 @@ function HeroSection() {
   const handleSearchButton = () => {
     if (window.location.pathname === "/") navigate("/search");
   };
+
+  useEffect(() => {
+    dispatch(setPayloadData({ data: keyword }));
+  }, [keyword]);
 
   useEffect(() => {
     if (suggestionDropdown.current) {

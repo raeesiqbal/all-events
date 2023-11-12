@@ -54,11 +54,6 @@ export const listChatMessages = createAsyncThunk(
 export const MessagesSlice = createSlice({
   name: "Messages",
   initialState,
-  reducers: {
-    handleResgisterationStatus: (state) => {
-      state.isRegistered = false;
-    },
-  },
   extraReducers: (builder) => {
     builder
       .addCase(sendMessage.pending, (state) => {
@@ -94,10 +89,6 @@ export const MessagesSlice = createSlice({
       });
   },
 });
-
-export const {
-  handleResgisterationStatus,
-} = MessagesSlice.actions;
 
 // Export the reducer and actions
 export default MessagesSlice.reducer;

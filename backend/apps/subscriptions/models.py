@@ -24,11 +24,9 @@ class SubscriptionType(NewAbstractModel):
     allowed_ad_photos = models.IntegerField(_("Allowed Ad Photos"))
     allowed_ad_videos = models.IntegerField(_("Allowed Ad Videos"))
     pdf_upload = models.BooleanField(_("Pdf Upload"))
-
     reviews = models.BooleanField(_("Reviews"))
     faq = models.BooleanField(_("FAQ"))
     offered_services = models.BooleanField(_("Offered Services"))
-
     analytics = models.BooleanField(_("Analytics"))
     calender = models.BooleanField(_("Calender"))
 
@@ -38,7 +36,7 @@ class SubscriptionType(NewAbstractModel):
 
     def __str__(self):
         return f"{self.id}"
-
+ 
 
 class Subscription(NewAbstractModel):
     SUBSCRIPTION_STATUS = (

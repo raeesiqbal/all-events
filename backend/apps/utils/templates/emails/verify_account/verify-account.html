@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        body,
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        @font-face {
+            font-family: 'Roboto';
+            src: url('https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap');
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .container {
+            max-width: 1440px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr;
+        }
+
+        .banner {
+            background-color: #EAF0F3;
+            text-align: center;
+            padding: 10px 20px 50px 20px;
+        }
+
+        .banner h1 {
+            font-size: 2.25rem;
+            font-weight: 400;
+            margin-top: 10px;
+        }
+
+        .banner p {
+            font-size: 1.25rem;
+            color: #5E5E5E;
+        }
+
+        .logo {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .inner {
+            background: rgba(121, 121, 121, 0.10);
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .inner h2 {
+            color: #5E5E5E;
+            font-weight: 700;
+            font-size: 27px;
+        }
+
+        .inner h2 span {
+            color: #386C34;
+        }
+
+        .inner h3 {
+            margin-top: 1.25rem;
+            font-size: 1.17rem;
+            color: #1A1A1A;
+        }
+
+        .inner p {
+            margin: 3rem 0 3.5rem 0;
+            font-size: 1.17rem;
+            color: #5E5E5E;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 15px 125px;
+            background-color: #A0C49D;
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 1rem;
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 50px;
+        }
+
+        .footer {
+            text-align: center;
+            background-color: black;
+            padding: 100px 20px;
+        }
+
+        .footer p {
+            color: #D9D9D9;
+            font-size: 20px;
+            margin-top: 14px;
+        }
+
+        .footer h6 {
+            color: #D9D9D9;
+            font-size: 20px;
+            font-weight: 700;
+            margin-top: 54px;
+        }
+
+        .footer p:nth-child(4) {
+            color: rgba(255, 255, 255, 0.50);
+            font-size: 20px;
+            margin-top: 14px;
+        }
+
+        .social-icons {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            place-content: center;
+
+        }
+
+        .social-icons img {
+            height: 70px;
+            width: 70px;
+        }
+
+        .social-icons li {
+            display: flex;
+            justify-content: center;
+        }
+
+        .insta {
+            height: 50px !important;
+            width: 50px !important;
+        }
+
+        .social-icons .insta {
+            margin: 12px;
+        }
+
+        .social-icons a {
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="banner">
+            <img class="logo"
+                src="https://test-bucket-django-static.s3.eu-central-1.amazonaws.com/static/logo-blank.png"
+                alt="Your Logo" />
+            <h1>
+                Hi
+                <b>{{full_name}},</b>
+                <br />
+            </h1>
+            <p>One stop shop to make your events special</p>
+        </div>
+
+        <div class="inner">
+            <h2>
+                Please confirm your
+                <span>Account Email</span>
+            </h2>
+            <h3>Verification link will expire after 7 days</h3>
+            <p>
+                Confirm your account using the
+                <br />
+                verification link below
+            </p>
+            <a class="button" href="{{verify_account_url}}">Confirm Email</a>
+        </div>
+
+        <div class="footer">
+            <ul class="social-icons">
+                <li>
+                    <a href="https://www.facebook.com/profile.php?id=61552595200834"><img
+                            src="https://test-bucket-django-static.s3.eu-central-1.amazonaws.com/static/emails/facebook.png"
+                            alt="Facebook" /></a>
+                </li>
+                <li>
+                    <a href="https://www.youtube.com/@AllEventsRomania"><img src="" alt="Youtube" /></a>
+                </li>
+                <li>
+                    <a href="https://www.tiktok.com/@all.events_romania"><img src="" alt="Tiktok" /></a>
+                </li>
+
+                <li>
+                    <a href="https://www.instagram.com/allevents.romania/">
+                        <img src="https://test-bucket-django-static.s3.eu-central-1.amazonaws.com/static/emails/instagram.png"
+                            alt="Instagram" class="insta" />
+                    </a>
+                </li>
+            </ul>
+            <p>Copyright © 2023</p>
+            <h6>All Events</h6>
+            <p>One stop shop to make your events special</p>
+        </div>
+    </div>
+</body>
+
+</html>

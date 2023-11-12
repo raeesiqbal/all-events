@@ -32,8 +32,13 @@ from apps.analytics.models import (
     Calender,
     FavouriteAd,
 )
-from apps.subscriptions.models import Subscription
 from apps.companies.models import Company
+from apps.subscriptions.models import (
+    Subscription,
+)
+
+# constants
+from apps.users.constants import USER_ROLE_TYPES
 
 
 class AdNameSerializer(BaseSerializer):
@@ -113,6 +118,7 @@ class CategoryGetSerializer(BaseSerializer):
     class Meta:
         model = Category
         fields = "__all__"
+        ref_name = "Ads Category Serializer"
 
 
 class SubCategoryGetSerializer(BaseSerializer):
@@ -121,18 +127,7 @@ class SubCategoryGetSerializer(BaseSerializer):
     class Meta:
         model = SubCategory
         fields = "__all__"
-
-
-class CountryGetSerializer(BaseSerializer):
-    class Meta:
-        model = Country
-        fields = "__all__"
-
-
-class VenueCountryGetSerializer(BaseSerializer):
-    class Meta:
-        model = Country
-        fields = "__all__"
+        ref_name = "Ads SubCategory Serializer"
 
 
 class FaqsGetSerializer(BaseSerializer):

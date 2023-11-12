@@ -142,10 +142,10 @@ class Gallery(models.Model):
     ad = models.ForeignKey(
         "ads.Ad",
         verbose_name=_("Ad"),
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
+        null=True,
         related_name="ad_media",
     )
-    # media = models.TextField(_("Media"), null=True, blank=True)
     media_urls = models.JSONField(_("Media"), default=dict, null=True, blank=True)
 
     def __str__(self):

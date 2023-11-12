@@ -23,6 +23,8 @@ const initialState = {
   isWelcomeUserAlert: false,
   loading: false,
   error: null,
+  UserSuccessAlert: false,
+  UserErrorAlert: false,
 };
 
 // Asynchronous action to handle login
@@ -89,6 +91,42 @@ export const getAuthenticatedUser = createAsyncThunk(
   },
 );
 
+export const sendVerifyAccountEmail = createAsyncThunk(
+  "auth/sendVerifyAccountEmail",
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await secureInstance.request({
+        url: `/api/users/verify-account-email/`,
+        method: "Get",
+      });
+      // window.location.replace("/");
+      return response.data; // Assuming your loginAPI returns data with access_token, user_id, and role_id
+    } catch (err) {
+      // Handle login error here if needed
+      return rejectWithValue(err.response.data);
+    }
+  },
+);
+
+export const verifyAccount = createAsyncThunk(
+  "auth/verifyAccount",
+  async ({ data }, { rejectWithValue }) => {
+    try {
+      const response = await instance.request({
+        url: "/api/users/verify-account/",
+        method: "Patch",
+        data,
+      });
+
+      // window.location.replace("/");
+      return { ...response.data }; // Assuming your loginAPI returns data with access_token, user_id, and role_id
+    } catch (err) {
+      // Handle login error here if needed
+      return rejectWithValue(err.response.data);
+    }
+  },
+);
+
 // Create the loginSlice
 export const authSlice = createSlice({
   name: "auth",
@@ -102,6 +140,11 @@ export const authSlice = createSlice({
     },
     handleWelcomeUserAlert: (state, action) => {
       state.isWelcomeUserAlert = action.payload;
+    },
+    handleUserAlerts: (state) => {
+      state.UserSuccessAlert = false;
+      state.UserErrorAlert = false;
+      state.error = "";
     },
     setScreenLoading: (state, action) => {
       state.screenLoading = action.payload;
@@ -134,6 +177,33 @@ export const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+      .addCase(verifyAccount.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.UserSuccessAlert = false;
+        state.UserErrorAlert = false;
+      })
+      .addCase(verifyAccount.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = action.payload.message;
+        state.UserSuccessAlert = true;
+      })
+      .addCase(verifyAccount.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload.message;
+        state.UserErrorAlert = true;
+      })
+      .addCase(sendVerifyAccountEmail.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(sendVerifyAccountEmail.fulfilled, (state) => {
+        state.showVerifyModal = true;
+      })
+      .addCase(sendVerifyAccountEmail.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
       .addCase(handleRegister.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -141,7 +211,6 @@ export const authSlice = createSlice({
       .addCase(handleRegister.fulfilled, (state) => {
         state.loading = false;
         state.isRegistered = true;
-        state.showVerifyModal = true;
       })
       .addCase(handleRegister.rejected, (state, action) => {
         state.loading = false;
@@ -182,6 +251,7 @@ export const {
   handleResgisterationStatus,
   handleLoginStatus,
   handleWelcomeUserAlert,
+  handleUserAlerts,
   setScreenLoading,
   setShowVerifyModal,
 } = authSlice.actions;

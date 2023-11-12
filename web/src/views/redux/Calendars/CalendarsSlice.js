@@ -69,11 +69,6 @@ export const setCalendarAvailability = createAsyncThunk(
 export const CalendarsSlice = createSlice({
   name: "Calendars",
   initialState,
-  reducers: {
-    handleResgisterationStatus: (state) => {
-      state.isRegistered = false;
-    },
-  },
   extraReducers: (builder) => {
     builder
       .addCase(vendorCalendars.pending, (state) => {
@@ -113,8 +108,6 @@ export const CalendarsSlice = createSlice({
       });
   },
 });
-
-export const { handleResgisterationStatus } = CalendarsSlice.actions;
 
 // Export the reducer and actions
 export default CalendarsSlice.reducer;

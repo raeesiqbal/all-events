@@ -1,12 +1,21 @@
-from datetime import date
-
-from django.contrib.contenttypes.models import ContentType
-from rest_framework.decorators import action
+# imports
+from apps.utils.views.base import BaseViewset, ResponseInfo
 from django_filters.rest_framework.backends import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter, SearchFilter
-from rest_framework.permissions import IsAuthenticated
+from apps.utils.services.s3_service import S3Service
 from rest_framework.response import Response
+from rest_framework.decorators import action
 from rest_framework import status
+
+
+# permissions
+from rest_framework.permissions import IsAuthenticated
+from apps.users.permissions import IsSuperAdmin, IsVendorUser
+
+# constant
+from apps.users.constants import USER_ROLE_TYPES
+
+# serializers
 from apps.ads.serializers.create_serializers import GetUploadPresignedUrlSerializer
 from apps.companies.serializers.create_serializers import VendorCreateSerializer
 from apps.companies.serializers.get_serializers import (
@@ -14,12 +23,10 @@ from apps.companies.serializers.get_serializers import (
     CompanyRetrieveSerializer,
 )
 from apps.companies.serializers.update_serializers import VendorUpdateSerializer
-from apps.users.constants import USER_ROLE_TYPES
-from apps.users.models import User
 
-from apps.users.permissions import IsSuperAdmin, IsVendorUser
-from apps.utils.services.s3_service import S3Service
-from apps.utils.views.base import BaseViewset, ResponseInfo
+
+# models
+from apps.users.models import User
 from apps.companies.models import Company
 
 
@@ -46,6 +53,7 @@ class CompanyViewSet(BaseViewset):
         "public_companies_list": [],
         "public_company_retrieve": [],
         "upload_company_image": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
+        "verify_account_email": [],
     }
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     search_param = "search"
@@ -62,7 +70,6 @@ class CompanyViewSet(BaseViewset):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-
         user_details = serializer.validated_data.pop("user")
 
         user = User.objects.create(**user_details, role_type=USER_ROLE_TYPES["VENDOR"])
