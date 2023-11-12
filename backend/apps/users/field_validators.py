@@ -6,8 +6,8 @@ from rest_framework import serializers
 class CustomPasswordValidator:
     regex = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{6,}$"
     message = (
-        "Password must be at least 6 characters longRAEES"
-        "contain at least one digit, one lowercase letter, and one uppercase letterRAEES"
+        "Password must be at least 6 characters long"
+        "contain at least one digit, one lowercase letter, and one uppercase letter"
         "Spaces are not allowed"
     )
 
@@ -20,9 +20,9 @@ class CustomPasswordValidator:
 
 
 class CustomPhoneValidator:
-    regex = r"^\+?[0-9\s-]+$"
+    regex = r"^\+?[0-9]+$"
     message = (
-        "Phone number must be between 8 and 15 characters longRAEES"
+        "Phone number must be between 8 and 15 characters long"
         "only contain digits and the '+' sign"
     )
 
@@ -37,7 +37,7 @@ class CustomPhoneValidator:
 
 
 class CustomNameValidator:
-    regex = r"^[a-zA-Z., $]+$"
+    regex = r"^[a-zA-Z.\- $]+$"
 
     message = (
         "First name must be between 2 and 20 characters long"

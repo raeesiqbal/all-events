@@ -7,7 +7,7 @@ import { faHeart } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Pagination from "./Pagination";
 import { secureInstance } from "../../axios/config";
-import { setAdsList } from "../redux/Search/SearchSlice";
+import { setAdsList, setShowFilters } from "../redux/Search/SearchSlice";
 
 const Ads = () => {
   const dispatch = useDispatch();
@@ -47,10 +47,18 @@ const Ads = () => {
   }, [activeView]);
 
   return (
-    <Col md={9} className="ps-md-4">
-      <div className="mx-0 mb-3 d-none d-md-flex justify-content-between align-items-center">
+    <Col lg={9} className="ps-lg-4">
+      <div className="d-flex mx-0 mb-3 justify-content-between align-items-center">
+        <div
+          className={`d-flex d-lg-none px-3 py-2 justify-content-between align-items-center ${activeView === "list" ? "rounded bg-white fw-bold" : "text-secondary"}`}
+          style={{ cursor: "pointer", color: "#a0c49d" }}
+          onClick={() => dispatch(setShowFilters(true))}
+        >
+          <FontAwesomeIcon className="me-2" icon={faListUl} size="lg" />
+          Filters
+        </div>
         <div>{`${count} Results`}</div>
-        <div className="d-flex rounded p-2" style={{ backgroundColor: "#F4F4F4" }}>
+        <div className="d-none d-md-flex rounded p-2" style={{ backgroundColor: "rgba(121, 121, 121, 0.05)" }}>
           <div
             className={`d-flex px-3 py-2 justify-content-between align-items-center ${activeView === "list" ? "rounded bg-white fw-bold" : "text-secondary"}`}
             style={{ cursor: "pointer" }}
@@ -73,7 +81,8 @@ const Ads = () => {
         {
           adsList?.map((ad) => (
             <Col
-              md={activeView === "list" ? 12 : 4}
+              sm={6}
+              md={activeView === "list" ? 12 : (window.outerWidth > 1050 ? 4 : 6)}
               className={`mb-4 p-0 ${activeView === "list" ? "" : "pe-3"}`}
               style={{ cursor: "pointer" }}
               onClick={() => navigate(`/view-ad/${ad.id}`)}
@@ -114,11 +123,10 @@ const Ads = () => {
                     alt=""
                     className="w-100"
                     style={{
-                      maxHeight: "227px",
-                      overflow: "hidden",
+                      minHeight: "140px",
                       objectFit: "cover",
                       borderRadius: "5px",
-                      height: activeView === "list" ? "auto" : "220px",
+                      height: activeView === "list" ? "100%" : "220px",
                     }}
                   />
                 </Col>

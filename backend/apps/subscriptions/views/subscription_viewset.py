@@ -3,17 +3,12 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from apps.subscriptions.stripe_service import StripeService, WebHookService
-from django.core import serializers
-from rest_framework import status
-from django.conf import settings
 from apps.utils.views.base import BaseViewset, ResponseInfo
-import requests
 
 # permissions
 from apps.users.permissions import IsVendorUser
 
 # constants
-from apps.utils.constants import PRODUCT_NAMES
 from apps.subscriptions.constants import SUBSCRIPTION_STATUS, SUBSCRIPTION_TYPES
 from apps.ads.models import Gallery
 
@@ -39,7 +34,6 @@ from apps.subscriptions.serializers.get_serializer import (
     MySubscriptionSerializer,
     SubscriptionValidateSerializer,
 )
-
 from apps.subscriptions.serializers.update_serializer import (
     SubscriptionUpdateSerializer,
 )

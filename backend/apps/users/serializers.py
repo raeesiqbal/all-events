@@ -13,7 +13,7 @@ from apps.companies.models import Company
 from apps.utils.serializers.base import BaseSerializer
 
 
-class CreateUserSerializer(serializers.ModelSerializer):
+class CreateUserSerializer(serializers.ModelSerializer): 
     password = serializers.CharField(
         max_length=128,
         min_length=6,

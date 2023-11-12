@@ -31,6 +31,7 @@ const initialState = {
       commercialName: "",
       country: "",
     },
+    showFilters: false,
   },
   SearchSuccessAlert: false,
   SearchErrorAlert: false,
@@ -122,6 +123,9 @@ export const SearchSlice = createSlice({
     },
     setAdsList: (state, action) => {
       state.data.adsList = action.payload;
+    },
+    setShowFilters: (state, action) => {
+      state.data.showFilters = action.payload;
     },
     setPayloadData: (state, action) => {
       switch (action.payload.data.type) {
@@ -221,6 +225,7 @@ export const {
   setQuestions,
   setCountry,
   setAdsList,
+  setShowFilters,
   setPayloadData,
 } = SearchSlice.actions;
 
