@@ -33,7 +33,9 @@ from apps.analytics.models import (
     FavouriteAd,
 )
 from apps.companies.models import Company
-
+from apps.subscriptions.models import (
+    Subscription,
+)
 
 # constants
 from apps.users.constants import USER_ROLE_TYPES

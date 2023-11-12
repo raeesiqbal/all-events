@@ -119,7 +119,7 @@ const Ads = () => {
                     )
                   }
                   <img
-                    src={ad.ad_media[0].media_urls.images[0]}
+                    src={ad.ad_media[0].media_urls.images ? ad.ad_media[0].media_urls.images[0] : ""}
                     alt=""
                     className="w-100"
                     style={{

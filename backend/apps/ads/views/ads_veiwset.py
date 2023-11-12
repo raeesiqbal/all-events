@@ -299,9 +299,6 @@ class AdViewSet(BaseViewset):
         commercial_name = payload_data.get("commercial_name", "")
         country = payload_data.get("country", "")
 
-        print("payload ====> ", payload)
-        print("subcat ====> ", sub_categories)
-
         # Build Q objects for filtering Ads based on categories and subcategories
         category_q = Q()
         subcategory_q = Q()
@@ -311,7 +308,6 @@ class AdViewSet(BaseViewset):
 
         if sub_categories:
             subcategory_q = Q(sub_category__name__in=sub_categories)
-            print("if cond ===> ", subcategory_q)
 
         # Combine the Q objects
         combined_q = category_q | subcategory_q
