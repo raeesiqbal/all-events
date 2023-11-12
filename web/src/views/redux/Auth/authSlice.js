@@ -110,17 +110,16 @@ export const sendVerifyAccountEmail = createAsyncThunk(
 
 export const verifyAccount = createAsyncThunk(
   "auth/verifyAccount",
-  async ({ data, isLoggedInState }, { rejectWithValue }) => {
+  async ({ data }, { rejectWithValue }) => {
     try {
-      const request = isLoggedInState ? secureInstance : instance;
-      const response = await request.request({
+      const response = await instance.request({
         url: "/api/users/verify-account/",
         method: "Patch",
         data,
       });
 
       // window.location.replace("/");
-      return { ...response.data, isLoggedInState }; // Assuming your loginAPI returns data with access_token, user_id, and role_id
+      return { ...response.data }; // Assuming your loginAPI returns data with access_token, user_id, and role_id
     } catch (err) {
       // Handle login error here if needed
       return rejectWithValue(err.response.data);
@@ -186,21 +185,6 @@ export const authSlice = createSlice({
       })
       .addCase(verifyAccount.fulfilled, (state, action) => {
         state.loading = false;
-        const {
-          access, user, isLoggedInState,
-        } = action.payload;
-        if (!isLoggedInState) {
-          state.user.accessToken = access;
-          state.user.userId = user.id;
-          state.user.userImage = user.image;
-          state.user.userCompanyId = user.user_company?.id;
-          state.user.first_name = user.first_name;
-          state.user.last_name = user.last_name;
-          state.user.role = user.role_type;
-          state.user.is_verified = user.is_verified;
-          state.isLoggedInState = true;
-          state.userCompany = user.user_company;
-        }
         state.error = action.payload.message;
         state.UserSuccessAlert = true;
       })
