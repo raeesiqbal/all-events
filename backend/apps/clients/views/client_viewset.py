@@ -1,17 +1,27 @@
-from rest_framework.permissions import IsAuthenticated
+# imports
+from apps.utils.views.base import BaseViewset, ResponseInfo
 from rest_framework.response import Response
 from rest_framework import status
-from apps.clients.models import Client
+from apps.utils.utils import user_verify_account
+
+# serializers
+from apps.clients.serializers.update_serializer import ClientUpdateSerializer
 from apps.clients.serializers.create_serializer import ClientCreateSerializer
 from apps.clients.serializers.get_serializer import (
     ClientGetSerializer,
     ClientListSerializer,
 )
-from apps.clients.serializers.update_serializer import ClientUpdateSerializer
+
+# constants
 from apps.users.constants import USER_ROLE_TYPES
+
+# permissions
+from apps.users.permissions import IsClient, IsSuperAdmin
+from rest_framework.permissions import IsAuthenticated
+
+# models
+from apps.clients.models import Client
 from apps.users.models import User
-from apps.users.permissions import IsClient, IsSuperAdmin, IsVendorUser
-from apps.utils.views.base import BaseViewset, ResponseInfo
 
 
 class ClientViewSet(BaseViewset):
@@ -44,14 +54,12 @@ class ClientViewSet(BaseViewset):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user_details = serializer.validated_data.pop("user")
-
         user = User.objects.create(**user_details, role_type=USER_ROLE_TYPES["CLIENT"])
         # Setting password.
         user.set_password(user_details["password"])
         user.save()
-
         Client.objects.create(user=user)
-
+        user_verify_account(user)
         return Response(
             status=status.HTTP_201_CREATED,
             data=ResponseInfo().format_response(

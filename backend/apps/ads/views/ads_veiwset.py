@@ -199,7 +199,6 @@ class AdViewSet(BaseViewset):
         if faqs:
             faqs_list = []
             for faq in faqs:
-                print("tttttttttttttttttt")
                 faqs_list.append(FAQ(**faq, ad=ad))
             FAQ.objects.bulk_create(faqs_list)
 

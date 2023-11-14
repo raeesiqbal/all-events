@@ -7,13 +7,10 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
 import jwt
-from django.conf import settings
-from datetime import date, datetime, timedelta
-from apps.utils.tasks import send_email_to_user
-from django.template.loader import render_to_string
+from datetime import datetime, timedelta
 from django.core.signing import TimestampSigner, BadSignature, SignatureExpired
-from django.contrib.auth import login
 from rest_framework_simplejwt.tokens import RefreshToken
+from apps.utils.utils import user_verify_account
 
 
 # constants
@@ -132,26 +129,17 @@ class UserViewSet(BaseViewset):
             user.is_verified = True
             user.save()
             VerificationToken.objects.filter(user=user).delete()
-            # token_data = {}
-            # if not request.user.is_authenticated:
-            #     # Log in the user and generate a new JWT token
-            #     login(request, user)
+            # Generate new access and refresh tokens
+            refresh = RefreshToken.for_user(user)
+            serializer = GetUserSerializer(user)
+            data = {
+                "access": str(refresh.access_token),
+                "refresh": str(refresh),
+                "user": serializer.data,
+                "message": "Account has been verified successfully",
+            }
+            return Response(data, status=status.HTTP_200_OK)
 
-            #     # Generate a new JWT token using CustomTokenObtainPairView
-            #     serializer = CustomTokenObtainPairSerializer(
-            #         data={"email": user.email, "password": user.password}
-            #     )
-            #     serializer.is_valid(raise_exception=True)
-            #     token_data = serializer.validated_data
-
-            return Response(
-                status=status.HTTP_200_OK,
-                data=ResponseInfo().format_response(
-                    data={},
-                    status_code=status.HTTP_200_OK,
-                    message="User has been verified successfully",
-                ),
-            )
         return Response(
             status=status.HTTP_400_BAD_REQUEST,
             data=ResponseInfo().format_response(
@@ -170,28 +158,7 @@ class UserViewSet(BaseViewset):
             if user.is_verified:
                 message = "User is already verified"
         if user and user.is_verified == False:
-            # Generate token
-            token = TimestampSigner().sign(str(user.id))
-            # Create VerificationToken
-            VerificationToken.objects.create(user=user, token=token)
-            # Sending verify email
-            url = settings.FRONTEND_URL
-            context = {
-                "full_name": "{} {}".format(
-                    user.first_name.title(), user.last_name.title()
-                ),
-                "year": date.today().year,
-                "verify_account_url": "{}/verify-account?token={}".format(url, token),
-            }
-            send_email_to_user.delay(
-                "Verify your account",
-                render_to_string("emails/verify_account/verify-account.html", context),
-                render_to_string(
-                    "emails/reset_password/user_reset_password.txt", context
-                ),
-                settings.EMAIL_HOST_USER,
-                user.email,
-            )
+            user_verify_account(user)
             return Response(
                 status=status.HTTP_200_OK,
                 data=ResponseInfo().format_response(
@@ -245,14 +212,17 @@ class UserViewSet(BaseViewset):
         user.set_password(new_password)
         user.save()
 
-        return Response(
-            status=status.HTTP_200_OK,
-            data=ResponseInfo().format_response(
-                data={},
-                message="Password Updated",
-                status_code=status.HTTP_200_OK,
-            ),
-        )
+        # Generate new access and refresh tokens
+        refresh = RefreshToken.for_user(user)
+        serializer = GetUserSerializer(user)
+
+        data = {
+            "access": str(refresh.access_token),
+            "refresh": str(refresh),
+            "user": serializer.data,
+            "message": "Password has been updated successfully",
+        }
+        return Response(data, status=status.HTTP_200_OK)
 
     @action(detail=False, url_path="delete", methods=["post"])
     def delete_user(self, request, *args, **kwargs):
