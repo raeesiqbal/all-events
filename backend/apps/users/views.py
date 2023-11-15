@@ -26,7 +26,7 @@ from apps.users.permissions import (
     IsClient,
     IsVerified,
 )
-from rest_framework.permissions import IsAuthenticated, IsVerified
+from rest_framework.permissions import IsAuthenticated
 
 # serializers
 from apps.ads.serializers.create_serializers import UserImageSerializer
@@ -39,6 +39,7 @@ from apps.users.serializers import (
     GetUserSerializer,
     UpdatePasswordSerializer,
     ValidatePasswordSerializer,
+    NewsLetterSerializer,
 )
 
 # models
@@ -60,6 +61,7 @@ class UserViewSet(BaseViewset):
         "partial_update": UserUpdateSerializer,
         "delete_user": UserDeleteSerializer,
         "upload_user_image": UserImageSerializer,
+        "newsletter": NewsLetterSerializer,
     }
     action_permissions = {
         "default": [IsAuthenticated, IsVerified],
@@ -71,6 +73,7 @@ class UserViewSet(BaseViewset):
         "retrieve": [IsAuthenticated, IsVerified, IsSuperAdmin | IsVendorUser],
         "delete_user": [IsAuthenticated, IsVerified, IsSuperAdmin | IsVendorUser],
         "upload_user_image": [IsAuthenticated, IsVerified],
+        "newsletter": [IsAuthenticated, IsVerified],
         "verify_account_email": [],
         "verify_account": [],
     }
@@ -308,6 +311,23 @@ class UserViewSet(BaseViewset):
                 data={"file_url": image_url},
                 status_code=status.HTTP_200_OK,
                 message="User image uploaded",
+            ),
+        )
+
+    @action(detail=False, url_path="newsletter", methods=["patch"])
+    def newsletter(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        newsletter = serializer.validated_data.pop("newsletter", True)
+        user = request.user
+        user.newsletter = newsletter
+        user.save()
+        return Response(
+            status=status.HTTP_200_OK,
+            data=ResponseInfo().format_response(
+                data=user.newsletter,
+                status_code=status.HTTP_200_OK,
+                message="Newsletter is updated",
             ),
         )
 
