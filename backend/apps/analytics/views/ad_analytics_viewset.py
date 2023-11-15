@@ -1,37 +1,34 @@
 # imports
 from apps.ads.serializers.get_serializers import AdDashboardSerializer
 from apps.subscriptions.models import Subscription
-from apps.subscriptions.serializers.get_serializer import (
-    SubscriptionDashboardSerializer,
-)
 from apps.users.serializers import GetUserDashboardSerializer
 from apps.utils.constants import DATE_RANGE_MAPPING
 from apps.utils.views.base import BaseViewset, ResponseInfo
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
-from django.db.models import Q, Count
+from django.db.models import Count
 from django.utils import timezone
 from datetime import timedelta
 from django.db.models.functions import TruncDate
 from django.utils import timezone
 from django.db.models import Sum, F
 
-# filters
-from django_filters.rest_framework.backends import DjangoFilterBackend
-from rest_framework.filters import OrderingFilter, SearchFilter
 
 # permissions
-from apps.users.permissions import IsClient, IsVendorUser
+from apps.users.permissions import IsVerified, IsVendorUser
 from rest_framework.permissions import IsAuthenticated
 
 
 # constants
-from apps.users.constants import USER_ROLE_TYPES
 from apps.subscriptions.constants import SUBSCRIPTION_STATUS
 
 # models
-from apps.analytics.models import AdReview, Chat, FavouriteAd, Message
+from apps.analytics.models import (
+    AdReview,
+    FavouriteAd,
+    Message,
+)
 from apps.ads.models import Ad
 from apps.subscriptions.models import Subscription
 
@@ -49,11 +46,11 @@ class AnalyticViewSet(BaseViewset):
 
     action_permissions = {
         "default": [],
-        "home": [IsAuthenticated, IsVendorUser],
-        "fetch_fav_analytics": [IsAuthenticated, IsVendorUser],
-        "fetch_review_analytics": [IsAuthenticated, IsVendorUser],
-        "fetch_messages_analytics": [IsAuthenticated, IsVendorUser],
-        "vendor_dashboard": [IsAuthenticated, IsVendorUser],
+        "home": [IsAuthenticated, IsVerified, IsVendorUser],
+        "fetch_fav_analytics": [IsAuthenticated, IsVerified, IsVendorUser],
+        "fetch_review_analytics": [IsAuthenticated, IsVerified, IsVendorUser],
+        "fetch_messages_analytics": [IsAuthenticated, IsVerified, IsVendorUser],
+        "vendor_dashboard": [IsAuthenticated, IsVerified, IsVendorUser],
     }
 
     @action(detail=False, url_path="home", methods=["get"])

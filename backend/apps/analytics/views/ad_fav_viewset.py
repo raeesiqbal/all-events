@@ -1,15 +1,23 @@
-from rest_framework.permissions import IsAuthenticated
-
+# imports
+from apps.utils.views.base import BaseViewset, ResponseInfo
 from rest_framework.response import Response
 from rest_framework import status
-from apps.users.permissions import IsClient
-from apps.utils.views.base import BaseViewset, ResponseInfo
+from rest_framework.decorators import action
+
+# serializers
+from apps.analytics.serializers.get_serializer import FavouriteAdSerializer
+
+# models
 from apps.analytics.models import FavouriteAd
 from apps.ads.models import Ad
-from rest_framework.decorators import action
-from apps.users.constants import USER_ROLE_TYPES
 
-from apps.analytics.serializers.get_serializer import FavouriteAdSerializer
+# permissions
+from rest_framework.permissions import IsAuthenticated
+from apps.users.permissions import IsClient, IsVerified
+
+
+# constants
+from apps.users.constants import USER_ROLE_TYPES
 
 
 class FavouriteAdViewSet(BaseViewset):
@@ -23,8 +31,8 @@ class FavouriteAdViewSet(BaseViewset):
         "list": FavouriteAdSerializer,
     }
     action_permissions = {
-        "create": [IsAuthenticated, IsClient],
-        "list": [IsAuthenticated, IsClient],
+        "create": [IsAuthenticated, IsVerified, IsClient],
+        "list": [IsAuthenticated, IsVerified, IsClient],
     }
     user_role_queryset = {
         USER_ROLE_TYPES["CLIENT"]: lambda self: FavouriteAd.objects.filter(

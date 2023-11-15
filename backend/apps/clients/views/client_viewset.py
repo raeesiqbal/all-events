@@ -16,7 +16,7 @@ from apps.clients.serializers.get_serializer import (
 from apps.users.constants import USER_ROLE_TYPES
 
 # permissions
-from apps.users.permissions import IsClient, IsSuperAdmin
+from apps.users.permissions import IsClient, IsSuperAdmin, IsVerified
 from rest_framework.permissions import IsAuthenticated
 
 # models
@@ -32,7 +32,6 @@ class ClientViewSet(BaseViewset):
     queryset = Client.objects.all()
     action_serializers = {
         "default": ClientListSerializer,
-        # "default": ClientGetSerializer,
         "create": ClientCreateSerializer,
         "list": ClientListSerializer,
         "retrieve": ClientGetSerializer,
@@ -41,8 +40,8 @@ class ClientViewSet(BaseViewset):
     action_permissions = {
         "default": [],
         "create": [],
-        "list": [IsAuthenticated, IsSuperAdmin],
-        "retrieve": [IsAuthenticated, IsSuperAdmin | IsClient],
+        "list": [IsAuthenticated, IsVerified, IsSuperAdmin],
+        "retrieve": [IsAuthenticated, IsVerified, IsSuperAdmin | IsClient],
     }
     user_role_queryset = {
         USER_ROLE_TYPES["CLIENT"]: lambda self: Client.objects.filter(

@@ -4,14 +4,13 @@ from rest_framework.decorators import action
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework import status
-from django.db.models import Q
 
 # filters
 from django_filters.rest_framework.backends import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter, SearchFilter
 
 # permissions
-from apps.users.permissions import IsClient, IsVendorUser
+from apps.users.permissions import IsClient, IsVendorUser, IsVerified
 from rest_framework.permissions import IsAuthenticated
 
 
@@ -56,16 +55,16 @@ class MessageViewSet(BaseViewset):
     }
 
     action_permissions = {
-        "default": [IsAuthenticated, IsVendorUser | IsClient],
-        "start_chat": [IsAuthenticated, IsClient],
-        "list": [IsAuthenticated, IsVendorUser | IsClient],
-        "destroy": [IsAuthenticated, IsVendorUser | IsClient],
-        "chat_archived": [IsAuthenticated, IsClient | IsVendorUser],
-        "chat_read": [IsAuthenticated, IsClient | IsVendorUser],
-        "chat_exist": [IsAuthenticated, IsClient],
-        "chat_message": [IsAuthenticated, IsClient | IsVendorUser],
-        "message_create": [IsAuthenticated, IsClient | IsVendorUser],
-        "chat_suggestion_list": [IsAuthenticated, IsClient | IsVendorUser],
+        "default": [IsAuthenticated, IsVerified, IsVendorUser | IsClient],
+        "start_chat": [IsAuthenticated, IsVerified, IsClient],
+        "list": [IsAuthenticated, IsVerified, IsVendorUser | IsClient],
+        "destroy": [IsAuthenticated, IsVerified, IsVendorUser | IsClient],
+        "chat_archived": [IsAuthenticated, IsVerified, IsClient | IsVendorUser],
+        "chat_read": [IsAuthenticated, IsVerified, IsClient | IsVendorUser],
+        "chat_exist": [IsAuthenticated, IsVerified, IsClient],
+        "chat_message": [IsAuthenticated, IsVerified, IsClient | IsVendorUser],
+        "message_create": [IsAuthenticated, IsVerified, IsClient | IsVendorUser],
+        "chat_suggestion_list": [IsAuthenticated, IsVerified, IsClient | IsVendorUser],
     }
 
     user_role_queryset = {
@@ -74,7 +73,7 @@ class MessageViewSet(BaseViewset):
         ).prefetch_related("chat_messages"),
         USER_ROLE_TYPES["CLIENT"]: lambda self: Chat.objects.filter(
             client__user_id=self.request.user.id, is_delete_client=False
-        ).prefetch_related("chat_messages"), 
+        ).prefetch_related("chat_messages"),
     }
 
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]

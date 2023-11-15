@@ -94,7 +94,7 @@ class Ad(NewAbstractModel):
     )
     city = models.TextField(_("Oras/Comuna"), null=True, blank=True)
     street = models.TextField(_("Strada"), null=True, blank=True)
-    number = models.TextField(_("Numar"), null=True, blank=True)
+    number = models.TextField(_("Contact Person"), null=True, blank=True)
     full_address = models.TextField(_("Adresa completa"), null=True, blank=True)
     # social media
     facebook = models.TextField(_("Facebook"), null=True, blank=True)
@@ -157,7 +157,7 @@ class Gallery(models.Model):
         verbose_name_plural = "Galleries"
 
 
-class FAQ(models.Model): 
+class FAQ(models.Model):
     ad = models.ForeignKey(
         "ads.Ad",
         verbose_name=_("Ad"),

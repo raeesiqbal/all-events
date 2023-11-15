@@ -3,15 +3,14 @@ from apps.utils.views.base import BaseViewset, ResponseInfo
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
-from django.db.models import Avg
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 # constants
 from apps.users.constants import USER_ROLE_TYPES
 from apps.subscriptions.constants import SUBSCRIPTION_STATUS
 
 # permissions
-from apps.users.permissions import IsClient, IsVendorUser
+from apps.users.permissions import IsVendorUser, IsVerified
 from rest_framework.permissions import IsAuthenticated
 
 # serializers
@@ -28,7 +27,7 @@ from apps.analytics.serializers.update_serializer import (
 )
 
 # models
-from apps.analytics.models import AdReview, Calender
+from apps.analytics.models import Calender
 from apps.subscriptions.models import Subscription
 
 
@@ -46,11 +45,11 @@ class AdCalenderViewSet(BaseViewset):
         "update_calender": CalenderUpdateSerializer,
     }
     action_permissions = {
-        "default": [IsAuthenticated | IsVendorUser],
-        "create": [IsAuthenticated | IsVendorUser],
-        "vendor_calender_list": [IsAuthenticated, IsVendorUser],
-        "set_calender_availability": [IsAuthenticated, IsVendorUser],
-        "update_calender": [IsAuthenticated, IsVendorUser],
+        "default": [IsAuthenticated, IsVerified, IsVendorUser],
+        "create": [IsAuthenticated, IsVerified, IsVendorUser],
+        "vendor_calender_list": [IsAuthenticated, IsVerified, IsVendorUser],
+        "set_calender_availability": [IsAuthenticated, IsVerified, IsVendorUser],
+        "update_calender": [IsAuthenticated, IsVerified, IsVendorUser],
     }
     user_role_queryset = {
         USER_ROLE_TYPES["VENDOR"]: lambda self: Calender.objects.filter(

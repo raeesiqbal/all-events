@@ -14,7 +14,12 @@ from rest_framework.filters import OrderingFilter, SearchFilter
 
 
 # permissions
-from apps.users.permissions import IsClient, IsSuperAdmin, IsVendorUser
+from apps.users.permissions import (
+    IsClient,
+    IsSuperAdmin,
+    IsVendorUser,
+    IsVerified,
+)
 
 
 # constants
@@ -93,15 +98,23 @@ class AdViewSet(BaseViewset):
     }
     action_permissions = {
         "default": [],
-        "create": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
-        "my_ads": [IsAuthenticated, IsVendorUser],
-        "list": [IsAuthenticated, IsSuperAdmin | IsVendorUser | IsClient],
-        "retrieve": [IsAuthenticated, IsSuperAdmin | IsVendorUser | IsClient],
-        "partial_update": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
-        "destroy": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
-        "get_upload_url": [IsAuthenticated, IsClient | IsVendorUser],
+        "create": [IsAuthenticated, IsVerified, IsSuperAdmin | IsVendorUser],
+        "my_ads": [IsAuthenticated, IsVerified, IsVendorUser],
+        "list": [IsAuthenticated, IsVerified, IsSuperAdmin | IsVendorUser | IsClient],
+        "retrieve": [
+            IsAuthenticated,
+            IsVerified,
+            IsSuperAdmin | IsVendorUser | IsClient,
+        ],
+        "partial_update": [IsAuthenticated, IsVerified, IsSuperAdmin | IsVendorUser],
+        "destroy": [IsAuthenticated, IsVerified, IsSuperAdmin | IsVendorUser],
+        "get_upload_url": [IsAuthenticated, IsVerified, IsClient | IsVendorUser],
         "delete_urls": [],
-        "remove_url_on_update": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
+        "remove_url_on_update": [
+            IsAuthenticated,
+            IsVerified,
+            IsSuperAdmin | IsVendorUser,
+        ],
         "fetch_suggestion_list": [],
         "premium_venue_ads": [],
         "premium_vendor_ads": [],

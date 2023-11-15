@@ -9,7 +9,7 @@ from django.db.models import Avg
 from apps.subscriptions.constants import SUBSCRIPTION_STATUS
 
 # permissions
-from apps.users.permissions import IsClient
+from apps.users.permissions import IsClient, IsVerified
 from rest_framework.permissions import IsAuthenticated
 
 # serializers
@@ -38,7 +38,7 @@ class AdReviewViewSet(BaseViewset):
         "custom_create": AdReviewCreateSerializer,
     }
     action_permissions = {
-        "custom_create": [IsAuthenticated | IsClient],
+        "custom_create": [IsAuthenticated, IsVerified, IsClient],
         "ad_reviews": [],
     }
 

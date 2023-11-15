@@ -21,7 +21,6 @@ class Company(NewAbstractModel):
     )
     name = models.TextField(verbose_name=_("Denumire Firma"))
     is_active = models.BooleanField(default=True)
-    is_verified = models.BooleanField(default=False)
     postal_code = models.TextField(null=True, blank=True, verbose_name=_("Cod Postal"))
     fiscal_code = models.TextField(verbose_name=_("Cod Fiscal"))
     address = models.TextField(verbose_name=_("adresa"))

@@ -20,8 +20,13 @@ from apps.ads.constants import AD_STATUS
 from my_site.settings import SECRET_KEY
 
 # permissions
-from apps.users.permissions import IsSuperAdmin, IsVendorUser, IsClient
-from rest_framework.permissions import IsAuthenticated
+from apps.users.permissions import (
+    IsSuperAdmin,
+    IsVendorUser,
+    IsClient,
+    IsVerified,
+)
+from rest_framework.permissions import IsAuthenticated, IsVerified
 
 # serializers
 from apps.ads.serializers.create_serializers import UserImageSerializer
@@ -57,11 +62,15 @@ class UserViewSet(BaseViewset):
         "upload_user_image": UserImageSerializer,
     }
     action_permissions = {
-        "default": [IsAuthenticated],
-        "partial_update": [IsAuthenticated, IsSuperAdmin | IsVendorUser | IsClient],
-        "retrieve": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
-        "delete_user": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
-        "upload_user_image": [IsAuthenticated],
+        "default": [IsAuthenticated, IsVerified],
+        "partial_update": [
+            IsAuthenticated,
+            IsVerified,
+            IsSuperAdmin | IsVendorUser | IsClient,
+        ],
+        "retrieve": [IsAuthenticated, IsVerified, IsSuperAdmin | IsVendorUser],
+        "delete_user": [IsAuthenticated, IsVerified, IsSuperAdmin | IsVendorUser],
+        "upload_user_image": [IsAuthenticated, IsVerified],
         "verify_account_email": [],
         "verify_account": [],
     }

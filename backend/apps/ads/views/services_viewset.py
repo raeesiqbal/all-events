@@ -1,9 +1,14 @@
+# imports
+from apps.utils.views.base import BaseViewset, ResponseInfo
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
-from apps.ads.models import Service, SubCategory
+
+# serializers
 from apps.ads.serializers.get_serializers import ServiceGetSerializer
-from apps.utils.views.base import BaseViewset, ResponseInfo
+
+# models
+from apps.ads.models import Service
 
 
 class ServiceViewSet(BaseViewset):

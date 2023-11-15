@@ -1,15 +1,23 @@
-from rest_framework.permissions import IsAuthenticated
+# imports
+from apps.utils.views.base import BaseViewset, ResponseInfo
 from rest_framework.response import Response
 from rest_framework import status
+
+# permissions
+from rest_framework.permissions import IsAuthenticated
+from apps.users.permissions import IsVendorUser, IsVerified
+
+# constants
+from apps.users.constants import USER_ROLE_TYPES
+
+
+# models
+from apps.analytics.models import ContactRequest
+
+# serializers
 from apps.analytics.serializers.get_serializer import (
     AdContactGetSerializer,
 )
-from apps.users.constants import USER_ROLE_TYPES
-from apps.users.permissions import IsVendorUser
-from apps.utils.views.base import BaseViewset, ResponseInfo
-
-
-from apps.analytics.models import ContactRequest
 
 
 class ContactViewSet(BaseViewset):
@@ -26,9 +34,9 @@ class ContactViewSet(BaseViewset):
     }
 
     action_permissions = {
-        "default": [IsAuthenticated, IsVendorUser],
-        "list": [IsAuthenticated, IsVendorUser],
-        "destroy": [IsAuthenticated, IsVendorUser],
+        "default": [IsAuthenticated, IsVerified, IsVendorUser],
+        "list": [IsAuthenticated, IsVerified, IsVendorUser],
+        "destroy": [IsAuthenticated, IsVerified, IsVendorUser],
         "create": [],
     }
 

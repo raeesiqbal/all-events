@@ -1,9 +1,14 @@
+# imports
+from apps.utils.views.base import BaseViewset, ResponseInfo
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
+
+# models
 from apps.ads.models import SiteQuestion, SiteFAQ
+
+# serializers
 from apps.ads.serializers.get_serializers import SiteQuestionGetSerializer
-from apps.utils.views.base import BaseViewset, ResponseInfo
 
 
 class SiteQuestionViewSet(BaseViewset):
