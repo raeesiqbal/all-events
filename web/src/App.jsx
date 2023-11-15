@@ -125,7 +125,7 @@ function App() {
 
   useEffect(() => {
     dispatch(setValidModal(true));
-    if (isWelcomeUserAlert) dispatch(handleWelcomeUserAlert(false));
+    if (isWelcomeUserAlert && !["", "/", "/dashboard"].includes(location.pathname)) dispatch(handleWelcomeUserAlert(false));
   }, [location]);
 
   return (
