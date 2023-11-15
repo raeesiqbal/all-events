@@ -367,7 +367,7 @@ const Plan = ({
                     onClick={() => handlePlanButtonClick()}
                     disabled={
                       (user.userId !== null && currentSubscription.priceId === currentPlanPrice?.price_id)
-                        || currentSubscription.status === "unpaid"
+                        || currentSubscription.status === "unpaid" || !user.is_verified
                     }
                   >
                     {

@@ -60,7 +60,7 @@ function Register() {
       show={isRegisterModal}
       onHide={handleClose}
       dialogClassName="modal-90w"
-      aria-labelledby="example-custom-modal-styling-title"
+      aria-labelledby="register-modal"
       centered="true"
     >
       <div className="box" style={{ position: "absolute", right: "0" }} />

@@ -10,16 +10,14 @@ import EmblaCarousel from "../../components/Carousel/Carousel";
 import placeholderIcon from "../../assets/images/placeholder.jpg";
 import { favoriteAd } from "../redux/Posts/AdsSlice";
 import { setCategories } from "../redux/Search/SearchSlice";
+import { setValidModal } from "../redux/Auth/authSlice";
 
 function PremiumVenues() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { user } = useSelector((state) => state.auth);
   const { premiumVenueAds } = useSelector((state) => state.Ads);
   const OPTIONS = { slidesToScroll: "auto", containScroll: "trimSnaps" };
-
-  const handlefavoriteAd = (id) => {
-    dispatch(favoriteAd(id));
-  };
 
   const componentToRender = (slide, index) => (
     <Link className="embla__slide" key={index} to={`/view-ad/${slide.id}`}>
@@ -63,7 +61,7 @@ function PremiumVenues() {
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      handlefavoriteAd(slide.id);
+                      dispatch(user.is_verified ? favoriteAd(slide.id) : setValidModal(true));
                     }}
                   />
                 </div>

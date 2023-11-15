@@ -171,7 +171,7 @@ function Login() {
 
   const { isLoginModal, isLoginView } = useSelector((state) => state.login);
   const {
-    isRegistered, user, error, loading, showVerifyModal, isWelcomeUserAlert,
+    isRegistered, user, error, loading, showVerifyModal,
   } = useSelector((state) => state.auth);
   const { isRegisterView } = useSelector((state) => state.register);
   const { activeStep } = useSelector((state) => state.stepper);
@@ -322,23 +322,15 @@ function Login() {
         }),
       );
       dispatch(handleResgisterationStatus());
-      setTimeout(() => {
-        dispatch(handleWelcomeUserAlert(true));
-      }, 2000);
     }
   }, [isRegistered]);
 
   useEffect(() => {
-    if (isWelcomeUserAlert && user.userId) dispatch(sendVerifyAccountEmail());
-  }, [isWelcomeUserAlert, user.userId]);
-
-  useEffect(() => {
-    if (user.role) {
-      if (isLoginView) handleClose();
-      if (isRegisterView) dispatch(toggleRegisterModal());
-      navigate(user.role === "vendor" ? "/dashboard" : "/favorite-ads");
+    if (user.role && (isLoginView || isRegisterView)) {
+      handleClose();
+      navigate(user.role === "vendor" ? "/dashboard" : "/");
     }
-  }, [user.role]);
+  }, [user.role, isLoginView, isRegisterView]);
 
   return (
     <>

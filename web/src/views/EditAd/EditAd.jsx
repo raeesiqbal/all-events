@@ -53,16 +53,11 @@ function EditAd() {
   const [adminServicesSelected, setAdminServicesSelected] = useState([]);
   const [adminServices, setAdminServices] = useState([]);
 
-  const loading = useSelector((state) => state.Ads.loading);
-  const AdPostSuccessAlert = useSelector(
-    (state) => state.Ads.AdPostSuccessAlert,
-  );
-
-  const AdPostErrorAlert = useSelector((state) => state.Ads.AdPostErrorAlert);
+  const { user } = useSelector((state) => state.auth);
   const imagesToUpload = useSelector((state) => state.Ads.media_urls.images);
-  const imagesError = useSelector((state) => state.Ads.imagesError);
-  const isMediaUploading = useSelector((state) => state.Ads.isMediaUploading);
-  const mediaError = useSelector((state) => state.Ads.mediaError);
+  const {
+    loading, AdPostSuccessAlert, AdPostErrorAlert, imagesError, isMediaUploading, mediaError,
+  } = useSelector((state) => state.Ads);
   const currentSubscription = useSelector(
     (state) => state.subscriptions.currentSubscriptionDetails,
   );
@@ -586,10 +581,10 @@ function EditAd() {
 
   useEffect(() => {
     if (
-      currentSubscription === null ||
-      (currentSubscription && currentSubscription.status === "unpaid")
-    )
-      navigate("/my-ads");
+      currentSubscription === null
+      || (currentSubscription && currentSubscription.status === "unpaid")
+      || !user.is_verified
+    ) { navigate("/my-ads"); }
   }, [currentSubscription]);
 
   return (

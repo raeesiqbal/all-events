@@ -22,6 +22,7 @@ import { handleStartContact } from "../redux/Contacts/ContactsSlice";
 import { handleStartChat } from "../redux/Chats/ChatsSlice";
 import { adCalendar, favoriteAd } from "../redux/Posts/AdsSlice";
 import "./Ads.css";
+import { setValidModal } from "../redux/Auth/authSlice";
 
 export function PrevButton(props) {
   const { enabled, onClick } = props;
@@ -340,10 +341,14 @@ function ViewAd() {
                     style={{ color: "#A0C49D", cursor: "pointer" }}
                     className="me-2"
                     onClick={() => {
-                      dispatch(favoriteAd(currentAd.id));
-                      setTimeout(() => {
-                        getAdInfo();
-                      }, 100);
+                      if (user.is_verified) {
+                        dispatch(favoriteAd(currentAd.id));
+                        setTimeout(() => {
+                          getAdInfo();
+                        }, 100);
+                      } else {
+                        dispatch(setValidModal(true));
+                      }
                     }}
                   />
                 )
@@ -843,7 +848,7 @@ function ViewAd() {
             {user?.userId === null
             || (user?.userId !== null && user?.role === "client") ? (
                 chatId !== null ? (
-                  <Button variant="success" className="w-100" onClick={() => navigate(`/messages?chatId=${chatId}`)}>Go to Chat</Button>
+                  <Button variant="success" className="w-100" disabled={!user.is_verified} onClick={() => navigate(`/messages?chatId=${chatId}`)}>Go to Chat</Button>
                 ) : (
                   <Form
                     className="message-vendor-form"
@@ -937,6 +942,7 @@ function ViewAd() {
                       type="button"
                       className="btn btn-success roboto-semi-bold-16px-information w-100"
                       onClick={submitVendorRequestForm}
+                      disabled={!user.is_verified}
                     >
                       Send
                     </Button>

@@ -508,15 +508,9 @@ function PostAd() {
         && (currentSubscription.status === "unpaid"
           || (vendorAds.length > 0
             && currentSubscription?.type?.allowed_ads <= vendorAds.length)))
+      || !user.is_verified
     ) { navigate("/my-ads"); }
   }, [currentSubscription, vendorAds]);
-
-  useEffect(() => {
-    if (
-      currentSubscription === null
-      || (currentSubscription && currentSubscription.status === "unpaid")
-    ) { navigate("/my-ads"); }
-  }, [currentSubscription]);
 
   return (
     <div style={{ position: "relative", overflowX: "hidden" }}>

@@ -20,7 +20,7 @@ const ProtectedRoute = ({ children, role }) => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (role && user.role && user.role !== role) navigate("/");
+    if (role && user.role !== role) navigate("/");
   }, [role, user]);
 
   if (user?.accessToken) {

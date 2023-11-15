@@ -8,10 +8,12 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Pagination from "./Pagination";
 import { secureInstance } from "../../axios/config";
 import { setAdsList, setShowFilters } from "../redux/Search/SearchSlice";
+import { setValidModal } from "../redux/Auth/authSlice";
 
 const Ads = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { user } = useSelector((state) => state.auth);
   const { adsList } = useSelector((state) => state.search.data);
   const { count } = useSelector((state) => state.search.data.pagination);
 
@@ -111,7 +113,7 @@ const Ads = () => {
                             onClick={(e) => {
                               e.preventDefault();
                               e.stopPropagation();
-                              handleFavoriteAd(ad.id);
+                              user.is_verified ? handleFavoriteAd(ad.id) : dispatch(setValidModal(true));
                             }}
                           />
                         </div>

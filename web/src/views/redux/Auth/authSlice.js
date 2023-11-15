@@ -16,6 +16,7 @@ const initialState = {
     is_verified: true,
   },
   showVerifyModal: false,
+  validModal: true,
   userCompany: null,
   screenLoading: false,
   isRegistered: false,
@@ -57,6 +58,26 @@ export const handleLogin = createAsyncThunk(
           email,
           password,
         },
+      });
+      setCookie("refresh_token", response.data.refresh, 7);
+
+      return response.data; // Assuming your loginAPI returns data with access_token, user_id, and role_id
+    } catch (err) {
+      // Use `err.response.data` as `action.payload` for a `rejected` action,
+      // by explicitly returning it using the `rejectWithValue()` utility
+      return rejectWithValue(err.response.data);
+    }
+  },
+);
+
+export const handleResetPassword = createAsyncThunk(
+  "auth/resetPassword",
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await instance.request({
+        url: "/api/password-reset/confirm/",
+        method: "Post",
+        data,
       });
       setCookie("refresh_token", response.data.refresh, 7);
 
@@ -117,6 +138,7 @@ export const verifyAccount = createAsyncThunk(
         method: "Patch",
         data,
       });
+      setCookie("refresh_token", response.data.refresh, 7);
 
       // window.location.replace("/");
       return { ...response.data }; // Assuming your loginAPI returns data with access_token, user_id, and role_id
@@ -152,6 +174,9 @@ export const authSlice = createSlice({
     setShowVerifyModal: (state, action) => {
       state.showVerifyModal = action.payload;
     },
+    setValidModal: (state, action) => {
+      state.validModal = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -177,6 +202,34 @@ export const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+      .addCase(handleResetPassword.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.UserSuccessAlert = false;
+        state.UserErrorAlert = false;
+      })
+      .addCase(handleResetPassword.fulfilled, (state, action) => {
+        state.loading = false;
+        const { access, user } = action.payload;
+        state.user.accessToken = access;
+        state.user.userId = user.id;
+        state.user.userImage = user.image;
+        state.user.userCompanyId = user.user_company?.id;
+        state.user.first_name = user.first_name;
+        state.user.last_name = user.last_name;
+        state.user.role = user.role_type;
+        state.user.is_verified = user.is_verified;
+        state.isLoggedInState = true;
+        state.userCompany = user.user_company;
+        state.error = action.payload.message;
+        state.UserSuccessAlert = true;
+        window.location.href = "/";
+      })
+      .addCase(handleResetPassword.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload.message;
+        state.UserErrorAlert = true;
+      })
       .addCase(verifyAccount.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -185,6 +238,17 @@ export const authSlice = createSlice({
       })
       .addCase(verifyAccount.fulfilled, (state, action) => {
         state.loading = false;
+        const { access, user } = action.payload;
+        state.user.accessToken = access;
+        state.user.userId = user.id;
+        state.user.userImage = user.image;
+        state.user.userCompanyId = user.user_company?.id;
+        state.user.first_name = user.first_name;
+        state.user.last_name = user.last_name;
+        state.user.role = user.role_type;
+        state.user.is_verified = user.is_verified;
+        state.isLoggedInState = true;
+        state.userCompany = user.user_company;
         state.error = action.payload.message;
         state.UserSuccessAlert = true;
       })
@@ -192,6 +256,9 @@ export const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload.message;
         state.UserErrorAlert = true;
+        if (window.location.pathname !== "/") {
+          window.location.href = "/";
+        }
       })
       .addCase(sendVerifyAccountEmail.pending, (state) => {
         state.loading = true;
@@ -211,6 +278,8 @@ export const authSlice = createSlice({
       .addCase(handleRegister.fulfilled, (state) => {
         state.loading = false;
         state.isRegistered = true;
+        state.isWelcomeUserAlert = true;
+        state.showVerifyModal = true;
       })
       .addCase(handleRegister.rejected, (state, action) => {
         state.loading = false;
@@ -254,6 +323,7 @@ export const {
   handleUserAlerts,
   setScreenLoading,
   setShowVerifyModal,
+  setValidModal,
 } = authSlice.actions;
 
 // Export the reducer and actions
