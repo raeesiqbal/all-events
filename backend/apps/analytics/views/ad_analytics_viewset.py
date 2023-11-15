@@ -28,10 +28,12 @@ from rest_framework.permissions import IsAuthenticated
 
 # constants
 from apps.users.constants import USER_ROLE_TYPES
+from apps.subscriptions.constants import SUBSCRIPTION_STATUS
 
 # models
 from apps.analytics.models import AdReview, Chat, FavouriteAd, Message
 from apps.ads.models import Ad
+from apps.subscriptions.models import Subscription
 
 # serializers
 
@@ -58,76 +60,90 @@ class AnalyticViewSet(BaseViewset):
     def home(self, request, *args, **kwargs):
         ad = request.GET.get("ad")
         date_range = request.GET.get("date_range")
+        subscription = Subscription.objects.filter(
+            company__user=request.user, status=SUBSCRIPTION_STATUS["ACTIVE"]
+        ).first()
 
-        vendor_ad_fav = FavouriteAd.objects.filter(ad__company__user=request.user)
-        vendor_ad_reviews = AdReview.objects.filter(ad__company__user=request.user)
-        vendor_ad_messages = Message.objects.filter(
-            chat__ad__company__user=request.user
-        )
-
-        if ad:
-            vendor_ad_fav = vendor_ad_fav.filter(ad_id=ad)
-            vendor_ad_reviews = vendor_ad_reviews.filter(ad_id=ad)
-            vendor_ad_messages = vendor_ad_messages.filter(chat__ad_id=ad)
-
-        ad_favourite_analytics = []
-        ad_review_analytics = []
-        ad_message_analytics = []
-
-        if DATE_RANGE_MAPPING.get(date_range, False):
-            # Vendor ad favourite analytics
-            vendor_ad_fav = vendor_ad_fav.filter(
-                created_at__gte=DATE_RANGE_MAPPING[date_range]
-            )
-            ad_fav_queryset = vendor_ad_fav.annotate(day=TruncDate("created_at"))
-            ad_fav_queryset = ad_fav_queryset.values("day").annotate(count=Count("id"))
-            ad_favourite_analytics = [
-                {entry["day"].strftime("%Y-%m-%d"): entry["count"]}
-                for entry in ad_fav_queryset
-            ]
-            # Vendor ad reviews analytics
-            vendor_ad_reviews = vendor_ad_reviews.filter(
-                created_at__gte=DATE_RANGE_MAPPING[date_range]
-            )
-            ad_reviews_queryset = vendor_ad_reviews.annotate(
-                day=TruncDate("created_at")
-            )
-            ad_reviews_queryset = ad_reviews_queryset.values("day").annotate(
-                count=Count("id")
-            )
-            ad_review_analytics = [
-                {entry["day"].strftime("%Y-%m-%d"): entry["count"]}
-                for entry in ad_reviews_queryset
-            ]
-            # Vendor ad messages analytics
-            vendor_ad_messages = vendor_ad_messages.filter(
-                created_at__gte=DATE_RANGE_MAPPING[date_range]
-            )
-            ad_messages_queryset = vendor_ad_messages.annotate(
-                day=TruncDate("created_at")
-            )
-            ad_messages_queryset = ad_messages_queryset.values("day").annotate(
-                count=Count("id")
+        if subscription and subscription.type.analytics:
+            vendor_ad_fav = FavouriteAd.objects.filter(ad__company__user=request.user)
+            vendor_ad_reviews = AdReview.objects.filter(ad__company__user=request.user)
+            vendor_ad_messages = Message.objects.filter(
+                chat__ad__company__user=request.user
             )
 
-            ad_message_analytics = [
-                {entry["day"].strftime("%Y-%m-%d"): entry["count"]}
-                for entry in ad_messages_queryset
-            ]
+            if ad:
+                vendor_ad_fav = vendor_ad_fav.filter(ad_id=ad)
+                vendor_ad_reviews = vendor_ad_reviews.filter(ad_id=ad)
+                vendor_ad_messages = vendor_ad_messages.filter(chat__ad_id=ad)
 
+            ad_favourite_analytics = []
+            ad_review_analytics = []
+            ad_message_analytics = []
+
+            if DATE_RANGE_MAPPING.get(date_range, False):
+                # Vendor ad favourite analytics
+                vendor_ad_fav = vendor_ad_fav.filter(
+                    created_at__gte=DATE_RANGE_MAPPING[date_range]
+                )
+                ad_fav_queryset = vendor_ad_fav.annotate(day=TruncDate("created_at"))
+                ad_fav_queryset = ad_fav_queryset.values("day").annotate(
+                    count=Count("id")
+                )
+                ad_favourite_analytics = [
+                    {entry["day"].strftime("%Y-%m-%d"): entry["count"]}
+                    for entry in ad_fav_queryset
+                ]
+                # Vendor ad reviews analytics
+                vendor_ad_reviews = vendor_ad_reviews.filter(
+                    created_at__gte=DATE_RANGE_MAPPING[date_range]
+                )
+                ad_reviews_queryset = vendor_ad_reviews.annotate(
+                    day=TruncDate("created_at")
+                )
+                ad_reviews_queryset = ad_reviews_queryset.values("day").annotate(
+                    count=Count("id")
+                )
+                ad_review_analytics = [
+                    {entry["day"].strftime("%Y-%m-%d"): entry["count"]}
+                    for entry in ad_reviews_queryset
+                ]
+                # Vendor ad messages analytics
+                vendor_ad_messages = vendor_ad_messages.filter(
+                    created_at__gte=DATE_RANGE_MAPPING[date_range]
+                )
+                ad_messages_queryset = vendor_ad_messages.annotate(
+                    day=TruncDate("created_at")
+                )
+                ad_messages_queryset = ad_messages_queryset.values("day").annotate(
+                    count=Count("id")
+                )
+
+                ad_message_analytics = [
+                    {entry["day"].strftime("%Y-%m-%d"): entry["count"]}
+                    for entry in ad_messages_queryset
+                ]
+
+            return Response(
+                status=status.HTTP_200_OK,
+                data=ResponseInfo().format_response(
+                    data={
+                        "total_ad_fav": vendor_ad_fav.count(),
+                        "total_ad_reviews": vendor_ad_reviews.count(),
+                        "total_ad_messages": vendor_ad_messages.count(),
+                        "ad_favourite_analytics": ad_favourite_analytics,
+                        "ad_review_analytics": ad_review_analytics,
+                        "ad_message_analytics": ad_message_analytics,
+                    },
+                    status_code=status.HTTP_200_OK,
+                    message="Analytics",
+                ),
+            )
         return Response(
-            status=status.HTTP_200_OK,
+            status=status.HTTP_400_BAD_REQUEST,
             data=ResponseInfo().format_response(
-                data={
-                    "total_ad_fav": vendor_ad_fav.count(),
-                    "total_ad_reviews": vendor_ad_reviews.count(),
-                    "total_ad_messages": vendor_ad_messages.count(),
-                    "ad_favourite_analytics": ad_favourite_analytics,
-                    "ad_review_analytics": ad_review_analytics,
-                    "ad_message_analytics": ad_message_analytics,
-                },
-                status_code=status.HTTP_200_OK,
-                message="Analytics",
+                data={},
+                status_code=status.HTTP_400_BAD_REQUEST,
+                message="Your plan do not support Analytics",
             ),
         )
 
@@ -240,21 +256,28 @@ class AnalyticViewSet(BaseViewset):
 
     @action(detail=False, url_path="dashboard", methods=["get"])
     def vendor_dashboard(self, request, *args, **kwargs):
-        messages_count = Message.objects.filter(
-            chat__ad__company__user=request.user
-        ).count()
-        vendor_chats = Chat.objects.filter(ad__company__user=request.user)
-        unread_chats = vendor_chats.filter(is_read_vendor=False).count()
-        reviews_count = AdReview.objects.filter(ad__company__user=request.user).count()
+        messages_count = None
+        reviews_count = None
+        vendor_ad_views = None
+        fav_ads_count = None
+        subscription = Subscription.objects.filter(
+            company__user=request.user, status=SUBSCRIPTION_STATUS["ACTIVE"]
+        ).first()
+        if subscription and subscription.type.analytics:
+            messages_count = Message.objects.filter(
+                chat__ad__company__user=request.user
+            ).count()
+            reviews_count = AdReview.objects.filter(
+                ad__company__user=request.user
+            ).count()
+            fav_ads_count = FavouriteAd.objects.filter(
+                ad__company__user=request.user
+            ).count()
+            vendor_ad_views = vendor_ads.aggregate(
+                ads_total_views=Sum(F("total_views"))
+            )["ads_total_views"]
+
         vendor_ads = Ad.objects.filter(company__user=request.user)
-        vendor_ad_views = vendor_ads.aggregate(ads_total_views=Sum(F("total_views")))[
-            "ads_total_views"
-        ]
-        fav_ads_count = FavouriteAd.objects.filter(
-            ad__company__user=request.user
-        ).count()
-        sub = Subscription.objects.filter(company__user=request.user).first()
-        vendor_sub_detail = SubscriptionDashboardSerializer(sub).data
         my_ads = AdDashboardSerializer(vendor_ads, many=True).data
         user_details = GetUserDashboardSerializer(request.user).data
 
@@ -272,6 +295,6 @@ class AnalyticViewSet(BaseViewset):
             data=ResponseInfo().format_response(
                 data=data,
                 status_code=status.HTTP_200_OK,
-                message="Message Analytics",
+                message="Company Dashboard",
             ),
         )
