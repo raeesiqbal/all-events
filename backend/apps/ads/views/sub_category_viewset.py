@@ -35,7 +35,7 @@ class SubCategoryViewSet(BaseViewset):
     }
     action_permissions = {
         "default": [],
-        "create": [IsAuthenticated | IsSuperAdmin | IsVendorUser],
+        "create": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
         "list": [],
         "retrieve": [],
         "public_related_subcategory": [],

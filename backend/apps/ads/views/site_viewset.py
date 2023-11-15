@@ -32,11 +32,6 @@ class SiteQuestionViewSet(BaseViewset):
         site_faqs = SiteFAQ.objects.filter(
             sub_category__id=kwargs["pk"]
         ).prefetch_related("site_faq_questions")
-        # for i in site_faqs:
-        #     for c in i.site_faq_questions.all():
-        #         print(c)
-
-        # site_questions = SiteQuestion.objects.filter(site_faq=site_faq)
         serializer = self.get_serializer(site_faqs, many=True).data
 
         return Response(

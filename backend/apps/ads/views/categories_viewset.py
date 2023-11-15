@@ -1,5 +1,3 @@
-
-from django.contrib.contenttypes.models import ContentType
 from rest_framework.decorators import action
 from django_filters.rest_framework.backends import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter, SearchFilter
@@ -13,7 +11,7 @@ from apps.ads.serializers.get_serializers import (
     RelatedSubCategoryGetSerializer,
 )
 from apps.ads.serializers.update_serializer import CategoryUpdateSerializer
-from apps.users.models import User
+
 
 from apps.users.permissions import IsSuperAdmin, IsVendorUser
 from apps.utils.views.base import BaseViewset, ResponseInfo
