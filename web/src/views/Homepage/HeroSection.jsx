@@ -12,6 +12,7 @@ import {
 import heroImg1 from "../../assets/images/harold.jpg";
 import {
   listSuggestions,
+  setCountry,
   setPayloadData,
   setSearchKeyword,
 } from "../redux/Search/SearchSlice";
@@ -39,6 +40,7 @@ function HeroSection() {
   };
 
   const handleSearchButton = () => {
+    dispatch(setCountry({ country: "" }));
     if (window.location.pathname === "/") navigate("/search");
   };
 

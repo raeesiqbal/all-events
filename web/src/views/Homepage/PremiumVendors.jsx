@@ -9,7 +9,7 @@ import { faHeart } from "@fortawesome/free-regular-svg-icons";
 import EmblaCarousel from "../../components/Carousel/Carousel";
 import placeholderIcon from "../../assets/images/placeholder.jpg";
 import { favoriteAd } from "../redux/Posts/AdsSlice";
-import { setCategories } from "../redux/Search/SearchSlice";
+import { setCategories, setCountry } from "../redux/Search/SearchSlice";
 import { setValidModal } from "../redux/Auth/authSlice";
 
 function PremiumVendors() {
@@ -136,6 +136,7 @@ function PremiumVendors() {
                 className="roboto-semi-bold-16px-information btn-height w-100"
                 onClick={() => {
                   dispatch(setCategories({ categories: ["Vendors"] }));
+                  dispatch(setCountry({ country: "" }));
                   navigate("/search");
                 }}
               >

@@ -9,7 +9,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { handleProfileSettingsCurrentView } from "./views/redux/TabNavigation/TabNavigationSlice";
 import { currentSubscriptionDetails, setShowModal } from "./views/redux/Subscriptions/SubscriptionsSlice";
-import { getAuthenticatedUser, handleUserAlerts, sendVerifyAccountEmail, setValidModal } from "./views/redux/Auth/authSlice";
+import { getAuthenticatedUser, handleUserAlerts, handleWelcomeUserAlert, sendVerifyAccountEmail, setValidModal } from "./views/redux/Auth/authSlice";
 import { listCountries } from "./views/redux/Posts/AdsSlice";
 import Header from "./components/Navbar/Navbar";
 import TabNavigation from "./components/TabNavigation/TabNavigation";
@@ -125,7 +125,8 @@ function App() {
 
   useEffect(() => {
     dispatch(setValidModal(true));
-  }, [location.pathname]);
+    if (isWelcomeUserAlert) dispatch(handleWelcomeUserAlert(false));
+  }, [location]);
 
   return (
     <>

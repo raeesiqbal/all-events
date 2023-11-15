@@ -21,7 +21,7 @@ import arrowBack from "../../assets/images/arrow-back.svg";
 import visibility from "../../assets/images/visibility.svg";
 import visibilityHide from "../../assets/images/visibility-hide.svg";
 import { toggleLoginModal, toggleLoginView } from "../redux/Login/loginSlice";
-import { toggleRegisterModal, toggleRegisterView } from "../redux/Register/RegisterSlice";
+import { toggleRegisterView } from "../redux/Register/RegisterSlice";
 import StepperForm from "../../components/Stepper/Stepper";
 import {
   handleNextStep,
@@ -34,8 +34,6 @@ import {
   handleLogin,
   handleRegister,
   handleResgisterationStatus,
-  handleWelcomeUserAlert,
-  sendVerifyAccountEmail,
   setShowVerifyModal,
 } from "../redux/Auth/authSlice";
 import DynamicRegisterationView from "./ViewHelper";

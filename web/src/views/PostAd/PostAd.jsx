@@ -55,7 +55,7 @@ function PostAd() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { isWelcomeUserAlert, user } = useSelector((state) => state.auth);
+  const { user } = useSelector((state) => state.auth);
   const currentSubscription = useSelector(
     (state) => state.subscriptions.currentSubscriptionDetails,
   );
@@ -485,18 +485,6 @@ function PostAd() {
   }, [AdPostErrorAlert, mediaError]);
 
   useEffect(() => {
-    if (isWelcomeUserAlert) {
-      // setIsWelcomeAlert(true);
-
-      setTimeout(() => {
-        dispatch(handleWelcomeUserAlert(false));
-        // setIsWelcomeAlert(false);
-      }, 6000);
-    }
-    // return () => clearTimeout(alertTimeout);
-  }, [isWelcomeUserAlert]);
-
-  useEffect(() => {
     dispatch(setImagesToUpload([]));
     dispatch(listVendorAds());
   }, []);
@@ -514,22 +502,6 @@ function PostAd() {
 
   return (
     <div style={{ position: "relative", overflowX: "hidden" }}>
-      <Alert
-        severity="info"
-        variant="filled"
-        style={{
-          position: "fixed",
-          top: isWelcomeUserAlert ? "154px" : "-80px",
-          left: "50%",
-          transform: "translateX(-50%)",
-          transition: "ease 200ms",
-          opacity: isWelcomeUserAlert ? 1 : 0,
-          zIndex: 1,
-          // width: "150px",
-        }}
-      >
-        {`Welcome ${user?.first_name} ${user?.last_name}!`}
-      </Alert>
       <Alert
         severity="success"
         variant="filled"
