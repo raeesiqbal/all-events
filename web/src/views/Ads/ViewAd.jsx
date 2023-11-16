@@ -80,8 +80,8 @@ function ViewAd() {
   const params = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const user = useSelector((state) => state.auth.user);
-  const calendar = useSelector((state) => state.Ads.calendar);
+  const { user } = useSelector((state) => state.auth);
+  const { calendar } = useSelector((state) => state.Ads);
 
   const mediaQuery = useWindowDimensions();
   const options = { slidesToScroll: "auto", containScroll: "trimSnaps" };

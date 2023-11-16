@@ -4,26 +4,20 @@ import {
   Col,
   Container,
   Form,
-  Modal,
   Row,
   Spinner,
 } from "react-bootstrap";
 import * as formik from "formik";
 import * as Yup from "yup";
 import { Alert } from "@mui/material";
-import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import oldPasswordIcon from "../../assets/images/profile-settings/old-password.svg";
 import newPasswordIcon from "../../assets/images/profile-settings/new-password.svg";
 import confirmPasswordIcon from "../../assets/images/profile-settings/confirm-password.svg";
-// import contactIcon from "../../assets/images/post-ad/contact.svg";
-
-// import profile_bg from "../../assets/images/profile-settings/profile-bg.svg";
-import "./ProfileSettings.css";
 import { secureInstance } from "../../axios/config";
-import { deleteCookie } from "../../utilities/utils";
 import { handleProfileSettingsCurrentView } from "../redux/TabNavigation/TabNavigationSlice";
 import ProfilePic from "../../components/ProfilePic/ProfilePic";
+import "./ProfileSettings.css";
 
 function ChangePassword() {
   const { Formik } = formik;
@@ -31,9 +25,7 @@ function ChangePassword() {
   const [isFailedAlert, setIsFailedAlert] = useState(false);
   const [isFailedAlertMessage, setIsFailedAlertMessage] = useState(null);
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
   const dispatch = useDispatch();
-  const user = useSelector((state) => state.auth.user);
 
   const initialValues = {
     old_password: "",

@@ -17,17 +17,15 @@ import postalIcon from "../../assets/images/profile-settings/postal.svg";
 import fiscalIcon from "../../assets/images/profile-settings/fiscal.svg";
 import firmIcon from "../../assets/images/profile-settings/firm.svg";
 import bankIcon from "../../assets/images/profile-settings/bank.svg";
-
-// import profile_bg from "../../assets/images/profile-settings/profile-bg.svg";
-import "./ProfileSettings.css";
 import { secureInstance } from "../../axios/config";
 import { handleProfileSettingsCurrentView } from "../redux/TabNavigation/TabNavigationSlice";
 import CompanyPic from "../../components/CompanyPic/CompanyPic";
+import "./ProfileSettings.css";
 
 function CompanyInformationSettings() {
   const { Formik } = formik;
   const dispatch = useDispatch();
-  const { countries } = useSelector((state) => state.Ads.countries);
+  const { countries } = useSelector((state) => state.Ads);
 
   const countryOptions = countries.map((country) => ({
     value: country.id,
@@ -37,7 +35,7 @@ function CompanyInformationSettings() {
   const [isAlert, setIsAlert] = useState(false);
   const [isFailedAlert, setIsFailedAlert] = useState(false);
   const [loading, setLoading] = useState(false);
-  const user = useSelector((state) => state.auth.user);
+  const { user } = useSelector((state) => state.auth);
   const companyInformation = useSelector(
     (state) => state.settings.companyInformation,
   );

@@ -161,195 +161,199 @@ function Dashboard() {
         </Row>
       </Container>
 
-      <Container
-        // fluid
-        style={{ marginTop: "60px", marginBottom: "20px" }}
-        className=""
-      >
-        {/* <Row className="d-flex justify-content-center align-items-center"> */}
-        <Row className="dashboard-analytics-container">
-          <Col xs={10} md={12} lg={12} xl={12}>
-            <Row className="mb-5 d-flex justify-content-center align-items-center">
-              <div className="roboto-semi-bold-28px-h2 mb-5">Analytics</div>
-              <Col md={3}>
-                <Card
-                  // style={{ maxWidth: "256px" }}
-                  className="custom-card-analytics-dashboard"
-                  onClick={() => dispatch(
-                    handleProfileSettingsCurrentView("PersonalInformation"),
-                  )}
-                >
-                  <Card.Body>
-                    <div className="d-flex align-items-center">
-                      <div
-                        style={{
-                          width: "40px",
-                          height: "40px",
-                          backgroundColor: "rgb(234,121,186,0.1)",
-                          borderRadius: "50%",
-                          marginRight: "16px",
-                        }}
-                        className="d-flex justify-content-center align-items-center"
-                      >
-                        <img
-                          src={viewsIcon}
-                          alt="personalInfo"
-                          className="mb-4"
-                          style={{ marginTop: "24px" }}
-                        />
-                      </div>
-
-                      <div>Total Views</div>
-                    </div>
-                    <Card.Text
-                      className="roboto-bold-36px-h1"
-                      style={{
-                        marginTop: "36px",
-                        fontSize: "40px",
-                        fontWeight: "400",
-                        marginBottom: "8px",
-                      }}
+      {
+        currentSubscription?.type?.analytics && (
+          <Container
+            // fluid
+            style={{ marginTop: "60px", marginBottom: "20px" }}
+            className=""
+          >
+            {/* <Row className="d-flex justify-content-center align-items-center"> */}
+            <Row className="dashboard-analytics-container">
+              <Col xs={10} md={12} lg={12} xl={12}>
+                <Row className="mb-5 d-flex justify-content-center align-items-center">
+                  <div className="roboto-semi-bold-28px-h2 mb-5">Analytics</div>
+                  <Col md={3}>
+                    <Card
+                      // style={{ maxWidth: "256px" }}
+                      className="custom-card-analytics-dashboard"
+                      onClick={() => dispatch(
+                        handleProfileSettingsCurrentView("PersonalInformation"),
+                      )}
                     >
-                      {dashboardData?.total_views || "0"}
-                    </Card.Text>
-                  </Card.Body>
-                </Card>
-              </Col>
-              <Col md={3}>
-                <Card
-                  // style={{ maxWidth: "256px" }}
-                  className="custom-card-analytics-dashboard"
-                  onClick={() => dispatch(
-                    handleProfileSettingsCurrentView("CompanyInformation"),
-                  )}
-                >
-                  <Card.Body>
-                    <div className="d-flex align-items-center">
-                      <div
-                        style={{
-                          width: "40px",
-                          height: "40px",
-                          backgroundColor: "rgb(234,121,186,0.1)",
-                          borderRadius: "50%",
-                          marginRight: "16px",
-                        }}
-                        className="d-flex justify-content-center align-items-center"
-                      >
-                        <img
-                          src={savesIcon}
-                          alt="personalInfo"
-                          className="mb-4"
-                          style={{ marginTop: "24px" }}
-                        />
-                      </div>
+                      <Card.Body>
+                        <div className="d-flex align-items-center">
+                          <div
+                            style={{
+                              width: "40px",
+                              height: "40px",
+                              backgroundColor: "rgb(234,121,186,0.1)",
+                              borderRadius: "50%",
+                              marginRight: "16px",
+                            }}
+                            className="d-flex justify-content-center align-items-center"
+                          >
+                            <img
+                              src={viewsIcon}
+                              alt="personalInfo"
+                              className="mb-4"
+                              style={{ marginTop: "24px" }}
+                            />
+                          </div>
 
-                      <div>Total Saves</div>
-                    </div>
-                    {/* <Card.Title>Company Information</Card.Title> */}
-                    <Card.Text
-                      className="roboto-bold-36px-h1"
-                      style={{
-                        marginTop: "36px",
-                        fontSize: "40px",
-                        fontWeight: "400",
-                        marginBottom: "8px",
-                      }}
+                          <div>Total Views</div>
+                        </div>
+                        <Card.Text
+                          className="roboto-bold-36px-h1"
+                          style={{
+                            marginTop: "36px",
+                            fontSize: "40px",
+                            fontWeight: "400",
+                            marginBottom: "8px",
+                          }}
+                        >
+                          {dashboardData?.total_views || "0"}
+                        </Card.Text>
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                  <Col md={3}>
+                    <Card
+                      // style={{ maxWidth: "256px" }}
+                      className="custom-card-analytics-dashboard"
+                      onClick={() => dispatch(
+                        handleProfileSettingsCurrentView("CompanyInformation"),
+                      )}
                     >
-                      {dashboardData?.total_saves || "0"}
-                    </Card.Text>
-                  </Card.Body>
-                </Card>
-              </Col>
+                      <Card.Body>
+                        <div className="d-flex align-items-center">
+                          <div
+                            style={{
+                              width: "40px",
+                              height: "40px",
+                              backgroundColor: "rgb(234,121,186,0.1)",
+                              borderRadius: "50%",
+                              marginRight: "16px",
+                            }}
+                            className="d-flex justify-content-center align-items-center"
+                          >
+                            <img
+                              src={savesIcon}
+                              alt="personalInfo"
+                              className="mb-4"
+                              style={{ marginTop: "24px" }}
+                            />
+                          </div>
 
-              {/* <Row> */}
-              <Col md={3}>
-                <Card
-                  // style={{ maxWidth: "256px" }}
-                  className="custom-card-analytics-dashboard"
-                  onClick={() => dispatch(handleProfileSettingsCurrentView("ChangePassword"))}
-                >
-                  <Card.Body>
-                    <div className="d-flex align-items-center">
-                      <div
-                        style={{
-                          width: "40px",
-                          height: "40px",
-                          backgroundColor: "rgb(234,121,186,0.1)",
-                          borderRadius: "50%",
-                          marginRight: "16px",
-                        }}
-                        className="d-flex justify-content-center align-items-center"
-                      >
-                        <img
-                          src={reviewsIcon}
-                          alt="personalInfo"
-                          className="mb-4"
-                          style={{ marginTop: "24px" }}
-                        />
-                      </div>
+                          <div>Total Saves</div>
+                        </div>
+                        {/* <Card.Title>Company Information</Card.Title> */}
+                        <Card.Text
+                          className="roboto-bold-36px-h1"
+                          style={{
+                            marginTop: "36px",
+                            fontSize: "40px",
+                            fontWeight: "400",
+                            marginBottom: "8px",
+                          }}
+                        >
+                          {dashboardData?.total_saves || "0"}
+                        </Card.Text>
+                      </Card.Body>
+                    </Card>
+                  </Col>
 
-                      <div>Total Reviews</div>
-                    </div>
-                    <Card.Text
-                      className="roboto-bold-36px-h1"
-                      style={{
-                        marginTop: "36px",
-                        fontSize: "40px",
-                        fontWeight: "400",
-                        marginBottom: "8px",
-                      }}
+                  {/* <Row> */}
+                  <Col md={3}>
+                    <Card
+                      // style={{ maxWidth: "256px" }}
+                      className="custom-card-analytics-dashboard"
+                      onClick={() => dispatch(handleProfileSettingsCurrentView("ChangePassword"))}
                     >
-                      {dashboardData?.total_reviews || "0"}
-                    </Card.Text>
-                  </Card.Body>
-                </Card>
-              </Col>
-              <Col md={3}>
-                <Card
-                  // style={{ maxWidth: "256px" }}
-                  className="custom-card-analytics-dashboard"
-                  onClick={() => dispatch(handleProfileSettingsCurrentView("DeleteAccount"))}
-                >
-                  <Card.Body>
-                    <div className="d-flex align-items-center">
-                      <div
-                        style={{
-                          width: "40px",
-                          height: "40px",
-                          backgroundColor: "rgb(234,121,186,0.1)",
-                          borderRadius: "50%",
-                          marginRight: "16px",
-                        }}
-                        className="d-flex justify-content-center align-items-center"
-                      >
-                        <img
-                          src={messagesIcon}
-                          alt="personalInfo"
-                          className="mb-4"
-                          style={{ marginTop: "24px" }}
-                        />
-                      </div>
+                      <Card.Body>
+                        <div className="d-flex align-items-center">
+                          <div
+                            style={{
+                              width: "40px",
+                              height: "40px",
+                              backgroundColor: "rgb(234,121,186,0.1)",
+                              borderRadius: "50%",
+                              marginRight: "16px",
+                            }}
+                            className="d-flex justify-content-center align-items-center"
+                          >
+                            <img
+                              src={reviewsIcon}
+                              alt="personalInfo"
+                              className="mb-4"
+                              style={{ marginTop: "24px" }}
+                            />
+                          </div>
 
-                      <div>Total Messages</div>
-                    </div>
-                    <Card.Text
-                      className="roboto-bold-36px-h1"
-                      style={{
-                        marginTop: "36px",
-                        fontSize: "40px",
-                        fontWeight: "400",
-                        marginBottom: "8px",
-                      }}
+                          <div>Total Reviews</div>
+                        </div>
+                        <Card.Text
+                          className="roboto-bold-36px-h1"
+                          style={{
+                            marginTop: "36px",
+                            fontSize: "40px",
+                            fontWeight: "400",
+                            marginBottom: "8px",
+                          }}
+                        >
+                          {dashboardData?.total_reviews || "0"}
+                        </Card.Text>
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                  <Col md={3}>
+                    <Card
+                      // style={{ maxWidth: "256px" }}
+                      className="custom-card-analytics-dashboard"
+                      onClick={() => dispatch(handleProfileSettingsCurrentView("DeleteAccount"))}
                     >
-                      {dashboardData?.total_messages || "0"}
-                    </Card.Text>
-                  </Card.Body>
-                </Card>
+                      <Card.Body>
+                        <div className="d-flex align-items-center">
+                          <div
+                            style={{
+                              width: "40px",
+                              height: "40px",
+                              backgroundColor: "rgb(234,121,186,0.1)",
+                              borderRadius: "50%",
+                              marginRight: "16px",
+                            }}
+                            className="d-flex justify-content-center align-items-center"
+                          >
+                            <img
+                              src={messagesIcon}
+                              alt="personalInfo"
+                              className="mb-4"
+                              style={{ marginTop: "24px" }}
+                            />
+                          </div>
+
+                          <div>Total Messages</div>
+                        </div>
+                        <Card.Text
+                          className="roboto-bold-36px-h1"
+                          style={{
+                            marginTop: "36px",
+                            fontSize: "40px",
+                            fontWeight: "400",
+                            marginBottom: "8px",
+                          }}
+                        >
+                          {dashboardData?.total_messages || "0"}
+                        </Card.Text>
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                </Row>
               </Col>
             </Row>
-          </Col>
-        </Row>
-      </Container>
+          </Container>
+        )
+      }
 
       <Container>
         <div className="roboto-semi-bold-28px-h2 mb-5">My Subscription</div>

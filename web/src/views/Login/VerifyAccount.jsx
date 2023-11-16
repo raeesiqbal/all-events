@@ -16,7 +16,7 @@ const VerifyAccount = () => {
   useEffect(() => {
     const verifyAndRedirect = async () => {
       if (token) {
-        await dispatch(verifyAccount({ data: { token }, navigate }));
+        await dispatch(verifyAccount({ token }));
         navigate(user.role_type === "vendor" ? "/dashboard" : "/");
       }
     };

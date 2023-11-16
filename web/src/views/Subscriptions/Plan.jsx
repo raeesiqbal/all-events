@@ -16,7 +16,7 @@ const Plan = ({
 }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const user = useSelector((state) => state.auth.user);
+  const { user } = useSelector((state) => state.auth);
   const { currentPaymentMethod } = useSelector((state) => state.subscriptions);
 
   const [currentPlanPrice, setCurrentPlanPrice] = useState();

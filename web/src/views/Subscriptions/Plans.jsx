@@ -17,7 +17,7 @@ const Plans = () => {
   const {
     plans, freePlan, currentSubscription, SubscriptionSuccessAlert, SubscriptionErrorAlert, error, loading, listPlansLoading,
   } = useSelector((state) => state.subscriptions);
-  const user = useSelector((state) => state.auth.user);
+  const { user } = useSelector((state) => state.auth);
 
   const [isHovered, setIsHovered] = useState(false);
   const [currentInterval, setCurrentInterval] = useState({

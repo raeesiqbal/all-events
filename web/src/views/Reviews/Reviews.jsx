@@ -17,9 +17,9 @@ import { setScreenLoading } from "../redux/Auth/authSlice";
 const Reviews = ({ adId, adName, reviewPosting }) => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
-  const reviews = useSelector((state) => state.reviews.reviews);
+  const { reviews } = useSelector((state) => state.reviews);
+  const { loading } = useSelector((state) => state.Ads);
   const imagesToUpload = useSelector((state) => state.Ads.media_urls.images);
-  const loading = useSelector((state) => state.Ads.loading);
   const offset = 0;
   const page = 1;
   const [limit, setLimit] = useState(10);

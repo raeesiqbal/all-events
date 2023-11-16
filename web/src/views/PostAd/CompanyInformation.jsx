@@ -164,12 +164,12 @@ function CompanyInformation({
         </Modal.Footer>
       </Modal>
       <Row>
-        {/* <div
+        <div
           className="roboto-semi-bold-28px-h2"
           style={{ marginBottom: "40px" }}
         >
           Company Information
-        </div> */}
+        </div>
         <div className="">
           <Col md={6} lg={4}>
             <Form.Group className="form-group mb-3" controlId="form3Example3">

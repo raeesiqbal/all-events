@@ -4,9 +4,9 @@ import { useSelector } from "react-redux";
 import "./card.css";
 
 const BillingCard = ({
-  plan, index, currentInterval, currentSubscription, setCurrentInterval, icon,
+  plan, index, currentInterval, currentSubscription, icon,
 }) => {
-  const user = useSelector((state) => state.auth.user);
+  const { user } = useSelector((state) => state.auth);
 
   const [currentPlanPrice, setCurrentPlanPrice] = useState();
   const [border, setBorder] = useState("1px solid #E9EDF7");

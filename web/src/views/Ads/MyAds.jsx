@@ -32,8 +32,8 @@ function MyAds() {
   const [modalShow, setModalShow] = React.useState(false);
   const [currentAdId, setCurrentAdId] = React.useState(null);
 
-  const user = useSelector((state) => state.auth.user);
-  const vendorAds = useSelector((state) => state.Ads.vendorAds);
+  const { user } = useSelector((state) => state.auth);
+  const { vendorAds } = useSelector((state) => state.Ads);
   const currentSubscription = useSelector(
     (state) => state.subscriptions.currentSubscriptionDetails,
   );

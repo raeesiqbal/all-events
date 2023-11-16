@@ -14,6 +14,7 @@ const initialState = {
     first_name: null,
     last_name: null,
     is_verified: true,
+    newsletter: true,
   },
   showVerifyModal: false,
   validModal: true,
@@ -112,6 +113,25 @@ export const getAuthenticatedUser = createAsyncThunk(
   },
 );
 
+export const handleUserNewsletter = createAsyncThunk(
+  "auth/newsletter",
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await secureInstance.request({
+        url: "/api/users/newsletter/",
+        method: "Patch",
+        data,
+      });
+
+      // window.location.replace("/");
+      return response.data; // Assuming your loginAPI returns data with access_token, user_id, and role_id
+    } catch (err) {
+      // Handle login error here if needed
+      return rejectWithValue(err.response.data);
+    }
+  },
+);
+
 export const sendVerifyAccountEmail = createAsyncThunk(
   "auth/sendVerifyAccountEmail",
   async (data, { rejectWithValue }) => {
@@ -131,7 +151,7 @@ export const sendVerifyAccountEmail = createAsyncThunk(
 
 export const verifyAccount = createAsyncThunk(
   "auth/verifyAccount",
-  async ({ data }, { rejectWithValue }) => {
+  async (data, { rejectWithValue }) => {
     try {
       const response = await instance.request({
         url: "/api/users/verify-account/",
@@ -141,7 +161,7 @@ export const verifyAccount = createAsyncThunk(
       setCookie("refresh_token", response.data.refresh, 7);
 
       // window.location.replace("/");
-      return { ...response.data }; // Assuming your loginAPI returns data with access_token, user_id, and role_id
+      return response.data; // Assuming your loginAPI returns data with access_token, user_id, and role_id
     } catch (err) {
       // Handle login error here if needed
       return rejectWithValue(err.response.data);
@@ -195,6 +215,7 @@ export const authSlice = createSlice({
         state.user.last_name = user.last_name;
         state.user.role = user.role_type;
         state.user.is_verified = user.is_verified;
+        state.user.newsletter = user.newsletter || true;
         state.isLoggedInState = true;
         state.userCompany = user.user_company;
       })
@@ -219,6 +240,7 @@ export const authSlice = createSlice({
         state.user.last_name = user.last_name;
         state.user.role = user.role_type;
         state.user.is_verified = user.is_verified;
+        state.user.newsletter = user.newsletter || true;
         state.isLoggedInState = true;
         state.userCompany = user.user_company;
         state.error = action.payload.message;
@@ -247,6 +269,7 @@ export const authSlice = createSlice({
         state.user.last_name = user.last_name;
         state.user.role = user.role_type;
         state.user.is_verified = user.is_verified;
+        state.user.newsletter = user.newsletter || true;
         state.isLoggedInState = true;
         state.userCompany = user.user_company;
         state.error = action.payload.message;
@@ -265,11 +288,27 @@ export const authSlice = createSlice({
         state.error = null;
       })
       .addCase(sendVerifyAccountEmail.fulfilled, (state) => {
+        state.loading = false;
         state.showVerifyModal = true;
       })
       .addCase(sendVerifyAccountEmail.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        state.error = action.payload.message;
+      })
+      .addCase(handleUserNewsletter.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(handleUserNewsletter.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user.newsletter = action.payload.data;
+        state.error = action.payload.message;
+        state.UserSuccessAlert = true;
+      })
+      .addCase(handleUserNewsletter.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload.message;
+        state.UserErrorAlert = true;
       })
       .addCase(handleRegister.pending, (state) => {
         state.loading = true;
@@ -306,6 +345,7 @@ export const authSlice = createSlice({
         state.user.userCompanyId = data.user_company?.id;
         state.user.userImage = data?.image;
         state.user.is_verified = data.is_verified;
+        state.user.newsletter = data.newsletter || true;
         state.userCompany = data?.user_company;
         // state.loading = false;
         // state.error = action.error.message;

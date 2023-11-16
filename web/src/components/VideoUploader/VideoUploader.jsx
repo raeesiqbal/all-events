@@ -16,9 +16,9 @@ function VideoUploader({ setVideoToUpload, videoToUpload }) {
   const [deleteVideoButton, setDeleteVideoButton] = useState(true);
 
   const dispatch = useDispatch();
-  const isMediaUploading = useSelector((state) => state.Ads.isMediaUploading);
+  const { isMediaUploading } = useSelector((state) => state.Ads);
   const currentSubscription = useSelector(
-    (state) => state.subscriptions.currentSubscriptionDetails
+    (state) => state.subscriptions.currentSubscriptionDetails,
   );
 
   const fileInputRef = React.createRef();
