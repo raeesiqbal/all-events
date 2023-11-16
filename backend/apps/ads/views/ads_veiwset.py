@@ -176,24 +176,24 @@ class AdViewSet(BaseViewset):
         subscription = Subscription.objects.filter(
             company=company, status=SUBSCRIPTION_STATUS["ACTIVE"]
         ).first()
-        if company and subscription:
+        if subscription:
             company_ad_count = Ad.objects.filter(company=company).count()
             if company_ad_count >= subscription.type.allowed_ads:
                 return Response(
-                    status=status.HTTP_200_OK,
+                    status=status.HTTP_400_BAD_REQUEST,
                     data=ResponseInfo().format_response(
                         data={},
-                        status_code=status.HTTP_200_OK,
+                        status_code=status.HTTP_400_BAD_REQUEST,
                         message="You have reached maximum ads as per your subscription",
                     ),
                 )
         else:
             return Response(
-                status=status.HTTP_200_OK,
+                status=status.HTTP_400_BAD_REQUEST,
                 data=ResponseInfo().format_response(
                     data={},
-                    status_code=status.HTTP_200_OK,
-                    message="Action not allowed",
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    message="You don't have any active subscription with us",
                 ),
             )
 
@@ -229,6 +229,58 @@ class AdViewSet(BaseViewset):
                 data=AdGetSerializer(ad).data,
                 status_code=status.HTTP_200_OK,
                 message="Ad created",
+            ),
+        )
+
+    def partial_update(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        media_urls = serializer.validated_data.pop("media_urls", {})
+        faqs = serializer.validated_data.pop("faqs", [])
+        ad_faqs = serializer.validated_data.pop("ad_faq_ad", [])
+        activation_countries = serializer.validated_data.pop("activation_countries", [])
+
+        company = Company.objects.filter(user_id=request.user.id).first()
+        subscription = Subscription.objects.filter(
+            company=company, status=SUBSCRIPTION_STATUS["ACTIVE"]
+        ).first()
+        if subscription:
+            ad = Ad.objects.filter(id=kwargs.get("pk"))
+            ad.first().activation_countries.clear()
+            ad.first().activation_countries.add(*activation_countries)
+            ad.update(**serializer.validated_data)
+            Gallery.objects.filter(ad=ad.first()).update(media_urls=media_urls)
+
+            # faqs
+            FAQ.objects.filter(ad=ad.first()).delete()
+            if faqs:
+                faqs_list = []
+                for faq in faqs:
+                    faqs_list.append(FAQ(**faq, ad=ad.first()))
+                FAQ.objects.bulk_create(faqs_list)
+
+            # ad faqs
+            AdFAQ.objects.filter(ad=ad.first()).delete()
+            if ad_faqs:
+                ad_faqs_list = []
+                for faq in ad_faqs:
+                    ad_faqs_list.append(AdFAQ(**faq, ad=ad.first()))
+                AdFAQ.objects.bulk_create(ad_faqs_list)
+
+            return Response(
+                status=status.HTTP_200_OK,
+                data=ResponseInfo().format_response(
+                    data=AdGetSerializer(ad.first()).data,
+                    status_code=status.HTTP_200_OK,
+                    message="Ad has been modified successfully",
+                ),
+            )
+        return Response(
+            status=status.HTTP_400_BAD_REQUEST,
+            data=ResponseInfo().format_response(
+                data={},
+                status_code=status.HTTP_400_BAD_REQUEST,
+                message="Add modify can't be performed. You don't have any active subscription with us.",
             ),
         )
 
@@ -419,43 +471,6 @@ class AdViewSet(BaseViewset):
             status=status.HTTP_200_OK,
             data=ResponseInfo().format_response(
                 data=data, status_code=status.HTTP_200_OK, message="Ads Get"
-            ),
-        )
-
-    def partial_update(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        faqs = serializer.validated_data.pop("faqs", [])
-        ad_faqs = serializer.validated_data.pop("ad_faq_ad", [])
-        media_urls = serializer.validated_data.pop("media_urls", {})
-
-        activation_countries = serializer.validated_data.pop("activation_countries", [])
-        ad = Ad.objects.filter(id=kwargs.get("pk"))
-        ad.first().activation_countries.clear()
-        ad.first().activation_countries.add(*activation_countries)
-        ad.update(**serializer.validated_data)
-        Gallery.objects.filter(ad=ad.first()).update(media_urls=media_urls)
-
-        FAQ.objects.filter(ad=ad.first()).delete()
-        # faqs
-        faqs_list = []
-        for faq in faqs:
-            faqs_list.append(FAQ(**faq, ad=ad.first()))
-        FAQ.objects.bulk_create(faqs_list)
-
-        # ad faqs
-        AdFAQ.objects.filter(ad=ad.first()).delete()
-        ad_faqs_list = []
-        for faq in ad_faqs:
-            ad_faqs_list.append(AdFAQ(**faq, ad=ad.first()))
-        AdFAQ.objects.bulk_create(ad_faqs_list)
-
-        return Response(
-            status=status.HTTP_200_OK,
-            data=ResponseInfo().format_response(
-                data=AdGetSerializer(ad.first()).data,
-                status_code=status.HTTP_200_OK,
-                message="Ads Get",
             ),
         )
 
