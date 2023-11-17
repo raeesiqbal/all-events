@@ -260,6 +260,7 @@ class AnalyticViewSet(BaseViewset):
         subscription = Subscription.objects.filter(
             company__user=request.user, status=SUBSCRIPTION_STATUS["ACTIVE"]
         ).first()
+        vendor_ads = Ad.objects.filter(company__user=request.user)
         if subscription and subscription.type.analytics:
             messages_count = Message.objects.filter(
                 chat__ad__company__user=request.user
@@ -274,7 +275,6 @@ class AnalyticViewSet(BaseViewset):
                 ads_total_views=Sum(F("total_views"))
             )["ads_total_views"]
 
-        vendor_ads = Ad.objects.filter(company__user=request.user)
         my_ads = AdDashboardSerializer(vendor_ads, many=True).data
         user_details = GetUserDashboardSerializer(request.user).data
 

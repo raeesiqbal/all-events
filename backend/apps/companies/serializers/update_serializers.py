@@ -17,6 +17,11 @@ from apps.companies.field_validators import (
     CustomBankNameValidator,
     CustomBankIBANValidator,
 )
+from apps.users.field_validators import (
+    CustomPhoneValidator,
+    CustomFirstNameValidator,
+    CustomLastNameValidator,
+)
 
 
 class VendorUpdateSerializer(BaseSerializer):
@@ -91,13 +96,31 @@ class UserUpdateSerializer(BaseSerializer):
 
         return super().to_internal_value(data)
 
+    first_name = serializers.CharField(
+        max_length=20,
+        min_length=2,
+        validators=[CustomFirstNameValidator()],
+    )
+    last_name = serializers.CharField(
+        max_length=20,
+        min_length=2,
+        validators=[CustomLastNameValidator()],
+    )
+    phone = serializers.CharField(
+        max_length=15,
+        min_length=8,
+        allow_blank=True,
+        required=False,
+        validators=[CustomPhoneValidator()],
+    )
+
     class Meta:
         model = User
         fields = [
             "first_name",
             "last_name",
             "phone",
-        ] 
+        ]
 
 
 class UserDeleteSerializer(BaseSerializer):

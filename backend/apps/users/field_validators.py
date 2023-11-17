@@ -46,7 +46,7 @@ class CustomFirstNameValidator:
         "First name must be between 2 and 20 characters long"
         "only contain letters, spaces, and hyphens"
         "It should not have two consecutive spaces or hyphens"
-    )
+    ) 
 
     def __call__(self, value):
         regex_validator = RegexValidator(regex=self.regex, message=self.message)
