@@ -88,12 +88,6 @@ function CompanyInformationSettings() {
         /^[a-zA-Z0-9, .\-/]*$/,
         'Can only contain letters, digits, spaces, ",", ".", "-", and "/" signs'
       ),
-    // municipality: Yup.string()
-    //   .max(25, "String must be at most 25 characters")
-    //   .matches(/^[A-Za-z\s]*$/, "Only letters and spaces are allowed"),
-    // commune: Yup.string()
-    //   .max(25, "String must be at most 25 characters")
-    //   .matches(/^[A-Za-z\s]*$/, "Only letters and spaces are allowed"),
     postal_code: Yup.string()
       .min(5, "Must be at least 5 digits")
       .max(7, "Must be at most 7 digits")
