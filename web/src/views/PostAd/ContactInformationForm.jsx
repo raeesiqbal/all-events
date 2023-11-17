@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import {
   Col, Container, Form, Row,
 } from "react-bootstrap";
-import contactIcon from "../../assets/images/post-ad/contact.svg";
+import contactIcon from "../../assets/images/post-ad/commercial_name.svg";
 import mapIcon from "../../assets/images/post-ad/map.svg";
 
 function ContactInformationForm({
@@ -37,7 +37,7 @@ function ContactInformationForm({
                 alt="commercialName"
                 style={{ marginRight: "16px" }}
               />
-              Contact Person
+              Contact Person Name
             </Form.Label>
             <Form.Control
               style={{ height: "56px" }}
@@ -45,7 +45,7 @@ function ContactInformationForm({
               name="contactInformation.contact_number"
               type="text"
               size="lg"
-              placeholder="Enter Number"
+              placeholder="Enter Name"
               value={values.contact_number}
               onChange={handleChange}
               isValid={touched.contact_number && !errors.contact_number}

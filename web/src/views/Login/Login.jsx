@@ -38,6 +38,7 @@ import {
 } from "../redux/Auth/authSlice";
 import DynamicRegisterationView from "./ViewHelper";
 import "./Login.css";
+import { ScrollToError } from "../../utilities/ScrollToError";
 
 function Login() {
   const dispatch = useDispatch();
@@ -491,6 +492,7 @@ function Login() {
                     handleSubmit, handleChange, values, touched, errors,
                   }) => (
                     <Form noValidate onSubmit={handleSubmit}>
+                      <ScrollToError />
                       <Form.Group className="mb-4" controlId="form3Example3">
                         <Form.Control
                           style={{ height: "56px" }}

@@ -445,7 +445,7 @@ function MyAds() {
                       onClick={() => navigate("/post-ad")}
                       className="btn btn-success roboto-semi-bold-16px-information btn-lg mt-5"
                       style={{ width: "80%", marginLeft: "-20px" }}
-                      disabled={!isPaidSubscription() || user.is_verified}
+                      disabled={!isPaidSubscription() || !user.is_verified}
                     >
                       Post an Ad
                     </Button>

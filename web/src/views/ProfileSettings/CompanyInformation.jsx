@@ -21,6 +21,7 @@ import { secureInstance } from "../../axios/config";
 import { handleProfileSettingsCurrentView } from "../redux/TabNavigation/TabNavigationSlice";
 import CompanyPic from "../../components/CompanyPic/CompanyPic";
 import "./ProfileSettings.css";
+import { ScrollToError } from "../../utilities/ScrollToError";
 
 function CompanyInformationSettings() {
   const { Formik } = formik;
@@ -69,51 +70,53 @@ function CompanyInformationSettings() {
     name: Yup.string()
       .required("Company Name is required")
       .min(6, "Must be at least 6 characters")
-      .max(50, "Must be at most 50 characters")
+      .max(25, "Must be at most 25 characters")
       .matches(
-        /^[a-zA-Z0-9, .&\s]*$/,
-        'Must only contain letters, numbers, spaces and ", . &" signs'
+        /^[a-zA-Z., $]+$/,
+        'Must contain letters, spaces and ", . &" signs only',
       ),
     country: Yup.string().required("Country is required"),
     city: Yup.string()
       .required("City is required")
       .min(3, "Must be at least 3 characters")
       .max(25, "Must be at most 25 characters")
-      .matches(/^[a-zA-Z\s-]*$/, 'Must only contain letters, spaces, and "-"'),
+      .matches(/^(?!.*--)[a-zA-Z -]+$/, 'Must contain letters, spaces, and "-" only'),
     address: Yup.string()
       .required("Address is required")
       .min(5, "Must be at least 5 characters")
       .max(80, "Must be at most 80 characters")
       .matches(
-        /^[a-zA-Z0-9, .\-/]*$/,
-        'Can only contain letters, digits, spaces, ",", ".", "-", and "/" signs'
+        /^[a-zA-Z\d,.\-/\s]+$/,
+        'Can contain letters, digits, spaces, ",", ".", "-", and "/" signs only',
       ),
     postal_code: Yup.string()
       .min(5, "Must be at least 5 digits")
       .max(7, "Must be at most 7 digits")
-      .matches(/^\d{5,7}$/, "Must only contain digits"),
+      .matches(/^\d+$/, "Must contain digits only"),
     fiscal_code: Yup.string()
       .required("Fiscal code is required")
       .min(4, "Must be at least 4 characters")
-      .max(20, "Must be at most 20 characters")
+      .max(20, "Must be at most 20 characters only")
       .matches(
-        /^[a-zA-Z0-9\s]*$/,
-        "Can only contain letters, digits, and spaces"
+        /^[a-zA-Z\d-]+$/,
+        "Can contain letters and digits only",
       ),
     firm_number: Yup.string()
       .required("Firm number is required")
       .min(4, "Must be at least 4 characters")
-      .max(20, "Must be at most 20 characters")
+      .max(20, "Must be at most 20 characters only")
       .matches(
-        /^[a-zA-Z0-9/.]*$/,
-        'Can only contain letters, digits, "/", and "." signs'
+        /^[a-zA-Z\d./]+$/,
+        'Can contain letters, digits, "/", and "." signs',
       ),
     bank_name: Yup.string()
+      .min(1, "Must be at least 1 characters")
       .max(30, "Must be at most 30 characters")
-      .matches(/^[a-zA-Z0-9]*$/, "Can only contain letters and digits"),
+      .matches(/^[a-zA-Z0-9\s]*[a-zA-Z0-9][a-zA-Z0-9\s]*$/, "Can contain letters and digits only"),
     bank_iban: Yup.string()
+      .min(1, "Must be at least 1 characters")
       .max(30, "Bank IBAN must be at most 30 characters")
-      .matches(/^[a-zA-Z0-9]*$/, "Can only contain letters and digits"),
+      .matches(/^[a-zA-Z\d]+$/, "Can contain letters and digits only"),
   });
 
   const handleAlert = () => {
@@ -162,9 +165,7 @@ function CompanyInformationSettings() {
         <div
           className="d-flex mt-3"
           style={{ cursor: "pointer" }}
-          onClick={() =>
-            dispatch(handleProfileSettingsCurrentView("profileSettings"))
-          }
+          onClick={() => dispatch(handleProfileSettingsCurrentView("profileSettings"))}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -230,8 +231,11 @@ function CompanyInformationSettings() {
               validateOnBlur={false}
               validateOnChange={false}
             >
-              {({ handleSubmit, handleChange, values, touched, errors }) => (
+              {({
+                handleSubmit, handleChange, values, touched, errors,
+              }) => (
                 <Form noValidate onSubmit={handleSubmit}>
+                  <ScrollToError />
                   <Row className="mb-5">
                     <Col lg={4}>
                       <Form.Group className="mb-4" controlId="form3Example3">
@@ -255,7 +259,7 @@ function CompanyInformationSettings() {
                           placeholder="Enter Name"
                           value={values.name}
                           onChange={handleChange}
-                          // isValid={touched.name && !errors.name}
+                          isValid={touched.name && !errors.name}
                           isInvalid={!!errors.name}
                         />
                         <Form.Control.Feedback type="invalid">
@@ -308,7 +312,7 @@ function CompanyInformationSettings() {
                           ))}
                         </Form.Select>
                         {errors?.country && (
-                          <div className="text-danger">{errors.country}</div>
+                        <div className="text-danger">{errors.country}</div>
                         )}
                       </Form.Group>
                     </Col>

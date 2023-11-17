@@ -165,7 +165,7 @@ function Dashboard() {
         currentSubscription?.type?.analytics && (
           <Container
             // fluid
-            style={{ marginTop: "60px", marginBottom: "20px" }}
+            style={{ marginTop: "60px" }}
             className=""
           >
             {/* <Row className="d-flex justify-content-center align-items-center"> */}
@@ -355,7 +355,7 @@ function Dashboard() {
         )
       }
 
-      <Container>
+      <Container style={{ marginTop: "60px" }}>
         <div className="roboto-semi-bold-28px-h2 mb-5">My Subscription</div>
 
         <Row className={`mx-0 mt-4 w-100 ps-2 p-3 subscription-${currentSubscription?.type?.type}`}>

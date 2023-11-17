@@ -121,6 +121,7 @@ function PostAd() {
       youtube: values.SocialMedia.youtubeURL,
       tiktok: values.SocialMedia.tiktokURL,
       twitter: values.SocialMedia.twitterURL,
+      others: values.SocialMedia.otherURL,
       offered_services: values.servicesOffered.services,
       site_services: adminServicesSelected,
       sub_category: parseInt(values.companyInformation.sub_category, 10),
@@ -145,44 +146,15 @@ function PostAd() {
   const Schema = Yup.object().shape({
     companyInformation: Yup.object().shape({
       commercial_name: Yup.string()
-        .min(2, "Too short, minimum 2 characters")
-        .max(60, "Too long, maximum 60 characters")
-        .required("Commercial Name is required"),
-      category: Yup.string().required("Category is required"),
-      sub_category: Yup.string().required("Sub-category is required"),
-      description: Yup.string()
-        .min(2, "Too short, minimum 5 characters")
-        .max(6667, "Must be at most 6667 characters")
+        .required("Commercial Name is required")
         .matches(
-          /^[a-zA-Z0-9.,;:'"/?!@&*()^+\-|\s]+$/,
-          'Only letters, digits, ".,;:\'/?!@&*()^+-|" signs, and spaces are allowed',
-        )
-        .required("Description is required"),
+          /^(?!\s*[!@#$%^&*()_+\-=\[\]{};':\"\\|,.<>\/?]*\s*$).{2,60}$/,
+          "Commercial name should be 2 to 60 characters long and cannot be entirely signs",
+        ),
       // MIXED TYPES ARE APPLIED BECAUSE THE FORM GETS AN OBJECT FROM API, WHILE SUBMITTING IT EXPECTS AN INTEGER
-      country: Yup.mixed().when({
-        is: (value) => value !== undefined,
+      category: Yup.mixed().when({
+        is: (value) => value !== undefined, // Apply the validation when the field is present
         then: () => Yup.lazy((value) => {
-          if (Array.isArray(value)) {
-            // If it's an array, apply array validation and validate the array elements
-            return Yup.array().of(
-              Yup.lazy((element) => {
-                // Define validation for each array element based on its type
-                if (typeof element === "string") {
-                  return Yup.string();
-                }
-                if (typeof element === "number") {
-                  return Yup.number().integer();
-                }
-                if (typeof element === "object") {
-                  return Yup.object({
-                    // Add your object schema here for array elements that are objects...
-                  });
-                }
-                // Return null or throw an error if none of the types match
-                throw new Error("Invalid array element");
-              }),
-            );
-          }
           if (typeof value === "object") {
             // If it's an object, define the object shape
             return Yup.object({
@@ -197,42 +169,74 @@ function PostAd() {
             // If it's a string, apply string validation
             return Yup.string();
           }
+
           // Return null or throw an error if none of the types match
           throw new Error("Invalid field type");
         }),
       }),
+      // MIXED TYPES ARE APPLIED BECAUSE THE FORM GETS AN OBJECT FROM API, WHILE SUBMITTING IT EXPECTS AN INTEGER
+      sub_category: Yup.mixed().when({
+        is: (value) => value !== undefined, // Apply the validation when the field is present
+        then: () => Yup.lazy((value) => {
+          if (typeof value === "object") {
+            // If it's an object, define the object shape
+            return Yup.object({
+              // Add your object schema here...
+            });
+          }
+          if (typeof value === "number") {
+            // If it's a number, apply integer validation
+            return Yup.number().integer();
+          }
+          if (typeof value === "string") {
+            // If it's a string, apply string validation
+            return Yup.string();
+          }
+
+          // Return null or throw an error if none of the types match
+          throw new Error("Invalid field type");
+        }),
+      }),
+      description: Yup.string()
+        .min(2, "Too short, minimum 5 characters")
+        .max(6667, "Must be at most 6667 characters")
+        .matches(
+          /^(?!\s*[!@#$%^&*()_+\-=\[\]{};':\"\\|,.<>\/?]*$)[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':\"\\|,.<>\/? ]{5,6666}$/,
+          "Cannot be entirely signs",
+        )
+        .required("Description is required"),
+      // .required("Required"),
+      country: Yup.mixed().required("This field is required"),
     }),
     contactInformation: Yup.object().shape({
       websiteUrl: Yup.string()
-        .max(30, "Must be at most 30 characters")
         .matches(
-          // eslint-disable-next-line max-len
-          /^((ftp|http|https):\/\/)?(www.)?(?!.*(ftp|http|https|www.))[a-zA-Z0-9_-]+(\.[a-zA-Z]+)+((\/)[\w#]+)*(\/\w+\?[a-zA-Z0-9_]+=\w+(&[a-zA-Z0-9_]+=\w+)*)?$/gm,
-          "Invalid characters",
+          /^(?:(?:https?|ftp):\/\/|www\.)?[^\s\/$.?#].[^\s]*$/,
+          "Must be a valid website url",
         ),
       county: Yup.array().min(1, "country is required"),
       city: Yup.string()
         .min(3, "Too short, minimum 3 characters")
         .max(25, "Must be at most 25 characters")
         .matches(
-          /^[a-zA-Z\s-]+$/,
-          'Only letters, spaces, and "-" sign are allowed',
+          /^(?=[a-zA-Z\s-]{3,25}$)(?!^[ -]*$)[a-zA-Z-]+$/,
+          "Only - sign is allowed and cannot be entirely signs. Digits are not allowed",
         )
         .required("Required"),
       street: Yup.string()
         .min(3, "Too short, minimum 3 characters")
         .max(27, "Must be at most 27 characters")
         .matches(
-          /^[A-Za-z0-9\-,.\/\s]+$/,
-          'Only letters, digits, spaces, "-,./" signs are allowed',
+          /^(?!^[ ,./-]*$)[a-zA-Z0-9 ,./-]{3,27}$/,
+          "- . , / signs and letters, digits, spaces are allowed. Cann't be entirely sings.",
         )
         .required("Required"),
       contact_number: Yup.string()
         .min(2, "Must be at least 2 characters")
         .max(40, "Must be at most 40 characters")
         .matches(
-          /^[a-zA-Z0-9\s-]+$/,
-          'Only letters, numbers, spaces, and "-" signs are allowed',
+          /^(?=[a-zA-Z\s-]{2,40}$)(?!^[ -]*$)[a-zA-Z-]+$/,
+          "Only - sign is allowed and cannot be entirely signs",
         )
         .required("Required"),
       fullAddress: Yup.string()
@@ -240,35 +244,41 @@ function PostAd() {
         .min(5, "Too short, minimum 5 characters")
         .max(80, "Must be at most 80 characters")
         .matches(
-          /^[A-Za-z0-9\s,.\-\/]+$/,
-          'Only letters, digits, spaces, ", .", "-", and "/" characters are allowed',
+          /^(?!^[ ,./-]*$)[a-zA-Z0-9 ,./-]{5,80}$/,
+          "- . , / signs and letters, digits, spaces are allowed. Can't be entirely signs.",
         ),
     }),
     SocialMedia: Yup.object().shape({
-      facebookURL: Yup.string().matches(
-        /^((ftp|http|https):\/\/)?(www.)?(?!.*(ftp|http|https|www.))[a-zA-Z0-9_-]+(\.[a-zA-Z]+)+((\/)[\w#]+)*(\/\w+\?[a-zA-Z0-9_]+=\w+(&[a-zA-Z0-9_]+=\w+)*)?$/gm,
-        "Invalid characters",
-      ),
-      instagramURL: Yup.string().matches(
-        /^((ftp|http|https):\/\/)?(www.)?(?!.*(ftp|http|https|www.))[a-zA-Z0-9_-]+(\.[a-zA-Z]+)+((\/)[\w#]+)*(\/\w+\?[a-zA-Z0-9_]+=\w+(&[a-zA-Z0-9_]+=\w+)*)?$/gm,
-        "Invalid characters",
-      ),
-      youtubeURL: Yup.string().matches(
-        /^((ftp|http|https):\/\/)?(www.)?(?!.*(ftp|http|https|www.))[a-zA-Z0-9_-]+(\.[a-zA-Z]+)+((\/)[\w#]+)*(\/\w+\?[a-zA-Z0-9_]+=\w+(&[a-zA-Z0-9_]+=\w+)*)?$/gm,
-        "Invalid characters",
-      ),
-      tiktokURL: Yup.string().matches(
-        /^((ftp|http|https):\/\/)?(www.)?(?!.*(ftp|http|https|www.))[a-zA-Z0-9_-]+(\.[a-zA-Z]+)+((\/)[\w#]+)*(\/\w+\?[a-zA-Z0-9_]+=\w+(&[a-zA-Z0-9_]+=\w+)*)?$/gm,
-        "Invalid characters",
-      ),
-      twitterURL: Yup.string().matches(
-        /^((ftp|http|https):\/\/)?(www.)?(?!.*(ftp|http|https|www.))[a-zA-Z0-9_-]+(\.[a-zA-Z]+)+((\/)[\w#]+)*(\/\w+\?[a-zA-Z0-9_]+=\w+(&[a-zA-Z0-9_]+=\w+)*)?$/gm,
-        "Invalid characters",
-      ),
-      otherURL: Yup.string().matches(
-        /^((ftp|http|https):\/\/)?(www.)?(?!.*(ftp|http|https|www.))[a-zA-Z0-9_-]+(\.[a-zA-Z]+)+((\/)[\w#]+)*(\/\w+\?[a-zA-Z0-9_]+=\w+(&[a-zA-Z0-9_]+=\w+)*)?$/gm,
-        "Invalid characters",
-      ),
+      facebookURL: Yup.string()
+        .matches(
+          /^(?:(?:https?|ftp):\/\/|www\.)?[^\s\/$.?#].[^\s]*$/,
+          "Must be a valid website url",
+        ),
+      instagramURL: Yup.string()
+        .matches(
+          /^(?:(?:https?|ftp):\/\/|www\.)?[^\s\/$.?#].[^\s]*$/,
+          "Must be a valid website url",
+        ),
+      youtubeURL: Yup.string()
+        .matches(
+          /^(?:(?:https?|ftp):\/\/|www\.)?[^\s\/$.?#].[^\s]*$/,
+          "Must be a valid website url",
+        ),
+      tiktokURL: Yup.string()
+        .matches(
+          /^(?:(?:https?|ftp):\/\/|www\.)?[^\s\/$.?#].[^\s]*$/,
+          "Must be a valid website url",
+        ),
+      twitterURL: Yup.string()
+        .matches(
+          /^(?:(?:https?|ftp):\/\/|www\.)?[^\s\/$.?#].[^\s]*$/,
+          "Must be a valid website url",
+        ),
+      otherURL: Yup.string()
+        .matches(
+          /^(?:(?:https?|ftp):\/\/|www\.)?[^\s\/$.?#].[^\s]*$/,
+          "Must be a valid website url",
+        ),
     }),
     FAQ: Yup.object().shape({
       faqs: Yup.array().of(

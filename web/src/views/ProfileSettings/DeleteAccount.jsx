@@ -11,6 +11,7 @@ import { deleteCookie } from "../../utilities/utils";
 import { handleProfileSettingsCurrentView } from "../redux/TabNavigation/TabNavigationSlice";
 import ProfilePic from "../../components/ProfilePic/ProfilePic";
 import { handleUserNewsletter } from "../redux/Auth/authSlice";
+import { ScrollToError } from "../../utilities/ScrollToError";
 
 function DeleteAccount() {
   const { Formik } = formik;
@@ -158,6 +159,7 @@ function DeleteAccount() {
             >
               {({ handleSubmit, handleChange, values, touched, errors }) => (
                 <Form noValidate onSubmit={handleSubmit}>
+                  <ScrollToError />
                   <Col lg={4}>
                     <Form.Group
                       className="form-group mb-4"

@@ -4,6 +4,7 @@
 import { Formik } from "formik";
 import React from "react";
 import { Button, Form, Spinner } from "react-bootstrap";
+import { ScrollToError } from "../../utilities/ScrollToError";
 
 const DynamicRegisterationView = ({
   activeStep,
@@ -36,6 +37,7 @@ const DynamicRegisterationView = ({
           style={{ maxHeight: "296px", overflowY: "scroll" }}
           className="Container Flipped"
         >
+          <ScrollToError />
           <Form.Group className="form-group mb-4" controlId="form3Example3">
             <Form.Control
               style={{ height: "56px" }}
@@ -255,6 +257,7 @@ const DynamicRegisterationView = ({
       handleSubmit, handleChange, values, touched, errors,
     }) => (
       <Form noValidate onSubmit={handleSubmit}>
+        <ScrollToError />
         <div
           style={{ maxHeight: "235px", overflowY: "scroll" }}
           className="Container Flipped"

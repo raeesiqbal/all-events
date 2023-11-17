@@ -79,7 +79,7 @@ class CustomCityValidator:
 
 class CustomStreetValidator:
     regex = r"^(?!^[ ,./-]*$)[a-zA-Z0-9 ,./-]{3,27}$"
-    message = "- . , / signs and letters, digits, spaces are allowed. Cann't be entirely sings."
+    message = "- . , / signs and letters, digits, spaces are allowed. Can't be entirely signs."
 
     def __call__(self, value):
         regex_validator = RegexValidator(regex=self.regex, message=self.message)
@@ -92,7 +92,7 @@ class CustomStreetValidator:
 
 class CustomAddressValidator:
     regex = r"^(?!^[ ,./-]*$)[a-zA-Z0-9 ,./-]{5,80}$"
-    message = "- . , / signs and letters, digits, spaces are allowed. Cann't be entirely sings."
+    message = "- . , / signs and letters, digits, spaces are allowed. Can't be entirely signs."
 
     def __call__(self, value):
         regex_validator = RegexValidator(regex=self.regex, message=self.message)

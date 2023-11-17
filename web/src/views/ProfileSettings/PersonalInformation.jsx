@@ -14,6 +14,7 @@ import { secureInstance } from "../../axios/config";
 import { handleProfileSettingsCurrentView } from "../redux/TabNavigation/TabNavigationSlice";
 import ProfilePic from "../../components/ProfilePic/ProfilePic";
 import "./ProfileSettings.css";
+import { ScrollToError } from "../../utilities/ScrollToError";
 
 function PersonalInformation() {
   const { Formik } = formik;
@@ -189,6 +190,7 @@ function PersonalInformation() {
                 handleSubmit, handleChange, values, errors,
               }) => (
                 <Form noValidate onSubmit={handleSubmit}>
+                  <ScrollToError />
                   <Col lg={4}>
                     <Form.Group className="mb-4" controlId="form3Example3">
                       <Form.Label

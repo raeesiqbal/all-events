@@ -18,6 +18,7 @@ import { secureInstance } from "../../axios/config";
 import { handleProfileSettingsCurrentView } from "../redux/TabNavigation/TabNavigationSlice";
 import ProfilePic from "../../components/ProfilePic/ProfilePic";
 import "./ProfileSettings.css";
+import { ScrollToError } from "../../utilities/ScrollToError";
 
 function ChangePassword() {
   const { Formik } = formik;
@@ -180,6 +181,7 @@ function ChangePassword() {
                 setErrors,
               }) => (
                 <Form noValidate onSubmit={handleSubmit}>
+                  <ScrollToError />
                   <Col lg={4}>
                     <Form.Group
                       className="form-group mb-4"
