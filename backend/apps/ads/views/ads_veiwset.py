@@ -390,14 +390,14 @@ class AdViewSet(BaseViewset):
             faq_conditions = Q()
 
             for question in questions:
-                for question_id, answer in question.items():
+                for key, value in question.items():
                     faq_conditions |= Q(
-                        ad_faq_ad__site_question_id=question_id,
-                        ad_faq_ad__answer=answer,
+                        ad_faq_ad__site_question_id=key,
+                        ad_faq_ad__answer__icontains=value,
                     )
 
             # Apply the FAQ conditions to filter Ads
-            combined_q |= faq_conditions
+            combined_q &= faq_conditions
 
         queryset = (
             Ad.objects.filter(combined_q, status=AD_STATUS["ACTIVE"])
