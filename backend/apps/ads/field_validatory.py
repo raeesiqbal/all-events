@@ -37,7 +37,7 @@ class CustomDescriptionValidator:
 class CustomContactPersonValidator:
     regex = r"^(?!.*--)[a-zA-Z][a-zA-Z -]{2,40}[a-zA-Z]$"
 
-    message = "letters and - sign is allowed and cannot be entirely signs"
+    message = "Letters and - sign is allowed and cannot be entirely signs"
 
     def __call__(self, value):
         regex_validator = RegexValidator(regex=self.regex, message=self.message)

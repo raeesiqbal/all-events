@@ -72,7 +72,7 @@ function CompanyInformationSettings() {
       .min(6, "Must be at least 6 characters")
       .max(25, "Must be at most 25 characters")
       .matches(
-        /^[a-zA-Z., $]+$/,
+        /^[a-zA-Z., &]+$/,
         'Must contain letters, spaces and ", . &" signs only',
       ),
     country: Yup.string().required("Country is required"),

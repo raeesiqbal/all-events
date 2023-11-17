@@ -38,22 +38,21 @@ function PersonalInformation() {
       .min(2, "Must be at least 2 characters")
       .max(20, "Must be at most 20 characters")
       .matches(
-        /^[a-zA-Z\s-]*$/,
-        "Must only contain letters, spaces, and hyphens",
+        /^(?!.*--)[a-zA-Z][a-zA-Z -]*[a-zA-Z]$/,
+        "Must only contain letters, spaces, and hyphens. Don't add two consecutive spaces or hyphens",
       ),
     person_lastName: Yup.string()
       .required("Last name is required")
       .min(2, "Must be at least 2 characters")
       .max(20, "Must be at most 20 characters")
       .matches(
-        /^[a-zA-Z\s-]*$/,
-        "Must only contain letters, spaces, and hyphens",
+        /^(?!.*--)[a-zA-Z][a-zA-Z -]*[a-zA-Z]$/,
+        "Must only contain letters, spaces, and hyphens. Don't add two consecutive spaces or hyphens",
       ),
     person_number: Yup.string()
       .min(8, "Must be at least 8 digits")
       .max(15, "Must be less than 15 digits")
-      .matches(/^\+?[0-9]{1,15}$/, "Must be a valid phone number"),
-    // .required("Required"),
+      .matches(/^\+?[0-9]+$/, "Must be a valid phone number. Only digits and '+' are allowed"),
   });
 
   const getPersonalInfo = async () => {
@@ -202,7 +201,7 @@ function PersonalInformation() {
                           alt="commercialName"
                           style={{ marginRight: "16px" }}
                         />
-                        Contact Person Name
+                        First Name
                       </Form.Label>
                       <Form.Control
                         style={{ height: "56px" }}
@@ -219,6 +218,22 @@ function PersonalInformation() {
                       <Form.Control.Feedback type="invalid">
                         {errors.person_firstName}
                       </Form.Control.Feedback>
+                    </Form.Group>
+                  </Col>
+
+                  <Col lg={4}>
+                    <Form.Group className="mb-4" controlId="form3Example3">
+                      <Form.Label
+                        className="roboto-medium-20px-body1 d-flex align-items-center"
+                        style={{ marginBottom: "20px" }}
+                      >
+                        <img
+                          src={personIcon}
+                          alt="commercialName"
+                          style={{ marginRight: "16px" }}
+                        />
+                        Last Name
+                      </Form.Label>
                       <Form.Control
                         style={{ height: "56px" }}
                         className="lg-input-small-text mt-3"

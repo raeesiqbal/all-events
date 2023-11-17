@@ -189,7 +189,7 @@ function EditAd() {
     contactInformation: Yup.object().shape({
       websiteUrl: Yup.string()
         .matches(
-          /^(?:(?:https?|ftp):\/\/|www\.)?[^\s\/$.?#].[^\s]*$/,
+          /^(?:(?:https?|ftp):\/\/)?(?:www\.)?[A-Za-z0-9-]+\.[A-Za-z]{2,6}$/,
           "Must be a valid website url",
         ),
       county: Yup.array().min(1, "country is required"),
@@ -213,8 +213,8 @@ function EditAd() {
         .min(2, "Must be at least 2 characters")
         .max(40, "Must be at most 40 characters")
         .matches(
-          /^(?=[a-zA-Z\s-]{2,40}$)(?!^[ -]*$)[a-zA-Z-]+$/,
-          "Only - sign is allowed and cannot be entirely signs",
+          /^(?!.*--)[a-zA-Z][a-zA-Z -]{2,40}[a-zA-Z]$/,
+          "Letters and - sign is allowed and cannot be entirely signs",
         )
         .required("Required"),
       fullAddress: Yup.string()
@@ -229,32 +229,32 @@ function EditAd() {
     SocialMedia: Yup.object().shape({
       facebookURL: Yup.string()
         .matches(
-          /^(?:(?:https?|ftp):\/\/|www\.)?[^\s\/$.?#].[^\s]*$/,
+          /^(?:(?:https?|ftp):\/\/)?(?:www\.)?[A-Za-z0-9-]+\.[A-Za-z]{2,6}$/,
           "Must be a valid website url",
         ),
       instagramURL: Yup.string()
         .matches(
-          /^(?:(?:https?|ftp):\/\/|www\.)?[^\s\/$.?#].[^\s]*$/,
+          /^(?:(?:https?|ftp):\/\/)?(?:www\.)?[A-Za-z0-9-]+\.[A-Za-z]{2,6}$/,
           "Must be a valid website url",
         ),
       youtubeURL: Yup.string()
         .matches(
-          /^(?:(?:https?|ftp):\/\/|www\.)?[^\s\/$.?#].[^\s]*$/,
+          /^(?:(?:https?|ftp):\/\/)?(?:www\.)?[A-Za-z0-9-]+\.[A-Za-z]{2,6}$/,
           "Must be a valid website url",
         ),
       tiktokURL: Yup.string()
         .matches(
-          /^(?:(?:https?|ftp):\/\/|www\.)?[^\s\/$.?#].[^\s]*$/,
+          /^(?:(?:https?|ftp):\/\/)?(?:www\.)?[A-Za-z0-9-]+\.[A-Za-z]{2,6}$/,
           "Must be a valid website url",
         ),
       twitterURL: Yup.string()
         .matches(
-          /^(?:(?:https?|ftp):\/\/|www\.)?[^\s\/$.?#].[^\s]*$/,
+          /^(?:(?:https?|ftp):\/\/)?(?:www\.)?[A-Za-z0-9-]+\.[A-Za-z]{2,6}$/,
           "Must be a valid website url",
         ),
       otherURL: Yup.string()
         .matches(
-          /^(?:(?:https?|ftp):\/\/|www\.)?[^\s\/$.?#].[^\s]*$/,
+          /^(?:(?:https?|ftp):\/\/)?(?:www\.)?[A-Za-z0-9-]+\.[A-Za-z]{2,6}$/,
           "Must be a valid website url",
         ),
     }),
