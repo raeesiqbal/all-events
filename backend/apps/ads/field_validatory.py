@@ -35,9 +35,9 @@ class CustomDescriptionValidator:
 
 
 class CustomContactPersonValidator:
-    regex = r"^(?=[a-zA-Z\s-]{2,40}$)(?!^[ -]*$)[a-zA-Z-]+$"
+    regex = r"^(?!.*--)[a-zA-Z][a-zA-Z -]{2,40}[a-zA-Z]$"
 
-    message = "Only - sign is allowed and cannot be entirely signs"
+    message = "letters and - sign is allowed and cannot be entirely signs"
 
     def __call__(self, value):
         regex_validator = RegexValidator(regex=self.regex, message=self.message)
@@ -49,8 +49,9 @@ class CustomContactPersonValidator:
 
 
 class CustomWebsiteValidator:
-    regex = r"^(?:(?:https?|ftp):\/\/|www\.)?[^\s\/$.?#].[^\s]*$"
-
+    regex = re.compile(
+        r"^(?:(?:https?|ftp):\/\/)?(?:www\.)?[A-Za-z0-9-]+\.[A-Za-z]{2,6}$"
+    )
     message = "Must be a valid website url"
 
     def __call__(self, value):
@@ -64,9 +65,7 @@ class CustomWebsiteValidator:
 
 class CustomCityValidator:
     regex = r"^(?=[a-zA-Z\s-]{3,25}$)(?!^[ -]*$)[a-zA-Z-]+$"
-    message = (
-        "Only - sign is allowed and cannot be entirely signs. Digits are not allowed"
-    )
+    message = "letters, - sign is allowed and cannot be entirely signs. Digits are not allowed"
 
     def __call__(self, value):
         regex_validator = RegexValidator(regex=self.regex, message=self.message)

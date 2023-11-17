@@ -83,6 +83,7 @@ class AdCreateSerializer(SubscriptionTypeValidationMixin, BaseSerializer):
         min_length=5,
         validators=[CustomAddressValidator()],
     )
+
     facebook = serializers.CharField(
         allow_blank=True,
         required=False,
