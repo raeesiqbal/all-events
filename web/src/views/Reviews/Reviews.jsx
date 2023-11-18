@@ -400,7 +400,7 @@ const Reviews = ({ adId, adName, reviewPosting }) => {
 
       <div className="w-100">
         <Row className="border-bottom border-grey mx-0 py-4">
-          <Col md={3} className="ps-0">
+          <Col md={3} className="px-4 px-sm-5 ps-md-0 pe-md-2">
             <Rating averageRating={reviews?.averageRating?.toFixed(1) || 0} />
           </Col>
           <Col md={9} className="d-grid py-3" style={{ alignContent: "space-between" }}>

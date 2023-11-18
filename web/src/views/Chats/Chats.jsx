@@ -144,7 +144,7 @@ function Chats() {
       </div>
 
       <Container style={{ paddingBottom: "100px" }} className="pt-md-3">
-        <div className="w-100 d-md-flex justify-content-between">
+        <div className="w-100 d-md-flex justify-content-between mb-4">
           <div className="d-flex">
             <div className="position-relative me-3">
               <FormControl
@@ -205,20 +205,27 @@ function Chats() {
           tabs={tabs}
         />
         <Row className="chats-body" onScroll={handleScroll}>
-          {chats
-            && !loading
-            && chats.map((chat) => (
-              <Chat
-                chat={chat}
-                key={chat.id}
-                isOpenChat={chat.id.toString() === chatId}
-              />
-            ))}
+          {
+            chats
+              && !loading
+              && chats.map((chat) => (
+                <Chat
+                  chat={chat}
+                  key={chat.id}
+                  isOpenChat={chat.id.toString() === chatId}
+                />
+              ))
+          }
           {loading && (
             <div className="loading-icon">
               <FontAwesomeIcon icon={faSpinner} spin />
             </div>
           )}
+          {
+            chats?.length === 0 && (
+              <h3 className="text-center mt-5">No message found</h3>
+            )
+          }
         </Row>
       </Container>
     </>

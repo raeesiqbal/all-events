@@ -332,8 +332,8 @@ function ViewAd() {
         className=""
       >
         <Row>
-          <div className="d-flex align-items-center justify-content-between">
-            <div className="roboto-bold-36px-h1 ps-4">
+          <div className="d-md-flex align-items-center justify-content-between">
+            <div className="roboto-bold-36px-h1 ps-lg-4">
               {
                 currentAd && currentAd.fav !== null && (
                   <FontAwesomeIcon
@@ -356,7 +356,7 @@ function ViewAd() {
               {currentAd?.name}
             </div>
 
-            <div>
+            <div className="mt-3 mt-md-0">
               <img src={MapIcon} alt="MapIcon" className="me-2" />
               <span className="roboto-regular-16px-information">
                 {currentAd?.city}
@@ -365,7 +365,7 @@ function ViewAd() {
               </span>
             </div>
           </div>
-          <Col lg={8}>
+          <Col lg={8} className="mt-4">
             <Row>
               <div className="carousel__container__view__ad">
                 <div className="embla__view__ad">
@@ -376,8 +376,8 @@ function ViewAd() {
                           <div className="carousel-slide">
                             <Row className="mx-0">
                               <Col
-                                sm={6}
-                                md={6}
+                                sm={12}
+                                md={12}
                                 lg={
                                   slide[`image${index * 3 + 2}`]
                                   || slide[`image${index * 3 + 3}`]
@@ -405,8 +405,8 @@ function ViewAd() {
                               </Col>
 
                               <Col
-                                sm={6}
-                                md={6}
+                                sm={12}
+                                md={12}
                                 lg={6}
                                 xl={6}
                                 className="image-stack"
@@ -479,7 +479,7 @@ function ViewAd() {
               </div>
             </Row>
           </Col>
-          <Col lg={4}>
+          <Col lg={4} className="mt-4">
             <div className="d-flex justify-content-between flex-column h-100">
               <div className="d-flex flex-column">
                 <Calendar
@@ -504,7 +504,7 @@ function ViewAd() {
                   || currentAd?.youtube !== ""
                   || currentAd?.tiktok !== ""
                   || currentAd?.twitter !== ""
-                  || currentAd?.others !== null) && (
+                  || currentAd?.others !== "") && (
                   <div className="d-grid align-items-center justify-content-between mt-3">
                     <div className="roboto-regular-16px-information mb-2">
                       Follow
@@ -652,7 +652,7 @@ function ViewAd() {
         <Row className="mt-5">
           <Col lg={8}>
             <div
-              className="d-flex align-items-center px-4"
+              className="d-flex align-items-center ps-lg-4"
               style={{
                 height: "50px",
                 width: "100%",
@@ -686,7 +686,7 @@ function ViewAd() {
             </div>
 
             {currentTab === 1 && currentAd?.description !== null && (
-              <div className="d-flex flex-column ps-4 my-4">
+              <div className="d-flex flex-column ps-lg-4 my-4">
                 <div className="d-flex roboto-semi-bold-24px-h3">About</div>
 
                 <div
@@ -708,7 +708,7 @@ function ViewAd() {
             )}
 
             {currentTab === 1 && offeredServices.length > 0 && (
-              <div className="d-flex flex-column ps-4 my-4">
+              <div className="d-flex flex-column ps-lg-4 my-4">
                 <div className="d-flex roboto-semi-bold-24px-h3">
                   Offered services
                 </div>
@@ -738,7 +738,7 @@ function ViewAd() {
             )}
 
             {currentTab === 1 && currentAd && currentAd.ad_media[0].media_urls.pdf.length > 0 && (
-              <div className="d-flex flex-column ps-4 my-4">
+              <div className="d-flex flex-column ps-lg-4 my-4">
                 <div className="d-flex roboto-semi-bold-24px-h3">PDF's</div>
 
                 <Row>
@@ -767,7 +767,7 @@ function ViewAd() {
             )}
 
             {currentTab === 2 && (
-              <div className="d-flex flex-column ps-4 my-4">
+              <div className="d-flex flex-column ps-lg-4 my-4">
                 <div className="d-flex roboto-semi-bold-24px-h3">
                   Frequently Asked Questions
                 </div>

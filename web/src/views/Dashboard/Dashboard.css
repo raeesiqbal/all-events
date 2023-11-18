@@ -3,15 +3,7 @@
   padding-left: 12vw;
 }
 
-.custom-card-analytics-dashboard {
-  max-width: 256px;
-}
-.dashboard-analytics-container{
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.dashboard-billing-container{
+.dashboard-billing-container {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -22,14 +14,5 @@
     margin-top: 250px;
     /* padding-left: 30px; */
     padding-bottom: 20px;
-}
-@media only screen and (max-width: 768px) {
-  .custom-card-analytics-dashboard {
-    max-width: 90vw;
-    margin-bottom: 20px;
-  }
-  .user-dashboard-info-container {
-    /* padding-left: 170px; */
-    /* padding-left: 30vw !important; */
   }
 }
