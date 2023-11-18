@@ -213,7 +213,7 @@ function EditAd() {
         .min(2, "Must be at least 2 characters")
         .max(40, "Must be at most 40 characters")
         .matches(
-          /^(?!.*--)[a-zA-Z][a-zA-Z -]{2,40}[a-zA-Z]$/,
+          /^(?!.*--)[a-zA-Z][a-zA-Z -]*[a-zA-Z]$/,
           "Letters and - sign is allowed and cannot be entirely signs",
         )
         .required("Required"),

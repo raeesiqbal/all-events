@@ -158,12 +158,12 @@ function ViewAd() {
 
   useEffect(() => {
     if (currentAd && offeredServices.length === 0) {
-      setOfferedServices(currentAd.offered_services.concat(currentAd.site_services).slice(0, 12));
+      setOfferedServices((currentAd.offered_services || []).concat(currentAd.site_services).slice(0, 12));
     }
   }, [currentAd]);
 
   const displayAllOfferedServices = () => {
-    setOfferedServices(currentAd.offered_services.concat(currentAd.site_services));
+    setOfferedServices((currentAd.offered_services || []).concat(currentAd.site_services));
   };
 
   const onSelect = useCallback((emblaApi) => {
@@ -724,7 +724,7 @@ function ViewAd() {
                 </Row>
 
                 {
-                  currentAd.offered_services.concat(currentAd.site_services).length > 12 && offeredServices.length === 12 && (
+                  (currentAd.offered_services || []).concat(currentAd.site_services).length > 12 && offeredServices.length === 12 && (
                     <Row className="mt-2">
                       <Col lg={4} />
                       <Col lg={4}>

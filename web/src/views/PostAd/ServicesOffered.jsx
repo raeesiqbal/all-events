@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 // import { Col, Container, Row } from "react-bootstrap";
-import { Form, Row, Col, Button, Container } from "react-bootstrap";
+import { useSelector } from "react-redux";
+import {
+  Form, Row, Col, Button, Container,
+} from "react-bootstrap";
 import Chip from "../../components/Chip/Chip";
-import { useDispatch, useSelector } from "react-redux";
 
 function ServicesOffered({
   values,
-  handleChange,
   handleAddServices,
   handleRemoveService,
   // handleAddService,
@@ -14,12 +15,10 @@ function ServicesOffered({
   adminServicesSelected,
   setAdminServicesSelected,
 }) {
-  const dispatch = useDispatch();
-
   const [currentService, setCurrentService] = useState("");
   const [serviceError, setServiceError] = useState("");
   const currentSubscription = useSelector(
-    (state) => state.subscriptions.currentSubscriptionDetails
+    (state) => state.subscriptions.currentSubscriptionDetails,
   );
 
   const handleServiceChange = (e) => {
@@ -57,7 +56,7 @@ function ServicesOffered({
   // };
   const handleRemoveAdminService = (_, labelToRemove) => {
     const filteredServices = adminServicesSelected.filter(
-      (service) => service !== labelToRemove
+      (service) => service !== labelToRemove,
     );
     setAdminServicesSelected(filteredServices);
   };
@@ -68,10 +67,10 @@ function ServicesOffered({
         className="roboto-semi-bold-28px-h2"
         style={{ marginBottom: "24px" }}
       >
-        {(currentSubscription && currentSubscription?.type?.offered_services) ||
-        adminServices.length > 0 ? (
+        {(currentSubscription && currentSubscription?.type?.offered_services)
+        || adminServices.length > 0 ? (
           <>What Services You Offer?</>
-        ) : null}
+          ) : null}
       </div>
       {/* className="justify-content-md-left" */}
       <Row>
@@ -122,7 +121,7 @@ function ServicesOffered({
               adminServices
             />
           ))}
-          {values.servicesOffered.services.map((service, index) => (
+          {values.servicesOffered?.services?.map((service, index) => (
             <Chip
               label={service}
               index={index}
