@@ -301,20 +301,13 @@ MEDIA_ROOT = Path.joinpath(BASE_DIR, "/my_site/media_uploads")
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 DJANGO_REST_MULTITOKENAUTH_RESET_TOKEN_EXPIRY_TIME = 1
 
-
-# EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)
-# EMAIL_HOST = env.str("EMAIL_HOST", default="smtp.gmail.com")
-# EMAIL_PORT = env.int("EMAIL_PORT", default=587)
-
-# EMAIL_HOST_PASSWORD = env.str("EMAIL_HOST_PASSWORD", default="")
-
+# aws ses
 SITE_ID = 1
 EMAIL_BACKEND = "django_ses.SESBackend"
 AWS_SES_REGION_NAME = env.str("AWS_SES_REGION_NAME")
 AWS_SES_REGION_ENDPOINT = env.str("AWS_SES_REGION_ENDPOINT")
 DEFAULT_FROM_EMAIL = env.str("DEFAULT_FROM_EMAIL")
 EMAIL_HOST_USER = env.str("EMAIL_HOST_USER")
-
 
 FRONTEND_URL = env.str("FRONTEND_URL", default="")
 

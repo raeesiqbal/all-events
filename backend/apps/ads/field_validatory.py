@@ -35,7 +35,7 @@ class CustomDescriptionValidator:
 
 
 class CustomContactPersonValidator:
-    regex = r"^(?!.*--)[a-zA-Z][a-zA-Z -]{2,40}[a-zA-Z]$"
+    regex = r"^(?!.*--)[a-zA-Z][a-zA-Z -]*[a-zA-Z]$"
 
     message = "Letters and - sign is allowed and cannot be entirely signs"
 
