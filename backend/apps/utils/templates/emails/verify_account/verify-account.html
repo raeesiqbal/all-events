@@ -34,7 +34,7 @@
         .banner h1 {
             font-size: 2.25rem;
             font-weight: 400;
-            margin-top: 10px;
+            margin-top: 30px;
         }
 
         .banner p {
@@ -43,8 +43,9 @@
         }
 
         .logo {
-            max-width: 100%;
-            height: auto;
+            max-width: 270px;
+            height: 130px;
+            margin-top: 30px;
         }
 
         .inner {
@@ -116,30 +117,45 @@
             list-style: none;
             padding: 0;
             display: flex;
+            /* place-content: center; */
             justify-content: center;
+            width: 100%;
         }
 
-        .social-icons img {
-            height: 70px;
-            width: 70px;
+        .tik {
+            height: 43px !important;
+            width: 43px !important;
+            margin-top: 10px;
         }
 
         .social-icons li {
             display: flex;
             justify-content: center;
-        }
+            margin-right: 10px;
 
-        .insta {
-            height: 50px !important;
-            width: 50px !important;
         }
 
         .social-icons .insta {
             margin: 12px;
         }
 
+        .social-icons img {
+            width: 40px;
+            height: 40px;
+        }
+
+        .facebook {
+            width: 60px !important;
+            height: 60px !important;
+        }
+
         .social-icons a {
             text-decoration: none;
+        }
+
+        a {
+            text-decoration: none;
+            color: none;
         }
     </style>
 </head>
@@ -173,21 +189,21 @@
         </div>
 
         <div class="footer">
-            <ul class="social-icons" style="justify-content:center !important;">
+            <ul class="social-icons">
                 <li>
-                    <a href="https://www.facebook.com/profile.php?id=61552595200834"><img
-                            src="https://test-bucket-django-static.s3.eu-central-1.amazonaws.com/static/emails/facebook.png"
-                            alt="Facebook" /></a>
+                    <a href="https://www.facebook.com/profile.php?id=61552595200834">
+                        <img src="https://test-bucket-django-static.s3.eu-central-1.amazonaws.com/static/emails/facebook.png"
+                            class="facebook" alt="Facebook" /></a>
                 </li>
                 <li>
                     <a href="https://www.youtube.com/@AllEventsRomania"><img
                             src="https://test-bucket-django-static.s3.eu-central-1.amazonaws.com/static/emails/image+38.png"
-                            alt="Youtube" /></a>
+                            class="tik" alt="Youtube" /></a>
                 </li>
                 <li>
                     <a href="https://www.tiktok.com/@all.events_romania"><img
                             src="https://test-bucket-django-static.s3.eu-central-1.amazonaws.com/static/emails/image+39.png"
-                            alt="Tiktok" /></a>
+                            class="tik" alt="Tiktok" /></a>
                 </li>
 
                 <li>
