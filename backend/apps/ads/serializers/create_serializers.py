@@ -1,5 +1,8 @@
+# imports
 from apps.utils.serializers.base import BaseSerializer
 from rest_framework import serializers
+
+# models
 from apps.ads.models import (
     Ad,
     Category,
@@ -9,7 +12,18 @@ from apps.ads.models import (
     FAQ,
     AdFAQ,
 )
+
+# validators
 from apps.ads.mixins import SubscriptionTypeValidationMixin
+from apps.ads.field_validatory import (
+    CustomNameValidator,
+    CustomDescriptionValidator,
+    CustomContactPersonValidator,
+    CustomWebsiteValidator,
+    CustomCityValidator,
+    CustomStreetValidator,
+    CustomAddressValidator,
+)
 
 
 class FaqsChildCreateSerializer(BaseSerializer):
@@ -34,10 +48,72 @@ class AdCreateSerializer(SubscriptionTypeValidationMixin, BaseSerializer):
     faqs = serializers.ListField(child=FaqsChildCreateSerializer())
     ad_faq_ad = serializers.ListField(child=AdFAQChildCreateSerializer())
     media_urls = serializers.JSONField(default=dict)
+    name = serializers.CharField(
+        max_length=60,
+        min_length=2,
+        validators=[CustomNameValidator()],
+    )
+    description = serializers.CharField(
+        max_length=6666,
+        min_length=5,
+        validators=[CustomDescriptionValidator()],
+    )
+    number = serializers.CharField(
+        max_length=40,
+        min_length=2,
+        validators=[CustomContactPersonValidator()],
+    )
+    website = serializers.CharField(
+        allow_blank=True,
+        required=False,
+        validators=[CustomWebsiteValidator()],
+    )
+    city = serializers.CharField(
+        max_length=25,
+        min_length=3,
+        validators=[CustomCityValidator()],
+    )
+    street = serializers.CharField(
+        max_length=27,
+        min_length=3,
+        validators=[CustomStreetValidator()],
+    )
+    full_address = serializers.CharField(
+        max_length=80,
+        min_length=5,
+        validators=[CustomAddressValidator()],
+    )
+
+    facebook = serializers.CharField(
+        allow_blank=True,
+        required=False,
+        validators=[CustomWebsiteValidator()],
+    )
+    instagram = serializers.CharField(
+        allow_blank=True,
+        required=False,
+        validators=[CustomWebsiteValidator()],
+    )
+    youtube = serializers.CharField(
+        allow_blank=True,
+        required=False,
+        validators=[CustomWebsiteValidator()],
+    )
+    tiktok = serializers.CharField(
+        allow_blank=True,
+        required=False,
+        validators=[CustomWebsiteValidator()],
+    )
+    others = serializers.CharField(
+        allow_blank=True,
+        required=False,
+        validators=[CustomWebsiteValidator()],
+    )
 
     class Meta:
         model = Ad
         fields = [
+            "name",
             "sub_category",
             "related_sub_categories",
             "activation_countries",
@@ -58,7 +134,6 @@ class AdCreateSerializer(SubscriptionTypeValidationMixin, BaseSerializer):
             "ad_faq_ad",
             "faqs",
             "media_urls",
-            "name",
             "description",
         ]
 

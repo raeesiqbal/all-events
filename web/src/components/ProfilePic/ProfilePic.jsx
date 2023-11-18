@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCamera } from "@fortawesome/fontawesome-free-solid";
 import { CircularProgress, useMediaQuery } from "@mui/material";
@@ -99,39 +99,23 @@ const ProfilePic = ({ dashboard }) => {
           </>
         )}
 
-        {((selectedImage !== null && selectedImage !== undefined) || (userImage !== null && userImage !== undefined)) ? (
-          <img
-            className="selected-image"
-            style={{
-              width: isMobileAndDashboard
-                ? "150px"
-                : dashboard && "196px",
-              height: isMobileAndDashboard
-                ? "150px"
-                : dashboard && "196px",
-            }}
-            src={
-              selectedImage === null
-                ? userImage
-                : selectedImage && URL.createObjectURL(selectedImage)
-            }
-            alt=""
-          />
-        ) : (
-          <img
-            className="selected-image"
-            src={defaultuserIcon}
-            alt=""
-            style={{
-              width: isMobileAndDashboard
-                ? "150px"
-                : dashboard && "196px",
-              height: isMobileAndDashboard
-                ? "150px"
-                : dashboard && "196px",
-            }}
-          />
-        )}
+        <img
+          className="selected-image"
+          style={{
+            width: isMobileAndDashboard
+              ? "150px"
+              : dashboard && "196px",
+            height: isMobileAndDashboard
+              ? "150px"
+              : dashboard && "196px",
+          }}
+          src={
+            selectedImage === null
+              ? (userImage || defaultuserIcon)
+              : selectedImage && URL.createObjectURL(selectedImage)
+          }
+          alt=""
+        />
 
         <div
           className="camera-icon-container"

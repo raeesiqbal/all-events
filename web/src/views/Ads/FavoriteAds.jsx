@@ -17,7 +17,6 @@ const FavoriteAds = () => {
 
   const limit = 10;
   const [offset, setOffset] = React.useState(0);
-  const user = useSelector((state) => state.auth.user);
   const { favoriteAds, count, loading } = useSelector((state) => state.Ads);
 
   const handleScroll = (e) => {

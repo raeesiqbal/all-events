@@ -1,7 +1,5 @@
 # imports
 from apps.utils.views.base import BaseViewset
-from django_filters.rest_framework.backends import DjangoFilterBackend
-from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import IsAuthenticated
 
 # permissions

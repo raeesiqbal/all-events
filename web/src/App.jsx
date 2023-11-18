@@ -1,11 +1,18 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Route, Routes, useLocation, useNavigate,
 } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { Button, Modal } from "react-bootstrap";
+import { Alert } from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
+import { handleProfileSettingsCurrentView } from "./views/redux/TabNavigation/TabNavigationSlice";
+import { currentSubscriptionDetails, setShowModal } from "./views/redux/Subscriptions/SubscriptionsSlice";
+import { getAuthenticatedUser, handleUserAlerts, handleWelcomeUserAlert, sendVerifyAccountEmail, setValidModal } from "./views/redux/Auth/authSlice";
+import { listCountries } from "./views/redux/Posts/AdsSlice";
+import Header from "./components/Navbar/Navbar";
+import TabNavigation from "./components/TabNavigation/TabNavigation";
 import Homepage from "./views/Homepage/Homepage";
 import PostAd from "./views/PostAd/PostAd";
 import ProfileView from "./views/ProfileSettings/ProfileView";
@@ -23,24 +30,19 @@ import Subscriptions from "./views/Subscriptions/Subscriptions";
 import Plans from "./views/Subscriptions/Plans";
 import Checkout from "./views/Subscriptions/Checkout";
 import Login from "./views/Login/Login";
-import Header from "./components/Navbar/Navbar";
-import TabNavigation from "./components/TabNavigation/TabNavigation";
 import Footer from "./components/Footer/Footer";
 import TopBanner from "./components/TopBanner";
-import "./App.css";
 import Calendars from "./views/Calendars/Calendars";
-import { handleProfileSettingsCurrentView } from "./views/redux/TabNavigation/TabNavigationSlice";
-import { currentSubscriptionDetails, setShowModal } from "./views/redux/Subscriptions/SubscriptionsSlice";
-import { getAuthenticatedUser, handleUserAlerts, sendVerifyAccountEmail } from "./views/redux/Auth/authSlice";
-import { listCountries } from "./views/redux/Posts/AdsSlice";
 import VerifyAccount from "./views/Login/VerifyAccount";
-import { Alert } from "@mui/material";
+import "./App.css";
 
 function App() {
   const location = useLocation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { user, screenLoading, UserSuccessAlert, UserErrorAlert, error } = useSelector((state) => state.auth);
+  const {
+    user, screenLoading, UserSuccessAlert, UserErrorAlert, error, isWelcomeUserAlert, validModal,
+  } = useSelector((state) => state.auth);
   const currentSubscription = useSelector((state) => state.subscriptions.currentSubscriptionDetails);
   const {
     showModal, modalMessage, modalType, buttonText, modalTitle,
@@ -48,15 +50,6 @@ function App() {
   const profileSettingsCurrentView = useSelector(
     (state) => state.tabNavigation.profileSettingsCurrentView,
   );
-
-  useEffect(() => {
-    if (
-      user?.userId === null
-      && user?.accessToken !== null
-    ) {
-      dispatch(getAuthenticatedUser());
-    }
-  }, [user?.userId, user?.accessToken]);
 
   const routesWithTabNavigation = [
     "/post-ad",
@@ -94,6 +87,15 @@ function App() {
 
   useEffect(() => {
     if (
+      user?.userId === null
+      && user?.accessToken !== null
+    ) {
+      dispatch(getAuthenticatedUser());
+    }
+  }, [user?.userId, user?.accessToken]);
+
+  useEffect(() => {
+    if (
       ((currentSubscription === null && modalType !== null)
           || (currentSubscription !== null && user?.role === "vendor" && currentSubscription.status === "unpaid"))
         && !["/plans", "/checkout", "/subscriptions"].includes(location.pathname)
@@ -120,6 +122,11 @@ function App() {
       }, 4000);
     }
   }, [UserSuccessAlert, UserErrorAlert]);
+
+  useEffect(() => {
+    dispatch(setValidModal(true));
+    if (isWelcomeUserAlert && !["", "/", "/dashboard"].includes(location.pathname)) dispatch(handleWelcomeUserAlert(false));
+  }, [location]);
 
   return (
     <>
@@ -198,11 +205,42 @@ function App() {
       </Modal>
 
       <Modal
-        show={!user.is_verified && shouldRenderTabNavigation}
+        show={!user.is_verified && !isWelcomeUserAlert && validModal}
         size="lg"
         aria-labelledby="example-custom-modal-styling-title"
         centered="true"
       >
+        <div className="box" style={{ position: "absolute", right: "3.5px", top: "3px" }} />
+        <div
+          style={{
+            position: "absolute",
+            right: "11px",
+            top: "6px",
+            zIndex: "20",
+          }}
+        >
+          <div
+            role="presentation"
+            onClick={() => dispatch(setValidModal(false))}
+            className="close-icon"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 18 18"
+              fill="none"
+              style={{ cursor: "pointer" }}
+            >
+              <path
+                d="M17 1L1 17M1 1L17 17"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
+        </div>
         <Modal.Body className="text-center">
           <h1 className="w-100 mb-5 mt-3 fw-bold">Account Verification Reminder</h1>
           <h5 className="my-5 mx-5 px-5 text-secondary fw-normal">

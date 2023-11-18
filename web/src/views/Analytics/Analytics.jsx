@@ -20,7 +20,7 @@ function Analytics() {
   const {
     totalAdFavourite, totalAdReviews, totalAdMessages, favAdsAnalytics, reviewsAdsAnalytics, messagesAdsAnalytics,
   } = useSelector((state) => state.analytics);
-  const vendorAdNames = useSelector((state) => state.Ads.vendorAdNames);
+  const { vendorAdNames } = useSelector((state) => state.Ads);
 
   const [selectedAd, setSelectedAd] = useState("0");
   const [period, setPeriod] = useState("last_month");

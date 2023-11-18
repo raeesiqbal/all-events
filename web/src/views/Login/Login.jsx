@@ -21,7 +21,7 @@ import arrowBack from "../../assets/images/arrow-back.svg";
 import visibility from "../../assets/images/visibility.svg";
 import visibilityHide from "../../assets/images/visibility-hide.svg";
 import { toggleLoginModal, toggleLoginView } from "../redux/Login/loginSlice";
-import { toggleRegisterModal, toggleRegisterView } from "../redux/Register/RegisterSlice";
+import { toggleRegisterView } from "../redux/Register/RegisterSlice";
 import StepperForm from "../../components/Stepper/Stepper";
 import {
   handleNextStep,
@@ -34,12 +34,11 @@ import {
   handleLogin,
   handleRegister,
   handleResgisterationStatus,
-  handleWelcomeUserAlert,
-  sendVerifyAccountEmail,
   setShowVerifyModal,
 } from "../redux/Auth/authSlice";
 import DynamicRegisterationView from "./ViewHelper";
 import "./Login.css";
+import { ScrollToError } from "../../utilities/ScrollToError";
 
 function Login() {
   const dispatch = useDispatch();
@@ -171,7 +170,7 @@ function Login() {
 
   const { isLoginModal, isLoginView } = useSelector((state) => state.login);
   const {
-    isRegistered, user, error, loading, showVerifyModal, isWelcomeUserAlert,
+    isRegistered, user, error, loading, showVerifyModal,
   } = useSelector((state) => state.auth);
   const { isRegisterView } = useSelector((state) => state.register);
   const { activeStep } = useSelector((state) => state.stepper);
@@ -322,23 +321,15 @@ function Login() {
         }),
       );
       dispatch(handleResgisterationStatus());
-      setTimeout(() => {
-        dispatch(handleWelcomeUserAlert(true));
-      }, 2000);
     }
   }, [isRegistered]);
 
   useEffect(() => {
-    if (isWelcomeUserAlert && user.userId) dispatch(sendVerifyAccountEmail());
-  }, [isWelcomeUserAlert, user.userId]);
-
-  useEffect(() => {
-    if (user.role) {
-      if (isLoginView) handleClose();
-      if (isRegisterView) dispatch(toggleRegisterModal());
-      navigate(user.role === "vendor" ? "/dashboard" : "/favorite-ads");
+    if (user.role && (isLoginView || isRegisterView)) {
+      handleClose();
+      navigate(user.role === "vendor" ? "/dashboard" : "/");
     }
-  }, [user.role]);
+  }, [user.role, isLoginView, isRegisterView]);
 
   return (
     <>
@@ -501,6 +492,7 @@ function Login() {
                     handleSubmit, handleChange, values, touched, errors,
                   }) => (
                     <Form noValidate onSubmit={handleSubmit}>
+                      <ScrollToError />
                       <Form.Group className="mb-4" controlId="form3Example3">
                         <Form.Control
                           style={{ height: "56px" }}

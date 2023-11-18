@@ -7,7 +7,7 @@ from apps.utils.views.base import BaseViewset, ResponseInfo
 from rest_framework import status
 
 # permissions
-from apps.users.permissions import IsVendorUser
+from apps.users.permissions import IsVendorUser, IsVerified
 
 # constants
 from apps.subscriptions.constants import SUBSCRIPTION_STATUS, SUBSCRIPTION_TYPES
@@ -58,18 +58,18 @@ class SubscriptionsViewSet(BaseViewset):
     }
     action_permissions = {
         "default": [],
-        "create_subscription": [IsAuthenticated, IsVendorUser],
-        "update_subscription": [IsAuthenticated, IsVendorUser],
-        "cancel_subscription": [IsAuthenticated, IsVendorUser],
-        "resume_subscription": [IsAuthenticated, IsVendorUser],
-        "subscription_success": [IsAuthenticated, IsVendorUser],
-        "my_subscriptions": [IsAuthenticated, IsVendorUser],
-        "current_subscription": [IsAuthenticated, IsVendorUser],
-        "current_subscription_dpm": [IsAuthenticated, IsVendorUser],
-        "update_payment_method": [IsAuthenticated, IsVendorUser],
-        "get_payment_method": [IsAuthenticated, IsVendorUser],
-        "download_invoice": [IsAuthenticated, IsVendorUser],
-        "validate_update_subscription": [IsAuthenticated, IsVendorUser],
+        "create_subscription": [IsAuthenticated, IsVerified, IsVendorUser],
+        "update_subscription": [IsAuthenticated, IsVerified, IsVendorUser],
+        "cancel_subscription": [IsAuthenticated, IsVerified, IsVendorUser],
+        "resume_subscription": [IsAuthenticated, IsVerified, IsVendorUser],
+        "subscription_success": [IsAuthenticated, IsVerified, IsVendorUser],
+        "my_subscriptions": [IsAuthenticated, IsVerified, IsVendorUser],
+        "current_subscription": [IsAuthenticated, IsVerified, IsVendorUser],
+        "current_subscription_dpm": [IsAuthenticated, IsVerified, IsVendorUser],
+        "update_payment_method": [IsAuthenticated, IsVerified, IsVendorUser],
+        "get_payment_method": [IsAuthenticated, IsVerified, IsVendorUser],
+        "download_invoice": [IsAuthenticated, IsVerified, IsVendorUser],
+        "validate_update_subscription": [IsAuthenticated, IsVerified, IsVendorUser],
     }
     stripe_service = StripeService()
     webhook_service = WebHookService()

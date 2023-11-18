@@ -27,4 +27,12 @@ class IsClient(permissions.BasePermission):
 
     def has_permission(self, request, view):
         return request.user.role_type == USER_ROLE_TYPES["CLIENT"]
-    
+
+
+class IsVerified(permissions.BasePermission):
+    """
+    Permission check for verified User.
+    """
+
+    def has_permission(self, request, view):
+        return request.user.is_verified

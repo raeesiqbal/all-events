@@ -34,7 +34,7 @@
         .banner h1 {
             font-size: 2.25rem;
             font-weight: 400;
-            margin-top: 10px;
+            margin-top: 30px;
         }
 
         .banner p {
@@ -43,8 +43,9 @@
         }
 
         .logo {
-            max-width: 100%;
-            height: auto;
+            max-width: 270px;
+            height: 130px;
+            margin-top: 30px;
         }
 
         .inner {
@@ -79,7 +80,7 @@
             display: inline-block;
             padding: 15px 125px;
             background-color: #A0C49D;
-            color: #ffffff;
+            color: #ffffff !important;
             font-weight: 600;
             font-size: 1rem;
             text-decoration: none;
@@ -116,31 +117,44 @@
             list-style: none;
             padding: 0;
             display: flex;
-            place-content: center;
-
+            /* place-content: center; */
+            justify-content: center;
         }
 
-        .social-icons img {
-            height: 70px;
-            width: 70px;
+        .tik {
+            height: 43px !important;
+            width: 43px !important;
+            margin-top: 10px;
         }
 
         .social-icons li {
             display: flex;
             justify-content: center;
-        }
+            margin-right: 10px;
 
-        .insta {
-            height: 50px !important;
-            width: 50px !important;
         }
 
         .social-icons .insta {
             margin: 12px;
         }
 
+        .social-icons img {
+            width: 40px;
+            height: 40px;
+        }
+
+        .facebook {
+            width: 60px !important;
+            height: 60px !important;
+        }
+
         .social-icons a {
             text-decoration: none;
+        }
+
+        a {
+            text-decoration: none;
+            color: none;
         }
     </style>
 </head>
@@ -170,21 +184,25 @@
                 <br />
                 verification link below
             </p>
-            <a class="button" href="{{verify_account_url}}">Confirm Email</a>
+            <a style="" class="button" href="{{verify_account_url}}">Confirm Email</a>
         </div>
 
         <div class="footer">
             <ul class="social-icons">
                 <li>
-                    <a href="https://www.facebook.com/profile.php?id=61552595200834"><img
-                            src="https://test-bucket-django-static.s3.eu-central-1.amazonaws.com/static/emails/facebook.png"
-                            alt="Facebook" /></a>
+                    <a href="https://www.facebook.com/profile.php?id=61552595200834">
+                        <img src="https://test-bucket-django-static.s3.eu-central-1.amazonaws.com/static/emails/facebook.png"
+                            class="facebook" alt="Facebook" /></a>
                 </li>
                 <li>
-                    <a href="https://www.youtube.com/@AllEventsRomania"><img src="" alt="Youtube" /></a>
+                    <a href="https://www.youtube.com/@AllEventsRomania"><img
+                            src="https://test-bucket-django-static.s3.eu-central-1.amazonaws.com/static/emails/image+38.png"
+                            class="tik" alt="Youtube" /></a>
                 </li>
                 <li>
-                    <a href="https://www.tiktok.com/@all.events_romania"><img src="" alt="Tiktok" /></a>
+                    <a href="https://www.tiktok.com/@all.events_romania"><img
+                            src="https://test-bucket-django-static.s3.eu-central-1.amazonaws.com/static/emails/image+39.png"
+                            class="tik" alt="Tiktok" /></a>
                 </li>
 
                 <li>

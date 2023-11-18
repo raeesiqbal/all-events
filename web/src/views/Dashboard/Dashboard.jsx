@@ -161,20 +161,14 @@ function Dashboard() {
         </Row>
       </Container>
 
-      <Container
-        // fluid
-        style={{ marginTop: "60px", marginBottom: "20px" }}
-        className=""
-      >
-        {/* <Row className="d-flex justify-content-center align-items-center"> */}
-        <Row className="dashboard-analytics-container">
-          <Col xs={10} md={12} lg={12} xl={12}>
-            <Row className="mb-5 d-flex justify-content-center align-items-center">
+      {
+        currentSubscription?.type?.analytics && (
+          <Container style={{ marginTop: "60px" }}>
+            <Row className="mb-5">
               <div className="roboto-semi-bold-28px-h2 mb-5">Analytics</div>
-              <Col md={3}>
+              <Col xs={12} sm={6} md={6} lg={3}>
                 <Card
-                  // style={{ maxWidth: "256px" }}
-                  className="custom-card-analytics-dashboard"
+                  className="mb-4 mb-lg-0"
                   onClick={() => dispatch(
                     handleProfileSettingsCurrentView("PersonalInformation"),
                   )}
@@ -215,10 +209,9 @@ function Dashboard() {
                   </Card.Body>
                 </Card>
               </Col>
-              <Col md={3}>
+              <Col xs={12} sm={6} md={6} lg={3}>
                 <Card
-                  // style={{ maxWidth: "256px" }}
-                  className="custom-card-analytics-dashboard"
+                  className="mb-4 mb-lg-0"
                   onClick={() => dispatch(
                     handleProfileSettingsCurrentView("CompanyInformation"),
                   )}
@@ -260,12 +253,9 @@ function Dashboard() {
                   </Card.Body>
                 </Card>
               </Col>
-
-              {/* <Row> */}
-              <Col md={3}>
+              <Col xs={12} sm={6} md={6} lg={3}>
                 <Card
-                  // style={{ maxWidth: "256px" }}
-                  className="custom-card-analytics-dashboard"
+                  className="mb-4 mb-lg-0"
                   onClick={() => dispatch(handleProfileSettingsCurrentView("ChangePassword"))}
                 >
                   <Card.Body>
@@ -304,10 +294,9 @@ function Dashboard() {
                   </Card.Body>
                 </Card>
               </Col>
-              <Col md={3}>
+              <Col xs={12} sm={6} md={6} lg={3}>
                 <Card
-                  // style={{ maxWidth: "256px" }}
-                  className="custom-card-analytics-dashboard"
+                  className="mb-4 mb-lg-0"
                   onClick={() => dispatch(handleProfileSettingsCurrentView("DeleteAccount"))}
                 >
                   <Card.Body>
@@ -347,11 +336,11 @@ function Dashboard() {
                 </Card>
               </Col>
             </Row>
-          </Col>
-        </Row>
-      </Container>
+          </Container>
+        )
+      }
 
-      <Container>
+      <Container style={{ marginTop: "60px" }}>
         <div className="roboto-semi-bold-28px-h2 mb-5">My Subscription</div>
 
         <Row className={`mx-0 mt-4 w-100 ps-2 p-3 subscription-${currentSubscription?.type?.type}`}>

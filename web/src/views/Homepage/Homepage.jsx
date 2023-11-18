@@ -13,7 +13,7 @@ import "./Homepage.css";
 
 function Homepage() {
   const dispatch = useDispatch();
-  const user = useSelector((state) => state.auth.user);
+  const { user } = useSelector((state) => state.auth);
 
   useEffect(() => {
     dispatch(listPremiumVenues(user?.userId !== null));

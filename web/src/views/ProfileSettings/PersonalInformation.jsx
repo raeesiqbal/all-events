@@ -1,19 +1,20 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 import React, { useEffect, useState } from "react";
-import { Button, Col, Container, Form, Row, Spinner } from "react-bootstrap";
+import {
+  Button, Col, Container, Form, Row, Spinner,
+} from "react-bootstrap";
 import * as formik from "formik";
 import * as Yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
 import { Alert } from "@mui/material";
 import personIcon from "../../assets/images/profile-settings/person.svg";
 import contactIcon from "../../assets/images/post-ad/contact.svg";
-
-// import profile_bg from "../../assets/images/profile-settings/profile-bg.svg";
-import "./ProfileSettings.css";
 import { secureInstance } from "../../axios/config";
 import { handleProfileSettingsCurrentView } from "../redux/TabNavigation/TabNavigationSlice";
 import ProfilePic from "../../components/ProfilePic/ProfilePic";
+import "./ProfileSettings.css";
+import { ScrollToError } from "../../utilities/ScrollToError";
 
 function PersonalInformation() {
   const { Formik } = formik;
@@ -23,7 +24,7 @@ function PersonalInformation() {
   const [isAlert, setIsAlert] = useState(false);
   const [isFailedAlert, setIsFailedAlert] = useState(false);
   const [loading, setLoading] = useState(false);
-  const user = useSelector((state) => state.auth.user);
+  const { user } = useSelector((state) => state.auth);
 
   const initialValues = {
     person_firstName: personalInfo.first_name,
@@ -37,22 +38,21 @@ function PersonalInformation() {
       .min(2, "Must be at least 2 characters")
       .max(20, "Must be at most 20 characters")
       .matches(
-        /^[a-zA-Z\s-]*$/,
-        "Must only contain letters, spaces, and hyphens"
+        /^(?!.*--)[a-zA-Z][a-zA-Z -]*[a-zA-Z]$/,
+        "Must only contain letters, spaces, and hyphens. Don't add two consecutive spaces or hyphens",
       ),
     person_lastName: Yup.string()
       .required("Last name is required")
       .min(2, "Must be at least 2 characters")
       .max(20, "Must be at most 20 characters")
       .matches(
-        /^[a-zA-Z\s-]*$/,
-        "Must only contain letters, spaces, and hyphens"
+        /^(?!.*--)[a-zA-Z][a-zA-Z -]*[a-zA-Z]$/,
+        "Must only contain letters, spaces, and hyphens. Don't add two consecutive spaces or hyphens",
       ),
     person_number: Yup.string()
       .min(8, "Must be at least 8 digits")
       .max(15, "Must be less than 15 digits")
-      .matches(/^\+?[0-9]{1,15}$/, "Must be a valid phone number"),
-    // .required("Required"),
+      .matches(/^\+?[0-9]+$/, "Must be a valid phone number. Only digits and '+' are allowed"),
   });
 
   const getPersonalInfo = async () => {
@@ -119,9 +119,7 @@ function PersonalInformation() {
         <div
           className="d-flex mt-3"
           style={{ cursor: "pointer" }}
-          onClick={() =>
-            dispatch(handleProfileSettingsCurrentView("profileSettings"))
-          }
+          onClick={() => dispatch(handleProfileSettingsCurrentView("profileSettings"))}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -187,8 +185,11 @@ function PersonalInformation() {
               validateOnBlur={false}
               validateOnChange={false}
             >
-              {({ handleSubmit, handleChange, values, errors }) => (
+              {({
+                handleSubmit, handleChange, values, errors,
+              }) => (
                 <Form noValidate onSubmit={handleSubmit}>
+                  <ScrollToError />
                   <Col lg={4}>
                     <Form.Group className="mb-4" controlId="form3Example3">
                       <Form.Label
@@ -200,7 +201,7 @@ function PersonalInformation() {
                           alt="commercialName"
                           style={{ marginRight: "16px" }}
                         />
-                        Contact Person Name
+                        First Name
                       </Form.Label>
                       <Form.Control
                         style={{ height: "56px" }}
@@ -217,6 +218,22 @@ function PersonalInformation() {
                       <Form.Control.Feedback type="invalid">
                         {errors.person_firstName}
                       </Form.Control.Feedback>
+                    </Form.Group>
+                  </Col>
+
+                  <Col lg={4}>
+                    <Form.Group className="mb-4" controlId="form3Example3">
+                      <Form.Label
+                        className="roboto-medium-20px-body1 d-flex align-items-center"
+                        style={{ marginBottom: "20px" }}
+                      >
+                        <img
+                          src={personIcon}
+                          alt="commercialName"
+                          style={{ marginRight: "16px" }}
+                        />
+                        Last Name
+                      </Form.Label>
                       <Form.Control
                         style={{ height: "56px" }}
                         className="lg-input-small-text mt-3"

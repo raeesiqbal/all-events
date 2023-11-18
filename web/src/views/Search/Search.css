@@ -26,3 +26,18 @@
   border-color: #A0C49D !important;
   color: white !important;
 }
+
+@media (max-width: 991px) {
+  .filters {
+    position: fixed !important;
+    background-color: white !important;
+    padding: 0px 15px;
+    z-index: 1000;
+    left: 0px;
+    top: 0px;
+    bottom: 0px;
+    width: 50% !important;
+    min-width: 320px !important;
+    max-width: 450px !important;
+  }
+}

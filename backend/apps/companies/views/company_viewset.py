@@ -6,6 +6,7 @@ from apps.utils.services.s3_service import S3Service
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework import status
+from apps.utils.utils import user_verify_account
 
 
 # permissions
@@ -77,11 +78,13 @@ class CompanyViewSet(BaseViewset):
         user.set_password(user_details["password"])
         user.save()
         Company.objects.create(**serializer.validated_data, user=user)
-
+        user_verify_account(user)
         return Response(
             status=status.HTTP_200_OK,
             data=ResponseInfo().format_response(
-                data={}, message="obje created", status_code=status.HTTP_200_OK
+                data={},
+                message="Company has been created successfully",
+                status_code=status.HTTP_200_OK,
             ),
         )
 

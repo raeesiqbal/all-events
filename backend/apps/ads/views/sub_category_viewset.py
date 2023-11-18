@@ -1,25 +1,25 @@
-from datetime import date
-
-from django.contrib.contenttypes.models import ContentType
+# imports
+from apps.utils.views.base import BaseViewset, ResponseInfo
 from rest_framework.decorators import action
 from django_filters.rest_framework.backends import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
+
+# models
 from apps.ads.models import ActivationSubCategory, RelatedSubCategory, SubCategory
+
+# serializers
 from apps.ads.serializers.create_serializers import SubCategoryCreateSerializer
 from apps.ads.serializers.get_serializers import (
-    RelatedSubCategory2GetSerializer,
     RelatedSubCategoryGetSerializer,
     SubCategoryGetSerializer,
 )
-from django.db.models.query_utils import Q
 from apps.ads.serializers.update_serializer import SubCategoryUpdateSerializer
-from apps.users.models import User
 
+# permissions
 from apps.users.permissions import IsSuperAdmin, IsVendorUser
-from apps.utils.views.base import BaseViewset, ResponseInfo
 
 
 class SubCategoryViewSet(BaseViewset):
@@ -35,7 +35,7 @@ class SubCategoryViewSet(BaseViewset):
     }
     action_permissions = {
         "default": [],
-        "create": [IsAuthenticated | IsSuperAdmin | IsVendorUser],
+        "create": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
         "list": [],
         "retrieve": [],
         "public_related_subcategory": [],

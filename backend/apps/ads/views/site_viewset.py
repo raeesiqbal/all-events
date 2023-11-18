@@ -1,9 +1,14 @@
+# imports
+from apps.utils.views.base import BaseViewset, ResponseInfo
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
+
+# models
 from apps.ads.models import SiteQuestion, SiteFAQ
+
+# serializers
 from apps.ads.serializers.get_serializers import SiteQuestionGetSerializer
-from apps.utils.views.base import BaseViewset, ResponseInfo
 
 
 class SiteQuestionViewSet(BaseViewset):
@@ -27,11 +32,6 @@ class SiteQuestionViewSet(BaseViewset):
         site_faqs = SiteFAQ.objects.filter(
             sub_category__id=kwargs["pk"]
         ).prefetch_related("site_faq_questions")
-        # for i in site_faqs:
-        #     for c in i.site_faq_questions.all():
-        #         print(c)
-
-        # site_questions = SiteQuestion.objects.filter(site_faq=site_faq)
         serializer = self.get_serializer(site_faqs, many=True).data
 
         return Response(

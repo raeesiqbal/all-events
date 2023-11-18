@@ -4,21 +4,28 @@ from apps.utils.serializers.base import BaseSerializer
 
 
 class CompanyListSerializer(BaseSerializer):
-    
     class Meta:
         model = Company
-        fields = '__all__'
+        fields = "__all__"
+
 
 class UserGetChildSerializer(BaseSerializer):
-
     class Meta:
         model = User
-        fields = [ 'email', 'first_name', 'last_name',
-                  'phone','newsletter','terms_acceptance','image']
-   
+        fields = [
+            "email",
+            "first_name",
+            "last_name",
+            "phone",
+            "newsletter",
+            "terms_acceptance",
+            "image",
+        ]
+
+
 class CompanyRetrieveSerializer(BaseSerializer):
-    
-    user=UserGetChildSerializer()
+    user = UserGetChildSerializer()
+
     class Meta:
         model = Company
-        fields = '__all__'
+        fields = "__all__"

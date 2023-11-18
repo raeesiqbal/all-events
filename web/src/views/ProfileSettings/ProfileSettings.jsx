@@ -17,7 +17,7 @@ import ProfilePic from "../../components/ProfilePic/ProfilePic";
 
 function ProfileSettings() {
   const dispatch = useDispatch();
-  const user = useSelector((state) => state.auth.user);
+  const { user } = useSelector((state) => state.auth);
 
   useEffect(() => {
     if (user?.userCompanyId !== null && user?.role === "vendor") {

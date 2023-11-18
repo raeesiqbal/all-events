@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Button, Col, Container, Form, Row, Spinner } from "react-bootstrap";
 import * as formik from "formik";
 import * as Yup from "yup";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Alert } from "@mui/material";
 import oldPasswordIcon from "../../assets/images/profile-settings/old-password.svg";
 import "./ProfileSettings.css";
@@ -10,10 +10,14 @@ import { secureInstance } from "../../axios/config";
 import { deleteCookie } from "../../utilities/utils";
 import { handleProfileSettingsCurrentView } from "../redux/TabNavigation/TabNavigationSlice";
 import ProfilePic from "../../components/ProfilePic/ProfilePic";
+import { handleUserNewsletter } from "../redux/Auth/authSlice";
+import { ScrollToError } from "../../utilities/ScrollToError";
 
 function DeleteAccount() {
   const { Formik } = formik;
   const dispatch = useDispatch();
+
+  const { newsletter } = useSelector((state) => state.auth.user);
 
   const [isFailedAlert, setIsFailedAlert] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -83,9 +87,8 @@ function DeleteAccount() {
         <ProfilePic />
       </div>
 
-      <Col className="justify-content-center left-arrow-settings">
+      <Col className="d-flex justify-content-between left-arrow-settings mt-3">
         <div
-          className="d-flex mt-3"
           style={{ cursor: "pointer" }}
           onClick={() =>
             dispatch(handleProfileSettingsCurrentView("profileSettings"))
@@ -105,6 +108,21 @@ function DeleteAccount() {
             />
           </svg>
         </div>
+
+        <Form.Check
+          type="switch"
+          className="ps-5"
+          label={(
+            <span
+              className="ms-2"
+              style={{ fontSize: "18px", lineHeight: "18px" }}
+            >
+              Newsletter
+            </span>
+          )}
+          checked={newsletter}
+          onChange={(e) => dispatch(handleUserNewsletter({ newsletter: e.target.checked }))}
+        />
       </Col>
       <Alert
         severity="error"
@@ -141,6 +159,7 @@ function DeleteAccount() {
             >
               {({ handleSubmit, handleChange, values, touched, errors }) => (
                 <Form noValidate onSubmit={handleSubmit}>
+                  <ScrollToError />
                   <Col lg={4}>
                     <Form.Group
                       className="form-group mb-4"

@@ -1,7 +1,9 @@
 /* eslint-disable no-nested-ternary */
 /* eslint-disable max-len */
 import React, { useEffect, useState } from "react";
-import { Button, Col, Container, Form, Spinner } from "react-bootstrap";
+import {
+  Button, Col, Container, Form, Spinner,
+} from "react-bootstrap";
 import * as formik from "formik";
 import * as Yup from "yup";
 import axios from "axios";
@@ -59,13 +61,11 @@ function ResetPassword() {
 
   const Schema = Yup.object().shape({
     password: Yup.string()
-      .test(
-        "contains-mixed-characters",
-        "Password must contain both numeric and non-numeric characters",
-        (value) => /[0-9]/.test(value) && /[^0-9]/.test(value)
-      )
       .required("Password is required")
-      .min(5, "Your password is too short."),
+      .min(6, "Must be at least 6 characters")
+      .matches(/[a-z]/, "Must contain at least one lowercase letter")
+      .matches(/[A-Z]/, "Must contain at least one uppercase letter")
+      .matches(/\d/, "Must contain at least one digit"),
     confirm_password: Yup.string()
       .required("Passwords must match")
       .oneOf([Yup.ref("password")], "Passwords must match"),
@@ -142,7 +142,9 @@ function ResetPassword() {
           validateOnBlur={false}
           validateOnChange={false}
         >
-          {({ handleSubmit, handleChange, values, touched, errors }) => (
+          {({
+            handleSubmit, handleChange, values, touched, errors,
+          }) => (
             <Form noValidate onSubmit={handleSubmit}>
               <div className="d-flex justify-content-center align-items-center">
                 <img src={Featured} alt="Featured" className="mb-3" />

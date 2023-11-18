@@ -1,6 +1,18 @@
+# imports
+from apps.utils.serializers.base import BaseSerializer
+from rest_framework import serializers
+
+# models
 from apps.clients.models import Client
 from apps.users.models import User
-from apps.utils.serializers.base import BaseSerializer
+
+# fields validators
+from apps.users.field_validators import (
+    CustomPasswordValidator,
+    CustomPhoneValidator,
+    CustomFirstNameValidator,
+    CustomLastNameValidator,
+)
 
 
 class ClientUserChildSerializer(BaseSerializer):
@@ -13,6 +25,30 @@ class ClientUserChildSerializer(BaseSerializer):
         if "email" in data:
             data["email"] = data["email"].lower()
         return super().to_internal_value(data)
+
+    phone = serializers.CharField(
+        max_length=15,
+        min_length=8,
+        allow_blank=True,
+        required=False,
+        validators=[CustomPhoneValidator()],
+    )
+    password = serializers.CharField(
+        max_length=128,
+        min_length=6,
+        write_only=True,
+        validators=[CustomPasswordValidator()],
+    )
+    first_name = serializers.CharField(
+        max_length=20,
+        min_length=2,
+        validators=[CustomFirstNameValidator()],
+    )
+    last_name = serializers.CharField(
+        max_length=20,
+        min_length=2,
+        validators=[CustomLastNameValidator()],
+    )
 
     class Meta:
         model = User

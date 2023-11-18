@@ -5,7 +5,7 @@ import StarRating from "../../components/Rating/StarRating";
 import defaultProfilePhoto from "../../assets/images/profile-settings/person.svg";
 
 const Review = ({ review }) => {
-  const user = useSelector((state) => state.auth.user);
+  const { user } = useSelector((state) => state.auth);
 
   const formatDate = (isoDate) => {
     const date = new Date(isoDate);

@@ -5,7 +5,7 @@ import re
 
 
 class CustomCompanyNameValidator:
-    regex = r"^[a-zA-Z., $]+$"
+    regex = r"^[a-zA-Z., &]+$"
     message = (
         "Company Name must be between 6 and 25 characters long"
         "only contain letters, spaces and , . & signs are allowed"

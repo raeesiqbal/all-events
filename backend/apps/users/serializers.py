@@ -48,6 +48,10 @@ class UpdateProfileSerializer(serializers.ModelSerializer):
         ]
 
 
+class NewsLetterSerializer(serializers.Serializer):
+    newsletter = serializers.BooleanField(required=True)
+
+
 class GetUserSerializer(serializers.ModelSerializer):
     user_company = CompanyListSerializer()
 
@@ -65,6 +69,7 @@ class GetUserSerializer(serializers.ModelSerializer):
             "user_company",
             "image",
             "is_verified",
+            "newsletter",
         ]
 
 

@@ -9,7 +9,7 @@ import {
 
 const Filters = () => {
   const dispatch = useDispatch();
-  // const colRef = useRef(null);
+  const colRef = useRef(null);
 
   const { isLoggedInState } = useSelector((state) => state.auth);
   const { filters, keyword, showFilters } = useSelector((state) => state.search.data);
@@ -84,42 +84,72 @@ const Filters = () => {
     if (keyword.type === "sub_categories") dispatch(setSubcategories({ subcategories: [keyword.name] }));
   }, [keyword]);
 
-  // useEffect(() => {
-  //   const handleClickOutside = (event) => {
-  //     // Check if the click is outside the Col element
-  //     if (colRef.current && !colRef.current.contains(event.target)) {
-  //       dispatch(setShowFilters(false));
-  //     }
-  //   };
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showFilters && colRef.current && !colRef.current.contains(event.target)) {
+        if (!(
+          event.target.classList.contains("filter-btn")
+            || event.target.parentNode.classList.contains("filter-btn")
+            || event.target.parentNode.parentNode.classList.contains("filter-btn")
+        )) {
+          dispatch(setShowFilters(false));
+        }
+      }
+    };
 
-  //   // Attach the event listener to the document
-  //   document.addEventListener("click", handleClickOutside);
+    document.addEventListener("click", handleClickOutside);
 
-  //   // Clean up the event listener when the component is unmounted
-  //   return () => {
-  //     document.removeEventListener("click", handleClickOutside);
-  //   };
-  // }, []);
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, [showFilters]);
 
   return (
     <Col
-      // ref={colRef}
-      className={`${showFilters ? "" : "d-none d-lg-block"} filters`}
-      style={showFilters ? {
-        position: "fixed",
-        backgroundColor: "white",
-        zIndex: 1000,
-        left: "0px",
-        top: "0px",
-        bottom: "0px",
-        width: "50%",
-        minWidth: "320px",
-      } : {}}
+      ref={colRef}
+      className={` filters`}
+      style={{
+        left: showFilters ? "0px" : "-100%",
+        transition: "ease 400ms",
+        // opacity: showFilters ? 1 : 0,
+      }}
     >
-      <div className="w-100 d-flex justify-content-between mb-5">
-        <span style={{ fontSize: "24px", lineHeight: "28.2px", fontWeight: "700" }}>Filter</span>
+      <div className="box d-lg-none" style={{ position: "absolute", right: "3.5px", top: "3px" }} />
+      <div
+        style={{
+          position: "absolute",
+          right: "11px",
+          top: "6px",
+          zIndex: "20",
+        }}
+        className="d-lg-none"
+      >
+        <div
+          role="presentation"
+          onClick={() => dispatch(setShowFilters(false))}
+          className="close-icon"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="18"
+            height="18"
+            viewBox="0 0 18 18"
+            fill="none"
+            style={{ cursor: "pointer" }}
+          >
+            <path
+              d="M17 1L1 17M1 1L17 17"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </div>
+      </div>
+      <div className="w-100 d-flex justify-content-between mb-5 mt-4 mt-lg-0">
+        <span style={{ fontSize: "24px", lineHeight: "28.2px", fontWeight: "700" }}>Filters</span>
         <span
-          className="text-secondary my-auto"
+          className="text-secondary my-auto me-5 me-lg-0"
           style={{ fontSize: "14px", textDecoration: "underline", cursor: "pointer" }}
           onClick={clearFilters}
         >

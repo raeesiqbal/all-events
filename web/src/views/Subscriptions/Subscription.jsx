@@ -5,7 +5,7 @@ import {
   Row,
 } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBan, faDownload, faInfo } from "@fortawesome/free-solid-svg-icons";
 import { Alert, Tooltip } from "@mui/material";
@@ -21,6 +21,8 @@ const Subscription = ({ subscription }) => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const { user } = useSelector((state) => state.auth);
 
   const [deleteModal, setDeleteModal] = React.useState(false);
   const [message, setMessage] = React.useState({
@@ -236,6 +238,7 @@ const Subscription = ({ subscription }) => {
                       variant="success"
                       className="me-3 px-5 py-0"
                       style={{ fontSize: "12px !important", height: "32px" }}
+                      disabled={!user.is_verified}
                       onClick={() => setDeleteModal(true)}
                     >
                       Resume
@@ -246,7 +249,7 @@ const Subscription = ({ subscription }) => {
                         type="button"
                         variant="success"
                         className="me-3 px-5 py-0"
-                        disabled={subscription.status === "unpaid"}
+                        disabled={subscription.status === "unpaid" || !user.is_verified}
                         style={{ fontSize: "12px !important", height: "32px" }}
                         onClick={() => navigate("/plans")}
                       >

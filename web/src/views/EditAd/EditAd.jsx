@@ -53,16 +53,11 @@ function EditAd() {
   const [adminServicesSelected, setAdminServicesSelected] = useState([]);
   const [adminServices, setAdminServices] = useState([]);
 
-  const loading = useSelector((state) => state.Ads.loading);
-  const AdPostSuccessAlert = useSelector(
-    (state) => state.Ads.AdPostSuccessAlert,
-  );
-
-  const AdPostErrorAlert = useSelector((state) => state.Ads.AdPostErrorAlert);
+  const { user } = useSelector((state) => state.auth);
   const imagesToUpload = useSelector((state) => state.Ads.media_urls.images);
-  const imagesError = useSelector((state) => state.Ads.imagesError);
-  const isMediaUploading = useSelector((state) => state.Ads.isMediaUploading);
-  const mediaError = useSelector((state) => state.Ads.mediaError);
+  const {
+    loading, AdPostSuccessAlert, AdPostErrorAlert, imagesError, isMediaUploading, mediaError,
+  } = useSelector((state) => state.Ads);
   const currentSubscription = useSelector(
     (state) => state.subscriptions.currentSubscriptionDetails,
   );
@@ -114,7 +109,7 @@ function EditAd() {
       youtube: values.SocialMedia.youtubeURL,
       tiktok: values.SocialMedia.tiktokURL,
       twitter: values.SocialMedia.twitterURL,
-      // others: values.SocialMedia.othersURL,
+      others: values.SocialMedia.otherURL,
       offered_services: values.servicesOffered.services,
       site_services: adminServicesSelected,
       sub_category: extractSubCatId,
@@ -128,7 +123,12 @@ function EditAd() {
   };
   const Schema = Yup.object().shape({
     companyInformation: Yup.object().shape({
-      commercial_name: Yup.string().required("Commercial Name is required"),
+      commercial_name: Yup.string()
+        .required("Commercial Name is required")
+        .matches(
+          /^(?!\s*[!@#$%^&*()_+\-=\[\]{};':\"\\|,.<>\/?]*\s*$).{2,60}$/,
+          "Commercial name should be 2 to 60 characters long and cannot be entirely signs",
+        ),
       // MIXED TYPES ARE APPLIED BECAUSE THE FORM GETS AN OBJECT FROM API, WHILE SUBMITTING IT EXPECTS AN INTEGER
       category: Yup.mixed().when({
         is: (value) => value !== undefined, // Apply the validation when the field is present
@@ -179,8 +179,8 @@ function EditAd() {
         .min(2, "Too short, minimum 5 characters")
         .max(6667, "Must be at most 6667 characters")
         .matches(
-          /^[a-zA-Z0-9.,;:'"/?!@&*()^+\-|\s]+$/,
-          'Only letters, digits, ".,;:\'/?!@&*()^+-|" signs, and spaces are allowed',
+          /^(?!\s*[!@#$%^&*()_+\-=\[\]{};':\"\\|,.<>\/?]*$)[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':\"\\|,.<>\/? ]{5,6666}$/,
+          "Cannot be entirely signs",
         )
         .required("Description is required"),
       // .required("Required"),
@@ -188,33 +188,33 @@ function EditAd() {
     }),
     contactInformation: Yup.object().shape({
       websiteUrl: Yup.string()
-        .max(30, "Must be at most 30 characters")
         .matches(
-          /^[a-zA-Z0-9.\-+_]+$/,
-          'Only letters, digits, ".", "-", "+", and "_" signs are allowed',
+          /^(?:(?:https?|ftp):\/\/)?(?:www\.)?[A-Za-z0-9-]+\.[A-Za-z]{2,6}$/,
+          "Must be a valid website url",
         ),
       county: Yup.array().min(1, "country is required"),
       city: Yup.string()
+        .min(3, "Too short, minimum 3 characters")
         .max(25, "Must be at most 25 characters")
         .matches(
-          /^[a-zA-Z\s-]+$/,
-          'Only letters, spaces, and "-" sign are allowed',
+          /^(?=[a-zA-Z\s-]{3,25}$)(?!^[ -]*$)[a-zA-Z-]+$/,
+          "Only - sign is allowed and cannot be entirely signs. Digits are not allowed",
         )
         .required("Required"),
       street: Yup.string()
         .min(3, "Too short, minimum 3 characters")
         .max(27, "Must be at most 27 characters")
         .matches(
-          /^[A-Za-z0-9\-,.\/\s]+$/,
-          'Only letters, digits, spaces, "-,./" signs are allowed',
+          /^(?!^[ ,./-]*$)[a-zA-Z0-9 ,./-]{3,27}$/,
+          "- . , / signs and letters, digits, spaces are allowed. Cann't be entirely sings.",
         )
         .required("Required"),
       contact_number: Yup.string()
         .min(2, "Must be at least 2 characters")
         .max(40, "Must be at most 40 characters")
         .matches(
-          /^[a-zA-Z0-9\s-]+$/,
-          'Only letters, numbers, spaces, and "-" signs are allowed',
+          /^(?!.*--)[a-zA-Z][a-zA-Z -]*[a-zA-Z]$/,
+          "Letters and - sign is allowed and cannot be entirely signs",
         )
         .required("Required"),
       fullAddress: Yup.string()
@@ -222,47 +222,51 @@ function EditAd() {
         .min(5, "Too short, minimum 5 characters")
         .max(80, "Must be at most 80 characters")
         .matches(
-          /^[A-Za-z0-9\s,.\-\/]+$/,
-          'Only letters, digits, spaces, ", .", "-", and "/" characters are allowed',
+          /^(?!^[ ,./-]*$)[a-zA-Z0-9 ,./-]{5,80}$/,
+          "- . , / signs and letters, digits, spaces are allowed. Can't be entirely signs.",
         ),
     }),
     SocialMedia: Yup.object().shape({
       facebookURL: Yup.string()
-        .max(40, "Must be 40 characters or less")
         .matches(
-          /^((ftp|http|https):\/\/)?(www.)?(?!.*(ftp|http|https|www.))[a-zA-Z0-9_-]+(\.[a-zA-Z]+)+((\/)[\w#]+)*(\/\w+\?[a-zA-Z0-9_]+=\w+(&[a-zA-Z0-9_]+=\w+)*)?$/gm,
-          "Invalid characters",
+          /^(?:(?:https?|ftp):\/\/)?(?:www\.)?[A-Za-z0-9-]+\.[A-Za-z]{2,6}$/,
+          "Must be a valid website url",
         ),
       instagramURL: Yup.string()
-        .max(40, "Must be 40 characters or less")
         .matches(
-          /^((ftp|http|https):\/\/)?(www.)?(?!.*(ftp|http|https|www.))[a-zA-Z0-9_-]+(\.[a-zA-Z]+)+((\/)[\w#]+)*(\/\w+\?[a-zA-Z0-9_]+=\w+(&[a-zA-Z0-9_]+=\w+)*)?$/gm,
-          "Invalid characters",
+          /^(?:(?:https?|ftp):\/\/)?(?:www\.)?[A-Za-z0-9-]+\.[A-Za-z]{2,6}$/,
+          "Must be a valid website url",
         ),
       youtubeURL: Yup.string()
-        .max(40, "Must be 40 characters or less")
         .matches(
-          /^((ftp|http|https):\/\/)?(www.)?(?!.*(ftp|http|https|www.))[a-zA-Z0-9_-]+(\.[a-zA-Z]+)+((\/)[\w#]+)*(\/\w+\?[a-zA-Z0-9_]+=\w+(&[a-zA-Z0-9_]+=\w+)*)?$/gm,
-          "Invalid characters",
+          /^(?:(?:https?|ftp):\/\/)?(?:www\.)?[A-Za-z0-9-]+\.[A-Za-z]{2,6}$/,
+          "Must be a valid website url",
         ),
       tiktokURL: Yup.string()
-        .max(40, "Must be 40 characters or less")
         .matches(
-          /^((ftp|http|https):\/\/)?(www.)?(?!.*(ftp|http|https|www.))[a-zA-Z0-9_-]+(\.[a-zA-Z]+)+((\/)[\w#]+)*(\/\w+\?[a-zA-Z0-9_]+=\w+(&[a-zA-Z0-9_]+=\w+)*)?$/gm,
-          "Invalid characters",
+          /^(?:(?:https?|ftp):\/\/)?(?:www\.)?[A-Za-z0-9-]+\.[A-Za-z]{2,6}$/,
+          "Must be a valid website url",
         ),
       twitterURL: Yup.string()
-        .max(40, "Must be 40 characters or less")
         .matches(
-          /^((ftp|http|https):\/\/)?(www.)?(?!.*(ftp|http|https|www.))[a-zA-Z0-9_-]+(\.[a-zA-Z]+)+((\/)[\w#]+)*(\/\w+\?[a-zA-Z0-9_]+=\w+(&[a-zA-Z0-9_]+=\w+)*)?$/gm,
-          "Invalid characters",
+          /^(?:(?:https?|ftp):\/\/)?(?:www\.)?[A-Za-z0-9-]+\.[A-Za-z]{2,6}$/,
+          "Must be a valid website url",
         ),
       otherURL: Yup.string()
-        .max(40, "Must be 40 characters or less")
         .matches(
-          /^((ftp|http|https):\/\/)?(www.)?(?!.*(ftp|http|https|www.))[a-zA-Z0-9_-]+(\.[a-zA-Z]+)+((\/)[\w#]+)*(\/\w+\?[a-zA-Z0-9_]+=\w+(&[a-zA-Z0-9_]+=\w+)*)?$/gm,
-          "Invalid characters",
+          /^(?:(?:https?|ftp):\/\/)?(?:www\.)?[A-Za-z0-9-]+\.[A-Za-z]{2,6}$/,
+          "Must be a valid website url",
         ),
+    }),
+    FAQ: Yup.object().shape({
+      faqs: Yup.array().of(
+        Yup.object().shape({
+          question: Yup.string().max(150, "Must be at most 150 characters"),
+          answer: Yup.string().max(500, "Must be at most 500 characters"), // You can add validation for answer here if needed
+          type: Yup.string(), // You can add validation for type here if needed
+          added: Yup.boolean(), // You can add validation for added here if needed
+        }),
+      ),
     }),
   });
 
@@ -381,20 +385,6 @@ function EditAd() {
   };
 
   const handleAddFAQsFields = (values, setValues) => {
-    // setValues({
-    //   ...values,
-    //   FAQ: {
-    //     faqs: [
-    //       ...values.FAQ.faqs,
-    //       {
-    //         question: "",
-    //         answer_input: "",
-    //         type: "text_field",
-    //         added: false,
-    //       },
-    //     ],
-    //   },
-    // });
     const updatedFAQs = values.FAQ.faqs.map((faq) => ({
       ...faq,
       added: true,
@@ -586,10 +576,10 @@ function EditAd() {
 
   useEffect(() => {
     if (
-      currentSubscription === null ||
-      (currentSubscription && currentSubscription.status === "unpaid")
-    )
-      navigate("/my-ads");
+      currentSubscription === null
+      || (currentSubscription && currentSubscription.status === "unpaid")
+      || !user.is_verified
+    ) { navigate("/my-ads"); }
   }, [currentSubscription]);
 
   return (

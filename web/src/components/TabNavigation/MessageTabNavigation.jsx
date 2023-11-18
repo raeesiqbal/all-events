@@ -20,7 +20,7 @@ const MesssageTabNavigation = ({
 
   return (
     <div
-      className="d-flex border-bottom border-2 w-100"
+      className="w-100 d-flex border-bottom border-2"
       style={{ height: "45px" }}
     >
       {
