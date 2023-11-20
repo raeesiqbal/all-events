@@ -27,6 +27,15 @@ from apps.ads.field_validatory import (
 
 
 class FaqsChildCreateSerializer(BaseSerializer):
+    question = serializers.CharField(
+        max_length=150,
+        min_length=1,
+    )
+    answer = serializers.CharField(
+        max_length=500,
+        min_length=1,
+    )
+
     class Meta:
         model = FAQ
         fields = [
@@ -36,6 +45,11 @@ class FaqsChildCreateSerializer(BaseSerializer):
 
 
 class AdFAQChildCreateSerializer(BaseSerializer):
+    answer = serializers.CharField(
+        max_length=500,
+        min_length=1,
+    )
+
     class Meta:
         model = AdFAQ
         fields = [
