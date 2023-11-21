@@ -80,6 +80,8 @@ const Subscription = ({ subscription }) => {
   };
 
   const handleDownloadInvoice = async () => {
+    if (subscription.name.toLowerCase() === "free") return;
+
     dispatch(setScreenLoading(true));
     try {
       const response = await secureInstance.request({
@@ -268,7 +270,7 @@ const Subscription = ({ subscription }) => {
                         </div>
                       </Tooltip>
 
-                      <Tooltip className="ms-3" title="Download Invoice" placement="top">
+                      <Tooltip className="ms-3" title={subscription.name.toLowerCase() === "free" ? "There is no invoice for free plan." : "Download Invoice"} placement="top">
                         <div
                           className="d-flex"
                           style={{

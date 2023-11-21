@@ -73,6 +73,9 @@ const Chat = ({ chat, isOpenChat }) => {
     }
     setMessageText("");
     setAttachment(null);
+    setTimeout(() => {
+      messageBody.current.scrollTop = messageBody.current.scrollHeight;
+    }, 200);
   };
 
   const handleKeyPress = (event) => {
@@ -195,7 +198,7 @@ const Chat = ({ chat, isOpenChat }) => {
                 style={{ width: "80px", height: "80px", borderRadius: "50%" }}
               />
               <h3 className="ms-2 ms-md-3 my-auto" style={{ color: "#797979" }}>
-                {(chat?.ad_name).toUpperCase()}
+                {(currentUser.role === "vendor" ? chat.person.name : chat.ad_name).toUpperCase()}
               </h3>
             </div>
             <div className="me-md-5 text-center">
@@ -519,7 +522,7 @@ const Chat = ({ chat, isOpenChat }) => {
                   <Card.Title>
                     <div className="d-md-flex justify-content-between">
                       <div className="roboto-semi-bold-32px-h2 col-md-6">
-                        {chat.ad_name}
+                        {currentUser.role === "vendor" ? chat.person.name : chat.ad_name}
                       </div>
                       <div className="roboto-regular-14px-information d-flex align-items-center mt-2 pe-4">
                         <img
