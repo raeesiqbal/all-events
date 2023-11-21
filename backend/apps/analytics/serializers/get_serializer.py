@@ -83,7 +83,6 @@ class AdCalenderGetSerializer(BaseSerializer):
 
 
 class AdReviewGetSerializer(BaseSerializer):
-    # client = AdReviewClientChildSerializer()
     full_name = serializers.SerializerMethodField()
 
     class Meta:
@@ -97,26 +96,11 @@ class AdReviewGetSerializer(BaseSerializer):
 class MessageGetChildSerializer(BaseSerializer):
     class Meta:
         model = Message
-        fields = ["sender", "text", "attachments"]
-
-
-# class ChatListSerializer(BaseSerializer):
-#     chat_messages = MessageGetChildSerializer(many=True)
-
-#     class Meta:
-#         model = Chat
-#         fields = ["client", "ad", "event_date", "chat_messages"]
-
-
-# class AdChildSerializer(BaseSerializer):
-#     ad_s = serializers.SerializerMethodField("get_ad_saved_count")
-
-#     class Meta:
-#         model = Ad
-#         fields = [
-#             "name",
-#             "ad_media",
-#         ]
+        fields = [
+            "sender",
+            "text",
+            "attachments",
+        ]
 
 
 class MessageChildSerializer(BaseSerializer):
@@ -124,31 +108,8 @@ class MessageChildSerializer(BaseSerializer):
         model = Message
         fields = [
             "text",
-            "attachments",
             "created_at",
         ]
-
-
-# class UserChildSerializer(BaseSerializer):
-#     full_name = serializers.SerializerMethodField("get_full_name")
-
-#     def get_full_name(self, obj):
-#         return obj.first_name + " " + obj.last_name
-
-#     class Meta:
-#         model = User
-#         fields = [
-#             "full_name",
-#             "phone",
-#         ]
-
-
-# class ClientChildSerializer(BaseSerializer):
-#     user = UserChildSerializer()
-
-#     class Meta:
-#         model = Client
-#         fields = ["user"]
 
 
 class PersonChildSerializer(serializers.Serializer):
@@ -170,8 +131,8 @@ class ChatListSerializer(BaseSerializer):
             "id",
             "ad_image",
             "ad_name",
-            "event_date",
             "latest_message",
+            "event_date",
             "archived",
             "read",
             "person",
