@@ -216,9 +216,6 @@ class MessageViewSet(BaseViewset):
     def chat_message(self, request, *args, **kwargs):
         if Chat.objects.filter(id=kwargs.get("pk")).exists():
             chat = Chat.objects.filter(id=kwargs.get("pk")).first()
-            chat.is_delete_client = False
-            chat.is_delete_vendor = False
-            chat.save()
 
             if request.user.role_type == USER_ROLE_TYPES["CLIENT"]:
                 chat.is_read_client = True
@@ -326,6 +323,9 @@ class MessageViewSet(BaseViewset):
     @action(detail=True, url_path="message-create", methods=["post"])
     def message_create(self, request, *args, **kwargs):
         chat = Chat.objects.filter(id=kwargs.get("pk")).first()
+        chat.is_delete_client = False
+        chat.is_delete_vendor = False
+        chat.save()
 
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
