@@ -268,7 +268,7 @@ function MyAds() {
                           alt="AdTemp"
                           style={{
                             height: "100%",
-                            maxHeight: "330px",
+                            maxHeight: "245px",
                             objectFit: "cover",
                           }}
                         />
@@ -323,6 +323,7 @@ function MyAds() {
                                   marginTop: "20px",
                                   marginBottom: "17px",
                                   maxWidth: "70%",
+                                  wordBreak: "break-word",
                                 }}
                               >
                                 {description
