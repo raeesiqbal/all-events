@@ -21,7 +21,7 @@ class CustomNameValidator:
 
 
 class CustomDescriptionValidator:
-    regex = r"^(?!\s*[!@#$%^&*()_+\-=\[\]{};':\"\\|,.<>\/?]*$)[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':\"\\|,.<>\/? ]{5,6666}$"
+    regex = r"^(?=.*[a-zA-Z])[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':\"\\|,.<>\/? ]{5,6666}$"
 
     message = "Cannot be entirely signs"
 
