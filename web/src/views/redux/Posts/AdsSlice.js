@@ -25,6 +25,11 @@ const initialState = {
     video: [],
     pdf: [],
   },
+  media: {
+    images: [],
+    video: [],
+    pdf: [],
+  },
   publicAds: [],
   venueCountries: [],
 };
@@ -273,6 +278,15 @@ export const AdsSlice = createSlice({
     setImagesToUpload: (state, action) => {
       state.media_urls.images = action.payload;
     },
+    setMediaImages: (state, action) => {
+      state.media.images = action.payload;
+    },
+    setMediaVideos: (state, action) => {
+      state.media.video = action.payload;
+    },
+    setMediaPDF: (state, action) => {
+      state.media.pdf = action.payload;
+    },
     setImagesError: (state, action) => {
       state.imagesError = action.payload;
     },
@@ -466,6 +480,9 @@ export const {
   setImagesToUpload,
   setIsMediaUploading,
   setMediaError,
+  setMediaImages,
+  setMediaVideos,
+  setMediaPDF,
 } = AdsSlice.actions;
 
 // Export the reducer and actions

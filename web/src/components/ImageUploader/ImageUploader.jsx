@@ -1,23 +1,21 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 import { faAdd, faClose } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { useEffect, useState } from "react";
+import { CircularProgress } from "@mui/material";
+import React, { useState } from "react";
 import { Col, Container, Row } from "react-bootstrap";
 import { PhotoProvider, PhotoView } from "react-photo-view";
 import { useDispatch, useSelector } from "react-redux";
 import "./ImageUploader.css";
-import { secureInstance } from "../../axios/config";
-import { CircularProgress } from "@mui/material";
 
 import {
-  setImagesToUpload,
-  uploadImagesToCloud,
+  setMediaImages,
 } from "../../views/redux/Posts/AdsSlice";
 import "react-photo-view/dist/react-photo-view.css";
 
 function ImageUploader({ imagesError }) {
   const [images, setImages] = useState([]);
-  const imagesToUpload = useSelector((state) => state.Ads.media_urls.images);
+  const mediaImages = useSelector((state) => state.Ads.media.images);
   const currentSubscription = useSelector(
     (state) => state.subscriptions.currentSubscriptionDetails,
   );
@@ -41,60 +39,31 @@ function ImageUploader({ imagesError }) {
       setImages(updatedImages);
     };
     reader.readAsDataURL(uploadedImage);
-    dispatch(uploadImagesToCloud(uploadedImage));
+    dispatch(setMediaImages([...mediaImages, {
+      file: uploadedImage,
+      content_type: uploadedImage.type,
+    }]));
     setDeleteImageButton(true);
   };
 
   const removeImage = async (image, index) => {
     setDeleteImageButton(false);
-    const urlToDelete = imagesToUpload[index];
-
-    try {
-      const request = await secureInstance.request({
-        url: "/api/ads/delete-url/",
-        method: "Post",
-        data: {
-          url: urlToDelete,
-        },
-      });
-      // ----------------do this inside redux
-      if (request.status === 200) {
-        const imageIndex = images.indexOf(image);
-
-        const cloneImages = [...images];
-
-        if (imageIndex !== -1) {
-          cloneImages.splice(index, 1);
-        }
-
-        setImages(cloneImages);
-
-        const imageToUploadIndex = imagesToUpload.indexOf(image);
-
-        const cloneImagesToUpload = [...imagesToUpload];
-
-        if (imageToUploadIndex !== -1) {
-          cloneImagesToUpload.splice(index, 1);
-        }
-        dispatch(setImagesToUpload(cloneImagesToUpload));
-        setDeleteImageButton(true);
-      }
-    } catch (err) {}
 
     const imageIndex = images.indexOf(image);
 
-    const cloneImages = [...images];
-
     if (imageIndex !== -1) {
+      const cloneImages = [...images];
+      const cloneMediaImages = [...mediaImages];
+
       cloneImages.splice(index, 1);
+      cloneMediaImages.splice(index, 1);
+
+      setImages(cloneImages);
+      dispatch(setMediaImages(cloneMediaImages));
     }
 
-    setImages(cloneImages);
+    setDeleteImageButton(true);
   };
-
-  useEffect(() => {
-    setImages(imagesToUpload);
-  }, [imagesToUpload]);
 
   const imagesToMap = images;
 
@@ -122,7 +91,11 @@ function ImageUploader({ imagesError }) {
             className="roboto-regular-16px-information"
             style={{ color: "#A9A8AA", lineHeight: "22px" }}
           >
-            Upload {currentSubscription?.type?.allowed_ad_photos || 1} of the
+            Upload
+            {" "}
+            {currentSubscription?.type?.allowed_ad_photos || 1}
+            {" "}
+            of the
             best images that describe your service
           </li>
           <li
@@ -143,10 +116,11 @@ function ImageUploader({ imagesError }) {
         <Row className="h-100 col-12 g-0 flex-column-reverse flex-md-row">
           <PhotoProvider>
             <div className="d-flex" style={{ flexWrap: "wrap" }}>
-              {imagesToMap?.map((image, index) => (
-                <Col md={3} lg={3} key={index}>
-                  <div className="mb-5">
-                    {image !== null && (
+              {
+                imagesToMap?.map((image, index) => (
+                  <Col md={3} lg={3} key={index}>
+                    <div className="mb-5">
+                      {image !== null && (
                       <div
                         style={{
                           position: "relative",
@@ -217,13 +191,14 @@ function ImageUploader({ imagesError }) {
                           </>
                         ) : null}
                       </div>
-                    )}
-                  </div>
-                </Col>
-              ))}
-              {currentSubscription &&
-                currentSubscription?.type?.allowed_ad_photos >
-                  images.length && (
+                      )}
+                    </div>
+                  </Col>
+                ))
+              }
+              {
+                currentSubscription
+                  && currentSubscription?.type?.allowed_ad_photos > images.length && (
                   <div
                     style={{
                       border: "2px dashed #A0C49D",
@@ -259,7 +234,8 @@ function ImageUploader({ imagesError }) {
                       style={{ display: "none", border: "1px solid red" }}
                     />
                   </div>
-                )}
+                )
+              }
             </div>
           </PhotoProvider>
         </Row>

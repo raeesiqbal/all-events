@@ -705,10 +705,7 @@ function EditAd() {
 
                   <ImageUploader imagesError={imagesError} />
 
-                  <VideoUploader
-                    videoToUpload={videoToUpload}
-                    setVideoToUpload={setVideoToUpload}
-                  />
+                  <VideoUploader />
 
                   <ContactInformationForm
                     values={values.contactInformation}
@@ -741,12 +738,7 @@ function EditAd() {
 
                   {currentSubscription
                     && currentSubscription?.type?.pdf_upload && (
-                      <PdfUploader
-                        setparentImagesUploadedImages={handlePdfsUpdates}
-                        pdfsToUpload={pdfsToUpload}
-                        imagesError={pdfsError}
-                        setImagesError={setPdfsError}
-                      />
+                      <PdfUploader />
                   )}
 
                   {currentSubscription && currentSubscription?.type?.faq && (

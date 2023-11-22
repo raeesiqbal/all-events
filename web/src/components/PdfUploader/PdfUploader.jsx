@@ -1,46 +1,21 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
-import { faHeart, faPlus } from "@fortawesome/fontawesome-free-solid";
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Col, Container, Row } from "react-bootstrap";
 import { faAdd, faClose } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { useState, useEffect } from "react";
-import { Button, Col, Container, Row } from "react-bootstrap";
-import InfoIcon from "../../assets/images/gg_info.svg";
-import "../ImageUploader/ImageUploader.css";
-import { secureInstance } from "../../axios/config";
 import { CircularProgress } from "@mui/material";
+import InfoIcon from "../../assets/images/gg_info.svg";
+import { setMediaPDF } from "../../views/redux/Posts/AdsSlice";
+import "../ImageUploader/ImageUploader.css";
 
-function PdfUploader({
-  setparentImagesUploadedImages,
-  imagesError,
-  setImagesError,
-  pdfsToUpload,
-}) {
+function PdfUploader() {
+  const dispatch = useDispatch();
   const [pdfs, setPdfs] = useState([]);
   const [deletePdfButton, setDeletePdfButton] = useState(true);
+  const mediaPDF = useSelector((state) => state.Ads.media.pdf);
 
-  const uploadFileToCloud = async (uploadedPdf) => {
-    const formData = new FormData(); // pass in the form
-    formData.append("file", uploadedPdf);
-    formData.append("content_type", uploadedPdf.type);
-
-    try {
-      const request = await secureInstance.request({
-        url: "/api/ads/upload-url/",
-        method: "Post",
-        data: formData,
-      });
-      setparentImagesUploadedImages([
-        ...pdfsToUpload,
-        request.data.data.file_url,
-      ]);
-    } catch (e) {
-      // setImageUrlToUpload(response.data.data);
-      // --------- WILL ROUTE ON SOME PAGE ON FAILURE ---------
-      console.log("error", e);
-    }
-  };
-
-  const handleImageUpload = (event, index) => {
+  const handlePDFUpload = (event, index) => {
     setDeletePdfButton(false);
     event.preventDefault();
     const uploadedPdf = event.target.files[0];
@@ -55,49 +30,32 @@ function PdfUploader({
       };
       setPdfs(updatedPdfs);
     };
-    setImagesError(false);
-    uploadFileToCloud(uploadedPdf);
-    setparentImagesUploadedImages(updatedPdfs);
+    dispatch(setMediaPDF([...mediaPDF, {
+      file: uploadedPdf,
+      content_type: uploadedPdf.type,
+    }]));
     reader.readAsDataURL(uploadedPdf);
     setDeletePdfButton(true);
   };
 
-  const removeImage = async (index) => {
+  const removePDF = async (pdf, index) => {
     setDeletePdfButton(false);
-    const updatedImages = [...pdfs];
-    const urlToDelete = updatedImages[index];
-    try {
-      const request = await secureInstance.request({
-        url: "/api/ads/delete-url/",
-        method: "Post",
-        data: {
-          url: urlToDelete,
-        },
-      });
-      // ----------------do this inside redux
-      if (request.status === 200) {
-        updatedImages[index] = null;
-        const newUpdatedImages = updatedImages.filter((item) => item !== null);
-        setPdfs(newUpdatedImages);
-        setparentImagesUploadedImages(newUpdatedImages);
-        setDeletePdfButton(true);
-      }
-    } catch (err) {}
-  };
 
-  const handlePDFView = (pdf) => {
-    return (
-      <a href={pdf} target="_blank" rel="noreferrer">
-        Download Pdf
-      </a>
-    );
-  };
+    const pdfIndex = pdfs.indexOf(pdf);
 
-  useEffect(() => {
-    if (pdfsToUpload.length > 0) {
-      setPdfs(pdfsToUpload);
+    if (pdfIndex !== -1) {
+      const clonePDFs = [...pdfs];
+      const cloneMediaPDFs = [...mediaPDF];
+
+      clonePDFs.splice(index, 1);
+      cloneMediaPDFs.splice(index, 1);
+
+      setPdfs(clonePDFs);
+      dispatch(setMediaPDF(cloneMediaPDFs));
     }
-  }, [pdfsToUpload]);
+
+    setDeletePdfButton(true);
+  };
 
   return (
     <Container fluid style={{ marginTop: "30px" }}>
@@ -108,9 +66,6 @@ function PdfUploader({
         Upload PDF
       </div>
 
-      {imagesError && (
-        <span className="text-danger">Atleast 1 photo is Required</span>
-      )}
       <div
         style={{
           maxWidth: "900px",
@@ -129,13 +84,13 @@ function PdfUploader({
             className="roboto-regular-16px-information"
             style={{ color: "#A9A8AA", lineHeight: "22px" }}
           >
-            Images can be upload in JPEG or PNG format
+            PDFs can be upload in PDF format
           </li>
           <li
             className="roboto-regular-16px-information"
             style={{ color: "#A9A8AA", lineHeight: "22px" }}
           >
-            Size of images cannot exceed 5 Mb
+            Size of pdfs cannot exceed 5 Mb
           </li>
         </ul>
 
@@ -187,7 +142,7 @@ function PdfUploader({
                           type="button"
                           style={{ position: "absolute", top: "0", right: "0" }}
                           className="upload-img-close-btn"
-                          onClick={() => removeImage(index)}
+                          onClick={() => removePDF(index)}
                         >
                           <FontAwesomeIcon
                             icon={faClose}
@@ -266,7 +221,7 @@ function PdfUploader({
                   id="pdf-input"
                   type="file"
                   accept="application/pdf"
-                  onChange={(event) => handleImageUpload(event)}
+                  onChange={(event) => handlePDFUpload(event)}
                   style={{ display: "none" }}
                 />
               </div>

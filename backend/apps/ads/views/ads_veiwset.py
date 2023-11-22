@@ -166,11 +166,13 @@ class AdViewSet(BaseViewset):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        media_urls = serializer.validated_data.pop("media_urls", {})
         faqs = serializer.validated_data.pop("faqs", [])
         ad_faqs = serializer.validated_data.pop("ad_faq_ad", [])
         offered_services = serializer.validated_data.pop("offered_services")
         activation_countries = serializer.validated_data.pop("activation_countries", [])
+        media = serializer.validated_data.pop("media", {})
+
+        print("media ====> \n\n\n", media)
 
         company = Company.objects.filter(user_id=request.user.id).first()
         subscription = Subscription.objects.filter(
@@ -205,8 +207,8 @@ class AdViewSet(BaseViewset):
 
         ad.activation_countries.add(*activation_countries)
 
-        """ads gallery created"""
-        Gallery.objects.create(ad=ad, media_urls=media_urls)
+        # """ads gallery created"""
+        # Gallery.objects.create(ad=ad, media_urls=media_urls)
 
         # faqs
         if faqs:

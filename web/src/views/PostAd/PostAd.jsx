@@ -59,6 +59,7 @@ function PostAd() {
     (state) => state.subscriptions.currentSubscriptionDetails,
   );
   const imagesToUpload = useSelector((state) => state.Ads.media_urls.images);
+  const media = useSelector((state) => state.Ads);
   const {
     AdPostErrorAlert,
     imagesError,
@@ -104,11 +105,7 @@ function PostAd() {
     }));
 
     const objToSubmit = {
-      media_urls: {
-        images: imagesToUpload,
-        video: videoToUpload,
-        pdf: pdfsToUpload,
-      },
+      media,
       name: values.companyInformation.commercial_name,
       description: values.companyInformation.description,
       website: values.contactInformation.websiteUrl,
@@ -342,10 +339,6 @@ function PostAd() {
       };
     }
     return errors;
-  };
-
-  const handlePdfsUpdates = (images) => {
-    setPdfsToUpload(images);
   };
 
   const handleClickSubmit = (values) => {
@@ -628,10 +621,7 @@ function PostAd() {
 
                 <ImageUploader imagesError={imagesError} />
 
-                <VideoUploader
-                  videoToUpload={videoToUpload}
-                  setVideoToUpload={setVideoToUpload}
-                />
+                <VideoUploader />
 
                 <ContactInformationForm
                   values={values.contactInformation}
@@ -664,12 +654,7 @@ function PostAd() {
 
                 {currentSubscription
                   && currentSubscription?.type?.pdf_upload && (
-                    <PdfUploader
-                      setparentImagesUploadedImages={handlePdfsUpdates}
-                      pdfsToUpload={pdfsToUpload}
-                      imagesError={pdfsError}
-                      setImagesError={setPdfsError}
-                    />
+                    <PdfUploader />
                 )}
 
                 {currentSubscription && currentSubscription?.type?.faq && (
