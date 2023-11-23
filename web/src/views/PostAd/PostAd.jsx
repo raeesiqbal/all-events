@@ -27,6 +27,7 @@ import {
   setImagesError,
   setMediaError,
   setMediaImages,
+  uploadMediaFiles,
 } from "../redux/Posts/AdsSlice";
 import UnsavedChangesPrompt from "../../utilities/hooks/UnsavedChanged";
 import { ScrollToError } from "../../utilities/ScrollToError";
@@ -55,7 +56,7 @@ function PostAd() {
   const currentSubscription = useSelector(
     (state) => state.subscriptions.currentSubscriptionDetails,
   );
-  const { media } = useSelector((state) => state.Ads);
+  const { media, newPostedAdId } = useSelector((state) => state.Ads);
   const {
     AdPostErrorAlert,
     imagesError,
@@ -102,7 +103,7 @@ function PostAd() {
     }));
 
     const objToSubmit = {
-      media: [...media.images, ...media.video, ...media.pdf],
+      // media: [...media.images, ...media.video, ...media.pdf],
       name: values.companyInformation.commercial_name,
       description: values.companyInformation.description,
       website: values.contactInformation.websiteUrl,
@@ -473,6 +474,10 @@ function PostAd() {
       }, 4000);
     }
   }, [AdPostSuccessAlert]);
+
+  useEffect(() => {
+    if (newPostedAdId !== null) dispatch(uploadMediaFiles({ id: newPostedAdId, files: [...media.images, ...media.video, ...media.pdf] }));
+  }, [newPostedAdId]);
 
   useEffect(() => {
     if (AdPostErrorAlert || mediaError) {

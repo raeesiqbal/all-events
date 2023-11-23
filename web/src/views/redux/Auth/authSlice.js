@@ -40,7 +40,7 @@ export const handleRegister = createAsyncThunk(
         data,
       });
       // window.location.replace("/");
-      return response.data; // Assuming your loginAPI returns data with access_token, user_id, and role_id
+      return response.data;
     } catch (err) {
       // Handle login error here if needed
       return rejectWithValue(err.response.data);
@@ -62,7 +62,7 @@ export const handleLogin = createAsyncThunk(
       });
       setCookie("refresh_token", response.data.refresh, 7);
 
-      return response.data; // Assuming your loginAPI returns data with access_token, user_id, and role_id
+      return response.data;
     } catch (err) {
       // Use `err.response.data` as `action.payload` for a `rejected` action,
       // by explicitly returning it using the `rejectWithValue()` utility
@@ -82,7 +82,7 @@ export const handleResetPassword = createAsyncThunk(
       });
       setCookie("refresh_token", response.data.refresh, 7);
 
-      return response.data; // Assuming your loginAPI returns data with access_token, user_id, and role_id
+      return response.data;
     } catch (err) {
       // Use `err.response.data` as `action.payload` for a `rejected` action,
       // by explicitly returning it using the `rejectWithValue()` utility
@@ -124,7 +124,7 @@ export const handleUserNewsletter = createAsyncThunk(
       });
 
       // window.location.replace("/");
-      return response.data; // Assuming your loginAPI returns data with access_token, user_id, and role_id
+      return response.data;
     } catch (err) {
       // Handle login error here if needed
       return rejectWithValue(err.response.data);
@@ -141,7 +141,7 @@ export const sendVerifyAccountEmail = createAsyncThunk(
         method: "Get",
       });
       // window.location.replace("/");
-      return response.data; // Assuming your loginAPI returns data with access_token, user_id, and role_id
+      return response.data;
     } catch (err) {
       // Handle login error here if needed
       return rejectWithValue(err.response.data);
@@ -161,7 +161,7 @@ export const verifyAccount = createAsyncThunk(
       setCookie("refresh_token", response.data.refresh, 7);
 
       // window.location.replace("/");
-      return response.data; // Assuming your loginAPI returns data with access_token, user_id, and role_id
+      return response.data;
     } catch (err) {
       // Handle login error here if needed
       return rejectWithValue(err.response.data);

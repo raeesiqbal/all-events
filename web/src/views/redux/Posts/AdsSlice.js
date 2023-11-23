@@ -11,6 +11,7 @@ const initialState = {
   countries: [],
   count: 0,
   error: null,
+  newPostedAdId: null,
   vendorAds: [],
   vendorAdNames: [],
   premiumVenueAds: [],
@@ -109,7 +110,7 @@ export const handleEditAd = createAsyncThunk(
       setTimeout(() => {
         navigate("/my-ads");
       }, 1000);
-      return response.data; // Assuming your loginAPI returns data with access_token, user_id, and role_id
+      return response.data;
     } catch (err) {
       // Use `err.response.data` as `action.payload` for a `rejected` action,
       // by explicitly returning it using the `rejectWithValue()` utility
@@ -118,7 +119,36 @@ export const handleEditAd = createAsyncThunk(
   },
 );
 
-export const uploadImagesToCloud = createAsyncThunk(
+export const uploadMediaFiles = createAsyncThunk(
+  "Ads/uploadMediaFiles",
+  async ({ id, files }, { rejectWithValue }) => {
+    // const dataToEdit = data;
+    const formData = new FormData(); // pass in the form
+
+    files.each((data, index) => {
+      formData.append(`${index}`, data.file);
+    });
+
+    try {
+      const response = await secureInstance.request({
+        url: `/api/ads/${id}/upload-media/`,
+        method: "Post",
+        data: formData,
+      });
+
+      // setImagesToUpload([...imagesToUpload, response.data.data.file_url]);
+
+      return response.data;
+      // setImageUrlToUpload(response.data.data);
+    } catch (err) {
+      // Use `err.response.data` as `action.payload` for a `rejected` action,
+      // by explicitly returning it using the `rejectWithValue()` utility
+      return rejectWithValue(err.response.data);
+    }
+  },
+);
+
+export const uploadImageToCloud = createAsyncThunk(
   "AdImage/upload",
   async (uploadedImage, { rejectWithValue }) => {
     // const dataToEdit = data;
@@ -153,7 +183,7 @@ export const listVendorAds = createAsyncThunk(
         url: "/api/ads/",
         method: "Get",
       });
-      return response.data; // Assuming your loginAPI returns data with access_token, user_id, and role_id
+      return response.data;
     } catch (err) {
       // Use `err.response.data` as `action.payload` for a `rejected` action,
       // by explicitly returning it using the `rejectWithValue()` utility
@@ -171,7 +201,7 @@ export const listCountries = createAsyncThunk(
         url: "/api/ads/country/",
         method: "Get",
       });
-      return response.data; // Assuming your loginAPI returns data with access_token, user_id, and role_id
+      return response.data;
     } catch (err) {
       // Use `err.response.data` as `action.payload` for a `rejected` action,
       // by explicitly returning it using the `rejectWithValue()` utility
@@ -188,7 +218,7 @@ export const getVendorAdNames = createAsyncThunk(
         url: "/api/ads/my-ads/",
         method: "Get",
       });
-      return response.data; // Assuming your loginAPI returns data with access_token, user_id, and role_id
+      return response.data;
     } catch (err) {
       // Use `err.response.data` as `action.payload` for a `rejected` action,
       // by explicitly returning it using the `rejectWithValue()` utility
@@ -206,7 +236,7 @@ export const listPremiumVenues = createAsyncThunk(
         url: "/api/ads/premium-venues/",
         method: "Get",
       });
-      return response.data; // Assuming your loginAPI returns data with access_token, user_id, and role_id
+      return response.data;
     } catch (err) {
       // Use `err.response.data` as `action.payload` for a `rejected` action,
       // by explicitly returning it using the `rejectWithValue()` utility
@@ -224,7 +254,7 @@ export const listPremiumVendors = createAsyncThunk(
         url: "/api/ads/premium-vendors/",
         method: "Get",
       });
-      return response.data; // Assuming your loginAPI returns data with access_token, user_id, and role_id
+      return response.data;
     } catch (err) {
       // Use `err.response.data` as `action.payload` for a `rejected` action,
       // by explicitly returning it using the `rejectWithValue()` utility
@@ -258,7 +288,7 @@ export const favoriteAd = createAsyncThunk(
         url: `/api/analytics/ad-fav/${id}/fav/`,
         method: "Post",
       });
-      return { ...response.data, id }; // Assuming your loginAPI returns data with access_token, user_id, and role_id
+      return { ...response.data, id };
     } catch (err) {
       // Use `err.response.data` as `action.payload` for a `rejected` action,
       // by explicitly returning it using the `rejectWithValue()` utility
@@ -343,13 +373,29 @@ export const AdsSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(handleCreateNewAd.fulfilled, (state) => {
+      .addCase(handleCreateNewAd.fulfilled, (state, action) => {
         state.loading = false;
         state.AdPostSuccessAlert = true;
         state.media_urls.images = [];
-        // navigate("/post-ad");
+        state.newPostedAdId = action.payload.data.id;
       })
       .addCase(handleCreateNewAd.rejected, (state) => {
+        state.loading = false;
+        state.AdPostErrorAlert = true;
+        // state.error = action.payload;
+      })
+      .addCase(uploadMediaFiles.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(uploadMediaFiles.fulfilled, (state) => {
+        state.loading = false;
+        state.AdPostSuccessAlert = true;
+        state.media.images = [];
+        state.media.video = [];
+        state.media.pdf = [];
+      })
+      .addCase(uploadMediaFiles.rejected, (state) => {
         state.loading = false;
         state.AdPostErrorAlert = true;
         // state.error = action.payload;
@@ -427,19 +473,19 @@ export const AdsSlice = createSlice({
         // state.loading = false;
         state.error = action.payload;
       })
-      .addCase(uploadImagesToCloud.pending, (state) => {
+      .addCase(uploadImageToCloud.pending, (state) => {
         state.loading = true;
         state.error = null;
         // state.isMediaUploading = true;
       })
-      .addCase(uploadImagesToCloud.fulfilled, (state, action) => {
+      .addCase(uploadImageToCloud.fulfilled, (state, action) => {
         const { file_url } = action.payload.data;
         state.loading = false;
         state.media_urls.images.push(file_url);
         state.imagesError = false;
         // state.isMediaUploading = false;
       })
-      .addCase(uploadImagesToCloud.rejected, (state, action) => {
+      .addCase(uploadImageToCloud.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
         // state.isMediaUploading = false;

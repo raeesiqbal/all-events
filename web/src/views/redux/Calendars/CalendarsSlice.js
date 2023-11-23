@@ -20,7 +20,7 @@ export const vendorCalendars = createAsyncThunk(
         url: "/api/analytics/ad-calender/",
         method: "Get",
       });
-      return response.data; // Assuming your loginAPI returns data with access_token, user_id, and role_id
+      return response.data;
     } catch (err) {
       // Use `err.response.data` as `action.payload` for a `rejected` action,
       // by explicitly returning it using the `rejectWithValue()` utility
@@ -38,7 +38,7 @@ export const updateCalendar = createAsyncThunk(
         method: "Post",
         data,
       });
-      return response.data; // Assuming your loginAPI returns data with access_token, user_id, and role_id
+      return response.data;
     } catch (err) {
       // Use `err.response.data` as `action.payload` for a `rejected` action,
       // by explicitly returning it using the `rejectWithValue()` utility
@@ -56,7 +56,7 @@ export const setCalendarAvailability = createAsyncThunk(
         method: "Post",
         data: { hide },
       });
-      return { ...response.data, index }; // Assuming your loginAPI returns data with access_token, user_id, and role_id
+      return { ...response.data, index };
     } catch (err) {
       // Use `err.response.data` as `action.payload` for a `rejected` action,
       // by explicitly returning it using the `rejectWithValue()` utility
