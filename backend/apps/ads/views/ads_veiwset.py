@@ -170,7 +170,7 @@ class AdViewSet(BaseViewset):
         ad_faqs = serializer.validated_data.pop("ad_faq_ad", [])
         offered_services = serializer.validated_data.pop("offered_services", [])
         activation_countries = serializer.validated_data.pop("activation_countries", [])
-        media = serializer.validated_data.pop("media", {})
+        media = serializer.validated_data.pop("media", [])
 
         print("media ====> \n\n\n", media)
 
