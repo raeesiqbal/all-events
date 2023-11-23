@@ -8,6 +8,7 @@ from django.db.models import Value, F, Q
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from apps.utils.tasks import delete_s3_object_by_urls
+import pdb;
 
 # filters
 from rest_framework.filters import OrderingFilter, SearchFilter
@@ -164,6 +165,7 @@ class AdViewSet(BaseViewset):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def create(self, request, *args, **kwargs):
+        pdb.set_trace()
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         faqs = serializer.validated_data.pop("faqs", [])
@@ -313,6 +315,7 @@ class AdViewSet(BaseViewset):
 
     @action(detail=False, url_path="upload-url", methods=["post"])
     def get_upload_url(self, request, *args, **kwargs):
+        pdb.set_trace()
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         file = serializer.validated_data.get("file")

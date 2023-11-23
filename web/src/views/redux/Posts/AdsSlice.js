@@ -37,20 +37,60 @@ const initialState = {
 export const handleCreateNewAd = createAsyncThunk(
   "Ads/create",
   async ({ data, navigate }, { rejectWithValue }) => {
-    // const dataToSubmit = objToSubmit
+    // const convertObjectToFormData = (obj, formData, parentKey = "") => {
+    //   for (const key in obj) {
+    //     if (obj.hasOwnProperty(key)) {
+    //       const currentKey = parentKey ? `${parentKey}.${key}` : key;
+    //       const value = obj[key];
+
+    //       // if (key === "media") {
+            
+    //       // } else {
+    //         if (Array.isArray(value)) {
+    //           // If the value is an array, append each item with a unique key
+    //           value.forEach((item, index) => {
+    //             const arrayKey = `${currentKey}[${index}]`;
+  
+    //             if (typeof item === "object" && item !== null) {
+    //               // If the value is an object, recursively call the function
+    //               convertObjectToFormData(item, formData, arrayKey);
+    //             } else {
+    //               // Otherwise, append the key-value pair to FormData
+    //               formData.append(arrayKey, item);
+    //             }
+    //           });
+    //         } else if (typeof value === "object" && value !== null) {
+    //           // If the value is an object, recursively call the function
+    //           convertObjectToFormData(value, formData, currentKey);
+    //         } else {
+    //           // Otherwise, append the key-value pair to FormData
+    //           formData.append(currentKey, value);
+    //         }
+    //       // }
+    //     }
+    //   }
+    // };
+
+    // // Usage
+    // const formData = new FormData();
+    // convertObjectToFormData(data, formData);
+
     try {
       const response = await secureInstance.request({
         url: "/api/ads/",
         method: "Post",
         data,
+        // headers: {
+        //   "Content-Type": "multipart/form-data",
+        // },
       });
-      setTimeout(() => {
-        navigate("/my-ads");
-      }, 1000);
-      return response.data; // Assuming your loginAPI returns data with access_token, user_id, and role_id
+
+      // setTimeout(() => {
+      //   navigate("/my-ads");
+      // }, 1000);
+
+      return response.data;
     } catch (err) {
-      // Use `err.response.data` as `action.payload` for a `rejected` action,
-      // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
   },

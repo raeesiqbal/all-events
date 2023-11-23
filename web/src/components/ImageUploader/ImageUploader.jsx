@@ -38,11 +38,19 @@ function ImageUploader({ imagesError }) {
       });
       setImages(updatedImages);
     };
+
+    reader.onloadend = () => {
+      const fileData = reader.result.split(",")[1];
+      dispatch(setMediaImages([...mediaImages, {
+        file: fileData,
+        content_type: uploadedImage.type,
+      }]));
+    };
     reader.readAsDataURL(uploadedImage);
-    dispatch(setMediaImages([...mediaImages, {
-      file: uploadedImage,
-      content_type: uploadedImage.type,
-    }]));
+    // dispatch(setMediaImages([...mediaImages, {
+    //   file: uploadedImage,
+    //   content_type: uploadedImage.type,
+    // }]));
     setDeleteImageButton(true);
   };
 

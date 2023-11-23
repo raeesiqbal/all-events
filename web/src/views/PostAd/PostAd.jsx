@@ -102,7 +102,7 @@ function PostAd() {
     }));
 
     const objToSubmit = {
-      media,
+      media: [...media.images, ...media.video, ...media.pdf],
       name: values.companyInformation.commercial_name,
       description: values.companyInformation.description,
       website: values.contactInformation.websiteUrl,
