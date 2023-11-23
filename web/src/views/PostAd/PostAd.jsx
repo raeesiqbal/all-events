@@ -25,8 +25,8 @@ import {
   handleUpdateAdPostSuccessAlerting,
   listVendorAds,
   setImagesError,
-  setImagesToUpload,
   setMediaError,
+  setMediaImages,
 } from "../redux/Posts/AdsSlice";
 import UnsavedChangesPrompt from "../../utilities/hooks/UnsavedChanged";
 import { ScrollToError } from "../../utilities/ScrollToError";
@@ -58,7 +58,6 @@ function PostAd() {
   const currentSubscription = useSelector(
     (state) => state.subscriptions.currentSubscriptionDetails,
   );
-  const imagesToUpload = useSelector((state) => state.Ads.media_urls.images);
   const media = useSelector((state) => state.Ads);
   const {
     AdPostErrorAlert,
@@ -324,7 +323,7 @@ function PostAd() {
   const validate = (values) => {
     const errors = {};
 
-    if (imagesToUpload.length === 0 && !imagesError) {
+    if (media.images.length === 0 && !imagesError) {
       // setImagesError(true);
       dispatch(setImagesError(true));
     }
@@ -466,7 +465,7 @@ function PostAd() {
   };
 
   const hasUnsavedChanges = (values) => selectedCountries.length !== ""
-    || imagesToUpload.length > 0
+    || media.images.length > 0
     || Object.keys(values).some((field) => values[field] !== initialValues[field]);
 
   useEffect(() => {
@@ -487,7 +486,7 @@ function PostAd() {
   }, [AdPostErrorAlert, mediaError]);
 
   useEffect(() => {
-    dispatch(setImagesToUpload([]));
+    dispatch(setMediaImages([]));
     dispatch(listVendorAds());
   }, []);
 
