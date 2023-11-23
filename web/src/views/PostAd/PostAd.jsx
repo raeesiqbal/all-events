@@ -41,9 +41,6 @@ function PostAd() {
     selectedCountriesforContactInformation,
     setSelectedCountriesforContactInformation,
   ] = useState([]);
-  const [pdfsToUpload, setPdfsToUpload] = useState([]);
-  const [pdfsError, setPdfsError] = useState(false);
-  const [videoToUpload, setVideoToUpload] = useState([]);
   const [relatedSubCategoryId, setRelatedSubCategoryId] = useState(null);
   const [isMultipleCountries, setIsMultipleCountries] = useState(false);
   const [adminServicesSelected, setAdminServicesSelected] = useState([]);
@@ -58,7 +55,7 @@ function PostAd() {
   const currentSubscription = useSelector(
     (state) => state.subscriptions.currentSubscriptionDetails,
   );
-  const media = useSelector((state) => state.Ads);
+  const { media } = useSelector((state) => state.Ads);
   const {
     AdPostErrorAlert,
     imagesError,
@@ -85,6 +82,7 @@ function PostAd() {
       (accumulator, innerArray) => accumulator + innerArray.length,
       0,
     );
+
     if (totalSelectedValuesLength !== totalSiteFaqQuestionsLength) {
       const el = document.querySelector(".server-faq-container");
       (el?.parentElement ?? el)?.scrollIntoView();
