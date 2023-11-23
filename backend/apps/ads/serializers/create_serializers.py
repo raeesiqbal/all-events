@@ -59,8 +59,16 @@ class AdFAQChildCreateSerializer(BaseSerializer):
 
 
 class AdCreateSerializer(SubscriptionTypeValidationMixin, BaseSerializer):
-    faqs = serializers.ListField(child=FaqsChildCreateSerializer())
-    ad_faq_ad = serializers.ListField(child=AdFAQChildCreateSerializer())
+    faqs = serializers.ListField(
+        child=FaqsChildCreateSerializer(),
+        allow_blank=True,
+        required=False,
+    )
+    ad_faq_ad = serializers.ListField(
+        child=AdFAQChildCreateSerializer(),
+        allow_blank=True,
+        required=False,
+    )
     media = serializers.JSONField(default=dict)
     name = serializers.CharField(
         max_length=60,

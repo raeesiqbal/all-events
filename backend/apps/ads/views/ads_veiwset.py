@@ -308,12 +308,14 @@ class AdViewSet(BaseViewset):
         serializer.is_valid(raise_exception=True)
         file = serializer.validated_data.get("file")
         content_type = serializer.validated_data.get("content_type")
+
         if "image" in content_type:
             upload_folder = f"vendors/{request.user.email}/images"
         elif "pdf" in content_type:
             upload_folder = f"vendors/{request.user.email}/pdfs"
         elif "video" in content_type:
             upload_folder = f"vendors/{request.user.email}/videos"
+
         file_url = None
         # # Uploading resume to S3.
         s3_service = S3Service()
@@ -357,7 +359,7 @@ class AdViewSet(BaseViewset):
             data=ResponseInfo().format_response(
                 data={}, status_code=status.HTTP_200_OK, message="delete media list"
             ),
-        ) 
+        )
 
     @action(detail=False, url_path="public-list", methods=["post"])
     def public_ads_list(self, request, *args, **kwargs):
