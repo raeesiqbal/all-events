@@ -168,11 +168,20 @@ class AdViewSet(BaseViewset):
         serializer.is_valid(raise_exception=True)
         faqs = serializer.validated_data.pop("faqs", [])
         ad_faqs = serializer.validated_data.pop("ad_faq_ad", [])
-        offered_services = serializer.validated_data.pop("offered_services")
+        offered_services = serializer.validated_data.pop("offered_services", [])
         activation_countries = serializer.validated_data.pop("activation_countries", [])
         media = serializer.validated_data.pop("media", {})
 
         print("media ====> \n\n\n", media)
+
+        return Response(
+            status=status.HTTP_200_OK,
+            data=ResponseInfo().format_response(
+                data={},
+                status_code=status.HTTP_200_OK,
+                message="testing",
+            ),
+        )
 
         company = Company.objects.filter(user_id=request.user.id).first()
         subscription = Subscription.objects.filter(
