@@ -61,12 +61,10 @@ class AdFAQChildCreateSerializer(BaseSerializer):
 class AdCreateSerializer(SubscriptionTypeValidationMixin, BaseSerializer):
     faqs = serializers.ListField(
         child=FaqsChildCreateSerializer(),
-        allow_blank=True,
         required=False,
     )
     ad_faq_ad = serializers.ListField(
         child=AdFAQChildCreateSerializer(),
-        allow_blank=True,
         required=False,
     )
     media = serializers.JSONField(default=dict)
@@ -155,7 +153,7 @@ class AdCreateSerializer(SubscriptionTypeValidationMixin, BaseSerializer):
             "site_services",
             "ad_faq_ad",
             "faqs",
-            "media_urls",
+            "media",
             "description",
         ]
 
