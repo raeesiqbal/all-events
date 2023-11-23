@@ -7,8 +7,8 @@ from rest_framework import status
 from django.db.models import Value, F, Q
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
-from apps.utils.tasks import delete_s3_object_by_urls
-import pdb;
+from apps.utils.tasks import delete_s3_object_by_urls, upload_file
+import pdb
 
 # filters
 from rest_framework.filters import OrderingFilter, SearchFilter
@@ -52,6 +52,7 @@ from apps.ads.serializers.create_serializers import (
     GetUploadPresignedUrlSerializer,
     URLListSerializer,
     SearchStringSerializer,
+    UploadMediaSerializer,
 )
 from apps.ads.serializers.get_serializers import (
     AdNameSerializer,
@@ -84,6 +85,7 @@ class AdViewSet(BaseViewset):
         "create": AdCreateSerializer,
         "partial_update": AdUpdateSerializer,
         "get_upload_url": GetUploadPresignedUrlSerializer,
+        "upload_media": UploadMediaSerializer,
         "delete_urls": URLListSerializer,
         "delete_url": DeleteUrlSerializer,
         "remove_url_on_update": DeleteUrlOnUpdateSerializer,
@@ -110,6 +112,7 @@ class AdViewSet(BaseViewset):
         "partial_update": [IsAuthenticated, IsVerified, IsSuperAdmin | IsVendorUser],
         "destroy": [IsAuthenticated, IsVerified, IsSuperAdmin | IsVendorUser],
         "get_upload_url": [IsAuthenticated, IsVerified, IsClient | IsVendorUser],
+        "upload_media": [IsAuthenticated, IsVerified, IsVendorUser],
         "delete_urls": [],
         "remove_url_on_update": [
             IsAuthenticated,
@@ -173,18 +176,7 @@ class AdViewSet(BaseViewset):
         offered_services = serializer.validated_data.pop("offered_services", [])
         activation_countries = serializer.validated_data.pop("activation_countries", [])
         media = serializer.validated_data.pop("media", [])
-
-        print("media ====> \n\n\n", media)
-
-        return Response(
-            status=status.HTTP_200_OK,
-            data=ResponseInfo().format_response(
-                data={},
-                status_code=status.HTTP_200_OK,
-                message="testing",
-            ),
-        )
-
+        upload_file.delay(media)
         company = Company.objects.filter(user_id=request.user.id).first()
         subscription = Subscription.objects.filter(
             company=company, status=SUBSCRIPTION_STATUS["ACTIVE"]
@@ -218,9 +210,6 @@ class AdViewSet(BaseViewset):
 
         ad.activation_countries.add(*activation_countries)
 
-        # """ads gallery created"""
-        # Gallery.objects.create(ad=ad, media_urls=media_urls)
-
         # faqs
         if faqs:
             faqs_list = []
@@ -235,6 +224,11 @@ class AdViewSet(BaseViewset):
                 ad_faqs_list.append(AdFAQ(**faq, ad=ad))
             AdFAQ.objects.bulk_create(ad_faqs_list)
         Calender.objects.create(company=company, ad=ad)
+
+        # """ads gallery"""
+        upload_file.delay(media, ad)
+
+        # Gallery.objects.create(ad=ad, media_urls=media_urls)
 
         return Response(
             status=status.HTTP_200_OK,
@@ -313,9 +307,22 @@ class AdViewSet(BaseViewset):
             ),
         )
 
+    @action(detail=True, url_path="upload-media", methods=["post"])
+    def upload_media(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data, many=True)
+        serializer.is_valid(raise_exception=True)
+
+        return Response(
+            status=status.HTTP_200_OK,
+            data=ResponseInfo().format_response(
+                data={},
+                status_code=status.HTTP_200_OK,
+                message="uploads media.",
+            ),
+        )
+
     @action(detail=False, url_path="upload-url", methods=["post"])
     def get_upload_url(self, request, *args, **kwargs):
-        pdb.set_trace()
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         file = serializer.validated_data.get("file")

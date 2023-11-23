@@ -4,6 +4,10 @@ from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
 import boto3
 import environ
+from datetime import datetime
+from botocore.exceptions import ClientError
+import logging
+import io
 
 
 @shared_task()
@@ -36,34 +40,48 @@ def delete_s3_object_by_urls(media):
     return True
 
 
-# @shared_task()
-# def upload_file(self, file, content_type, upload_folder=None, object_name=None):
+@shared_task()
+def upload_file(media):
+    s3 = boto3.client("s3")
+    env = environ.Env()
+    bucket_name = env.str("S3_BUCKET_NAME")
+    s3 = boto3.client("s3")
 
-#     if upload_folder is None:
-#         upload_folder = "ads"
+    for item in media:
+        timestamp = datetime.timestamp(datetime.now())
+        content_type = item["content_type"]
+        file = item["file"]
+        print("file", file)
+        print("content", content_type)
 
-#     timestamp = datetime.timestamp(datetime.now())
-#     file_name_gen = f"uploads/{upload_folder}/{timestamp}_{file.name}"
-#     if object_name is None:
-#         object_name = file_name_gen
-#     bucket_name = self.bucket_name
+        if not isinstance(file, bytes):
+            print("yessssssssssssssssssssssssssssssssssssssss")
+            # If the file_data is a string, encode it to bytes
+            file = file.encode()
+        if "image" in content_type:
+            upload_folder = f"vendors/rayiszafar@gmail.com/images"
+        elif "pdf" in content_type:
+            upload_folder = f"vendors/rayiszafar@gmail.com/pdfs"
+        elif "video" in content_type:
+            upload_folder = f"vendors/rayiszafar@gmail.com/videos"
 
-#     s3 = boto3.client("s3")
-#     uploaded_file_url = None
+        file_name_gen = f"uploads/{upload_folder}/{timestamp}"
+        object_name = file_name_gen
 
-#     try:
-#         s3.upload_fileobj(
-#             file,
-#             bucket_name,
-#             object_name,
-#             ExtraArgs={
-#                 "ACL": "public-read",
-#                 "ContentType": content_type,
-#             },
-#         )
-#         uploaded_file_url = f"{s3.meta.endpoint_url}/{bucket_name}/{object_name}"
-
-#     except ClientError as e:
-#         logging.error(e)
-#         return False
-#     return uploaded_file_url
+        # try:
+        file = io.BytesIO(file)
+        s3.upload_fileobj(
+            file,
+            bucket_name,
+            object_name,
+            ExtraArgs={
+                "ACL": "public-read",
+                "ContentType": content_type,
+            },
+        )
+        uploaded_file_url = f"{s3.meta.endpoint_url}/{bucket_name}/{object_name}"
+        print(uploaded_file_url)
+        # except ClientError as e:
+        #     logging.error(e)
+        #     return False
+    return True
