@@ -168,7 +168,6 @@ class AdViewSet(BaseViewset):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def create(self, request, *args, **kwargs):
-        pdb.set_trace()
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         faqs = serializer.validated_data.pop("faqs", [])
@@ -176,7 +175,7 @@ class AdViewSet(BaseViewset):
         offered_services = serializer.validated_data.pop("offered_services", [])
         activation_countries = serializer.validated_data.pop("activation_countries", [])
         media = serializer.validated_data.pop("media", [])
-        upload_file.delay(media)
+        # upload_file.delay(media)
         company = Company.objects.filter(user_id=request.user.id).first()
         subscription = Subscription.objects.filter(
             company=company, status=SUBSCRIPTION_STATUS["ACTIVE"]
@@ -226,7 +225,7 @@ class AdViewSet(BaseViewset):
         Calender.objects.create(company=company, ad=ad)
 
         # """ads gallery"""
-        upload_file.delay(media, ad)
+        # upload_file.delay(media, ad)
 
         # Gallery.objects.create(ad=ad, media_urls=media_urls)
 
@@ -309,6 +308,7 @@ class AdViewSet(BaseViewset):
 
     @action(detail=True, url_path="upload-media", methods=["post"])
     def upload_media(self, request, *args, **kwargs):
+        pdb.set_trace()
         serializer = self.get_serializer(data=request.data, many=True)
         serializer.is_valid(raise_exception=True)
 
@@ -317,7 +317,7 @@ class AdViewSet(BaseViewset):
             data=ResponseInfo().format_response(
                 data={},
                 status_code=status.HTTP_200_OK,
-                message="uploads media.",
+                message="upload media.",
             ),
         )
 
