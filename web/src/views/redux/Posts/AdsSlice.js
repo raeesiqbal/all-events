@@ -45,13 +45,13 @@ export const handleCreateNewAd = createAsyncThunk(
     //       const value = obj[key];
 
     //       // if (key === "media") {
-            
+
     //       // } else {
     //         if (Array.isArray(value)) {
     //           // If the value is an array, append each item with a unique key
     //           value.forEach((item, index) => {
     //             const arrayKey = `${currentKey}[${index}]`;
-  
+
     //             if (typeof item === "object" && item !== null) {
     //               // If the value is an object, recursively call the function
     //               convertObjectToFormData(item, formData, arrayKey);
@@ -94,7 +94,7 @@ export const handleCreateNewAd = createAsyncThunk(
     } catch (err) {
       return rejectWithValue(err.response.data);
     }
-  },
+  }
 );
 
 export const handleEditAd = createAsyncThunk(
@@ -116,7 +116,7 @@ export const handleEditAd = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  },
+  }
 );
 
 export const uploadMediaFiles = createAsyncThunk(
@@ -126,7 +126,7 @@ export const uploadMediaFiles = createAsyncThunk(
     const formData = new FormData(); // pass in the form
 
     files.each((data, index) => {
-      formData.append(`${index}`, data.file);
+      formData.append("file", data.file);
     });
 
     try {
@@ -145,7 +145,7 @@ export const uploadMediaFiles = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  },
+  }
 );
 
 export const uploadImageToCloud = createAsyncThunk(
@@ -172,7 +172,7 @@ export const uploadImageToCloud = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  },
+  }
 );
 
 export const listVendorAds = createAsyncThunk(
@@ -189,7 +189,7 @@ export const listVendorAds = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  },
+  }
 );
 
 export const listCountries = createAsyncThunk(
@@ -207,7 +207,7 @@ export const listCountries = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  },
+  }
 );
 
 export const getVendorAdNames = createAsyncThunk(
@@ -224,7 +224,7 @@ export const getVendorAdNames = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  },
+  }
 );
 
 export const listPremiumVenues = createAsyncThunk(
@@ -242,7 +242,7 @@ export const listPremiumVenues = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  },
+  }
 );
 
 export const listPremiumVendors = createAsyncThunk(
@@ -260,7 +260,7 @@ export const listPremiumVendors = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  },
+  }
 );
 
 export const listFavoriteAds = createAsyncThunk(
@@ -277,7 +277,7 @@ export const listFavoriteAds = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  },
+  }
 );
 
 export const favoriteAd = createAsyncThunk(
@@ -294,7 +294,7 @@ export const favoriteAd = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  },
+  }
 );
 
 export const venueCountries = createAsyncThunk(
@@ -311,7 +311,7 @@ export const venueCountries = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  },
+  }
 );
 
 export const adCalendar = createAsyncThunk(
@@ -328,7 +328,7 @@ export const adCalendar = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  },
+  }
 );
 
 // Create the loginSlice
@@ -496,10 +496,16 @@ export const AdsSlice = createSlice({
       })
       .addCase(listFavoriteAds.fulfilled, (state, action) => {
         state.loading = false;
-        if (action.payload.offset === 0 || state.isArchived !== action.payload.archive) {
+        if (
+          action.payload.offset === 0 ||
+          state.isArchived !== action.payload.archive
+        ) {
           state.favoriteAds = action.payload.data.results;
         } else {
-          state.favoriteAds = [...state.favoriteAds, ...action.payload.data.results];
+          state.favoriteAds = [
+            ...state.favoriteAds,
+            ...action.payload.data.results,
+          ];
         }
         state.count = action.payload.data.count;
       })
@@ -523,7 +529,9 @@ export const AdsSlice = createSlice({
             if (ad.id === action.payload.id) ad.fav = !ad.fav;
             return ad;
           });
-          state.favoriteAds = state.favoriteAds.filter((ad) => ad.ad.id !== action.payload.id);
+          state.favoriteAds = state.favoriteAds.filter(
+            (ad) => ad.ad.id !== action.payload.id
+          );
         }
       })
       .addCase(favoriteAd.rejected, (state, action) => {
