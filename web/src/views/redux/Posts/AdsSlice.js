@@ -94,7 +94,7 @@ export const handleCreateNewAd = createAsyncThunk(
     } catch (err) {
       return rejectWithValue(err.response.data);
     }
-  }
+  },
 );
 
 export const handleEditAd = createAsyncThunk(
@@ -122,30 +122,24 @@ export const handleEditAd = createAsyncThunk(
 export const uploadMediaFiles = createAsyncThunk(
   "Ads/uploadMediaFiles",
   async ({ id, files }, { rejectWithValue }) => {
-    // const dataToEdit = data;
-    const formData = new FormData(); // pass in the form
+    const formData = new FormData();
 
-    files.each((data, index) => {
+    files.forEach((data, index) => {
       formData.append("file", data.file);
     });
 
     try {
       const response = await secureInstance.request({
         url: `/api/ads/${id}/upload-media/`,
-        method: "Post",
+        method: "POST",
         data: formData,
       });
 
-      // setImagesToUpload([...imagesToUpload, response.data.data.file_url]);
-
       return response.data;
-      // setImageUrlToUpload(response.data.data);
     } catch (err) {
-      // Use `err.response.data` as `action.payload` for a `rejected` action,
-      // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  }
+  },
 );
 
 export const uploadImageToCloud = createAsyncThunk(
@@ -376,7 +370,7 @@ export const AdsSlice = createSlice({
       .addCase(handleCreateNewAd.fulfilled, (state, action) => {
         state.loading = false;
         state.AdPostSuccessAlert = true;
-        state.media_urls.images = [];
+        // state.media_urls.images = [];
         state.newPostedAdId = action.payload.data.id;
       })
       .addCase(handleCreateNewAd.rejected, (state) => {
