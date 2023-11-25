@@ -104,7 +104,9 @@ class Ad(NewAbstractModel):
     twitter = models.TextField(_("Twitter"), null=True, blank=True)
     others = models.TextField(_("Others"), null=True, blank=True)
 
-    offered_services = ArrayField(base_field=models.TextField(), null=True, blank=True)
+    offered_services = ArrayField(
+        base_field=models.TextField(), null=True, blank=True, default=[]
+    )
     site_services = ArrayField(base_field=models.TextField(), null=True, blank=True)
 
     total_views = models.IntegerField(_("Total Views"), default=0)

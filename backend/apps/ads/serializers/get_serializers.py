@@ -188,7 +188,6 @@ class AdRetriveSerializer(BaseSerializer):
     ad_faqs = FaqsGetSerializer(many=True)
     ad_faq_ad = AdFaqsRetrieveSerializer(many=True)
     ad_save_count = serializers.SerializerMethodField("get_ad_saved_count")
-
     site_services_list = serializers.SerializerMethodField()
 
     def get_site_services_list(self, obj):
