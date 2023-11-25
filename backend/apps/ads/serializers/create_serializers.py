@@ -77,12 +77,6 @@ class AdCreateSerializer(SubscriptionTypeValidationMixin, BaseSerializer):
         required=False,
     )
 
-    media = serializers.JSONField(default=dict)
-    # media = serializers.ListField(
-    #     child=GetUploadPresignedUrlSerializer(),
-    #     required=True,
-    # )
-
     name = serializers.CharField(
         max_length=60,
         min_length=2,
@@ -168,7 +162,6 @@ class AdCreateSerializer(SubscriptionTypeValidationMixin, BaseSerializer):
             "site_services",
             "ad_faq_ad",
             "faqs",
-            "media",
             "description",
         ]
 

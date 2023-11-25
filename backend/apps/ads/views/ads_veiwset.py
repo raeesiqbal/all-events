@@ -181,7 +181,7 @@ class AdViewSet(BaseViewset):
         serializer.is_valid(raise_exception=True)
         faqs = serializer.validated_data.pop("faqs", [])
         ad_faqs = serializer.validated_data.pop("ad_faq_ad", [])
-        media = serializer.validated_data.pop("media", [])
+
         offered_services = serializer.validated_data.pop("offered_services", [])
         activation_countries = serializer.validated_data.pop("activation_countries", [])
         company = Company.objects.filter(user_id=request.user.id).first()
