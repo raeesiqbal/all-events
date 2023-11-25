@@ -702,7 +702,7 @@ function EditAd() {
                     isEditView
                   />
 
-                  <ImageUploader imagesError={imagesError} setImagesError={setImagesError} />
+                  <ImageUploader imagesError={imagesError} />
 
                   <VideoUploader />
 

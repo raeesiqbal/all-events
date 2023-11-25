@@ -623,7 +623,7 @@ function PostAd() {
                   handleCategoryClicked={handleCategoryClicked}
                 />
 
-                <ImageUploader imagesError={imagesError} setImagesError={setImagesError} />
+                <ImageUploader imagesError={imagesError} />
 
                 <VideoUploader />
 

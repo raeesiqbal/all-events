@@ -8,13 +8,14 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { CircularProgress } from "@mui/material";
 import {
   setDeletedUrls,
+  setImagesError,
   setImagesToUpload,
   setMediaImages,
 } from "../../views/redux/Posts/AdsSlice";
 import "react-photo-view/dist/react-photo-view.css";
 import "./ImageUploader.css";
 
-function ImageUploader({ imagesError, setImagesError }) {
+function ImageUploader({ imagesError }) {
   const [images, setImages] = useState([]);
   const { deletedUrls } = useSelector((state) => state.Ads);
   const mediaImages = useSelector((state) => state.Ads.media.images);
@@ -85,7 +86,7 @@ function ImageUploader({ imagesError, setImagesError }) {
   }, [imagesToUpload]);
 
   useEffect(() => {
-    if (images.length > 0) setImagesError(false);
+    if (images.length > 0) dispatch(setImagesError(false));
   }, [images]);
 
   return (
