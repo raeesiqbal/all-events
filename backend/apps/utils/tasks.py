@@ -25,6 +25,23 @@ def send_email_to_user(title, html_message, plaintext_message, to_email):
 
 
 @shared_task()
+def delete_s3_object_by_url_list(urls):
+    s3_client = boto3.client("s3")
+    env = environ.Env()
+    bucket_name = env.str("S3_BUCKET_NAME")
+    objects_to_delete = []
+    for url in urls:
+        object_key = url.replace(f"https://s3.amazonaws.com/{bucket_name}/", "")
+        objects_to_delete.append({"Key": object_key})
+
+    s3_client.delete_objects(
+        Bucket=bucket_name,
+        Delete={"Objects": objects_to_delete},
+    )
+    return True
+
+
+@shared_task()
 def delete_s3_object_by_urls(media):
     s3_client = boto3.client("s3")
     env = environ.Env()

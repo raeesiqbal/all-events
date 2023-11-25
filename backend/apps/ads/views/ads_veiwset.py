@@ -12,6 +12,7 @@ from apps.utils.tasks import (
     upload_image,
     upload_video,
     upload_pdf,
+    delete_s3_object_by_url_list,
 )
 import os
 from tempfile import NamedTemporaryFile
@@ -249,8 +250,9 @@ class AdViewSet(BaseViewset):
     def partial_update(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        delete_urls = serializer.validated_data.pop("delete_urls", [])
-        print("delete urls", delete_urls)
+        delete_url_list = serializer.validated_data.pop("delete_urls", [])
+        # self.s3_service.delete_s3_object_by_url(delete_urls)
+        print("delete urls", delete_url_list)
         media_urls = serializer.validated_data.pop("media_urls", {})
         faqs = serializer.validated_data.pop("faqs", [])
         ad_faqs = serializer.validated_data.pop("ad_faq_ad", [])
@@ -265,7 +267,12 @@ class AdViewSet(BaseViewset):
             ad.first().activation_countries.clear()
             ad.first().activation_countries.add(*activation_countries)
             ad.update(**serializer.validated_data)
+
+            # gallery
             Gallery.objects.filter(ad=ad.first()).update(media_urls=media_urls)
+
+            # delete files from s3
+            delete_s3_object_by_url_list.delay(delete_url_list)
 
             # faqs
             FAQ.objects.filter(ad=ad.first()).delete()
