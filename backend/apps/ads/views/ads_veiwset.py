@@ -7,8 +7,17 @@ from rest_framework import status
 from django.db.models import Value, F, Q
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
-from apps.utils.tasks import delete_s3_object_by_urls, upload_file
+from apps.utils.tasks import (
+    delete_s3_object_by_urls,
+    upload_image,
+    upload_video,
+    upload_pdf,
+)
+import os
+from tempfile import NamedTemporaryFile
+from shutil import copyfile
 import pdb
+
 
 # filters
 from rest_framework.filters import OrderingFilter, SearchFilter
@@ -172,14 +181,14 @@ class AdViewSet(BaseViewset):
         serializer.is_valid(raise_exception=True)
         faqs = serializer.validated_data.pop("faqs", [])
         ad_faqs = serializer.validated_data.pop("ad_faq_ad", [])
+        media = serializer.validated_data.pop("media", [])
         offered_services = serializer.validated_data.pop("offered_services", [])
         activation_countries = serializer.validated_data.pop("activation_countries", [])
-        media = serializer.validated_data.pop("media", [])
-        # upload_file.delay(media)
         company = Company.objects.filter(user_id=request.user.id).first()
         subscription = Subscription.objects.filter(
             company=company, status=SUBSCRIPTION_STATUS["ACTIVE"]
         ).first()
+
         if subscription:
             company_ad_count = Ad.objects.filter(company=company).count()
             if company_ad_count >= subscription.type.allowed_ads:
@@ -224,10 +233,9 @@ class AdViewSet(BaseViewset):
             AdFAQ.objects.bulk_create(ad_faqs_list)
         Calender.objects.create(company=company, ad=ad)
 
-        # """ads gallery"""
-        # upload_file.delay(media, ad)
-
-        # Gallery.objects.create(ad=ad, media_urls=media_urls)
+        # gallery
+        media_urls = {"images": [], "video": [], "pdf": []}
+        Gallery.objects.create(ad=ad, media_urls=media_urls)
 
         return Response(
             status=status.HTTP_200_OK,
@@ -308,16 +316,44 @@ class AdViewSet(BaseViewset):
 
     @action(detail=True, url_path="upload-media", methods=["post"])
     def upload_media(self, request, *args, **kwargs):
-        pdb.set_trace()
-        serializer = self.get_serializer(data=request.data, many=True)
-        serializer.is_valid(raise_exception=True)
+        ad = Ad.objects.filter(id=kwargs["pk"]).first()
+        ad_gallery = Gallery.objects.filter(ad=ad).first()
+        if ad and ad_gallery:
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            files = serializer.validated_data.get("file", [])
+
+            for file_obj in files:
+                content_type = file_obj.content_type
+                name = file_obj.name
+                with NamedTemporaryFile(delete=False) as temp_file:
+                    temp_file_path = temp_file.name
+                    temp_file.write(file_obj.read())
+                    temp_file.seek(0)
+
+                if file_obj.name.endswith(".pdf"):
+                    upload_pdf.delay(temp_file_path, content_type, name, ad)
+                elif file_obj.name.endswith(".mp4"):
+                    upload_video.delay(temp_file_path, content_type, name, ad)
+                elif file_obj.name.endswith((".jpeg", ".jpg", ".png", ".gif")):
+                    upload_image.delay(temp_file_path, content_type, name, ad)
+                file_obj.close()
+
+            return Response(
+                status=status.HTTP_200_OK,
+                data=ResponseInfo().format_response(
+                    data={},
+                    status_code=status.HTTP_200_OK,
+                    message="upload media.",
+                ),
+            )
 
         return Response(
-            status=status.HTTP_200_OK,
+            status=status.HTTP_400_BAD_REQUEST,
             data=ResponseInfo().format_response(
                 data={},
-                status_code=status.HTTP_200_OK,
-                message="upload media.",
+                status_code=status.HTTP_400_BAD_REQUEST,
+                message="Ad/Gallery does not exists",
             ),
         )
 

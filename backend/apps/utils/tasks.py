@@ -8,6 +8,8 @@ from datetime import datetime
 from botocore.exceptions import ClientError
 import logging
 import io
+import os
+from django.db import transaction
 
 
 @shared_task()
@@ -41,35 +43,21 @@ def delete_s3_object_by_urls(media):
 
 
 @shared_task()
-def upload_file(media):
+@transaction.atomic
+def upload_image(image, content_type, name, ad):
+    from apps.ads.models import Gallery
+
+    # s3 init
     s3 = boto3.client("s3")
     env = environ.Env()
     bucket_name = env.str("S3_BUCKET_NAME")
-    s3 = boto3.client("s3")
 
-    for item in media:
-        timestamp = datetime.timestamp(datetime.now())
-        content_type = item["content_type"]
-        file = item["file"]
-        print("file", file)
-        print("content", content_type)
+    timestamp = datetime.timestamp(datetime.now())
+    upload_folder = f"vendors/{ad.company.user.email}/images"
 
-        if not isinstance(file, bytes):
-            print("yessssssssssssssssssssssssssssssssssssssss")
-            # If the file_data is a string, encode it to bytes
-            file = file.encode()
-        if "image" in content_type:
-            upload_folder = f"vendors/rayiszafar@gmail.com/images"
-        elif "pdf" in content_type:
-            upload_folder = f"vendors/rayiszafar@gmail.com/pdfs"
-        elif "video" in content_type:
-            upload_folder = f"vendors/rayiszafar@gmail.com/videos"
-
-        file_name_gen = f"uploads/{upload_folder}/{timestamp}"
-        object_name = file_name_gen
-
-        # try:
-        file = io.BytesIO(file)
+    # try:
+    with open(image, "rb") as file:
+        object_name = f"uploads/{upload_folder}/{timestamp}_{name}"
         s3.upload_fileobj(
             file,
             bucket_name,
@@ -79,9 +67,93 @@ def upload_file(media):
                 "ContentType": content_type,
             },
         )
-        uploaded_file_url = f"{s3.meta.endpoint_url}/{bucket_name}/{object_name}"
-        print(uploaded_file_url)
-        # except ClientError as e:
-        #     logging.error(e)
-        #     return False
+
+    uploaded_image_url = f"{s3.meta.endpoint_url}/{bucket_name}/{object_name}"
+    ad_gallery = Gallery.objects.filter(ad=ad).first()
+    media_urls = ad_gallery.media_urls
+    media_urls["images"].append(uploaded_image_url)
+    ad_gallery.save()
+    os.remove(image)
+
+    # except ClientError as e:
+    #     logging.error(e)
+    #     return False
+    return True
+
+
+@shared_task()
+@transaction.atomic
+def upload_video(video, content_type, name, ad):
+    from apps.ads.models import Gallery
+
+    # s3 init
+    s3 = boto3.client("s3")
+    env = environ.Env()
+    bucket_name = env.str("S3_BUCKET_NAME")
+
+    timestamp = datetime.timestamp(datetime.now())
+    upload_folder = f"vendors/{ad.company.user.email}/video"
+
+    # try:
+    with open(video, "rb") as file:
+        object_name = f"uploads/{upload_folder}/{timestamp}_{name}"
+        s3.upload_fileobj(
+            file,
+            bucket_name,
+            object_name,
+            ExtraArgs={
+                "ACL": "public-read",
+                "ContentType": content_type,
+            },
+        )
+
+    uploaded_video_url = f"{s3.meta.endpoint_url}/{bucket_name}/{object_name}"
+    ad_gallery = Gallery.objects.filter(ad=ad).first()
+    media_urls = ad_gallery.media_urls
+    media_urls["video"].append(uploaded_video_url)
+    ad_gallery.save()
+    os.remove(video)
+
+    # except ClientError as e:
+    #     logging.error(e)
+    #     return False
+    return True
+
+
+@shared_task()
+@transaction.atomic
+def upload_pdf(pdf, content_type, name, ad):
+    from apps.ads.models import Gallery
+
+    # s3 init
+    s3 = boto3.client("s3")
+    env = environ.Env()
+    bucket_name = env.str("S3_BUCKET_NAME")
+
+    timestamp = datetime.timestamp(datetime.now())
+    upload_folder = f"vendors/{ad.company.user.email}/pdfs"
+
+    # try:
+    with open(pdf, "rb") as file:
+        object_name = f"uploads/{upload_folder}/{timestamp}_{name}"
+        s3.upload_fileobj(
+            file,
+            bucket_name,
+            object_name,
+            ExtraArgs={
+                "ACL": "public-read",
+                "ContentType": content_type,
+            },
+        )
+
+    uploaded_pdf_url = f"{s3.meta.endpoint_url}/{bucket_name}/{object_name}"
+    ad_gallery = Gallery.objects.filter(ad=ad).first()
+    media_urls = ad_gallery.media_urls
+    media_urls["pdf"].append(uploaded_pdf_url)
+    ad_gallery.save()
+    os.remove(pdf)
+
+    # except ClientError as e:
+    #     logging.error(e)
+    #     return False
     return True

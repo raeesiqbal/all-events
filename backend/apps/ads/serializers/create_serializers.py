@@ -59,7 +59,7 @@ class AdFAQChildCreateSerializer(BaseSerializer):
 
 
 class UploadMediaSerializer(serializers.Serializer):
-    file = serializers.FileField(required=True)
+    file = serializers.ListField(child=serializers.FileField(allow_empty_file=False))
 
 
 class GetUploadPresignedUrlSerializer(serializers.Serializer):
