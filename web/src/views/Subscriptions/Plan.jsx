@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { createSubscription, updateSubscription } from "../redux/Subscriptions/SubscriptionsSlice";
 import { secureInstance } from "../../axios/config";
+import { handleProfileSettingsCurrentView } from "../redux/TabNavigation/TabNavigationSlice";
 
 const Plan = ({
   plan, index, currentInterval, currentSubscription,

@@ -216,29 +216,18 @@ class MessageViewSet(BaseViewset):
     def chat_message(self, request, *args, **kwargs):
         if Chat.objects.filter(id=kwargs.get("pk")).exists():
             chat = Chat.objects.filter(id=kwargs.get("pk")).first()
-            chat.is_delete_client = False
-            chat.is_delete_vendor = False
-            chat.save()
 
             if request.user.role_type == USER_ROLE_TYPES["CLIENT"]:
                 chat.is_read_client = True
                 chat.save()
                 dic = {
-                    "event_date": chat.event_date,
-                    "name": chat.ad.company.name,
                     "ad": chat.ad.id,
-                    "image": chat.ad.company.user.image,
                 }
 
             elif request.user.role_type == USER_ROLE_TYPES["VENDOR"]:
                 chat.is_read_vendor = True
                 chat.save()
-                dic = {
-                    "event_date": chat.event_date,
-                    "name": chat.client.user.first_name + chat.client.user.last_name,
-                    "ad": chat.ad.id,
-                    "image": chat.ad.company.user.image,
-                }
+                dic = {"ad": chat.ad.id}
 
             messages = Message.objects.filter(chat=chat).order_by("-created_at")
 
@@ -326,6 +315,9 @@ class MessageViewSet(BaseViewset):
     @action(detail=True, url_path="message-create", methods=["post"])
     def message_create(self, request, *args, **kwargs):
         chat = Chat.objects.filter(id=kwargs.get("pk")).first()
+        chat.is_delete_client = False
+        chat.is_delete_vendor = False
+        chat.save()
 
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)

@@ -201,7 +201,7 @@ function PostAd() {
         .min(2, "Too short, minimum 5 characters")
         .max(6667, "Must be at most 6667 characters")
         .matches(
-          /^(?!\s*[!@#$%^&*()_+\-=\[\]{};':\"\\|,.<>\/?]*$)[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':\"\\|,.<>\/? ]{5,6666}$/,
+          /^(?=.*[a-zA-Z])[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':\"\\|,.<>\/? ]{5,6666}$/,
           "Cannot be entirely signs",
         )
         .required("Description is required"),
