@@ -26,6 +26,9 @@ import {
   setImagesError,
   setImagesToUpload,
   setMediaError,
+  setPDFsToUpload,
+  setVideosToUpload,
+  uploadMediaFiles,
 } from "../redux/Posts/AdsSlice";
 import { secureInstance } from "../../axios/config";
 import UnsavedChangesPrompt from "../../utilities/hooks/UnsavedChanged";
@@ -42,7 +45,6 @@ function EditAd() {
   ] = useState([]);
   const [currentAd, setCurrentAd] = useState(null);
   const [pdfsToUpload, setPdfsToUpload] = useState([]);
-  const [pdfsError, setPdfsError] = useState(false);
   const [videoToUpload, setVideoToUpload] = useState([]);
   const [relatedSubCategoryId, setRelatedSubCategoryId] = useState(null);
   const [isMultipleCountries, setIsMultipleCountries] = useState(false);
@@ -56,7 +58,7 @@ function EditAd() {
   const { user } = useSelector((state) => state.auth);
   const imagesToUpload = useSelector((state) => state.Ads.media_urls.images);
   const {
-    loading, AdPostSuccessAlert, AdPostErrorAlert, imagesError, isMediaUploading, mediaError,
+    loading, AdPostSuccessAlert, AdPostErrorAlert, imagesError, isMediaUploading, mediaError, submittedAdId, media,
   } = useSelector((state) => state.Ads);
   const currentSubscription = useSelector(
     (state) => state.subscriptions.currentSubscriptionDetails,
@@ -273,16 +275,7 @@ function EditAd() {
   const validate = (values) => {
     const errors = {};
 
-    // const isAnyValueNotNull = imagesToUpload.some((value) => value !== null);
-
-    // if (imagesToUpload.length === 0 && !imagesError) {
-    //   dispatch(setImagesError(true));
-    // }
-    // if (imagesError) {
-    //   dispatch(setImagesError(false));
-    // }
-    if (imagesToUpload.length === 0 && !imagesError) {
-      // setImagesError(true);
+    if ((imagesToUpload.length + media.images.length) === 0 && !imagesError) {
       dispatch(setImagesError(true));
     }
 
@@ -316,10 +309,6 @@ function EditAd() {
       const el = document.querySelector(".border-danger");
       (el?.parentElement ?? el)?.scrollIntoView();
     }
-  };
-
-  const handlePdfsUpdates = (images) => {
-    setPdfsToUpload(images);
   };
 
   const handleAddFAQ = (index, values, setValues) => {
@@ -427,6 +416,7 @@ function EditAd() {
         method: "Get",
       });
       setPreDefinedFAQs(responseSiteQuestions.data.data);
+      setSelectedValuesServerFAQ([]);
     } catch (err) {
       // Handle login error here if needed
       console.log(err);
@@ -539,7 +529,7 @@ function EditAd() {
   };
 
   const hasUnsavedChanges = (values) => selectedCountries.length !== ""
-    || imagesToUpload.length > 0
+    || (imagesToUpload.length + media.images.length) > 0
     || Object.keys(values).some(
       (field) => values[field] !== localInitialValues[field],
     );
@@ -549,11 +539,19 @@ function EditAd() {
   }, []);
 
   useEffect(() => {
-    dispatch(setImagesToUpload(currentAd?.ad_media[0].media_urls?.images?.length > 0 ? currentAd?.ad_media[0]?.media_urls?.images : []));
-    setVideoToUpload(currentAd?.ad_media[0].media_urls?.video?.length > 0 ? currentAd?.ad_media[0]?.media_urls?.video : []);
-    setPdfsToUpload(currentAd?.ad_media[0].media_urls?.pdf?.length > 0 ? currentAd?.ad_media[0]?.media_urls?.pdf : []);
-    if (currentAd?.related_sub_categories?.id) {
-      setRelatedSubCategoryId(currentAd?.related_sub_categories.id);
+    if (submittedAdId !== null) dispatch(uploadMediaFiles({ id: submittedAdId, files: [...media.images, ...media.video, ...media.pdf] }));
+  }, [submittedAdId]);
+
+  useEffect(() => {
+    if (currentAd) {
+      if (currentAd.ad_media[0]) {
+        dispatch(setImagesToUpload(currentAd.ad_media[0].media_urls?.images?.length > 0 ? currentAd.ad_media[0].media_urls?.images : []));
+        dispatch(setVideosToUpload(currentAd.ad_media[0].media_urls?.video?.length > 0 ? currentAd.ad_media[0].media_urls?.video : []));
+        dispatch(setPDFsToUpload(currentAd.ad_media[0].media_urls?.pdf?.length > 0 ? currentAd.ad_media[0].media_urls?.pdf : []));
+      }
+      if (currentAd.related_sub_categories?.id) {
+        setRelatedSubCategoryId(currentAd.related_sub_categories.id);
+      }
     }
   }, [currentAd]);
 
@@ -703,7 +701,7 @@ function EditAd() {
                     isEditView
                   />
 
-                  <ImageUploader imagesError={imagesError} />
+                  <ImageUploader imagesError={imagesError} setImagesError={setImagesError} />
 
                   <VideoUploader />
 

@@ -8,8 +8,9 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { CircularProgress } from "@mui/material";
 import {
-  setMediaVideos,
+  setMediaVideos, setVideosToUpload,
 } from "../../views/redux/Posts/AdsSlice";
+import { secureInstance } from "../../axios/config";
 
 function VideoUploader() {
   const [videos, setVideos] = useState([]);
@@ -18,6 +19,7 @@ function VideoUploader() {
   const dispatch = useDispatch();
   const { isMediaUploading } = useSelector((state) => state.Ads);
   const mediaVideos = useSelector((state) => state.Ads.media.video);
+  const videosToUpload = useSelector((state) => state.Ads.media_urls.video);
   const currentSubscription = useSelector(
     (state) => state.subscriptions.currentSubscriptionDetails,
   );
@@ -35,15 +37,14 @@ function VideoUploader() {
       reader.onload = () => {
         setVideos((prevVideos) => [
           ...prevVideos,
-          { file: uploadedVideo, previewURL: reader.result, uploading: true }, // Add a flag for uploading
+          {
+            previewURL: reader.result, uploading: true, type: "new",
+          },
         ]);
       };
       reader.readAsDataURL(uploadedVideo);
 
-      dispatch(setMediaVideos([...mediaVideos, {
-        file: uploadedVideo,
-        content_type: uploadedVideo.type,
-      }]));
+      dispatch(setMediaVideos([...mediaVideos, uploadedVideo]));
       setVideos((prevVideos) => prevVideos.map((video) => (video.file === uploadedVideo
         ? { ...video, uploading: false } // Mark the uploaded video as not uploading
         : video)));
@@ -65,17 +66,44 @@ function VideoUploader() {
 
     if (videoIndex !== -1) {
       const cloneVideos = [...videos];
-      const cloneMediaVideos = [...mediaVideos];
-
       cloneVideos.splice(index, 1);
-      cloneMediaVideos.splice(index, 1);
-
       setVideos(cloneVideos);
-      dispatch(setMediaVideos(cloneMediaVideos));
+
+      if (video.type === "new") {
+        const cloneMediaVideos = [...mediaVideos];
+        cloneMediaVideos.splice(index, 1);
+        dispatch(setMediaVideos(cloneMediaVideos));
+      } else {
+        const urlToDelete = videosToUpload[index];
+
+        try {
+          const request = await secureInstance.request({
+            url: "/api/ads/delete-url/",
+            method: "Post",
+            data: {
+              url: urlToDelete,
+            },
+          });
+          if (request.status === 200) {
+            const videoToUploadIndex = videosToUpload.indexOf(video.previewURL);
+
+            const cloneVideosToUpload = [...videosToUpload];
+
+            if (videoToUploadIndex !== -1) {
+              cloneVideosToUpload.splice(index, 1);
+            }
+            dispatch(setVideosToUpload(cloneVideosToUpload));
+          }
+        } catch (err) { /* empty */ }
+      }
     }
 
     setDeleteVideoButton(true);
   };
+
+  useEffect(() => {
+    setVideos(videosToUpload.map((video) => ({ previewURL: video, type: "old" })));
+  }, [videosToUpload]);
 
   return (
     <Container fluid style={{ marginTop: "40px" }}>

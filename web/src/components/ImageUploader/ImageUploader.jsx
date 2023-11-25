@@ -1,21 +1,23 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Col, Container, Row } from "react-bootstrap";
+import { PhotoProvider, PhotoView } from "react-photo-view";
 import { faAdd, faClose } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { CircularProgress } from "@mui/material";
-import React, { useState } from "react";
-import { Col, Container, Row } from "react-bootstrap";
-import { PhotoProvider, PhotoView } from "react-photo-view";
-import { useDispatch, useSelector } from "react-redux";
-import "./ImageUploader.css";
-
+import { secureInstance } from "../../axios/config";
 import {
+  setImagesToUpload,
   setMediaImages,
 } from "../../views/redux/Posts/AdsSlice";
 import "react-photo-view/dist/react-photo-view.css";
+import "./ImageUploader.css";
 
-function ImageUploader({ imagesError }) {
+function ImageUploader({ imagesError, setImagesError }) {
   const [images, setImages] = useState([]);
   const mediaImages = useSelector((state) => state.Ads.media.images);
+  const imagesToUpload = useSelector((state) => state.Ads.media_urls.images);
   const currentSubscription = useSelector(
     (state) => state.subscriptions.currentSubscriptionDetails,
   );
@@ -33,24 +35,14 @@ function ImageUploader({ imagesError }) {
 
     reader.onload = () => {
       updatedImages.push({
-        file: uploadedImage,
         previewURL: reader.result,
+        type: "new",
       });
       setImages(updatedImages);
     };
 
-    // reader.onloadend = () => {
-    //   const fileData = reader.result.split(",")[1];
-    //   dispatch(setMediaImages([...mediaImages, {
-    //     file: fileData,
-    //     content_type: uploadedImage.type,
-    //   }]));
-    // };
     reader.readAsDataURL(uploadedImage);
-    dispatch(setMediaImages([...mediaImages, {
-      file: uploadedImage,
-      content_type: uploadedImage.type,
-    }]));
+    dispatch(setMediaImages([...mediaImages, uploadedImage]));
     setDeleteImageButton(true);
   };
 
@@ -61,19 +53,48 @@ function ImageUploader({ imagesError }) {
 
     if (imageIndex !== -1) {
       const cloneImages = [...images];
-      const cloneMediaImages = [...mediaImages];
-
       cloneImages.splice(index, 1);
-      cloneMediaImages.splice(index, 1);
-
       setImages(cloneImages);
-      dispatch(setMediaImages(cloneMediaImages));
+
+      if (image.type === "new") {
+        const cloneMediaImages = [...mediaImages];
+        cloneMediaImages.splice(index, 1);
+        dispatch(setMediaImages(cloneMediaImages));
+      } else {
+        const urlToDelete = imagesToUpload[index];
+
+        try {
+          const request = await secureInstance.request({
+            url: "/api/ads/delete-url/",
+            method: "Post",
+            data: {
+              url: urlToDelete,
+            },
+          });
+          if (request.status === 200) {
+            const imageToUploadIndex = imagesToUpload.indexOf(image.previewURL);
+
+            const cloneImagesToUpload = [...imagesToUpload];
+
+            if (imageToUploadIndex !== -1) {
+              cloneImagesToUpload.splice(index, 1);
+            }
+            dispatch(setImagesToUpload(cloneImagesToUpload));
+          }
+        } catch (err) { /* empty */ }
+      }
     }
 
     setDeleteImageButton(true);
   };
 
-  const imagesToMap = images;
+  useEffect(() => {
+    if (imagesToUpload.length > 0) setImages(imagesToUpload.map((image) => ({ previewURL: image, type: "old" })));
+  }, [imagesToUpload]);
+
+  useEffect(() => {
+    if (images.length > 0) setImagesError(false);
+  }, [images]);
 
   return (
     <Container fluid style={{ marginTop: "30px" }}>
@@ -125,7 +146,7 @@ function ImageUploader({ imagesError }) {
           <PhotoProvider>
             <div className="d-flex" style={{ flexWrap: "wrap" }}>
               {
-                imagesToMap?.map((image, index) => (
+                images?.map((image, index) => (
                   <Col md={3} lg={3} key={index}>
                     <div className="mb-5">
                       {image !== null && (

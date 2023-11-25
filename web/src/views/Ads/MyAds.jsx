@@ -261,7 +261,7 @@ function MyAds() {
                       <Col xs={12} sm={3} style={{ padding: "20px" }}>
                         <Card.Img
                           src={
-                            (ad_media && ad_media[0]?.media_urls?.images)
+                            (ad_media && ad_media[0] && ad_media[0].media_urls?.images)
                               ? ad_media[0].media_urls.images[0]
                               : placeholderIcon
                           }

@@ -56,7 +56,7 @@ function PostAd() {
   const currentSubscription = useSelector(
     (state) => state.subscriptions.currentSubscriptionDetails,
   );
-  const { media, newPostedAdId } = useSelector((state) => state.Ads);
+  const { media, submittedAdId } = useSelector((state) => state.Ads);
   const {
     AdPostErrorAlert,
     imagesError,
@@ -103,7 +103,6 @@ function PostAd() {
     }));
 
     const objToSubmit = {
-      // media: [...media.images, ...media.video, ...media.pdf],
       name: values.companyInformation.commercial_name,
       description: values.companyInformation.description,
       website: values.contactInformation.websiteUrl,
@@ -135,7 +134,7 @@ function PostAd() {
       faqs: FAQsMap,
     };
 
-    dispatch(handleCreateNewAd({ data: objToSubmit, navigate }));
+    dispatch(handleCreateNewAd({ data: objToSubmit }));
   };
 
   const Schema = Yup.object().shape({
@@ -452,6 +451,7 @@ function PostAd() {
         method: "Get",
       });
       setPreDefinedFAQs(responseSiteQuestions.data.data);
+      setSelectedValuesServerFAQ([]);
     } catch (err) {
       // Handle login error here if needed
       console.log(err);
@@ -476,8 +476,10 @@ function PostAd() {
   }, [AdPostSuccessAlert]);
 
   useEffect(() => {
-    if (newPostedAdId !== null) dispatch(uploadMediaFiles({ id: newPostedAdId, files: [...media.images, ...media.video, ...media.pdf] }));
-  }, [newPostedAdId]);
+    if (submittedAdId !== null) {
+      dispatch(uploadMediaFiles({ id: submittedAdId, files: [...media.images, ...media.video, ...media.pdf], navigate }));
+    }
+  }, [submittedAdId]);
 
   useEffect(() => {
     if (AdPostErrorAlert || mediaError) {
@@ -621,7 +623,7 @@ function PostAd() {
                   handleCategoryClicked={handleCategoryClicked}
                 />
 
-                <ImageUploader imagesError={imagesError} />
+                <ImageUploader imagesError={imagesError} setImagesError={setImagesError} />
 
                 <VideoUploader />
 

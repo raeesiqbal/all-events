@@ -11,7 +11,7 @@ const initialState = {
   countries: [],
   count: 0,
   error: null,
-  newPostedAdId: null,
+  submittedAdId: null,
   vendorAds: [],
   vendorAdNames: [],
   premiumVenueAds: [],
@@ -37,58 +37,13 @@ const initialState = {
 
 export const handleCreateNewAd = createAsyncThunk(
   "Ads/create",
-  async ({ data, navigate }, { rejectWithValue }) => {
-    // const convertObjectToFormData = (obj, formData, parentKey = "") => {
-    //   for (const key in obj) {
-    //     if (obj.hasOwnProperty(key)) {
-    //       const currentKey = parentKey ? `${parentKey}.${key}` : key;
-    //       const value = obj[key];
-
-    //       // if (key === "media") {
-
-    //       // } else {
-    //         if (Array.isArray(value)) {
-    //           // If the value is an array, append each item with a unique key
-    //           value.forEach((item, index) => {
-    //             const arrayKey = `${currentKey}[${index}]`;
-
-    //             if (typeof item === "object" && item !== null) {
-    //               // If the value is an object, recursively call the function
-    //               convertObjectToFormData(item, formData, arrayKey);
-    //             } else {
-    //               // Otherwise, append the key-value pair to FormData
-    //               formData.append(arrayKey, item);
-    //             }
-    //           });
-    //         } else if (typeof value === "object" && value !== null) {
-    //           // If the value is an object, recursively call the function
-    //           convertObjectToFormData(value, formData, currentKey);
-    //         } else {
-    //           // Otherwise, append the key-value pair to FormData
-    //           formData.append(currentKey, value);
-    //         }
-    //       // }
-    //     }
-    //   }
-    // };
-
-    // // Usage
-    // const formData = new FormData();
-    // convertObjectToFormData(data, formData);
-
+  async ({ data }, { rejectWithValue }) => {
     try {
       const response = await secureInstance.request({
         url: "/api/ads/",
         method: "Post",
         data,
-        // headers: {
-        //   "Content-Type": "multipart/form-data",
-        // },
       });
-
-      // setTimeout(() => {
-      //   navigate("/my-ads");
-      // }, 1000);
 
       return response.data;
     } catch (err) {
@@ -116,17 +71,15 @@ export const handleEditAd = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  }
+  },
 );
 
 export const uploadMediaFiles = createAsyncThunk(
   "Ads/uploadMediaFiles",
-  async ({ id, files }, { rejectWithValue }) => {
+  async ({ id, files, navigate }, { rejectWithValue }) => {
     const formData = new FormData();
 
-    files.forEach((data, index) => {
-      formData.append("file", data.file);
-    });
+    files.forEach((file) => { formData.append("file", file); });
 
     try {
       const response = await secureInstance.request({
@@ -135,7 +88,7 @@ export const uploadMediaFiles = createAsyncThunk(
         data: formData,
       });
 
-      return response.data;
+      return { ...response.data, navigate };
     } catch (err) {
       return rejectWithValue(err.response.data);
     }
@@ -166,7 +119,7 @@ export const uploadImageToCloud = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  }
+  },
 );
 
 export const listVendorAds = createAsyncThunk(
@@ -183,7 +136,7 @@ export const listVendorAds = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  }
+  },
 );
 
 export const listCountries = createAsyncThunk(
@@ -201,7 +154,7 @@ export const listCountries = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  }
+  },
 );
 
 export const getVendorAdNames = createAsyncThunk(
@@ -218,7 +171,7 @@ export const getVendorAdNames = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  }
+  },
 );
 
 export const listPremiumVenues = createAsyncThunk(
@@ -236,7 +189,7 @@ export const listPremiumVenues = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  }
+  },
 );
 
 export const listPremiumVendors = createAsyncThunk(
@@ -254,7 +207,7 @@ export const listPremiumVendors = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  }
+  },
 );
 
 export const listFavoriteAds = createAsyncThunk(
@@ -271,7 +224,7 @@ export const listFavoriteAds = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  }
+  },
 );
 
 export const favoriteAd = createAsyncThunk(
@@ -288,7 +241,7 @@ export const favoriteAd = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  }
+  },
 );
 
 export const venueCountries = createAsyncThunk(
@@ -305,7 +258,7 @@ export const venueCountries = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  }
+  },
 );
 
 export const adCalendar = createAsyncThunk(
@@ -322,7 +275,7 @@ export const adCalendar = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  }
+  },
 );
 
 // Create the loginSlice
@@ -341,6 +294,12 @@ export const AdsSlice = createSlice({
     },
     setImagesToUpload: (state, action) => {
       state.media_urls.images = action.payload;
+    },
+    setVideosToUpload: (state, action) => {
+      state.media_urls.video = action.payload;
+    },
+    setPDFsToUpload: (state, action) => {
+      state.media_urls.pdf = action.payload;
     },
     setMediaImages: (state, action) => {
       state.media.images = action.payload;
@@ -371,7 +330,7 @@ export const AdsSlice = createSlice({
         state.loading = false;
         state.AdPostSuccessAlert = true;
         // state.media_urls.images = [];
-        state.newPostedAdId = action.payload.data.id;
+        state.submittedAdId = action.payload.data.id;
       })
       .addCase(handleCreateNewAd.rejected, (state) => {
         state.loading = false;
@@ -382,12 +341,14 @@ export const AdsSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(uploadMediaFiles.fulfilled, (state) => {
+      .addCase(uploadMediaFiles.fulfilled, (state, action) => {
+        const { navigate } = action.payload;
         state.loading = false;
         state.AdPostSuccessAlert = true;
         state.media.images = [];
         state.media.video = [];
         state.media.pdf = [];
+        navigate("/my-ads");
       })
       .addCase(uploadMediaFiles.rejected, (state) => {
         state.loading = false;
@@ -491,8 +452,8 @@ export const AdsSlice = createSlice({
       .addCase(listFavoriteAds.fulfilled, (state, action) => {
         state.loading = false;
         if (
-          action.payload.offset === 0 ||
-          state.isArchived !== action.payload.archive
+          action.payload.offset === 0
+          || state.isArchived !== action.payload.archive
         ) {
           state.favoriteAds = action.payload.data.results;
         } else {
@@ -524,7 +485,7 @@ export const AdsSlice = createSlice({
             return ad;
           });
           state.favoriteAds = state.favoriteAds.filter(
-            (ad) => ad.ad.id !== action.payload.id
+            (ad) => ad.ad.id !== action.payload.id,
           );
         }
       })
@@ -566,6 +527,8 @@ export const {
   handleUpdateAdPostErrorAlerting,
   setImagesError,
   setImagesToUpload,
+  setVideosToUpload,
+  setPDFsToUpload,
   setIsMediaUploading,
   setMediaError,
   setMediaImages,
