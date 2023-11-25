@@ -44,8 +44,6 @@ function EditAd() {
     setSelectedCountriesforContactInformation,
   ] = useState([]);
   const [currentAd, setCurrentAd] = useState(null);
-  const [pdfsToUpload, setPdfsToUpload] = useState([]);
-  const [videoToUpload, setVideoToUpload] = useState([]);
   const [relatedSubCategoryId, setRelatedSubCategoryId] = useState(null);
   const [isMultipleCountries, setIsMultipleCountries] = useState(false);
   const [localInitialValues, setLocalInitialValues] = useState(null);
@@ -57,8 +55,10 @@ function EditAd() {
 
   const { user } = useSelector((state) => state.auth);
   const imagesToUpload = useSelector((state) => state.Ads.media_urls.images);
+  const videoToUpload = useSelector((state) => state.Ads.media_urls.video);
+  const pdfsToUpload = useSelector((state) => state.Ads.media_urls.pdf);
   const {
-    loading, AdPostSuccessAlert, AdPostErrorAlert, imagesError, isMediaUploading, mediaError, submittedAdId, media,
+    loading, AdPostSuccessAlert, AdPostErrorAlert, imagesError, isMediaUploading, mediaError, submittedAdId, media, deletedUrls,
   } = useSelector((state) => state.Ads);
   const currentSubscription = useSelector(
     (state) => state.subscriptions.currentSubscriptionDetails,
@@ -98,6 +98,7 @@ function EditAd() {
         video: videoToUpload,
         pdf: pdfsToUpload,
       },
+      delete_urls: deletedUrls,
       company: currentAd.company.id,
       description: values.companyInformation.description,
       name: values.companyInformation.commercial_name,

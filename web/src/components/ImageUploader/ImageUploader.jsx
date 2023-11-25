@@ -6,8 +6,8 @@ import { PhotoProvider, PhotoView } from "react-photo-view";
 import { faAdd, faClose } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { CircularProgress } from "@mui/material";
-import { secureInstance } from "../../axios/config";
 import {
+  setDeletedUrls,
   setImagesToUpload,
   setMediaImages,
 } from "../../views/redux/Posts/AdsSlice";
@@ -16,6 +16,7 @@ import "./ImageUploader.css";
 
 function ImageUploader({ imagesError, setImagesError }) {
   const [images, setImages] = useState([]);
+  const { deletedUrls } = useSelector((state) => state.Ads);
   const mediaImages = useSelector((state) => state.Ads.media.images);
   const imagesToUpload = useSelector((state) => state.Ads.media_urls.images);
   const currentSubscription = useSelector(
@@ -63,25 +64,16 @@ function ImageUploader({ imagesError, setImagesError }) {
       } else {
         const urlToDelete = imagesToUpload[index];
 
-        try {
-          const request = await secureInstance.request({
-            url: "/api/ads/delete-url/",
-            method: "Post",
-            data: {
-              url: urlToDelete,
-            },
-          });
-          if (request.status === 200) {
-            const imageToUploadIndex = imagesToUpload.indexOf(image.previewURL);
+        dispatch(setDeletedUrls([...deletedUrls, urlToDelete]));
 
-            const cloneImagesToUpload = [...imagesToUpload];
+        const imageToUploadIndex = imagesToUpload.indexOf(image.previewURL);
 
-            if (imageToUploadIndex !== -1) {
-              cloneImagesToUpload.splice(index, 1);
-            }
-            dispatch(setImagesToUpload(cloneImagesToUpload));
-          }
-        } catch (err) { /* empty */ }
+        const cloneImagesToUpload = [...imagesToUpload];
+
+        if (imageToUploadIndex !== -1) {
+          cloneImagesToUpload.splice(index, 1);
+        }
+        dispatch(setImagesToUpload(cloneImagesToUpload));
       }
     }
 

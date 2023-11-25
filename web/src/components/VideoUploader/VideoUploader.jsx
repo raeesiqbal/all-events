@@ -8,9 +8,9 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { CircularProgress } from "@mui/material";
 import {
+  setDeletedUrls,
   setMediaVideos, setVideosToUpload,
 } from "../../views/redux/Posts/AdsSlice";
-import { secureInstance } from "../../axios/config";
 
 function VideoUploader() {
   const [videos, setVideos] = useState([]);
@@ -18,6 +18,7 @@ function VideoUploader() {
 
   const dispatch = useDispatch();
   const { isMediaUploading } = useSelector((state) => state.Ads);
+  const { deletedUrls } = useSelector((state) => state.Ads);
   const mediaVideos = useSelector((state) => state.Ads.media.video);
   const videosToUpload = useSelector((state) => state.Ads.media_urls.video);
   const currentSubscription = useSelector(
@@ -76,25 +77,16 @@ function VideoUploader() {
       } else {
         const urlToDelete = videosToUpload[index];
 
-        try {
-          const request = await secureInstance.request({
-            url: "/api/ads/delete-url/",
-            method: "Post",
-            data: {
-              url: urlToDelete,
-            },
-          });
-          if (request.status === 200) {
-            const videoToUploadIndex = videosToUpload.indexOf(video.previewURL);
+        dispatch(setDeletedUrls([...deletedUrls, urlToDelete]));
 
-            const cloneVideosToUpload = [...videosToUpload];
+        const videoToUploadIndex = videosToUpload.indexOf(video.previewURL);
 
-            if (videoToUploadIndex !== -1) {
-              cloneVideosToUpload.splice(index, 1);
-            }
-            dispatch(setVideosToUpload(cloneVideosToUpload));
-          }
-        } catch (err) { /* empty */ }
+        const cloneVideosToUpload = [...videosToUpload];
+
+        if (videoToUploadIndex !== -1) {
+          cloneVideosToUpload.splice(index, 1);
+        }
+        dispatch(setVideosToUpload(cloneVideosToUpload));
       }
     }
 

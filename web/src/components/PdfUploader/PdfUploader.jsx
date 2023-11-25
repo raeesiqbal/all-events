@@ -6,14 +6,14 @@ import { faAdd, faClose } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { CircularProgress } from "@mui/material";
 import InfoIcon from "../../assets/images/gg_info.svg";
-import { setMediaPDF, setPDFsToUpload } from "../../views/redux/Posts/AdsSlice";
+import { setDeletedUrls, setMediaPDF, setPDFsToUpload } from "../../views/redux/Posts/AdsSlice";
 import "../ImageUploader/ImageUploader.css";
-import { secureInstance } from "../../axios/config";
 
 function PdfUploader() {
   const dispatch = useDispatch();
   const [pdfs, setPdfs] = useState([]);
   const [deletePdfButton, setDeletePdfButton] = useState(true);
+  const { deletedUrls } = useSelector((state) => state.Ads);
   const mediaPDF = useSelector((state) => state.Ads.media.pdf);
   const pdfsToUpload = useSelector((state) => state.Ads.media_urls.pdf);
 
@@ -54,25 +54,16 @@ function PdfUploader() {
       } else {
         const urlToDelete = pdfsToUpload[index];
 
-        try {
-          const request = await secureInstance.request({
-            url: "/api/ads/delete-url/",
-            method: "Post",
-            data: {
-              url: urlToDelete,
-            },
-          });
-          if (request.status === 200) {
-            const pdfToUploadIndex = pdfsToUpload.indexOf(pdf.previewURL);
+        dispatch(setDeletedUrls([...deletedUrls, urlToDelete]));
 
-            const clonePDFsToUpload = [...pdfsToUpload];
+        const pdfToUploadIndex = pdfsToUpload.indexOf(pdf.previewURL);
 
-            if (pdfToUploadIndex !== -1) {
-              clonePDFsToUpload.splice(index, 1);
-            }
-            dispatch(setPDFsToUpload(clonePDFsToUpload));
-          }
-        } catch (err) { /* empty */ }
+        const clonePDFsToUpload = [...pdfsToUpload];
+
+        if (pdfToUploadIndex !== -1) {
+          clonePDFsToUpload.splice(index, 1);
+        }
+        dispatch(setPDFsToUpload(clonePDFsToUpload));
       }
     }
 

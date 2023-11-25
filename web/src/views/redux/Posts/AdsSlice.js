@@ -21,6 +21,7 @@ const initialState = {
   isMediaUploading: false,
   loading: false,
   mediaError: null,
+  deletedUrls: [],
   media_urls: {
     images: [],
     video: [],
@@ -292,6 +293,9 @@ export const AdsSlice = createSlice({
     handleUpdateAdPostErrorAlerting: (state, action) => {
       state.AdPostErrorAlert = action.payload;
     },
+    setDeletedUrls: (state, action) => {
+      state.deletedUrls = action.payload;
+    },
     setImagesToUpload: (state, action) => {
       state.media_urls.images = action.payload;
     },
@@ -526,6 +530,7 @@ export const {
   handleUpdateAdPostSuccessAlerting,
   handleUpdateAdPostErrorAlerting,
   setImagesError,
+  setDeletedUrls,
   setImagesToUpload,
   setVideosToUpload,
   setPDFsToUpload,
