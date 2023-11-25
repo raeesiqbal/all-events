@@ -249,7 +249,7 @@ class AdViewSet(BaseViewset):
     def partial_update(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        delete_urls = serializer.validated_data.pop("delete_urls", {})
+        delete_urls = serializer.validated_data.pop("delete_urls", [])
         print("delete urls", delete_urls)
         media_urls = serializer.validated_data.pop("media_urls", {})
         faqs = serializer.validated_data.pop("faqs", [])
