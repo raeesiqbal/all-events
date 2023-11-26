@@ -367,6 +367,9 @@ export const AdsSlice = createSlice({
         state.loading = false;
         state.AdPostSuccessAlert = true;
         state.submittedAdId = action.payload.id;
+        state.media_urls.images = [];
+        state.media_urls.video = [];
+        state.media_urls.pdf = [];
       })
       .addCase(handleEditAd.rejected, (state, action) => {
         state.loading = false;

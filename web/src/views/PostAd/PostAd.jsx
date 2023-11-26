@@ -81,7 +81,7 @@ function PostAd() {
     );
 
     const totalSelectedValuesLength = selectedValuesServerFAQ.reduce(
-      (accumulator, innerArray) => accumulator + innerArray.length,
+      (accumulator, innerArray) => accumulator + innerArray.filter((elem) => ![undefined, null].includes(elem)).length,
       0,
     );
 
@@ -480,6 +480,7 @@ function PostAd() {
     if (submittedAdId !== null) {
       const files = [...media.images, ...media.video, ...media.pdf];
       if (files.length > 0) dispatch(uploadMediaFiles({ id: submittedAdId, files, navigate }));
+      else navigate("/my-ads");
       dispatch(resetSubmittedAdId());
     }
   }, [submittedAdId]);

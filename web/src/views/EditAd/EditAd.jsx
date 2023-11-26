@@ -544,6 +544,7 @@ function EditAd() {
     if (submittedAdId !== null) {
       const files = [...media.images, ...media.video, ...media.pdf];
       if (files.length > 0) dispatch(uploadMediaFiles({ id: submittedAdId, files, navigate }));
+      else navigate("/my-ads");
       dispatch(resetSubmittedAdId());
     }
   }, [submittedAdId]);

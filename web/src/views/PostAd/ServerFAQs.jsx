@@ -38,7 +38,7 @@ function ServerFAQs({
   );
 
   const totalSelectedValuesLength = selectedValues.reduce(
-    (accumulator, innerArray) => accumulator + innerArray.length,
+    (accumulator, innerArray) => accumulator + innerArray.filter((elem) => ![undefined, null].includes(elem)).length,
     0,
   );
 
