@@ -24,6 +24,7 @@ import {
   handleUpdateAdPostErrorAlerting,
   handleUpdateAdPostSuccessAlerting,
   listVendorAds,
+  resetSubmittedAdId,
   setImagesError,
   setMediaError,
   setMediaImages,
@@ -478,6 +479,7 @@ function PostAd() {
   useEffect(() => {
     if (submittedAdId !== null) {
       dispatch(uploadMediaFiles({ id: submittedAdId, files: [...media.images, ...media.video, ...media.pdf], navigate }));
+      dispatch(resetSubmittedAdId());
     }
   }, [submittedAdId]);
 

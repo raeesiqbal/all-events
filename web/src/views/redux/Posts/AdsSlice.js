@@ -293,6 +293,9 @@ export const AdsSlice = createSlice({
     handleUpdateAdPostErrorAlerting: (state, action) => {
       state.AdPostErrorAlert = action.payload;
     },
+    resetSubmittedAdId: (state) => {
+      state.submittedAdId = null;
+    },
     setDeletedUrls: (state, action) => {
       state.deletedUrls = action.payload;
     },
@@ -531,6 +534,7 @@ export const {
   handleUpdateAdPostSuccessAlerting,
   handleUpdateAdPostErrorAlerting,
   setImagesError,
+  resetSubmittedAdId,
   setDeletedUrls,
   setImagesToUpload,
   setVideosToUpload,

@@ -23,6 +23,7 @@ import {
   handleEditAd,
   handleUpdateAdPostErrorAlerting,
   handleUpdateAdPostSuccessAlerting,
+  resetSubmittedAdId,
   setImagesError,
   setImagesToUpload,
   setMediaError,
@@ -540,7 +541,10 @@ function EditAd() {
   }, []);
 
   useEffect(() => {
-    if (submittedAdId !== null) dispatch(uploadMediaFiles({ id: submittedAdId, files: [...media.images, ...media.video, ...media.pdf] }));
+    if (submittedAdId !== null) {
+      dispatch(uploadMediaFiles({ id: submittedAdId, files: [...media.images, ...media.video, ...media.pdf] }));
+      dispatch(resetSubmittedAdId());
+    }
   }, [submittedAdId]);
 
   useEffect(() => {
