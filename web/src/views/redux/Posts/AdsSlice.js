@@ -66,7 +66,7 @@ export const handleEditAd = createAsyncThunk(
       setTimeout(() => {
         navigate("/my-ads");
       }, 1000);
-      return response.data;
+      return { ...response.data, id: adID };
     } catch (err) {
       // Use `err.response.data` as `action.payload` for a `rejected` action,
       // by explicitly returning it using the `rejectWithValue()` utility
@@ -363,9 +363,10 @@ export const AdsSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(handleEditAd.fulfilled, (state) => {
+      .addCase(handleEditAd.fulfilled, (state, action) => {
         state.loading = false;
         state.AdPostSuccessAlert = true;
+        state.submittedAdId = action.payload.id;
       })
       .addCase(handleEditAd.rejected, (state, action) => {
         state.loading = false;
