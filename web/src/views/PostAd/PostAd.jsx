@@ -441,7 +441,7 @@ function PostAd() {
         request.data.data[0] !== undefined
         && Object.prototype.hasOwnProperty.call(request.data.data[0], "service")
       ) {
-        setAdminServices(request.data.data[0].service);
+        setAdminServices(request.data.data[0].service || []);
       } else {
         // alert("emptyyyyyyyyy");
         setAdminServices([]);

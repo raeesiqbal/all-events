@@ -408,7 +408,7 @@ function EditAd() {
         request.data.data[0] !== undefined
         && Object.prototype.hasOwnProperty.call(request.data.data[0], "service")
       ) {
-        setAdminServices(request.data.data[0].service);
+        setAdminServices(request.data.data[0].service || []);
       } else {
         setAdminServices([]);
       }
@@ -446,7 +446,7 @@ function EditAd() {
         added: true,
       }));
 
-      setAdminServices(request.data.data?.site_services[0]?.service);
+      setAdminServices(request.data.data?.site_services[0]?.service || []);
 
       const serverFaqsMap = request.data.data?.ad_faq_ad
         ? request.data.data?.ad_faq_ad.map((serverFAQ) => ({
@@ -478,7 +478,7 @@ function EditAd() {
       setPreDefinedFAQs(serverFaqsMap);
 
       if (request.data.data.site_services_list?.length > 0) {
-        setAdminServices(request.data.data.site_services_list[0].service);
+        setAdminServices(request.data.data.site_services_list[0].service || []);
       }
 
       setAdminServicesSelected(request.data.data.site_services);
