@@ -63,9 +63,6 @@ export const handleEditAd = createAsyncThunk(
         method: "Patch",
         data,
       });
-      setTimeout(() => {
-        navigate("/my-ads");
-      }, 1000);
       return { ...response.data, id: adID };
     } catch (err) {
       // Use `err.response.data` as `action.payload` for a `rejected` action,

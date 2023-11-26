@@ -478,7 +478,8 @@ function PostAd() {
 
   useEffect(() => {
     if (submittedAdId !== null) {
-      dispatch(uploadMediaFiles({ id: submittedAdId, files: [...media.images, ...media.video, ...media.pdf], navigate }));
+      const files = [...media.images, ...media.video, ...media.pdf];
+      if (files.length > 0) dispatch(uploadMediaFiles({ id: submittedAdId, files, navigate }));
       dispatch(resetSubmittedAdId());
     }
   }, [submittedAdId]);
