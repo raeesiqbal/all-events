@@ -265,10 +265,14 @@ function EditAd() {
     FAQ: Yup.object().shape({
       faqs: Yup.array().of(
         Yup.object().shape({
-          question: Yup.string().max(150, "Must be at most 150 characters"),
-          answer: Yup.string().max(500, "Must be at most 500 characters"), // You can add validation for answer here if needed
+          question: Yup.string()
+            .required("Question is required")
+            .max(150, "Must be at most 150 characters"),
+          answer: Yup.string()
+            .required("Answer is required")
+            .max(500, "Must be at most 500 characters"), // You can add validation for answer here if needed
           type: Yup.string(), // You can add validation for type here if needed
-          added: Yup.boolean(), // You can add validation for added here if needed
+          added: Yup.boolean().required("Please add the FAQ or remove it."),
         }),
       ),
     }),

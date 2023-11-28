@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Form, Row, Col, Container,
 } from "react-bootstrap";
@@ -38,7 +38,7 @@ function ServerFAQs({
   );
 
   const totalSelectedValuesLength = selectedValues.reduce(
-    (accumulator, innerArray) => accumulator + innerArray.filter((elem) => ![undefined, null].includes(elem)).length,
+    (accumulator, innerArray) => accumulator + (innerArray || []).filter((elem) => ![undefined, null].includes(elem)).length,
     0,
   );
 
