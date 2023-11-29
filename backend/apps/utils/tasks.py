@@ -98,7 +98,7 @@ def upload_image(image_path, content_type, name, ad):
     if original_size > max_size:
         file = resize_image(image_path, max_size)
         content_type = "image/jpeg"
-        name = os.path.basename(file.name)
+        name = os.path.basename(file.name) + ".jpg"
     else:
         with open(image_path, "rb") as file:
             file = file
