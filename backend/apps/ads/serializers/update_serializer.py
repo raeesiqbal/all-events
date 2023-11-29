@@ -95,7 +95,9 @@ class AdUpdateSerializer(SubscriptionTypeValidationMixin, BaseSerializer):
         validators=[CustomWebsiteValidator()],
     )
     delete_urls = serializers.ListField(
-        child=serializers.URLField(), required=False, allow_null=True
+        child=serializers.CharField(),  # Use CharField as the child
+        required=False,
+        allow_null=True,
     )
 
     class Meta:
