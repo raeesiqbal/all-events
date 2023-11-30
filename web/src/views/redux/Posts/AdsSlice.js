@@ -370,6 +370,7 @@ export const AdsSlice = createSlice({
         state.media_urls.images = [];
         state.media_urls.video = [];
         state.media_urls.pdf = [];
+        state.deletedUrls = [];
       })
       .addCase(handleEditAd.rejected, (state, action) => {
         state.loading = false;
