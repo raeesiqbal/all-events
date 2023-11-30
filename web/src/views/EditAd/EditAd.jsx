@@ -71,6 +71,8 @@ function EditAd() {
 
   const handleSubmitAllForms = (values) => {
     if (imagesError) {
+      const el = document.querySelector(".images-container");
+      (el?.parentElement ?? el)?.scrollIntoView();
       return;
     }
 
@@ -88,10 +90,6 @@ function EditAd() {
         answer: questionValues.value,
       })),
     );
-
-    // const adminServicesMap = adminServicesSelected.map(
-    //   (service) => service.label
-    // );
 
     const objToSubmit = {
       media_urls: {

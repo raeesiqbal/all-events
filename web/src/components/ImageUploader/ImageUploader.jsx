@@ -82,7 +82,7 @@ function ImageUploader({ imagesError }) {
   };
 
   useEffect(() => {
-    if (imagesToUpload.length > 0) setImages(imagesToUpload.map((image) => ({ previewURL: image, type: "old" })));
+    if (imagesToUpload.length > 0 && images.length === 0) setImages(imagesToUpload.map((image) => ({ previewURL: image, type: "old" })));
   }, [imagesToUpload]);
 
   useEffect(() => {
