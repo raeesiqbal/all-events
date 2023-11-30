@@ -99,15 +99,15 @@ def upload_image(image_path, content_type, name, ad):
         file = resize_image(image_path, max_size)
         content_type = "image/jpeg"
         name = os.path.basename(file.name) + ".jpg"
+        file_content = file.read()
+        file.close()
     else:
         with open(image_path, "rb") as file:
-            file = file
-            content_type = content_type
-            name = name
+            file_content = file.read()
 
     object_name = f"uploads/{upload_folder}/{timestamp}_{name}"
     s3.upload_fileobj(
-        file,
+        io.BytesIO(file_content),
         bucket_name,
         object_name,
         ExtraArgs={
