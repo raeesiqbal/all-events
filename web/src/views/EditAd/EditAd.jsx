@@ -521,7 +521,7 @@ function EditAd() {
           faqs: faqsWithAddedProperty,
         },
         servicesOffered: {
-          services: request.data.data?.offered_services,
+          services: request.data.data?.offered_services || [],
         },
       });
 

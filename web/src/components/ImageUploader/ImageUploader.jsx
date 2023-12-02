@@ -28,6 +28,8 @@ function ImageUploader({ imagesError }) {
   const dispatch = useDispatch();
 
   const handleImageUpload = (event) => {
+    if (event.target.value === "") return;
+
     setDeleteImageButton(false);
     event.preventDefault();
     const uploadedImage = event.target.files[0];
@@ -39,6 +41,7 @@ function ImageUploader({ imagesError }) {
       updatedImages.push({
         previewURL: reader.result,
         type: "new",
+        index: mediaImages.length,
       });
       setImages(updatedImages);
     };
@@ -60,7 +63,7 @@ function ImageUploader({ imagesError }) {
 
       if (image.type === "new") {
         const cloneMediaImages = [...mediaImages];
-        cloneMediaImages.splice(index, 1);
+        cloneMediaImages.splice(image.index, 1);
         dispatch(setMediaImages(cloneMediaImages));
       } else {
         const urlToDelete = imagesToUpload[index];
@@ -251,7 +254,7 @@ function ImageUploader({ imagesError }) {
                     <input
                       id="file-input"
                       type="file"
-                      accept="image/*"
+                      accept=".jpeg, .jpg, .png, image/jpeg, image/jpg, image/png"
                       onChange={(event) => handleImageUpload(event)}
                       style={{ display: "none", border: "1px solid red" }}
                     />

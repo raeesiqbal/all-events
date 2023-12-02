@@ -18,6 +18,8 @@ function PdfUploader() {
   const pdfsToUpload = useSelector((state) => state.Ads.media_urls.pdf);
 
   const handlePDFUpload = (event) => {
+    if (event.target.value === "") return;
+
     setDeletePdfButton(false);
     event.preventDefault();
     const uploadedPdf = event.target.files[0];
@@ -29,6 +31,7 @@ function PdfUploader() {
       updatedPdfs.push({
         previewURL: reader.result,
         type: "new",
+        index: mediaPDF.length,
       });
       setPdfs(updatedPdfs);
     };
@@ -49,7 +52,7 @@ function PdfUploader() {
 
       if (pdf.type === "new") {
         const cloneMediaPDFs = [...mediaPDF];
-        cloneMediaPDFs.splice(index, 1);
+        cloneMediaPDFs.splice(pdf.index, 1);
         dispatch(setMediaPDF(cloneMediaPDFs));
       } else {
         const urlToDelete = pdfsToUpload[index];
@@ -71,7 +74,7 @@ function PdfUploader() {
   };
 
   useEffect(() => {
-    setPdfs(pdfsToUpload.map((pdf) => ({ previewURL: pdf, type: "old" })));
+    if (pdfsToUpload.length > 0 && pdfs.length === 0) setPdfs(pdfsToUpload.map((pdf) => ({ previewURL: pdf, type: "old" })));
   }, [pdfsToUpload]);
 
   return (

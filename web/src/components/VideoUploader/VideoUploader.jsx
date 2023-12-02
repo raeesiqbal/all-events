@@ -28,6 +28,8 @@ function VideoUploader() {
   const fileInputRef = React.createRef();
 
   const handleVideoUpload = async (event) => {
+    if (event.target.value === "") return;
+
     setDeleteVideoButton(false);
     event.preventDefault();
     const uploadedVideo = event.target.files[0];
@@ -39,7 +41,7 @@ function VideoUploader() {
         setVideos((prevVideos) => [
           ...prevVideos,
           {
-            previewURL: reader.result, uploading: true, type: "new",
+            previewURL: reader.result, uploading: true, type: "new", index: mediaVideos.length,
           },
         ]);
       };
@@ -72,7 +74,7 @@ function VideoUploader() {
 
       if (video.type === "new") {
         const cloneMediaVideos = [...mediaVideos];
-        cloneMediaVideos.splice(index, 1);
+        cloneMediaVideos.splice(video.index, 1);
         dispatch(setMediaVideos(cloneMediaVideos));
       } else {
         const urlToDelete = videosToUpload[index];
@@ -94,7 +96,7 @@ function VideoUploader() {
   };
 
   useEffect(() => {
-    setVideos(videosToUpload.map((video) => ({ previewURL: video, type: "old" })));
+    if (videosToUpload.length > 0 && videos.length === 0) setVideos(videosToUpload.map((video) => ({ previewURL: video, type: "old" })));
   }, [videosToUpload]);
 
   return (
