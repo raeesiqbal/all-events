@@ -10,8 +10,11 @@ import {
   setDeletedUrls,
   setImagesError,
   setImagesToUpload,
+  setIsMediaUploading,
+  setMediaError,
   setMediaImages,
 } from "../../views/redux/Posts/AdsSlice";
+import { IMG_SIZE } from "../../utilities/MediaSize";
 import "react-photo-view/dist/react-photo-view.css";
 import "./ImageUploader.css";
 
@@ -28,27 +31,39 @@ function ImageUploader({ imagesError }) {
   const dispatch = useDispatch();
 
   const handleImageUpload = (event) => {
+    event.preventDefault();
+
     if (event.target.value === "") return;
 
     setDeleteImageButton(false);
-    event.preventDefault();
+    dispatch(setIsMediaUploading(true));
+
     const uploadedImage = event.target.files[0];
     const updatedImages = [...images];
 
-    const reader = new FileReader();
+    if (uploadedImage && (uploadedImage.size / (1024 * 1024)) <= IMG_SIZE) {
+      const reader = new FileReader();
 
-    reader.onload = () => {
-      updatedImages.push({
-        previewURL: reader.result,
-        type: "new",
-        index: mediaImages.length,
-      });
-      setImages(updatedImages);
-    };
+      reader.onload = () => {
+        updatedImages.push({
+          previewURL: reader.result,
+          type: "new",
+          index: mediaImages.length,
+        });
+        setImages(updatedImages);
+      };
 
-    reader.readAsDataURL(uploadedImage);
-    dispatch(setMediaImages([...mediaImages, uploadedImage]));
+      reader.readAsDataURL(uploadedImage);
+      dispatch(setMediaImages([...mediaImages, uploadedImage]));
+    } else {
+      dispatch(setMediaError(`Image size should be less than or equal to ${IMG_SIZE}MB`));
+      setTimeout(() => {
+        dispatch(setMediaError(null));
+      }, 4000);
+    }
+
     setDeleteImageButton(true);
+    dispatch(setIsMediaUploading(false));
   };
 
   const removeImage = async (image, index) => {

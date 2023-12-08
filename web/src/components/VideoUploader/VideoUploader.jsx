@@ -9,8 +9,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { CircularProgress } from "@mui/material";
 import {
   setDeletedUrls,
+  setIsMediaUploading,
+  setMediaError,
   setMediaVideos, setVideosToUpload,
 } from "../../views/redux/Posts/AdsSlice";
+import { VIDEO_SIZE } from "../../utilities/MediaSize";
 
 function VideoUploader() {
   const [videos, setVideos] = useState([]);
@@ -28,13 +31,16 @@ function VideoUploader() {
   const fileInputRef = React.createRef();
 
   const handleVideoUpload = async (event) => {
+    event.preventDefault();
+
     if (event.target.value === "") return;
 
     setDeleteVideoButton(false);
-    event.preventDefault();
+    dispatch(setIsMediaUploading(true));
+
     const uploadedVideo = event.target.files[0];
 
-    if (uploadedVideo && uploadedVideo.size <= 25000000) {
+    if (uploadedVideo && (uploadedVideo.size / (1024 * 1024)) <= VIDEO_SIZE) {
       const reader = new FileReader();
 
       reader.onload = () => {
@@ -51,15 +57,20 @@ function VideoUploader() {
       setVideos((prevVideos) => prevVideos.map((video) => (video.file === uploadedVideo
         ? { ...video, uploading: false } // Mark the uploaded video as not uploading
         : video)));
-      setDeleteVideoButton(true);
 
       // Reset the file input after handling the upload
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
     } else {
-      console.log("Video size should be less than or equal to 25MB");
+      dispatch(setMediaError(`Video size should be less than or equal to ${VIDEO_SIZE}MB`));
+      setTimeout(() => {
+        dispatch(setMediaError(null));
+      }, 4000);
     }
+
+    setDeleteVideoButton(true);
+    dispatch(setIsMediaUploading(false));
   };
 
   const removeVideo = async (video, index) => {

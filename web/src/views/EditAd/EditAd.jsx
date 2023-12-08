@@ -781,8 +781,7 @@ function EditAd() {
                       className="btn btn-success roboto-semi-bold-16px-information btn-height btn-lg"
                       style={{ padding: "0 100px" }}
                     >
-                      {loading ? (
-                        // "Loading…"
+                      {loading || isMediaUploading ? (
                         <Spinner animation="border" size="sm" />
                       ) : (
                         "Save Changes"

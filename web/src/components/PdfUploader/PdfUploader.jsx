@@ -6,8 +6,9 @@ import { faAdd, faClose } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { CircularProgress } from "@mui/material";
 import InfoIcon from "../../assets/images/gg_info.svg";
-import { setDeletedUrls, setMediaPDF, setPDFsToUpload } from "../../views/redux/Posts/AdsSlice";
+import { setDeletedUrls, setIsMediaUploading, setMediaError, setMediaPDF, setPDFsToUpload } from "../../views/redux/Posts/AdsSlice";
 import "../ImageUploader/ImageUploader.css";
+import { PDF_SIZE } from "../../utilities/MediaSize";
 
 function PdfUploader() {
   const dispatch = useDispatch();
@@ -18,26 +19,38 @@ function PdfUploader() {
   const pdfsToUpload = useSelector((state) => state.Ads.media_urls.pdf);
 
   const handlePDFUpload = (event) => {
+    event.preventDefault();
+
     if (event.target.value === "") return;
 
     setDeletePdfButton(false);
-    event.preventDefault();
+    dispatch(setIsMediaUploading(true));
+
     const uploadedPdf = event.target.files[0];
     const updatedPdfs = [...pdfs];
 
-    const reader = new FileReader();
+    if (uploadedPdf && (uploadedPdf.size / (1024 * 1024)) <= PDF_SIZE) {
+      const reader = new FileReader();
 
-    reader.onload = () => {
-      updatedPdfs.push({
-        previewURL: reader.result,
-        type: "new",
-        index: mediaPDF.length,
-      });
-      setPdfs(updatedPdfs);
-    };
-    reader.readAsDataURL(uploadedPdf);
-    dispatch(setMediaPDF([...mediaPDF, uploadedPdf]));
+      reader.onload = () => {
+        updatedPdfs.push({
+          previewURL: reader.result,
+          type: "new",
+          index: mediaPDF.length,
+        });
+        setPdfs(updatedPdfs);
+      };
+      reader.readAsDataURL(uploadedPdf);
+      dispatch(setMediaPDF([...mediaPDF, uploadedPdf]));
+    } else {
+      dispatch(setMediaError(`PDF size should be less than or equal to ${PDF_SIZE}MB`));
+      setTimeout(() => {
+        dispatch(setMediaError(null));
+      }, 4000);
+    }
+
     setDeletePdfButton(true);
+    dispatch(setIsMediaUploading(false));
   };
 
   const removePDF = async (pdf, index) => {
@@ -162,7 +175,7 @@ function PdfUploader() {
                           type="button"
                           style={{ position: "absolute", top: "0", right: "0" }}
                           className="upload-img-close-btn"
-                          onClick={() => removePDF(index)}
+                          onClick={() => removePDF(pdf, index)}
                         >
                           <FontAwesomeIcon
                             icon={faClose}
