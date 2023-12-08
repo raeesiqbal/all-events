@@ -14,10 +14,12 @@ from apps.utils.tasks import (
     upload_pdf,
     delete_s3_object_by_url_list,
 )
-import os
 from tempfile import NamedTemporaryFile
-from shutil import copyfile
-import pdb
+
+
+import fitz  # PyMuPDF
+import os
+import tempfile
 
 
 # filters
@@ -251,7 +253,6 @@ class AdViewSet(BaseViewset):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         delete_url_list = serializer.validated_data.pop("delete_urls", [])
-        print("raesssssssssssssssss", serializer.validated_data)
         # self.s3_service.delete_s3_object_by_url(delete_urls)
         # print("delete urls", delete_url_list)
         media_urls = serializer.validated_data.pop("media_urls", {})
@@ -340,15 +341,10 @@ class AdViewSet(BaseViewset):
                 with NamedTemporaryFile(delete=False) as temp_file:
                     temp_file_path = temp_file.name
                     temp_file.write(file_obj.read())
-                    temp_file.seek(0) 
+                    temp_file.seek(0)
 
                 if file_obj.name.endswith(".pdf"):
                     upload_pdf.delay(temp_file_path, content_type, name, ad)
-                elif file_obj.name.endswith(".mp4"):
-                    upload_video.delay(temp_file_path, content_type, name, ad)
-                elif file_obj.name.endswith((".jpeg", ".jpg", ".png", ".gif")):
-                    upload_image.delay(temp_file_path, content_type, name, ad)
-                file_obj.close()
 
             return Response(
                 status=status.HTTP_200_OK,

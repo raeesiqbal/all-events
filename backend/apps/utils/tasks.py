@@ -12,8 +12,11 @@ import io
 import os
 from django.db import transaction
 from PIL import Image
+from moviepy.editor import VideoFileClip
 from django.core.files.base import ContentFile
 import tempfile
+import shutil
+from moviepy.editor import VideoFileClip
 
 
 @shared_task()
@@ -129,9 +132,39 @@ def upload_image(image_path, content_type, name, ad):
     return True
 
 
+def resize_video(file_path, max_size):
+    # Video processing (resize)
+    video = VideoFileClip(file_path)
+
+    # Get the original size of the video in MB
+    original_size = os.path.getsize(file_path) / (1024 * 1024)
+
+    # Calculate resize factor based on the maximum size
+    resize_factor = max_size / original_size
+
+    # Compute the new width and height
+    new_width = int(video.size[0] * resize_factor)
+    new_height = int(video.size[1] * resize_factor)
+
+    # Resize the video using moviepy
+    output_path = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4").name
+    video_resized = video.resize(width=new_width, height=new_height)
+    video_resized.write_videofile(output_path, codec="libx264", audio_codec="aac")
+
+    # Close the original and resized videos
+    video_resized.close()
+    video.close()
+
+    # Copy the contents of the temporary file to the desired location
+    # local_save_path = r"C:\Users\Muhammad Raees\OneDrive\Desktop\all-events\all-events"
+    # shutil.copy(output_path, os.path.join(local_save_path, "resized_video.mp4"))
+
+    return output_path
+
+
 @shared_task()
 @transaction.atomic
-def upload_video(video, content_type, name, ad):
+def upload_video(video_path, content_type, name, ad):
     from apps.ads.models import Gallery
 
     # s3 init
@@ -140,37 +173,91 @@ def upload_video(video, content_type, name, ad):
     bucket_name = env.str("S3_BUCKET_NAME")
 
     timestamp = datetime.timestamp(datetime.now())
-    upload_folder = f"vendors/{ad.company.user.email}/video"
+    upload_folder = f"vendors/{ad.company.user.email}/videos"
 
-    # try:
-    with open(video, "rb") as file:
-        object_name = f"uploads/{upload_folder}/{timestamp}_{name}"
-        s3.upload_fileobj(
-            file,
-            bucket_name,
-            object_name,
-            ExtraArgs={
-                "ACL": "public-read",
-                "ContentType": content_type,
-            },
-        )
+    try:
+        max_size = 8
+        original_size = os.path.getsize(video_path) / (1024 * 1024)  # Size in MB
+        if original_size > max_size:
+            resized_video_path = resize_video(video_path, max_size)
+            content_type = "video/mp4"
+            name = os.path.basename(resized_video_path)
+            object_name = f"uploads/{upload_folder}/{timestamp}_{name}"
+            with open(resized_video_path, "rb") as file:
+                # Pass the file object directly to upload_fileobj
+                s3.upload_fileobj(
+                    file,
+                    bucket_name,
+                    object_name,
+                    ExtraArgs={
+                        "ACL": "public-read",
+                        "ContentType": content_type,
+                    },
+                )
+            # Optionally, remove the temporary resized video file
+            os.remove(resized_video_path)
+        else:
+            with open(video_path, "rb") as file:
+                file_content = file.read()
+                object_name = f"uploads/{upload_folder}/{timestamp}_{name}"
+                s3.upload_fileobj(
+                    io.BytesIO(file_content),
+                    bucket_name,
+                    object_name,
+                    ExtraArgs={
+                        "ACL": "public-read",
+                        "ContentType": content_type,
+                    },
+                )
 
-    uploaded_video_url = f"{s3.meta.endpoint_url}/{bucket_name}/{object_name}"
-    ad_gallery = Gallery.objects.filter(ad=ad).first()
-    media_urls = ad_gallery.media_urls
-    media_urls["video"].append(uploaded_video_url)
-    ad_gallery.save()
-    os.remove(video)
+        uploaded_image_url = f"{s3.meta.endpoint_url}/{bucket_name}/{object_name}"
+        ad_gallery = Gallery.objects.filter(ad=ad).first()
+        media_urls = ad_gallery.media_urls
+        media_urls["video"].append(uploaded_image_url)
+        ad_gallery.save()
+        os.remove(video_path)
+    except ClientError as e:
+        logging.error(e)
+        return False
 
-    # except ClientError as e:
-    #     logging.error(e)
-    #     return False
     return True
+
+
+# from pypdf import PdfReader, PdfWriter
+# import tempfile
+# import os
+
+
+# def compress_pdf(input_path):
+#     reader = PdfReader(input_path)
+#     writer = PdfWriter()
+
+#     for page in reader.pages:
+#         writer.add_page(page)
+
+#     for page in writer.pages:
+#         page.compress_content_streams()
+
+#     # Create a temporary file to save the compressed PDF
+#     temp_output_path = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf").name
+
+#     with open(temp_output_path, "wb") as output_file:
+#         writer.write(output_file)
+
+#     with open("o.pdf", "wb") as output_file:
+#         writer.write(output_file)
+#         # Copy the contents of the temporary file to the desired location
+#         local_save_path = (
+#             r"C:\Users\Muhammad Raees\OneDrive\Desktop\all-events\all-events"
+#         )
+#         shutil.copy(output_file, os.path.join(local_save_path))
+
+#     return temp_output_path
 
 
 @shared_task()
 @transaction.atomic
-def upload_pdf(pdf, content_type, name, ad):
+def upload_pdf(pdf_path, content_type, name, ad):
     from apps.ads.models import Gallery
 
     # s3 init
@@ -181,27 +268,31 @@ def upload_pdf(pdf, content_type, name, ad):
     timestamp = datetime.timestamp(datetime.now())
     upload_folder = f"vendors/{ad.company.user.email}/pdfs"
 
-    # try:
-    with open(pdf, "rb") as file:
-        object_name = f"uploads/{upload_folder}/{timestamp}_{name}"
-        s3.upload_fileobj(
-            file,
-            bucket_name,
-            object_name,
-            ExtraArgs={
-                "ACL": "public-read",
-                "ContentType": content_type,
-            },
-        )
+    # max_size = 1
+    # original_size = os.path.getsize(pdf_path) / (1024 * 1024)  # Size in MB
+    # if original_size > max_size:
+    #     pdf_path = compress_pdf(pdf_path)
 
-    uploaded_pdf_url = f"{s3.meta.endpoint_url}/{bucket_name}/{object_name}"
-    ad_gallery = Gallery.objects.filter(ad=ad).first()
-    media_urls = ad_gallery.media_urls
-    media_urls["pdf"].append(uploaded_pdf_url)
-    ad_gallery.save()
-    os.remove(pdf)
+    try:
+        with open(pdf_path, "rb") as file:
+            object_name = f"uploads/{upload_folder}/{timestamp}_{name}"
+            s3.upload_fileobj(
+                file,
+                bucket_name,
+                object_name,
+                ExtraArgs={
+                    "ACL": "public-read",
+                    "ContentType": content_type,
+                },
+            )
 
-    # except ClientError as e:
-    #     logging.error(e)
-    #     return False
+        uploaded_pdf_url = f"{s3.meta.endpoint_url}/{bucket_name}/{object_name}"
+        ad_gallery = Gallery.objects.filter(ad=ad).first()
+        media_urls = ad_gallery.media_urls
+        media_urls["pdf"].append(uploaded_pdf_url)
+        ad_gallery.save()
+
+    finally:
+        os.remove(pdf_path)  # Remove the temporary resized PDF file
+
     return True
