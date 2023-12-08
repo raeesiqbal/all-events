@@ -345,6 +345,11 @@ class AdViewSet(BaseViewset):
 
                 if file_obj.name.endswith(".pdf"):
                     upload_pdf.delay(temp_file_path, content_type, name, ad)
+                elif file_obj.name.endswith(".mp4"):
+                    upload_video.delay(temp_file_path, content_type, name, ad)
+                elif file_obj.name.endswith((".jpeg", ".jpg", ".png", ".gif")):
+                    upload_image.delay(temp_file_path, content_type, name, ad)
+                file_obj.close()
 
             return Response(
                 status=status.HTTP_200_OK,
