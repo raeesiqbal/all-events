@@ -26,13 +26,10 @@ class S3Service:
     def delete_s3_object_by_url(self, s3_object_url):
         bucket_name = self.bucket_name
         object_key = s3_object_url.replace(
-            f"https://s3.amazonaws.com/{bucket_name}/", ""
+            f"https://{bucket_name}.s3.amazonaws.com/", ""
         )
-
-        s3_client = boto3.client("s3")
-
         try:
-            s3_client.delete_object(Bucket=bucket_name, Key=object_key)
+            self.s3_client.delete_object(Bucket=bucket_name, Key=object_key)
             return True
         except Exception as e:
             return False
@@ -57,24 +54,26 @@ class S3Service:
             object_name = file_name_gen
         bucket_name = self.bucket_name
 
-        s3 = boto3.client("s3")
         uploaded_file_url = None
 
-        try:
-            s3.upload_fileobj(
-                file,
-                bucket_name,
-                object_name,
-                ExtraArgs={
-                    "ACL": "public-read",
-                    "ContentType": content_type,
-                },
-            )
-            uploaded_file_url = f"{s3.meta.endpoint_url}/{bucket_name}/{object_name}"
+        # try:
+        self.s3_client.upload_fileobj(
+            file,
+            bucket_name,
+            object_name,
+            ExtraArgs={
+                "ACL": "public-read",
+                "ContentType": content_type,
+            },
+        )
+        # uploaded_file_url = (
+        #     f"{bucket_name}.{self.s3_client.meta.endpoint_url}/{object_name}"
+        # )
+        uploaded_file_url = f"https://{bucket_name}.s3.amazonaws.com/{object_name}"
 
-        except ClientError as e:
-            logging.error(e)
-            return False
+        # except ClientError as e:
+        #     logging.error(e)
+        #     return False
         return uploaded_file_url
 
     def create_presigned_url(self, file_name, content_type, folder_path=None):

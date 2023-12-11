@@ -56,7 +56,7 @@ def delete_s3_object_by_urls(media):
     objects_to_delete = []
     for category, urls in media.items():
         for url in urls:
-            object_key = url.replace(f"https://s3.amazonaws.com/{bucket_name}/", "")
+            object_key = url.replace(f"https://{bucket_name}.s3.amazonaws.com/", "")
             objects_to_delete.append({"Key": object_key})
 
     s3_client.delete_objects(
@@ -96,7 +96,7 @@ def upload_image(image_path, content_type, name, ad):
     upload_folder = f"vendors/{ad.company.user.email}/images"
 
     # try:
-    max_size = 2
+    max_size = env.str("IMAGE_SIZE", 2)
     original_size = os.path.getsize(image_path) / (1024 * 1024)  # Size in MB
     if original_size > max_size:
         file = resize_image(image_path, max_size)
@@ -119,7 +119,7 @@ def upload_image(image_path, content_type, name, ad):
         },
     )
 
-    uploaded_image_url = f"{s3.meta.endpoint_url}/{bucket_name}/{object_name}"
+    uploaded_image_url = f"https://{bucket_name}.s3.amazonaws.com/{object_name}"
     ad_gallery = Gallery.objects.filter(ad=ad).first()
     media_urls = ad_gallery.media_urls
     media_urls["images"].append(uploaded_image_url)
@@ -176,7 +176,7 @@ def upload_video(video_path, content_type, name, ad):
     upload_folder = f"vendors/{ad.company.user.email}/videos"
 
     try:
-        max_size = 8
+        max_size = env.str("VIDEO_SIZE", 5)
         original_size = os.path.getsize(video_path) / (1024 * 1024)  # Size in MB
         if original_size > max_size:
             resized_video_path = resize_video(video_path, max_size)
@@ -194,7 +194,6 @@ def upload_video(video_path, content_type, name, ad):
                         "ContentType": content_type,
                     },
                 )
-            # Optionally, remove the temporary resized video file
             os.remove(resized_video_path)
         else:
             with open(video_path, "rb") as file:
@@ -210,10 +209,10 @@ def upload_video(video_path, content_type, name, ad):
                     },
                 )
 
-        uploaded_image_url = f"{s3.meta.endpoint_url}/{bucket_name}/{object_name}"
+        uploaded_video_url = f"https://{bucket_name}.s3.amazonaws.com/{object_name}"
         ad_gallery = Gallery.objects.filter(ad=ad).first()
         media_urls = ad_gallery.media_urls
-        media_urls["video"].append(uploaded_image_url)
+        media_urls["video"].append(uploaded_video_url)
         ad_gallery.save()
         os.remove(video_path)
     except ClientError as e:
@@ -221,38 +220,6 @@ def upload_video(video_path, content_type, name, ad):
         return False
 
     return True
-
-
-# from pypdf import PdfReader, PdfWriter
-# import tempfile
-# import os
-
-
-# def compress_pdf(input_path):
-#     reader = PdfReader(input_path)
-#     writer = PdfWriter()
-
-#     for page in reader.pages:
-#         writer.add_page(page)
-
-#     for page in writer.pages:
-#         page.compress_content_streams()
-
-#     # Create a temporary file to save the compressed PDF
-#     temp_output_path = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf").name
-
-#     with open(temp_output_path, "wb") as output_file:
-#         writer.write(output_file)
-
-#     with open("o.pdf", "wb") as output_file:
-#         writer.write(output_file)
-#         # Copy the contents of the temporary file to the desired location
-#         local_save_path = (
-#             r"C:\Users\Muhammad Raees\OneDrive\Desktop\all-events\all-events"
-#         )
-#         shutil.copy(output_file, os.path.join(local_save_path))
-
-#     return temp_output_path
 
 
 @shared_task()
@@ -268,11 +235,6 @@ def upload_pdf(pdf_path, content_type, name, ad):
     timestamp = datetime.timestamp(datetime.now())
     upload_folder = f"vendors/{ad.company.user.email}/pdfs"
 
-    # max_size = 1
-    # original_size = os.path.getsize(pdf_path) / (1024 * 1024)  # Size in MB
-    # if original_size > max_size:
-    #     pdf_path = compress_pdf(pdf_path)
-
     try:
         with open(pdf_path, "rb") as file:
             object_name = f"uploads/{upload_folder}/{timestamp}_{name}"
@@ -286,7 +248,7 @@ def upload_pdf(pdf_path, content_type, name, ad):
                 },
             )
 
-        uploaded_pdf_url = f"{s3.meta.endpoint_url}/{bucket_name}/{object_name}"
+        uploaded_pdf_url = f"https://{bucket_name}.s3.amazonaws.com/{object_name}"
         ad_gallery = Gallery.objects.filter(ad=ad).first()
         media_urls = ad_gallery.media_urls
         media_urls["pdf"].append(uploaded_pdf_url)
