@@ -34,7 +34,7 @@ function PdfUploader() {
 
       reader.onload = () => {
         updatedPdfs.push({
-          previewURL: reader.result,
+          previewURL: URL.createObjectURL(event.target.files[0]),
           type: "new",
           index: mediaPDF.length,
         });
@@ -161,7 +161,7 @@ function PdfUploader() {
                         }}
                       >
                         <a
-                          href={pdf}
+                          href={pdf.previewURL}
                           target="_blank"
                           rel="noreferrer"
                           style={{ textDecoration: "none", color: "#76af71 " }}

@@ -169,7 +169,7 @@ function ImageUploader({ imagesError }) {
                           height: "126px",
                         }}
                       >
-                        <PhotoView src={image}>
+                        <PhotoView src={image.previewURL ?? image}>
                           <img
                             src={image.previewURL ?? image}
                             alt={`Preview ${index + 1}`}
