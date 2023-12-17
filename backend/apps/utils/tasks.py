@@ -38,7 +38,10 @@ def delete_s3_object_by_url_list(urls):
     bucket_name = env.str("S3_BUCKET_NAME")
     objects_to_delete = []
     for url in urls:
-        object_key = url.replace(f"https://s3.amazonaws.com/{bucket_name}/", "")
+        # https://test-bucket-all-events.s3.amazonaws.com/uploads/vendors/rayiszafar@gmail.com/images/1702555431.260493_tmpikw5alyc.jpg
+        # object_key = url.replace(f"https://s3.amazonaws.com/{bucket_name}/", "")
+        object_key = url.replace(f"https://{bucket_name}.s3.amazonaws.com/", "")
+        print("key", object_key)
         objects_to_delete.append({"Key": object_key})
 
     s3_client.delete_objects(
@@ -96,7 +99,7 @@ def upload_image(image_path, content_type, name, ad):
     upload_folder = f"vendors/{ad.company.user.email}/images"
 
     # try:
-    max_size = env.str("IMAGE_SIZE", 2)
+    max_size = float(env.str("IMAGE_SIZE", 2))
     original_size = os.path.getsize(image_path) / (1024 * 1024)  # Size in MB
     if original_size > max_size:
         file = resize_image(image_path, max_size)
@@ -176,7 +179,7 @@ def upload_video(video_path, content_type, name, ad):
     upload_folder = f"vendors/{ad.company.user.email}/videos"
 
     try:
-        max_size = env.str("VIDEO_SIZE", 5)
+        max_size = float(env.str("VIDEO_SIZE", 5))
         original_size = os.path.getsize(video_path) / (1024 * 1024)  # Size in MB
         if original_size > max_size:
             resized_video_path = resize_video(video_path, max_size)
