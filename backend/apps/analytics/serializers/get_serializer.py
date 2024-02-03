@@ -162,12 +162,15 @@ class ChatListSerializer(BaseSerializer):
 
     def get_ad_image(self, obj):
         gallery = Gallery.objects.filter(ad=obj.ad).first()
-
-        return (
-            gallery.media_urls.get("images")[0]
-            if gallery.media_urls.get("images") and gallery.media_urls.get("images")[0]
-            else None
-        )
+        if gallery:
+            return (
+                gallery.media_urls.get("images")[0]
+                if gallery.media_urls.get("images")
+                and gallery.media_urls.get("images")[0]
+                else None
+            )
+        else:
+            return None
 
     def get_person(self, obj):
         # You can customize the logic to generate the extra data here

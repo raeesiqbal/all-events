@@ -27,7 +27,7 @@ class S3Service:
         bucket_name = self.bucket_name
         object_key = s3_object_url.replace(
             f"https://{bucket_name}.s3.amazonaws.com/", ""
-        )
+        ) 
         try:
             self.s3_client.delete_object(Bucket=bucket_name, Key=object_key)
             return True

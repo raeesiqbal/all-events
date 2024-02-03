@@ -59,8 +59,8 @@ class MessageAdmin(admin.ModelAdmin):
     )
     search_fields = [
         "id",
-        "chat",
-        "sender",
+        "chat__ad__name",
+        "sender__email",
         "text",
     ]
 
