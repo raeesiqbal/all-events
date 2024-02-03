@@ -57,7 +57,7 @@ function FAQs({
                         style={{ textDecoration: "underline" }}
                         onClick={() => handleRemoveFAQ(index)}
                       >
-                        Remove FAQ
+                        Remove
                       </span>
                     )}
                   </div>
@@ -80,7 +80,7 @@ function FAQs({
                       maxLength={150}
                     />
                     <Form.Control.Feedback type="invalid">
-                      {errors.faqs?.length > 0 && errors.faqs[index].question}
+                      {errors.faqs?.length > 0 && errors.faqs[index]?.question}
                     </Form.Control.Feedback>
                   </>
                 )}
@@ -106,7 +106,7 @@ function FAQs({
                   maxLength={500}
                 />
                 <Form.Control.Feedback type="invalid">
-                  {errors.faqs?.length > 0 && errors.faqs[index].answer}
+                  {errors.faqs?.length > 0 && errors.faqs[index]?.answer}
                 </Form.Control.Feedback>
               </Form.Group>
             </Col>

@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { secureInstance } from "../../axios/config";
-import { setImagesToUpload, uploadImagesToCloud } from "../redux/Posts/AdsSlice";
+import { setImagesToUpload, uploadImageToCloud } from "../redux/Posts/AdsSlice";
 import { addReview, listAdReviews } from "../redux/Reviews/ReviewsSlice";
 import Rating from "../../components/Rating/Rating";
 import titleIcon from "../../assets/images/title_icon.svg";
@@ -54,7 +54,7 @@ const Reviews = ({ adId, adName, reviewPosting }) => {
       });
     };
     reader.readAsDataURL(uploadedImage);
-    dispatch(uploadImagesToCloud(uploadedImage));
+    dispatch(uploadImageToCloud(uploadedImage));
     event.target.value = "";
   };
 

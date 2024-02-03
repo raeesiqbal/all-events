@@ -106,6 +106,7 @@ function ContactInformationForm({
               style={{ height: "56px", border: "1px solid #797979" }}
               name="contactInformation.country"
               value={values.country || ""}
+              defaultValue={values.country || ""}
               onChange={handleChange}
               // onBlur={handleBlur}
               isValid={touched.country && !errors.country}

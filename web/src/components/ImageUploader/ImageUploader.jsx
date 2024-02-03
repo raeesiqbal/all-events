@@ -1,22 +1,27 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
-import { faAdd, faClose } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Col, Container, Row } from "react-bootstrap";
 import { PhotoProvider, PhotoView } from "react-photo-view";
-import { useDispatch, useSelector } from "react-redux";
-import "./ImageUploader.css";
-import { secureInstance } from "../../axios/config";
+import { faAdd, faClose } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { CircularProgress } from "@mui/material";
-
 import {
+  setDeletedUrls,
+  setImagesError,
   setImagesToUpload,
-  uploadImagesToCloud,
+  setIsMediaUploading,
+  setMediaError,
+  setMediaImages,
 } from "../../views/redux/Posts/AdsSlice";
+import { IMG_SIZE } from "../../utilities/MediaSize";
 import "react-photo-view/dist/react-photo-view.css";
+import "./ImageUploader.css";
 
 function ImageUploader({ imagesError }) {
   const [images, setImages] = useState([]);
+  const { deletedUrls } = useSelector((state) => state.Ads);
+  const mediaImages = useSelector((state) => state.Ads.media.images);
   const imagesToUpload = useSelector((state) => state.Ads.media_urls.images);
   const currentSubscription = useSelector(
     (state) => state.subscriptions.currentSubscriptionDetails,
@@ -26,50 +31,61 @@ function ImageUploader({ imagesError }) {
   const dispatch = useDispatch();
 
   const handleImageUpload = (event) => {
-    setDeleteImageButton(false);
     event.preventDefault();
+
+    if (event.target.value === "") return;
+
+    setDeleteImageButton(false);
+    dispatch(setIsMediaUploading(true));
+
     const uploadedImage = event.target.files[0];
     const updatedImages = [...images];
 
-    const reader = new FileReader();
+    if (uploadedImage && (uploadedImage.size / (1024 * 1024)) <= IMG_SIZE) {
+      const reader = new FileReader();
 
-    reader.onload = () => {
-      updatedImages.push({
-        file: uploadedImage,
-        previewURL: reader.result,
-      });
-      setImages(updatedImages);
-    };
-    reader.readAsDataURL(uploadedImage);
-    dispatch(uploadImagesToCloud(uploadedImage));
+      reader.onload = () => {
+        updatedImages.push({
+          previewURL: reader.result,
+          type: "new",
+          index: mediaImages.length,
+        });
+        setImages(updatedImages);
+      };
+
+      reader.readAsDataURL(uploadedImage);
+      dispatch(setMediaImages([...mediaImages, uploadedImage]));
+    } else {
+      dispatch(setMediaError(`Image size should be less than or equal to ${IMG_SIZE}MB`));
+      setTimeout(() => {
+        dispatch(setMediaError(null));
+      }, 4000);
+    }
+
     setDeleteImageButton(true);
+    dispatch(setIsMediaUploading(false));
   };
 
   const removeImage = async (image, index) => {
     setDeleteImageButton(false);
-    const urlToDelete = imagesToUpload[index];
 
-    try {
-      const request = await secureInstance.request({
-        url: "/api/ads/delete-url/",
-        method: "Post",
-        data: {
-          url: urlToDelete,
-        },
-      });
-      // ----------------do this inside redux
-      if (request.status === 200) {
-        const imageIndex = images.indexOf(image);
+    const imageIndex = images.indexOf(image);
 
-        const cloneImages = [...images];
+    if (imageIndex !== -1) {
+      const cloneImages = [...images];
+      cloneImages.splice(index, 1);
+      setImages(cloneImages);
 
-        if (imageIndex !== -1) {
-          cloneImages.splice(index, 1);
-        }
+      if (image.type === "new") {
+        const cloneMediaImages = [...mediaImages];
+        cloneMediaImages.splice(image.index, 1);
+        dispatch(setMediaImages(cloneMediaImages));
+      } else {
+        const urlToDelete = imagesToUpload[index];
 
-        setImages(cloneImages);
+        dispatch(setDeletedUrls([...deletedUrls, urlToDelete]));
 
-        const imageToUploadIndex = imagesToUpload.indexOf(image);
+        const imageToUploadIndex = imagesToUpload.indexOf(image.previewURL);
 
         const cloneImagesToUpload = [...imagesToUpload];
 
@@ -77,26 +93,19 @@ function ImageUploader({ imagesError }) {
           cloneImagesToUpload.splice(index, 1);
         }
         dispatch(setImagesToUpload(cloneImagesToUpload));
-        setDeleteImageButton(true);
       }
-    } catch (err) {}
-
-    const imageIndex = images.indexOf(image);
-
-    const cloneImages = [...images];
-
-    if (imageIndex !== -1) {
-      cloneImages.splice(index, 1);
     }
 
-    setImages(cloneImages);
+    setDeleteImageButton(true);
   };
 
   useEffect(() => {
-    setImages(imagesToUpload);
+    if (imagesToUpload.length > 0 && images.length === 0) setImages(imagesToUpload.map((image) => ({ previewURL: image, type: "old" })));
   }, [imagesToUpload]);
 
-  const imagesToMap = images;
+  useEffect(() => {
+    if (images.length > 0) dispatch(setImagesError(false));
+  }, [images]);
 
   return (
     <Container fluid style={{ marginTop: "30px" }}>
@@ -122,7 +131,11 @@ function ImageUploader({ imagesError }) {
             className="roboto-regular-16px-information"
             style={{ color: "#A9A8AA", lineHeight: "22px" }}
           >
-            Upload {currentSubscription?.type?.allowed_ad_photos || 1} of the
+            Upload
+            {" "}
+            {currentSubscription?.type?.allowed_ad_photos || 1}
+            {" "}
+            of the
             best images that describe your service
           </li>
           <li
@@ -143,10 +156,11 @@ function ImageUploader({ imagesError }) {
         <Row className="h-100 col-12 g-0 flex-column-reverse flex-md-row">
           <PhotoProvider>
             <div className="d-flex" style={{ flexWrap: "wrap" }}>
-              {imagesToMap?.map((image, index) => (
-                <Col md={3} lg={3} key={index}>
-                  <div className="mb-5">
-                    {image !== null && (
+              {
+                images?.map((image, index) => (
+                  <Col md={3} lg={3} key={index}>
+                    <div className="mb-5">
+                      {image !== null && (
                       <div
                         style={{
                           position: "relative",
@@ -155,7 +169,7 @@ function ImageUploader({ imagesError }) {
                           height: "126px",
                         }}
                       >
-                        <PhotoView src={image}>
+                        <PhotoView src={image.previewURL ?? image}>
                           <img
                             src={image.previewURL ?? image}
                             alt={`Preview ${index + 1}`}
@@ -217,13 +231,14 @@ function ImageUploader({ imagesError }) {
                           </>
                         ) : null}
                       </div>
-                    )}
-                  </div>
-                </Col>
-              ))}
-              {currentSubscription &&
-                currentSubscription?.type?.allowed_ad_photos >
-                  images.length && (
+                      )}
+                    </div>
+                  </Col>
+                ))
+              }
+              {
+                currentSubscription
+                  && currentSubscription?.type?.allowed_ad_photos > images.length && (
                   <div
                     style={{
                       border: "2px dashed #A0C49D",
@@ -254,12 +269,13 @@ function ImageUploader({ imagesError }) {
                     <input
                       id="file-input"
                       type="file"
-                      accept="image/*"
+                      accept=".jpeg, .jpg, .png, image/jpeg, image/jpg, image/png"
                       onChange={(event) => handleImageUpload(event)}
                       style={{ display: "none", border: "1px solid red" }}
                     />
                   </div>
-                )}
+                )
+              }
             </div>
           </PhotoProvider>
         </Row>

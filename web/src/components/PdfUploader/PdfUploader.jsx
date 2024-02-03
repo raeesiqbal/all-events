@@ -1,102 +1,93 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
-import { faHeart, faPlus } from "@fortawesome/fontawesome-free-solid";
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Col, Container, Row } from "react-bootstrap";
 import { faAdd, faClose } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { useState, useEffect } from "react";
-import { Button, Col, Container, Row } from "react-bootstrap";
-import InfoIcon from "../../assets/images/gg_info.svg";
-import "../ImageUploader/ImageUploader.css";
-import { secureInstance } from "../../axios/config";
 import { CircularProgress } from "@mui/material";
+import InfoIcon from "../../assets/images/gg_info.svg";
+import { setDeletedUrls, setIsMediaUploading, setMediaError, setMediaPDF, setPDFsToUpload } from "../../views/redux/Posts/AdsSlice";
+import "../ImageUploader/ImageUploader.css";
+import { PDF_SIZE } from "../../utilities/MediaSize";
 
-function PdfUploader({
-  setparentImagesUploadedImages,
-  imagesError,
-  setImagesError,
-  pdfsToUpload,
-}) {
+function PdfUploader() {
+  const dispatch = useDispatch();
   const [pdfs, setPdfs] = useState([]);
   const [deletePdfButton, setDeletePdfButton] = useState(true);
+  const { deletedUrls } = useSelector((state) => state.Ads);
+  const mediaPDF = useSelector((state) => state.Ads.media.pdf);
+  const pdfsToUpload = useSelector((state) => state.Ads.media_urls.pdf);
 
-  const uploadFileToCloud = async (uploadedPdf) => {
-    const formData = new FormData(); // pass in the form
-    formData.append("file", uploadedPdf);
-    formData.append("content_type", uploadedPdf.type);
-
-    try {
-      const request = await secureInstance.request({
-        url: "/api/ads/upload-url/",
-        method: "Post",
-        data: formData,
-      });
-      setparentImagesUploadedImages([
-        ...pdfsToUpload,
-        request.data.data.file_url,
-      ]);
-    } catch (e) {
-      // setImageUrlToUpload(response.data.data);
-      // --------- WILL ROUTE ON SOME PAGE ON FAILURE ---------
-      console.log("error", e);
-    }
-  };
-
-  const handleImageUpload = (event, index) => {
-    setDeletePdfButton(false);
+  const handlePDFUpload = (event) => {
     event.preventDefault();
+
+    if (event.target.value === "") return;
+
+    setDeletePdfButton(false);
+    dispatch(setIsMediaUploading(true));
+
     const uploadedPdf = event.target.files[0];
     const updatedPdfs = [...pdfs];
 
-    const reader = new FileReader();
+    if (uploadedPdf && (uploadedPdf.size / (1024 * 1024)) <= PDF_SIZE) {
+      const reader = new FileReader();
 
-    reader.onload = () => {
-      updatedPdfs[index] = {
-        file: uploadedPdf,
-        previewURL: reader.result,
+      reader.onload = () => {
+        updatedPdfs.push({
+          previewURL: URL.createObjectURL(event.target.files[0]),
+          type: "new",
+          index: mediaPDF.length,
+        });
+        setPdfs(updatedPdfs);
       };
-      setPdfs(updatedPdfs);
-    };
-    setImagesError(false);
-    uploadFileToCloud(uploadedPdf);
-    setparentImagesUploadedImages(updatedPdfs);
-    reader.readAsDataURL(uploadedPdf);
+      reader.readAsDataURL(uploadedPdf);
+      dispatch(setMediaPDF([...mediaPDF, uploadedPdf]));
+    } else {
+      dispatch(setMediaError(`PDF size should be less than or equal to ${PDF_SIZE}MB`));
+      setTimeout(() => {
+        dispatch(setMediaError(null));
+      }, 4000);
+    }
+
+    setDeletePdfButton(true);
+    dispatch(setIsMediaUploading(false));
+  };
+
+  const removePDF = async (pdf, index) => {
+    setDeletePdfButton(false);
+
+    const pdfIndex = pdfs.indexOf(pdf);
+
+    if (pdfIndex !== -1) {
+      const clonePDFs = [...pdfs];
+      clonePDFs.splice(index, 1);
+      setPdfs(clonePDFs);
+
+      if (pdf.type === "new") {
+        const cloneMediaPDFs = [...mediaPDF];
+        cloneMediaPDFs.splice(pdf.index, 1);
+        dispatch(setMediaPDF(cloneMediaPDFs));
+      } else {
+        const urlToDelete = pdfsToUpload[index];
+
+        dispatch(setDeletedUrls([...deletedUrls, urlToDelete]));
+
+        const pdfToUploadIndex = pdfsToUpload.indexOf(pdf.previewURL);
+
+        const clonePDFsToUpload = [...pdfsToUpload];
+
+        if (pdfToUploadIndex !== -1) {
+          clonePDFsToUpload.splice(index, 1);
+        }
+        dispatch(setPDFsToUpload(clonePDFsToUpload));
+      }
+    }
+
     setDeletePdfButton(true);
   };
 
-  const removeImage = async (index) => {
-    setDeletePdfButton(false);
-    const updatedImages = [...pdfs];
-    const urlToDelete = updatedImages[index];
-    try {
-      const request = await secureInstance.request({
-        url: "/api/ads/delete-url/",
-        method: "Post",
-        data: {
-          url: urlToDelete,
-        },
-      });
-      // ----------------do this inside redux
-      if (request.status === 200) {
-        updatedImages[index] = null;
-        const newUpdatedImages = updatedImages.filter((item) => item !== null);
-        setPdfs(newUpdatedImages);
-        setparentImagesUploadedImages(newUpdatedImages);
-        setDeletePdfButton(true);
-      }
-    } catch (err) {}
-  };
-
-  const handlePDFView = (pdf) => {
-    return (
-      <a href={pdf} target="_blank" rel="noreferrer">
-        Download Pdf
-      </a>
-    );
-  };
-
   useEffect(() => {
-    if (pdfsToUpload.length > 0) {
-      setPdfs(pdfsToUpload);
-    }
+    if (pdfsToUpload.length > 0 && pdfs.length === 0) setPdfs(pdfsToUpload.map((pdf) => ({ previewURL: pdf, type: "old" })));
   }, [pdfsToUpload]);
 
   return (
@@ -108,9 +99,6 @@ function PdfUploader({
         Upload PDF
       </div>
 
-      {imagesError && (
-        <span className="text-danger">Atleast 1 photo is Required</span>
-      )}
       <div
         style={{
           maxWidth: "900px",
@@ -129,13 +117,13 @@ function PdfUploader({
             className="roboto-regular-16px-information"
             style={{ color: "#A9A8AA", lineHeight: "22px" }}
           >
-            Images can be upload in JPEG or PNG format
+            PDFs can be upload in PDF format
           </li>
           <li
             className="roboto-regular-16px-information"
             style={{ color: "#A9A8AA", lineHeight: "22px" }}
           >
-            Size of images cannot exceed 5 Mb
+            Size of pdfs cannot exceed 5 Mb
           </li>
         </ul>
 
@@ -173,7 +161,7 @@ function PdfUploader({
                         }}
                       >
                         <a
-                          href={pdf}
+                          href={pdf.previewURL}
                           target="_blank"
                           rel="noreferrer"
                           style={{ textDecoration: "none", color: "#76af71 " }}
@@ -187,7 +175,7 @@ function PdfUploader({
                           type="button"
                           style={{ position: "absolute", top: "0", right: "0" }}
                           className="upload-img-close-btn"
-                          onClick={() => removeImage(index)}
+                          onClick={() => removePDF(pdf, index)}
                         >
                           <FontAwesomeIcon
                             icon={faClose}
@@ -266,7 +254,7 @@ function PdfUploader({
                   id="pdf-input"
                   type="file"
                   accept="application/pdf"
-                  onChange={(event) => handleImageUpload(event)}
+                  onChange={(event) => handlePDFUpload(event)}
                   style={{ display: "none" }}
                 />
               </div>

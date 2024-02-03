@@ -23,9 +23,13 @@ import {
   handleEditAd,
   handleUpdateAdPostErrorAlerting,
   handleUpdateAdPostSuccessAlerting,
+  resetSubmittedAdId,
   setImagesError,
   setImagesToUpload,
   setMediaError,
+  setPDFsToUpload,
+  setVideosToUpload,
+  uploadMediaFiles,
 } from "../redux/Posts/AdsSlice";
 import { secureInstance } from "../../axios/config";
 import UnsavedChangesPrompt from "../../utilities/hooks/UnsavedChanged";
@@ -41,9 +45,6 @@ function EditAd() {
     setSelectedCountriesforContactInformation,
   ] = useState([]);
   const [currentAd, setCurrentAd] = useState(null);
-  const [pdfsToUpload, setPdfsToUpload] = useState([]);
-  const [pdfsError, setPdfsError] = useState(false);
-  const [videoToUpload, setVideoToUpload] = useState([]);
   const [relatedSubCategoryId, setRelatedSubCategoryId] = useState(null);
   const [isMultipleCountries, setIsMultipleCountries] = useState(false);
   const [localInitialValues, setLocalInitialValues] = useState(null);
@@ -55,8 +56,10 @@ function EditAd() {
 
   const { user } = useSelector((state) => state.auth);
   const imagesToUpload = useSelector((state) => state.Ads.media_urls.images);
+  const videoToUpload = useSelector((state) => state.Ads.media_urls.video);
+  const pdfsToUpload = useSelector((state) => state.Ads.media_urls.pdf);
   const {
-    loading, AdPostSuccessAlert, AdPostErrorAlert, imagesError, isMediaUploading, mediaError,
+    loading, AdPostSuccessAlert, AdPostErrorAlert, imagesError, isMediaUploading, mediaError, submittedAdId, media, deletedUrls,
   } = useSelector((state) => state.Ads);
   const currentSubscription = useSelector(
     (state) => state.subscriptions.currentSubscriptionDetails,
@@ -68,6 +71,8 @@ function EditAd() {
 
   const handleSubmitAllForms = (values) => {
     if (imagesError) {
+      const el = document.querySelector(".images-container");
+      (el?.parentElement ?? el)?.scrollIntoView();
       return;
     }
 
@@ -86,16 +91,13 @@ function EditAd() {
       })),
     );
 
-    // const adminServicesMap = adminServicesSelected.map(
-    //   (service) => service.label
-    // );
-
     const objToSubmit = {
       media_urls: {
         images: imagesToUpload,
         video: videoToUpload,
         pdf: pdfsToUpload,
       },
+      delete_urls: deletedUrls,
       company: currentAd.company.id,
       description: values.companyInformation.description,
       name: values.companyInformation.commercial_name,
@@ -261,10 +263,14 @@ function EditAd() {
     FAQ: Yup.object().shape({
       faqs: Yup.array().of(
         Yup.object().shape({
-          question: Yup.string().max(150, "Must be at most 150 characters"),
-          answer: Yup.string().max(500, "Must be at most 500 characters"), // You can add validation for answer here if needed
+          question: Yup.string()
+            .required("Question is required")
+            .max(150, "Must be at most 150 characters"),
+          answer: Yup.string()
+            .required("Answer is required")
+            .max(500, "Must be at most 500 characters"), // You can add validation for answer here if needed
           type: Yup.string(), // You can add validation for type here if needed
-          added: Yup.boolean(), // You can add validation for added here if needed
+          added: Yup.boolean().required("Please add the FAQ or remove it."),
         }),
       ),
     }),
@@ -273,16 +279,7 @@ function EditAd() {
   const validate = (values) => {
     const errors = {};
 
-    // const isAnyValueNotNull = imagesToUpload.some((value) => value !== null);
-
-    // if (imagesToUpload.length === 0 && !imagesError) {
-    //   dispatch(setImagesError(true));
-    // }
-    // if (imagesError) {
-    //   dispatch(setImagesError(false));
-    // }
-    if (imagesToUpload.length === 0 && !imagesError) {
-      // setImagesError(true);
+    if ((imagesToUpload.length + media.images.length) === 0 && !imagesError) {
       dispatch(setImagesError(true));
     }
 
@@ -316,10 +313,6 @@ function EditAd() {
       const el = document.querySelector(".border-danger");
       (el?.parentElement ?? el)?.scrollIntoView();
     }
-  };
-
-  const handlePdfsUpdates = (images) => {
-    setPdfsToUpload(images);
   };
 
   const handleAddFAQ = (index, values, setValues) => {
@@ -417,7 +410,7 @@ function EditAd() {
         request.data.data[0] !== undefined
         && Object.prototype.hasOwnProperty.call(request.data.data[0], "service")
       ) {
-        setAdminServices(request.data.data[0].service);
+        setAdminServices(request.data.data[0].service || []);
       } else {
         setAdminServices([]);
       }
@@ -427,6 +420,7 @@ function EditAd() {
         method: "Get",
       });
       setPreDefinedFAQs(responseSiteQuestions.data.data);
+      setSelectedValuesServerFAQ([]);
     } catch (err) {
       // Handle login error here if needed
       console.log(err);
@@ -454,7 +448,7 @@ function EditAd() {
         added: true,
       }));
 
-      setAdminServices(request.data.data?.site_services[0]?.service);
+      setAdminServices(request.data.data?.site_services[0]?.service || []);
 
       const serverFaqsMap = request.data.data?.ad_faq_ad
         ? request.data.data?.ad_faq_ad.map((serverFAQ) => ({
@@ -486,7 +480,7 @@ function EditAd() {
       setPreDefinedFAQs(serverFaqsMap);
 
       if (request.data.data.site_services_list?.length > 0) {
-        setAdminServices(request.data.data.site_services_list[0].service);
+        setAdminServices(request.data.data.site_services_list[0].service || []);
       }
 
       setAdminServicesSelected(request.data.data.site_services);
@@ -527,7 +521,7 @@ function EditAd() {
           faqs: faqsWithAddedProperty,
         },
         servicesOffered: {
-          services: request.data.data?.offered_services,
+          services: request.data.data?.offered_services || [],
         },
       });
 
@@ -539,7 +533,7 @@ function EditAd() {
   };
 
   const hasUnsavedChanges = (values) => selectedCountries.length !== ""
-    || imagesToUpload.length > 0
+    || (imagesToUpload.length + media.images.length) > 0
     || Object.keys(values).some(
       (field) => values[field] !== localInitialValues[field],
     );
@@ -549,11 +543,24 @@ function EditAd() {
   }, []);
 
   useEffect(() => {
-    dispatch(setImagesToUpload(currentAd?.ad_media[0].media_urls?.images?.length > 0 ? currentAd?.ad_media[0]?.media_urls?.images : []));
-    setVideoToUpload(currentAd?.ad_media[0].media_urls?.video?.length > 0 ? currentAd?.ad_media[0]?.media_urls?.video : []);
-    setPdfsToUpload(currentAd?.ad_media[0].media_urls?.pdf?.length > 0 ? currentAd?.ad_media[0]?.media_urls?.pdf : []);
-    if (currentAd?.related_sub_categories?.id) {
-      setRelatedSubCategoryId(currentAd?.related_sub_categories.id);
+    if (submittedAdId !== null) {
+      const files = [...media.images, ...media.video, ...media.pdf];
+      if (files.length > 0) dispatch(uploadMediaFiles({ id: submittedAdId, files, navigate }));
+      else navigate("/my-ads");
+      dispatch(resetSubmittedAdId());
+    }
+  }, [submittedAdId]);
+
+  useEffect(() => {
+    if (currentAd) {
+      if (currentAd.ad_media[0]) {
+        dispatch(setImagesToUpload(currentAd.ad_media[0].media_urls?.images?.length > 0 ? currentAd.ad_media[0].media_urls?.images : []));
+        dispatch(setVideosToUpload(currentAd.ad_media[0].media_urls?.video?.length > 0 ? currentAd.ad_media[0].media_urls?.video : []));
+        dispatch(setPDFsToUpload(currentAd.ad_media[0].media_urls?.pdf?.length > 0 ? currentAd.ad_media[0].media_urls?.pdf : []));
+      }
+      if (currentAd.related_sub_categories?.id) {
+        setRelatedSubCategoryId(currentAd.related_sub_categories.id);
+      }
     }
   }, [currentAd]);
 
@@ -705,10 +712,7 @@ function EditAd() {
 
                   <ImageUploader imagesError={imagesError} />
 
-                  <VideoUploader
-                    videoToUpload={videoToUpload}
-                    setVideoToUpload={setVideoToUpload}
-                  />
+                  <VideoUploader />
 
                   <ContactInformationForm
                     values={values.contactInformation}
@@ -741,12 +745,7 @@ function EditAd() {
 
                   {currentSubscription
                     && currentSubscription?.type?.pdf_upload && (
-                      <PdfUploader
-                        setparentImagesUploadedImages={handlePdfsUpdates}
-                        pdfsToUpload={pdfsToUpload}
-                        imagesError={pdfsError}
-                        setImagesError={setPdfsError}
-                      />
+                      <PdfUploader />
                   )}
 
                   {currentSubscription && currentSubscription?.type?.faq && (
@@ -782,8 +781,7 @@ function EditAd() {
                       className="btn btn-success roboto-semi-bold-16px-information btn-height btn-lg"
                       style={{ padding: "0 100px" }}
                     >
-                      {loading ? (
-                        // "Loading…"
+                      {loading || isMediaUploading ? (
                         <Spinner animation="border" size="sm" />
                       ) : (
                         "Save Changes"

@@ -24,9 +24,11 @@ import {
   handleUpdateAdPostErrorAlerting,
   handleUpdateAdPostSuccessAlerting,
   listVendorAds,
+  resetSubmittedAdId,
   setImagesError,
-  setImagesToUpload,
   setMediaError,
+  setMediaImages,
+  uploadMediaFiles,
 } from "../redux/Posts/AdsSlice";
 import UnsavedChangesPrompt from "../../utilities/hooks/UnsavedChanged";
 import { ScrollToError } from "../../utilities/ScrollToError";
@@ -41,9 +43,6 @@ function PostAd() {
     selectedCountriesforContactInformation,
     setSelectedCountriesforContactInformation,
   ] = useState([]);
-  const [pdfsToUpload, setPdfsToUpload] = useState([]);
-  const [pdfsError, setPdfsError] = useState(false);
-  const [videoToUpload, setVideoToUpload] = useState([]);
   const [relatedSubCategoryId, setRelatedSubCategoryId] = useState(null);
   const [isMultipleCountries, setIsMultipleCountries] = useState(false);
   const [adminServicesSelected, setAdminServicesSelected] = useState([]);
@@ -58,7 +57,7 @@ function PostAd() {
   const currentSubscription = useSelector(
     (state) => state.subscriptions.currentSubscriptionDetails,
   );
-  const imagesToUpload = useSelector((state) => state.Ads.media_urls.images);
+  const { media, submittedAdId } = useSelector((state) => state.Ads);
   const {
     AdPostErrorAlert,
     imagesError,
@@ -82,9 +81,10 @@ function PostAd() {
     );
 
     const totalSelectedValuesLength = selectedValuesServerFAQ.reduce(
-      (accumulator, innerArray) => accumulator + innerArray.length,
+      (accumulator, innerArray) => accumulator + (innerArray || []).filter((elem) => ![undefined, null].includes(elem)).length,
       0,
     );
+
     if (totalSelectedValuesLength !== totalSiteFaqQuestionsLength) {
       const el = document.querySelector(".server-faq-container");
       (el?.parentElement ?? el)?.scrollIntoView();
@@ -104,11 +104,6 @@ function PostAd() {
     }));
 
     const objToSubmit = {
-      media_urls: {
-        images: imagesToUpload,
-        video: videoToUpload,
-        pdf: pdfsToUpload,
-      },
       name: values.companyInformation.commercial_name,
       description: values.companyInformation.description,
       website: values.contactInformation.websiteUrl,
@@ -140,7 +135,7 @@ function PostAd() {
       faqs: FAQsMap,
     };
 
-    dispatch(handleCreateNewAd({ data: objToSubmit, navigate }));
+    dispatch(handleCreateNewAd({ data: objToSubmit }));
   };
 
   const Schema = Yup.object().shape({
@@ -283,10 +278,14 @@ function PostAd() {
     FAQ: Yup.object().shape({
       faqs: Yup.array().of(
         Yup.object().shape({
-          question: Yup.string().max(150, "Must be at most 150 characters"),
-          answer: Yup.string().max(500, "Must be at most 500 characters"), // You can add validation for answer here if needed
+          question: Yup.string()
+            .required("Question is required")
+            .max(150, "Must be at most 150 characters"),
+          answer: Yup.string()
+            .required("Answer is required")
+            .max(500, "Must be at most 500 characters"), // You can add validation for answer here if needed
           type: Yup.string(), // You can add validation for type here if needed
-          added: Yup.boolean(), // You can add validation for added here if needed
+          added: Yup.boolean().required("Please add the FAQ or remove it."),
         }),
       ),
     }),
@@ -327,7 +326,7 @@ function PostAd() {
   const validate = (values) => {
     const errors = {};
 
-    if (imagesToUpload.length === 0 && !imagesError) {
+    if (media.images.length === 0 && !imagesError) {
       // setImagesError(true);
       dispatch(setImagesError(true));
     }
@@ -342,10 +341,6 @@ function PostAd() {
       };
     }
     return errors;
-  };
-
-  const handlePdfsUpdates = (images) => {
-    setPdfsToUpload(images);
   };
 
   const handleClickSubmit = (values) => {
@@ -450,7 +445,7 @@ function PostAd() {
         request.data.data[0] !== undefined
         && Object.prototype.hasOwnProperty.call(request.data.data[0], "service")
       ) {
-        setAdminServices(request.data.data[0].service);
+        setAdminServices(request.data.data[0].service || []);
       } else {
         // alert("emptyyyyyyyyy");
         setAdminServices([]);
@@ -461,6 +456,7 @@ function PostAd() {
         method: "Get",
       });
       setPreDefinedFAQs(responseSiteQuestions.data.data);
+      setSelectedValuesServerFAQ([]);
     } catch (err) {
       // Handle login error here if needed
       console.log(err);
@@ -473,7 +469,7 @@ function PostAd() {
   };
 
   const hasUnsavedChanges = (values) => selectedCountries.length !== ""
-    || imagesToUpload.length > 0
+    || media.images.length > 0
     || Object.keys(values).some((field) => values[field] !== initialValues[field]);
 
   useEffect(() => {
@@ -485,6 +481,15 @@ function PostAd() {
   }, [AdPostSuccessAlert]);
 
   useEffect(() => {
+    if (submittedAdId !== null) {
+      const files = [...media.images, ...media.video, ...media.pdf];
+      if (files.length > 0) dispatch(uploadMediaFiles({ id: submittedAdId, files, navigate }));
+      else navigate("/my-ads");
+      dispatch(resetSubmittedAdId());
+    }
+  }, [submittedAdId]);
+
+  useEffect(() => {
     if (AdPostErrorAlert || mediaError) {
       setTimeout(() => {
         dispatch(handleUpdateAdPostErrorAlerting(false));
@@ -494,7 +499,7 @@ function PostAd() {
   }, [AdPostErrorAlert, mediaError]);
 
   useEffect(() => {
-    dispatch(setImagesToUpload([]));
+    dispatch(setMediaImages([]));
     dispatch(listVendorAds());
   }, []);
 
@@ -628,10 +633,7 @@ function PostAd() {
 
                 <ImageUploader imagesError={imagesError} />
 
-                <VideoUploader
-                  videoToUpload={videoToUpload}
-                  setVideoToUpload={setVideoToUpload}
-                />
+                <VideoUploader />
 
                 <ContactInformationForm
                   values={values.contactInformation}
@@ -664,12 +666,7 @@ function PostAd() {
 
                 {currentSubscription
                   && currentSubscription?.type?.pdf_upload && (
-                    <PdfUploader
-                      setparentImagesUploadedImages={handlePdfsUpdates}
-                      pdfsToUpload={pdfsToUpload}
-                      imagesError={pdfsError}
-                      setImagesError={setPdfsError}
-                    />
+                    <PdfUploader />
                 )}
 
                 {currentSubscription && currentSubscription?.type?.faq && (
@@ -705,8 +702,7 @@ function PostAd() {
                     className="btn btn-success roboto-semi-bold-16px-information btn-lg"
                     style={{ padding: "0 100px", whiteSpace: "nowrap" }}
                   >
-                    {loading ? (
-                      // "Loading…"
+                    {loading || isMediaUploading ? (
                       <Spinner animation="border" size="sm" />
                     ) : (
                       "Submit Ad"

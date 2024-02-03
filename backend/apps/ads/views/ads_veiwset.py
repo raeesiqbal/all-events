@@ -7,7 +7,20 @@ from rest_framework import status
 from django.db.models import Value, F, Q
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
-from apps.utils.tasks import delete_s3_object_by_urls
+from apps.utils.tasks import (
+    delete_s3_object_by_urls,
+    upload_image,
+    upload_video,
+    upload_pdf,
+    delete_s3_object_by_url_list,
+)
+from tempfile import NamedTemporaryFile
+
+
+import fitz  # PyMuPDF
+import os
+import tempfile
+
 
 # filters
 from rest_framework.filters import OrderingFilter, SearchFilter
@@ -51,6 +64,7 @@ from apps.ads.serializers.create_serializers import (
     GetUploadPresignedUrlSerializer,
     URLListSerializer,
     SearchStringSerializer,
+    UploadMediaSerializer,
 )
 from apps.ads.serializers.get_serializers import (
     AdNameSerializer,
@@ -83,6 +97,7 @@ class AdViewSet(BaseViewset):
         "create": AdCreateSerializer,
         "partial_update": AdUpdateSerializer,
         "get_upload_url": GetUploadPresignedUrlSerializer,
+        "upload_media": UploadMediaSerializer,
         "delete_urls": URLListSerializer,
         "delete_url": DeleteUrlSerializer,
         "remove_url_on_update": DeleteUrlOnUpdateSerializer,
@@ -109,6 +124,7 @@ class AdViewSet(BaseViewset):
         "partial_update": [IsAuthenticated, IsVerified, IsSuperAdmin | IsVendorUser],
         "destroy": [IsAuthenticated, IsVerified, IsSuperAdmin | IsVendorUser],
         "get_upload_url": [IsAuthenticated, IsVerified, IsClient | IsVendorUser],
+        "upload_media": [IsAuthenticated, IsVerified, IsVendorUser],
         "delete_urls": [],
         "remove_url_on_update": [
             IsAuthenticated,
@@ -166,16 +182,16 @@ class AdViewSet(BaseViewset):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        media_urls = serializer.validated_data.pop("media_urls", {})
         faqs = serializer.validated_data.pop("faqs", [])
         ad_faqs = serializer.validated_data.pop("ad_faq_ad", [])
-        offered_services = serializer.validated_data.pop("offered_services")
-        activation_countries = serializer.validated_data.pop("activation_countries", [])
 
+        offered_services = serializer.validated_data.pop("offered_services", [])
+        activation_countries = serializer.validated_data.pop("activation_countries", [])
         company = Company.objects.filter(user_id=request.user.id).first()
         subscription = Subscription.objects.filter(
             company=company, status=SUBSCRIPTION_STATUS["ACTIVE"]
         ).first()
+
         if subscription:
             company_ad_count = Ad.objects.filter(company=company).count()
             if company_ad_count >= subscription.type.allowed_ads:
@@ -205,9 +221,6 @@ class AdViewSet(BaseViewset):
 
         ad.activation_countries.add(*activation_countries)
 
-        """ads gallery created"""
-        Gallery.objects.create(ad=ad, media_urls=media_urls)
-
         # faqs
         if faqs:
             faqs_list = []
@@ -223,6 +236,10 @@ class AdViewSet(BaseViewset):
             AdFAQ.objects.bulk_create(ad_faqs_list)
         Calender.objects.create(company=company, ad=ad)
 
+        # gallery
+        media_urls = {"images": [], "video": [], "pdf": []}
+        Gallery.objects.create(ad=ad, media_urls=media_urls)
+
         return Response(
             status=status.HTTP_200_OK,
             data=ResponseInfo().format_response(
@@ -235,6 +252,9 @@ class AdViewSet(BaseViewset):
     def partial_update(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        delete_url_list = serializer.validated_data.pop("delete_urls", [])
+        # self.s3_service.delete_s3_object_by_url(delete_urls)
+        # print("delete urls", delete_url_list)
         media_urls = serializer.validated_data.pop("media_urls", {})
         faqs = serializer.validated_data.pop("faqs", [])
         ad_faqs = serializer.validated_data.pop("ad_faq_ad", [])
@@ -249,7 +269,13 @@ class AdViewSet(BaseViewset):
             ad.first().activation_countries.clear()
             ad.first().activation_countries.add(*activation_countries)
             ad.update(**serializer.validated_data)
+
+            # gallery
             Gallery.objects.filter(ad=ad.first()).update(media_urls=media_urls)
+
+            # delete files from s3
+            if delete_url_list:
+                delete_s3_object_by_url_list.delay(delete_url_list)
 
             # faqs
             FAQ.objects.filter(ad=ad.first()).delete()
@@ -300,22 +326,70 @@ class AdViewSet(BaseViewset):
             ),
         )
 
+    @action(detail=True, url_path="upload-media", methods=["post"])
+    def upload_media(self, request, *args, **kwargs):
+        ad = Ad.objects.filter(id=kwargs["pk"]).first()
+        ad_gallery = Gallery.objects.filter(ad=ad).first()
+        if ad and ad_gallery:
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            files = serializer.validated_data.get("file", [])
+
+            for file_obj in files:
+                content_type = file_obj.content_type
+                name = file_obj.name
+                with NamedTemporaryFile(delete=False) as temp_file:
+                    temp_file_path = temp_file.name
+                    temp_file.write(file_obj.read())
+                    temp_file.seek(0)
+
+                if file_obj.name.endswith(".pdf"):
+                    upload_pdf.delay(temp_file_path, content_type, name, ad)
+                elif file_obj.name.endswith(".mp4"):
+                    upload_video.delay(temp_file_path, content_type, name, ad)
+                elif file_obj.name.endswith((".jpeg", ".jpg", ".png", ".gif")):
+                    upload_image.delay(temp_file_path, content_type, name, ad)
+                file_obj.close()
+
+            return Response(
+                status=status.HTTP_200_OK,
+                data=ResponseInfo().format_response(
+                    data={},
+                    status_code=status.HTTP_200_OK,
+                    message="upload media.",
+                ),
+            )
+
+        return Response(
+            status=status.HTTP_400_BAD_REQUEST,
+            data=ResponseInfo().format_response(
+                data={},
+                status_code=status.HTTP_400_BAD_REQUEST,
+                message="Ad/Gallery does not exists",
+            ),
+        )
+
     @action(detail=False, url_path="upload-url", methods=["post"])
     def get_upload_url(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         file = serializer.validated_data.get("file")
         content_type = serializer.validated_data.get("content_type")
+
         if "image" in content_type:
             upload_folder = f"vendors/{request.user.email}/images"
         elif "pdf" in content_type:
             upload_folder = f"vendors/{request.user.email}/pdfs"
         elif "video" in content_type:
             upload_folder = f"vendors/{request.user.email}/videos"
+
         file_url = None
         # # Uploading resume to S3.
         s3_service = S3Service()
-        file_url = s3_service.upload_file(file, content_type, upload_folder)
+        # file_url = s3_service.upload_file(file, content_type, upload_folder)
+        file_url = s3_service.create_presigned_url(
+            file.name, content_type, upload_folder
+        )
 
         return Response(
             status=status.HTTP_200_OK,

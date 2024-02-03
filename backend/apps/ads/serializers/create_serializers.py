@@ -58,10 +58,25 @@ class AdFAQChildCreateSerializer(BaseSerializer):
         ]
 
 
+class UploadMediaSerializer(serializers.Serializer):
+    file = serializers.ListField(child=serializers.FileField(allow_empty_file=False))
+
+
+class GetUploadPresignedUrlSerializer(serializers.Serializer):
+    file = serializers.FileField(required=True)
+    content_type = serializers.CharField(required=True)
+
+
 class AdCreateSerializer(SubscriptionTypeValidationMixin, BaseSerializer):
-    faqs = serializers.ListField(child=FaqsChildCreateSerializer())
-    ad_faq_ad = serializers.ListField(child=AdFAQChildCreateSerializer())
-    media_urls = serializers.JSONField(default=dict)
+    faqs = serializers.ListField(
+        child=FaqsChildCreateSerializer(),
+        required=False,
+    )
+    ad_faq_ad = serializers.ListField(
+        child=AdFAQChildCreateSerializer(),
+        required=False,
+    )
+
     name = serializers.CharField(
         max_length=60,
         min_length=2,
@@ -147,7 +162,6 @@ class AdCreateSerializer(SubscriptionTypeValidationMixin, BaseSerializer):
             "site_services",
             "ad_faq_ad",
             "faqs",
-            "media_urls",
             "description",
         ]
 
@@ -168,11 +182,6 @@ class CountryCreateSerializer(BaseSerializer):
     class Meta:
         model = Country
         fields = "__all__"
-
-
-class GetUploadPresignedUrlSerializer(serializers.Serializer):
-    file = serializers.FileField(required=True)
-    content_type = serializers.CharField(required=True)
 
 
 class UserImageSerializer(serializers.Serializer):

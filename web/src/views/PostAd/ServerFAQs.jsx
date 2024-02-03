@@ -2,39 +2,25 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 
 import React, { useEffect, useState } from "react";
-import { Form, Row, Col, Button, Container } from "react-bootstrap";
-import FAQsIcon from "../../assets/images/FAQsIcon.svg";
+import {
+  Form, Row, Col, Container,
+} from "react-bootstrap";
 
 function ServerFAQs({
-  values,
-  errors,
-  touched,
-  handleChange,
-  handleAddFieldsForFAQ,
-  handleAddFAQ,
-  handleRemoveFAQ,
-  handleEditFAQ,
   siteFaqQuestions,
   selectedValues,
   setSelectedValues,
 }) {
-  // Initialize an array to keep track of selected values
-  // Initialize an array to keep track of selected values and their respective question indexes
-
-  // Function to handle the selection of a radio checkbox
   const [questionIdCounter, setQuestionIdCounter] = useState(0);
-  // const [selectedValues, setSelectedValues] = useState([]);
 
-  // Function to handle the selection of a radio checkbox
   const handleRadioChange = (
     sectionIndex,
     questionIndex,
     value,
     question,
-    faqID
+    faqID,
   ) => {
     const updatedValues = [...selectedValues];
-    const questionId = questionIdCounter;
     setQuestionIdCounter(questionIdCounter + 1);
 
     updatedValues[sectionIndex] = updatedValues[sectionIndex] || [];
@@ -46,43 +32,14 @@ function ServerFAQs({
     setSelectedValues(updatedValues);
   };
 
-  // useEffect(() => {
-  //   setSelectedValues(
-  //     siteFaqQuestions[0].site_faq_questions.map(() => ({
-  //       id: null,
-  //       value: null,
-  //       questionIndex: null,
-  //     }))
-  //   );
-  // }, []);
-  // useEffect(() => {
-  //   // const initialSelectedValues = siteFaqQuestions[0].site_faq_questions.map(
-  //   //   (faq) => ({
-  //   //     id: faq.id,
-  //   //     value: null, // Set this to the default initial value for a radio button
-  //   //     questionIndex: null,
-  //   //   })
-  //   // );
-
-  //   // setSelectedValues(initialSelectedValues);
-  //   setSelectedValues([]);
-  // }, [siteFaqQuestions]);
-
-  // Initialize a variable to store the total length
-  // let totalLength = 0;
-
-  // // Iterate through the data and sum up the lengths of site_faq_questions
-  // siteFaqQuestions.forEach((item) => {
-  //   totalLength += item.site_faq_questions.length;
-  // });
   const totalSiteFaqQuestionsLength = siteFaqQuestions.reduce(
     (accumulator, item) => accumulator + item.site_faq_questions.length,
-    0
+    0,
   );
 
   const totalSelectedValuesLength = selectedValues.reduce(
-    (accumulator, innerArray) => accumulator + innerArray.length,
-    0
+    (accumulator, innerArray) => accumulator + (innerArray || []).filter((elem) => ![undefined, null].includes(elem)).length,
+    0,
   );
 
   return (
@@ -99,7 +56,11 @@ function ServerFAQs({
         </div> */}
         {siteFaqQuestions.map((section, sectionIndex) => (
           <div key={sectionIndex}>
-            <h3>Section: {section.section}</h3>
+            <h3>
+              Section:
+              {" "}
+              {section.section}
+            </h3>
             {section.site_faq_questions.map((faq, index) => (
               <Row key={index}>
                 <Col md={7} lg={8}>
@@ -112,7 +73,12 @@ function ServerFAQs({
                       style={{ marginBottom: "20px" }}
                     >
                       <div className="d-flex align-items-center roboto-medium-20px-body1">
-                        Question {index + 1}: {faq.question}
+                        Question
+                        {" "}
+                        {index + 1}
+                        :
+                        {" "}
+                        {faq.question}
                       </div>
                     </Form.Label>
                   </Form.Group>
@@ -133,21 +99,19 @@ function ServerFAQs({
                             name={`formHorizontalRadios-${sectionIndex}-${index}`}
                             id={`formHorizontalRadios${suggestion}-${sectionIndex}-${index}-${suggestionIndex}`}
                             checked={
-                              (selectedValues[sectionIndex] &&
-                                selectedValues[sectionIndex][index] &&
-                                selectedValues[sectionIndex][index].value ===
-                                  suggestion) ||
-                              faq.answer === suggestion
+                              (selectedValues[sectionIndex]
+                                && selectedValues[sectionIndex][index]
+                                && selectedValues[sectionIndex][index].value
+                                  === suggestion)
+                              || faq.answer === suggestion
                             }
-                            onChange={() =>
-                              handleRadioChange(
-                                sectionIndex,
-                                index,
-                                suggestion,
-                                faq.question,
-                                faq.id
-                              )
-                            }
+                            onChange={() => handleRadioChange(
+                              sectionIndex,
+                              index,
+                              suggestion,
+                              faq.question,
+                              faq.id,
+                            )}
                           />
                         ))}
                       </Col>
@@ -163,21 +127,19 @@ function ServerFAQs({
                         name={`formHorizontalRadios-${sectionIndex}-${index}`}
                         id={`yes-${sectionIndex}-${index}`}
                         checked={
-                          (selectedValues[sectionIndex] &&
-                            selectedValues[sectionIndex][index] &&
-                            selectedValues[sectionIndex][index].value ===
-                              "Yes") ||
-                          faq.answer === "Yes"
+                          (selectedValues[sectionIndex]
+                            && selectedValues[sectionIndex][index]
+                            && selectedValues[sectionIndex][index].value
+                              === "Yes")
+                          || faq.answer === "Yes"
                         }
-                        onChange={() =>
-                          handleRadioChange(
-                            sectionIndex,
-                            index,
-                            "Yes",
-                            faq.question,
-                            faq.id
-                          )
-                        }
+                        onChange={() => handleRadioChange(
+                          sectionIndex,
+                          index,
+                          "Yes",
+                          faq.question,
+                          faq.id,
+                        )}
                       />
                       <Form.Check
                         type="radio"
@@ -185,21 +147,19 @@ function ServerFAQs({
                         name={`formHorizontalRadios-${sectionIndex}-${index}`}
                         id={`no-${sectionIndex}-${index}`}
                         checked={
-                          (selectedValues[sectionIndex] &&
-                            selectedValues[sectionIndex][index] &&
-                            selectedValues[sectionIndex][index].value ===
-                              "No") ||
-                          faq.answer === "No"
+                          (selectedValues[sectionIndex]
+                            && selectedValues[sectionIndex][index]
+                            && selectedValues[sectionIndex][index].value
+                              === "No")
+                          || faq.answer === "No"
                         }
-                        onChange={() =>
-                          handleRadioChange(
-                            sectionIndex,
-                            index,
-                            "No",
-                            faq.question,
-                            faq.id
-                          )
-                        }
+                        onChange={() => handleRadioChange(
+                          sectionIndex,
+                          index,
+                          "No",
+                          faq.question,
+                          faq.id,
+                        )}
                       />
                     </Form.Group>
                   )}

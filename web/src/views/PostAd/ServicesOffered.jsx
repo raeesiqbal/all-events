@@ -100,7 +100,6 @@ function ServicesOffered({
             </Col>
             <Col md={12} className="mb-3">
               <Button
-                type="submit"
                 onClick={addService}
                 disabled={currentService.length === 0}
                 className="btn btn-success roboto-semi-bold-16px-information mt-1"

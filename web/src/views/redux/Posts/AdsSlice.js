@@ -11,6 +11,7 @@ const initialState = {
   countries: [],
   count: 0,
   error: null,
+  submittedAdId: null,
   vendorAds: [],
   vendorAdNames: [],
   premiumVenueAds: [],
@@ -20,7 +21,13 @@ const initialState = {
   isMediaUploading: false,
   loading: false,
   mediaError: null,
+  deletedUrls: [],
   media_urls: {
+    images: [],
+    video: [],
+    pdf: [],
+  },
+  media: {
     images: [],
     video: [],
     pdf: [],
@@ -31,21 +38,16 @@ const initialState = {
 
 export const handleCreateNewAd = createAsyncThunk(
   "Ads/create",
-  async ({ data, navigate }, { rejectWithValue }) => {
-    // const dataToSubmit = objToSubmit
+  async ({ data }, { rejectWithValue }) => {
     try {
       const response = await secureInstance.request({
         url: "/api/ads/",
         method: "Post",
         data,
       });
-      setTimeout(() => {
-        navigate("/my-ads");
-      }, 1000);
-      return response.data; // Assuming your loginAPI returns data with access_token, user_id, and role_id
+
+      return response.data;
     } catch (err) {
-      // Use `err.response.data` as `action.payload` for a `rejected` action,
-      // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
   },
@@ -61,10 +63,7 @@ export const handleEditAd = createAsyncThunk(
         method: "Patch",
         data,
       });
-      setTimeout(() => {
-        navigate("/my-ads");
-      }, 1000);
-      return response.data; // Assuming your loginAPI returns data with access_token, user_id, and role_id
+      return { ...response.data, id: adID };
     } catch (err) {
       // Use `err.response.data` as `action.payload` for a `rejected` action,
       // by explicitly returning it using the `rejectWithValue()` utility
@@ -73,7 +72,28 @@ export const handleEditAd = createAsyncThunk(
   },
 );
 
-export const uploadImagesToCloud = createAsyncThunk(
+export const uploadMediaFiles = createAsyncThunk(
+  "Ads/uploadMediaFiles",
+  async ({ id, files, navigate }, { rejectWithValue }) => {
+    const formData = new FormData();
+
+    files.forEach((file) => { formData.append("file", file); });
+
+    try {
+      const response = await secureInstance.request({
+        url: `/api/ads/${id}/upload-media/`,
+        method: "POST",
+        data: formData,
+      });
+
+      return { ...response.data, navigate };
+    } catch (err) {
+      return rejectWithValue(err.response.data);
+    }
+  },
+);
+
+export const uploadImageToCloud = createAsyncThunk(
   "AdImage/upload",
   async (uploadedImage, { rejectWithValue }) => {
     // const dataToEdit = data;
@@ -108,7 +128,7 @@ export const listVendorAds = createAsyncThunk(
         url: "/api/ads/",
         method: "Get",
       });
-      return response.data; // Assuming your loginAPI returns data with access_token, user_id, and role_id
+      return response.data;
     } catch (err) {
       // Use `err.response.data` as `action.payload` for a `rejected` action,
       // by explicitly returning it using the `rejectWithValue()` utility
@@ -126,7 +146,7 @@ export const listCountries = createAsyncThunk(
         url: "/api/ads/country/",
         method: "Get",
       });
-      return response.data; // Assuming your loginAPI returns data with access_token, user_id, and role_id
+      return response.data;
     } catch (err) {
       // Use `err.response.data` as `action.payload` for a `rejected` action,
       // by explicitly returning it using the `rejectWithValue()` utility
@@ -143,7 +163,7 @@ export const getVendorAdNames = createAsyncThunk(
         url: "/api/ads/my-ads/",
         method: "Get",
       });
-      return response.data; // Assuming your loginAPI returns data with access_token, user_id, and role_id
+      return response.data;
     } catch (err) {
       // Use `err.response.data` as `action.payload` for a `rejected` action,
       // by explicitly returning it using the `rejectWithValue()` utility
@@ -161,7 +181,7 @@ export const listPremiumVenues = createAsyncThunk(
         url: "/api/ads/premium-venues/",
         method: "Get",
       });
-      return response.data; // Assuming your loginAPI returns data with access_token, user_id, and role_id
+      return response.data;
     } catch (err) {
       // Use `err.response.data` as `action.payload` for a `rejected` action,
       // by explicitly returning it using the `rejectWithValue()` utility
@@ -179,7 +199,7 @@ export const listPremiumVendors = createAsyncThunk(
         url: "/api/ads/premium-vendors/",
         method: "Get",
       });
-      return response.data; // Assuming your loginAPI returns data with access_token, user_id, and role_id
+      return response.data;
     } catch (err) {
       // Use `err.response.data` as `action.payload` for a `rejected` action,
       // by explicitly returning it using the `rejectWithValue()` utility
@@ -213,7 +233,7 @@ export const favoriteAd = createAsyncThunk(
         url: `/api/analytics/ad-fav/${id}/fav/`,
         method: "Post",
       });
-      return { ...response.data, id }; // Assuming your loginAPI returns data with access_token, user_id, and role_id
+      return { ...response.data, id };
     } catch (err) {
       // Use `err.response.data` as `action.payload` for a `rejected` action,
       // by explicitly returning it using the `rejectWithValue()` utility
@@ -270,8 +290,29 @@ export const AdsSlice = createSlice({
     handleUpdateAdPostErrorAlerting: (state, action) => {
       state.AdPostErrorAlert = action.payload;
     },
+    resetSubmittedAdId: (state) => {
+      state.submittedAdId = null;
+    },
+    setDeletedUrls: (state, action) => {
+      state.deletedUrls = action.payload;
+    },
     setImagesToUpload: (state, action) => {
       state.media_urls.images = action.payload;
+    },
+    setVideosToUpload: (state, action) => {
+      state.media_urls.video = action.payload;
+    },
+    setPDFsToUpload: (state, action) => {
+      state.media_urls.pdf = action.payload;
+    },
+    setMediaImages: (state, action) => {
+      state.media.images = action.payload;
+    },
+    setMediaVideos: (state, action) => {
+      state.media.video = action.payload;
+    },
+    setMediaPDF: (state, action) => {
+      state.media.pdf = action.payload;
     },
     setImagesError: (state, action) => {
       state.imagesError = action.payload;
@@ -289,13 +330,31 @@ export const AdsSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(handleCreateNewAd.fulfilled, (state) => {
+      .addCase(handleCreateNewAd.fulfilled, (state, action) => {
         state.loading = false;
         state.AdPostSuccessAlert = true;
-        state.media_urls.images = [];
-        // navigate("/post-ad");
+        // state.media_urls.images = [];
+        state.submittedAdId = action.payload.data.id;
       })
       .addCase(handleCreateNewAd.rejected, (state) => {
+        state.loading = false;
+        state.AdPostErrorAlert = true;
+        // state.error = action.payload;
+      })
+      .addCase(uploadMediaFiles.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(uploadMediaFiles.fulfilled, (state, action) => {
+        const { navigate } = action.payload;
+        state.loading = false;
+        state.AdPostSuccessAlert = true;
+        state.media.images = [];
+        state.media.video = [];
+        state.media.pdf = [];
+        navigate("/my-ads");
+      })
+      .addCase(uploadMediaFiles.rejected, (state) => {
         state.loading = false;
         state.AdPostErrorAlert = true;
         // state.error = action.payload;
@@ -304,9 +363,14 @@ export const AdsSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(handleEditAd.fulfilled, (state) => {
+      .addCase(handleEditAd.fulfilled, (state, action) => {
         state.loading = false;
         state.AdPostSuccessAlert = true;
+        state.submittedAdId = action.payload.id;
+        state.media_urls.images = [];
+        state.media_urls.video = [];
+        state.media_urls.pdf = [];
+        state.deletedUrls = [];
       })
       .addCase(handleEditAd.rejected, (state, action) => {
         state.loading = false;
@@ -373,19 +437,19 @@ export const AdsSlice = createSlice({
         // state.loading = false;
         state.error = action.payload;
       })
-      .addCase(uploadImagesToCloud.pending, (state) => {
+      .addCase(uploadImageToCloud.pending, (state) => {
         state.loading = true;
         state.error = null;
         // state.isMediaUploading = true;
       })
-      .addCase(uploadImagesToCloud.fulfilled, (state, action) => {
+      .addCase(uploadImageToCloud.fulfilled, (state, action) => {
         const { file_url } = action.payload.data;
         state.loading = false;
         state.media_urls.images.push(file_url);
         state.imagesError = false;
         // state.isMediaUploading = false;
       })
-      .addCase(uploadImagesToCloud.rejected, (state, action) => {
+      .addCase(uploadImageToCloud.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
         // state.isMediaUploading = false;
@@ -396,10 +460,16 @@ export const AdsSlice = createSlice({
       })
       .addCase(listFavoriteAds.fulfilled, (state, action) => {
         state.loading = false;
-        if (action.payload.offset === 0 || state.isArchived !== action.payload.archive) {
+        if (
+          action.payload.offset === 0
+          || state.isArchived !== action.payload.archive
+        ) {
           state.favoriteAds = action.payload.data.results;
         } else {
-          state.favoriteAds = [...state.favoriteAds, ...action.payload.data.results];
+          state.favoriteAds = [
+            ...state.favoriteAds,
+            ...action.payload.data.results,
+          ];
         }
         state.count = action.payload.data.count;
       })
@@ -423,7 +493,9 @@ export const AdsSlice = createSlice({
             if (ad.id === action.payload.id) ad.fav = !ad.fav;
             return ad;
           });
-          state.favoriteAds = state.favoriteAds.filter((ad) => ad.ad.id !== action.payload.id);
+          state.favoriteAds = state.favoriteAds.filter(
+            (ad) => ad.ad.id !== action.payload.id,
+          );
         }
       })
       .addCase(favoriteAd.rejected, (state, action) => {
@@ -463,9 +535,16 @@ export const {
   handleUpdateAdPostSuccessAlerting,
   handleUpdateAdPostErrorAlerting,
   setImagesError,
+  resetSubmittedAdId,
+  setDeletedUrls,
   setImagesToUpload,
+  setVideosToUpload,
+  setPDFsToUpload,
   setIsMediaUploading,
   setMediaError,
+  setMediaImages,
+  setMediaVideos,
+  setMediaPDF,
 } = AdsSlice.actions;
 
 // Export the reducer and actions

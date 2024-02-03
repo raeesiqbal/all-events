@@ -2,187 +2,113 @@
 import { faAdd, faClose } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect, useState } from "react";
-import { Button, Col, Container, Row } from "react-bootstrap";
+import {
+  Col, Container, Row,
+} from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { CircularProgress } from "@mui/material";
-import { secureInstance } from "../../axios/config";
 import {
+  setDeletedUrls,
   setIsMediaUploading,
   setMediaError,
+  setMediaVideos, setVideosToUpload,
 } from "../../views/redux/Posts/AdsSlice";
+import { VIDEO_SIZE } from "../../utilities/MediaSize";
 
-function VideoUploader({ setVideoToUpload, videoToUpload }) {
+function VideoUploader() {
   const [videos, setVideos] = useState([]);
   const [deleteVideoButton, setDeleteVideoButton] = useState(true);
 
   const dispatch = useDispatch();
   const { isMediaUploading } = useSelector((state) => state.Ads);
+  const { deletedUrls } = useSelector((state) => state.Ads);
+  const mediaVideos = useSelector((state) => state.Ads.media.video);
+  const videosToUpload = useSelector((state) => state.Ads.media_urls.video);
   const currentSubscription = useSelector(
     (state) => state.subscriptions.currentSubscriptionDetails,
   );
 
   const fileInputRef = React.createRef();
 
-  // const uploadFileToCloud = async (uploadedVideo) => {
-  //   dispatch(setIsMediaUploading(true));
-  //   const formData = new FormData(); // pass in the form
-  //   formData.append("file", uploadedVideo);
-  //   formData.append("content_type", uploadedVideo.type);
-
-  //   try {
-  //     const request = await secureInstance.request({
-  //       url: "/api/ads/upload-url/",
-  //       method: "Post",
-  //       data: formData,
-  //     });
-  //     setVideoToUpload([...videos, request.data.data.file_url]);
-  //     dispatch(setIsMediaUploading(false));
-  //   } catch (e) {
-  //     dispatch(setMediaError("Video upload failed"));
-  //     dispatch(setIsMediaUploading(false));
-  //     // --------- WILL ROUTE ON SOME PAGE ON FAILURE ---------
-  //     console.log("error", e);
-  //   }
-  // };
-
-  // const handleVideoUpload = (event) => {
-  //   event.preventDefault();
-  //   const uploadedVideo = event.target.files[0];
-
-  //   const updatedVideos = [...videos];
-
-  //   if (uploadedVideo && uploadedVideo.size <= 25000000) {
-  //     const reader = new FileReader();
-  //     reader.onload = () => {
-  //       updatedVideos.push({
-  //         file: uploadedVideo,
-  //         previewURL: reader.result,
-  //       });
-  //       setVideos(updatedVideos);
-  //     };
-  //     reader.readAsDataURL(uploadedVideo);
-
-  //     uploadFileToCloud(uploadedVideo);
-  //   } else {
-  //     // Handle video size error
-  //     console.log("Video size should be less than or equal to 25MB");
-  //   }
-  // };
-
-  const uploadFileToCloud = async (uploadedVideo) => {
-    dispatch(setIsMediaUploading(true));
-    const formData = new FormData();
-    formData.append("file", uploadedVideo);
-    formData.append("content_type", uploadedVideo.type);
-
-    try {
-      const request = await secureInstance.request({
-        url: "/api/ads/upload-url/",
-        method: "Post",
-        data: formData,
-      });
-
-      setVideoToUpload([...videoToUpload, request.data.data.file_url]);
-      dispatch(setIsMediaUploading(false));
-    } catch (e) {
-      dispatch(setMediaError("Video upload failed"));
-      dispatch(setIsMediaUploading(false));
-      console.log("error", e);
-    }
-  };
-  // const handleVideoUpload = (event) => {
-  //   event.preventDefault();
-  //   const uploadedVideo = event.target.files[0];
-
-  //   if (uploadedVideo && uploadedVideo.size <= 25000000) {
-  //     const reader = new FileReader();
-
-  //     reader.onload = () => {
-  //       setVideos((prevVideos) => [
-  //         ...prevVideos,
-  //         { file: uploadedVideo, previewURL: reader.result },
-  //       ]);
-  //     };
-  //     reader.readAsDataURL(uploadedVideo);
-
-  //     uploadFileToCloud(uploadedVideo);
-
-  //     // Reset the file input after handling the upload
-  //     if (fileInputRef.current) {
-  //       fileInputRef.current.value = "";
-  //     }
-  //   } else {
-  //     console.log("Video size should be less than or equal to 25MB");
-  //   }
-  // };
   const handleVideoUpload = async (event) => {
-    setDeleteVideoButton(false);
     event.preventDefault();
+
+    if (event.target.value === "") return;
+
+    setDeleteVideoButton(false);
+    dispatch(setIsMediaUploading(true));
+
     const uploadedVideo = event.target.files[0];
 
-    if (uploadedVideo && uploadedVideo.size <= 25000000) {
+    if (uploadedVideo && (uploadedVideo.size / (1024 * 1024)) <= VIDEO_SIZE) {
       const reader = new FileReader();
 
       reader.onload = () => {
         setVideos((prevVideos) => [
           ...prevVideos,
-          { file: uploadedVideo, previewURL: reader.result, uploading: true }, // Add a flag for uploading
+          {
+            previewURL: reader.result, uploading: true, type: "new", index: mediaVideos.length,
+          },
         ]);
       };
       reader.readAsDataURL(uploadedVideo);
 
-      try {
-        await uploadFileToCloud(uploadedVideo);
-        setVideos((prevVideos) =>
-          prevVideos.map((video) =>
-            video.file === uploadedVideo
-              ? { ...video, uploading: false } // Mark the uploaded video as not uploading
-              : video
-          )
-        );
-      } catch (error) {
-        console.error("Video upload failed", error);
-        // Handle error if needed
-      }
-      setDeleteVideoButton(true);
+      dispatch(setMediaVideos([...mediaVideos, uploadedVideo]));
+      setVideos((prevVideos) => prevVideos.map((video) => (video.file === uploadedVideo
+        ? { ...video, uploading: false } // Mark the uploaded video as not uploading
+        : video)));
 
       // Reset the file input after handling the upload
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
     } else {
-      console.log("Video size should be less than or equal to 25MB");
+      dispatch(setMediaError(`Video size should be less than or equal to ${VIDEO_SIZE}MB`));
+      setTimeout(() => {
+        dispatch(setMediaError(null));
+      }, 4000);
     }
+
+    setDeleteVideoButton(true);
+    dispatch(setIsMediaUploading(false));
   };
 
-  const removeVideo = async () => {
+  const removeVideo = async (video, index) => {
     setDeleteVideoButton(false);
-    const urlToDelete = videoToUpload;
-    try {
-      const request = await secureInstance.request({
-        url: "/api/ads/delete-url/",
-        method: "Post",
-        data: {
-          url: urlToDelete[0],
-        },
-      });
-      // ----------------do this inside redux
-      if (request.status === 200) {
-        setVideos([]);
+
+    const videoIndex = videos.indexOf(video);
+
+    if (videoIndex !== -1) {
+      const cloneVideos = [...videos];
+      cloneVideos.splice(index, 1);
+      setVideos(cloneVideos);
+
+      if (video.type === "new") {
+        const cloneMediaVideos = [...mediaVideos];
+        cloneMediaVideos.splice(video.index, 1);
+        dispatch(setMediaVideos(cloneMediaVideos));
+      } else {
+        const urlToDelete = videosToUpload[index];
+
+        dispatch(setDeletedUrls([...deletedUrls, urlToDelete]));
+
+        const videoToUploadIndex = videosToUpload.indexOf(video.previewURL);
+
+        const cloneVideosToUpload = [...videosToUpload];
+
+        if (videoToUploadIndex !== -1) {
+          cloneVideosToUpload.splice(index, 1);
+        }
+        dispatch(setVideosToUpload(cloneVideosToUpload));
       }
-      setDeleteVideoButton(true);
-    } catch (err) {
-      console.log("error", err);
     }
 
-    setVideoToUpload([]);
+    setDeleteVideoButton(true);
   };
 
   useEffect(() => {
-    if (videoToUpload.length > 0) {
-      setVideos(videoToUpload);
-    }
-  }, [videoToUpload]);
+    if (videosToUpload.length > 0 && videos.length === 0) setVideos(videosToUpload.map((video) => ({ previewURL: video, type: "old" })));
+  }, [videosToUpload]);
 
   return (
     <Container fluid style={{ marginTop: "40px" }}>
@@ -205,13 +131,13 @@ function VideoUploader({ setVideoToUpload, videoToUpload }) {
             className="roboto-regular-16px-information"
             style={{ color: "#A9A8AA", lineHeight: "22px" }}
           >
-            Images can be upload in MP4 format
+            Videos can be upload in MP4 format
           </li>
           <li
             className="roboto-regular-16px-information"
             style={{ color: "#A9A8AA", lineHeight: "22px" }}
           >
-            Size of images cannot exceed 25 Mb
+            Size of videos cannot exceed 25 Mb
           </li>
         </ul>
 
@@ -294,10 +220,10 @@ function VideoUploader({ setVideoToUpload, videoToUpload }) {
               </Col>
             ))}
 
-            {!isMediaUploading &&
-              currentSubscription &&
-              currentSubscription?.type?.allowed_ad_videos >
-                videoToUpload.length && (
+            {!isMediaUploading
+              && currentSubscription
+              && currentSubscription?.type?.allowed_ad_videos
+                > videos.length && (
                 <div
                   style={{
                     border: "2px dashed #A0C49D",
@@ -333,7 +259,7 @@ function VideoUploader({ setVideoToUpload, videoToUpload }) {
                     />
                   </label>
                 </div>
-              )}
+            )}
           </div>
         </Row>
       </div>

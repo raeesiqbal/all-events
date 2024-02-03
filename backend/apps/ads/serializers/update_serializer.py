@@ -94,6 +94,11 @@ class AdUpdateSerializer(SubscriptionTypeValidationMixin, BaseSerializer):
         required=False,
         validators=[CustomWebsiteValidator()],
     )
+    delete_urls = serializers.ListField(
+        child=serializers.CharField(),  # Use CharField as the child
+        required=False,
+        allow_null=True,
+    )
 
     class Meta:
         model = Ad
@@ -120,6 +125,7 @@ class AdUpdateSerializer(SubscriptionTypeValidationMixin, BaseSerializer):
             "ad_faq_ad",
             "faqs",
             "media_urls",
+            "delete_urls",
         ]
 
 

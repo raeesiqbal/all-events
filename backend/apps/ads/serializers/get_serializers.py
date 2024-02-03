@@ -188,7 +188,6 @@ class AdRetriveSerializer(BaseSerializer):
     ad_faqs = FaqsGetSerializer(many=True)
     ad_faq_ad = AdFaqsRetrieveSerializer(many=True)
     ad_save_count = serializers.SerializerMethodField("get_ad_saved_count")
-
     site_services_list = serializers.SerializerMethodField()
 
     def get_site_services_list(self, obj):
@@ -375,12 +374,14 @@ class PremiumAdGetSerializer(BaseSerializer):
 
     def get_ad_image(self, obj):
         gallery = Gallery.objects.filter(ad=obj).first()
-
-        return (
-            gallery.media_urls.get("images")[0]
-            if gallery.media_urls.get("images") and gallery.media_urls.get("images")[0]
-            else None
-        )
+        if gallery:
+            return (
+                gallery.media_urls.get("images")[0]
+                if gallery.media_urls.get("images")
+                and gallery.media_urls.get("images")[0]
+                else None
+            )
+        return None
 
 
 class SubCategoryChildGetSerializer(BaseSerializer):
@@ -442,14 +443,17 @@ class AdDashboardSerializer(BaseSerializer):
     ad_image = serializers.SerializerMethodField("get_ad_image")
     sub_category = serializers.SerializerMethodField()
 
-    def get_ad_image(self, obj): 
+    def get_ad_image(self, obj):
         gallery = Gallery.objects.filter(ad=obj).first()
 
-        return (
-            gallery.media_urls.get("images")[0]
-            if gallery.media_urls.get("images") and gallery.media_urls.get("images")[0]
-            else None
-        )
+        if gallery:
+            return (
+                gallery.media_urls.get("images")[0]
+                if gallery.media_urls.get("images")
+                and gallery.media_urls.get("images")[0]
+                else None
+            )
+        return None
 
     def get_sub_category(self, obj):
         return obj.sub_category.name
