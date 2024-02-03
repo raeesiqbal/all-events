@@ -1,8 +1,7 @@
-# imports
+# Imports
 from apps.utils.views.base import BaseViewset, ResponseInfo
 from apps.subscriptions.stripe_service import StripeService
 from rest_framework_simplejwt.views import TokenObtainPairView
-from apps.utils.services.s3_service import S3Service
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
@@ -11,22 +10,23 @@ from datetime import datetime, timedelta
 from django.core.signing import TimestampSigner, BadSignature, SignatureExpired
 from rest_framework_simplejwt.tokens import RefreshToken
 from apps.utils.utils import user_verify_account
+from tempfile import NamedTemporaryFile
+from apps.utils.tasks import upload_profile_image
 
-
-# constants
+# Constants
 from apps.subscriptions.constants import SUBSCRIPTION_STATUS, SUBSCRIPTION_TYPES
 from apps.users.constants import USER_ROLE_TYPES
 from apps.ads.constants import AD_STATUS
 from my_site.settings import SECRET_KEY
 
-# permissions
+# Permissions
+from rest_framework.permissions import IsAuthenticated
 from apps.users.permissions import (
     IsSuperAdmin,
     IsVendorUser,
     IsClient,
     IsVerified,
 )
-from rest_framework.permissions import IsAuthenticated
 
 # serializers
 from apps.ads.serializers.create_serializers import UserImageSerializer
@@ -285,6 +285,36 @@ class UserViewSet(BaseViewset):
             ),
         )
 
+    # @action(detail=False, url_path="upload-user-image", methods=["post"])
+    # def upload_user_image(self, request, *args, **kwargs):
+    #     serializer = self.get_serializer(data=request.data)
+    #     serializer.is_valid(raise_exception=True)
+    #     file = serializer.validated_data.get("file")
+    #     content_type = serializer.validated_data.get("content_type")
+    #     email = request.user.email
+    #     if request.user.role_type == USER_ROLE_TYPES["VENDOR"]:
+    #         upload_folder = f"vendors/{email}/profile"
+    #     elif request.user.role_type == USER_ROLE_TYPES["CLIENT"]:
+    #         upload_folder = f"clients/{email}/profile"
+    #     image_url = None
+    #     # # Uploading resume to S3.
+    #     s3_service = S3Service()
+    #     image_url = s3_service.upload_file(file, content_type, upload_folder)
+    #     user = request.user
+    #     if user.image:
+    #         s3_service.delete_s3_object_by_url(user.image)
+    #     user.image = image_url
+    #     user.save()
+    #     return Response(
+    #         status=status.HTTP_200_OK,
+    #         data=ResponseInfo().format_response(
+    #             data={"file_url": image_url},
+    #             status_code=status.HTTP_200_OK,
+    #             message="User image uploaded",
+    #         ),
+    #     )
+    #
+
     @action(detail=False, url_path="upload-user-image", methods=["post"])
     def upload_user_image(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -297,14 +327,19 @@ class UserViewSet(BaseViewset):
         elif request.user.role_type == USER_ROLE_TYPES["CLIENT"]:
             upload_folder = f"clients/{email}/profile"
         image_url = None
-        # # Uploading resume to S3.
-        s3_service = S3Service()
-        image_url = s3_service.upload_file(file, content_type, upload_folder)
-        user = request.user
-        if user.image:
-            s3_service.delete_s3_object_by_url(user.image)
-        user.image = image_url
-        user.save()
+        # Uploading image to S3
+        with NamedTemporaryFile(delete=False) as temp_file:
+            temp_file_path = temp_file.name
+            temp_file.write(file.read())
+            temp_file.seek(0)
+        image_url = upload_profile_image.delay(
+            temp_file_path,
+            content_type,
+            file.name,
+            upload_folder,
+            user_id=request.user.id,
+        )
+        file.close()
         return Response(
             status=status.HTTP_200_OK,
             data=ResponseInfo().format_response(
