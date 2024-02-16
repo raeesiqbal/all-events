@@ -9,7 +9,7 @@ import {
   InputGroup,
   Row,
 } from "react-bootstrap";
-import heroImg1 from "../../assets/images/harold.jpg";
+import heroImg1 from "../../assets/images/heroImage.jpg";
 import {
   listSuggestions,
   setCountry,
@@ -22,7 +22,9 @@ function HeroSection() {
   const navigate = useNavigate();
   const [showSuggestions, setShowSuggestions] = React.useState(false);
   const [isDisabled, setIsDisabled] = React.useState(true);
-  const { suggestionsList, keyword } = useSelector((state) => state.search.data);
+  const { suggestionsList, keyword } = useSelector(
+    (state) => state.search.data
+  );
   const suggestionDropdown = useRef();
 
   const handleSuggestions = (e) => {
@@ -30,7 +32,8 @@ function HeroSection() {
 
     dispatch(setSearchKeyword({ name: e.target.value }));
 
-    if (e.target.value !== "") dispatch(listSuggestions({ search_string: e.target.value }));
+    if (e.target.value !== "")
+      dispatch(listSuggestions({ search_string: e.target.value }));
     setShowSuggestions(e.target.value !== "");
   };
 
@@ -50,7 +53,8 @@ function HeroSection() {
 
   useEffect(() => {
     if (suggestionDropdown.current) {
-      suggestionDropdown.current.style.overflowY = suggestionDropdown.current.clientHeight > 400 ? "scroll" : "auto";
+      suggestionDropdown.current.style.overflowY =
+        suggestionDropdown.current.clientHeight > 400 ? "scroll" : "auto";
     }
   }, [suggestionsList]);
 
