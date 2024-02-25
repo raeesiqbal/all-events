@@ -65,6 +65,7 @@ class MessageViewSet(BaseViewset):
         "chat_message": [IsAuthenticated, IsVerified, IsClient | IsVendorUser],
         "message_create": [IsAuthenticated, IsVerified, IsClient | IsVendorUser],
         "chat_suggestion_list": [IsAuthenticated, IsVerified, IsClient | IsVendorUser],
+        "unread_count": [IsAuthenticated, IsVerified, IsClient | IsVendorUser],
     }
 
     user_role_queryset = {
@@ -393,3 +394,24 @@ class MessageViewSet(BaseViewset):
                     message="Chat Suggestions",
                 ),
             )
+
+    @action(detail=False, url_path="unread-count", methods=["get"])
+    def unread_count(self, request, *args, **kwargs):
+        count = 0
+        if request.user.role_type == USER_ROLE_TYPES["CLIENT"]:
+            count = Chat.objects.filter(
+                client__user_id=request.user, is_read_client=False
+            ).count()
+        elif request.user.role_type == USER_ROLE_TYPES["VENDOR"]:
+            count = Chat.objects.filter(
+                ad__company__user_id=request.user.id, is_read_vendor=False
+            ).count()
+
+        return Response(
+            status=status.HTTP_200_OK,
+            data=ResponseInfo().format_response(
+                data=count,
+                status_code=status.HTTP_200_OK,
+                message="Chat unread count",
+            ),
+        )
