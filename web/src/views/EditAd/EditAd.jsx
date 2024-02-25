@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from "react";
 import * as formik from "formik";
 import * as Yup from "yup";
-import {
-  Button, Col, Container, Form, Row, Spinner,
-} from "react-bootstrap";
+import { Button, Col, Container, Form, Row, Spinner } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { Alert } from "@mui/material";
@@ -59,10 +57,19 @@ function EditAd() {
   const videoToUpload = useSelector((state) => state.Ads.media_urls.video);
   const pdfsToUpload = useSelector((state) => state.Ads.media_urls.pdf);
   const {
-    loading, AdPostSuccessAlert, AdPostErrorAlert, imagesError, isMediaUploading, mediaError, submittedAdId, media, deletedUrls,
+    loading,
+    AdPostSuccessAlert,
+    AdPostErrorAlert,
+    imagesError,
+    isMediaUploading,
+    mediaError,
+    submittedAdId,
+    media,
+    deletedUrls,
+    isNewMainImage,
   } = useSelector((state) => state.Ads);
   const currentSubscription = useSelector(
-    (state) => state.subscriptions.currentSubscriptionDetails,
+    (state) => state.subscriptions.currentSubscriptionDetails
   );
 
   const dispatch = useDispatch();
@@ -85,10 +92,11 @@ function EditAd() {
       answer: faq.answer,
     }));
     const flattenedServerFAQs = selectedValuesServerFAQ.flatMap(
-      (sectionValues) => sectionValues.map((questionValues) => ({
-        site_question: questionValues.id,
-        answer: questionValues.value,
-      })),
+      (sectionValues) =>
+        sectionValues.map((questionValues) => ({
+          site_question: questionValues.id,
+          answer: questionValues.value,
+        }))
     );
 
     const objToSubmit = {
@@ -129,78 +137,79 @@ function EditAd() {
         .required("Commercial Name is required")
         .matches(
           /^(?!\s*[!@#$%^&*()_+\-=\[\]{};':\"\\|,.<>\/?]*\s*$).{2,60}$/,
-          "Commercial name should be 2 to 60 characters long and cannot be entirely signs",
+          "Commercial name should be 2 to 60 characters long and cannot be entirely signs"
         ),
       // MIXED TYPES ARE APPLIED BECAUSE THE FORM GETS AN OBJECT FROM API, WHILE SUBMITTING IT EXPECTS AN INTEGER
       category: Yup.mixed().when({
         is: (value) => value !== undefined, // Apply the validation when the field is present
-        then: () => Yup.lazy((value) => {
-          if (typeof value === "object") {
-            // If it's an object, define the object shape
-            return Yup.object({
-              // Add your object schema here...
-            });
-          }
-          if (typeof value === "number") {
-            // If it's a number, apply integer validation
-            return Yup.number().integer();
-          }
-          if (typeof value === "string") {
-            // If it's a string, apply string validation
-            return Yup.string();
-          }
+        then: () =>
+          Yup.lazy((value) => {
+            if (typeof value === "object") {
+              // If it's an object, define the object shape
+              return Yup.object({
+                // Add your object schema here...
+              });
+            }
+            if (typeof value === "number") {
+              // If it's a number, apply integer validation
+              return Yup.number().integer();
+            }
+            if (typeof value === "string") {
+              // If it's a string, apply string validation
+              return Yup.string();
+            }
 
-          // Return null or throw an error if none of the types match
-          throw new Error("Invalid field type");
-        }),
+            // Return null or throw an error if none of the types match
+            throw new Error("Invalid field type");
+          }),
       }),
       // MIXED TYPES ARE APPLIED BECAUSE THE FORM GETS AN OBJECT FROM API, WHILE SUBMITTING IT EXPECTS AN INTEGER
       sub_category: Yup.mixed().when({
         is: (value) => value !== undefined, // Apply the validation when the field is present
-        then: () => Yup.lazy((value) => {
-          if (typeof value === "object") {
-            // If it's an object, define the object shape
-            return Yup.object({
-              // Add your object schema here...
-            });
-          }
-          if (typeof value === "number") {
-            // If it's a number, apply integer validation
-            return Yup.number().integer();
-          }
-          if (typeof value === "string") {
-            // If it's a string, apply string validation
-            return Yup.string();
-          }
+        then: () =>
+          Yup.lazy((value) => {
+            if (typeof value === "object") {
+              // If it's an object, define the object shape
+              return Yup.object({
+                // Add your object schema here...
+              });
+            }
+            if (typeof value === "number") {
+              // If it's a number, apply integer validation
+              return Yup.number().integer();
+            }
+            if (typeof value === "string") {
+              // If it's a string, apply string validation
+              return Yup.string();
+            }
 
-          // Return null or throw an error if none of the types match
-          throw new Error("Invalid field type");
-        }),
+            // Return null or throw an error if none of the types match
+            throw new Error("Invalid field type");
+          }),
       }),
       description: Yup.string()
         .min(2, "Too short, minimum 5 characters")
         .max(6667, "Must be at most 6666 characters")
         .matches(
           /^(?=.*[a-zA-Z])[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':\"\\|,.<>\/? ]{5,6666}$/,
-          "Cannot be entirely signs",
+          "Cannot be entirely signs"
         )
         .required("Description is required"),
       // .required("Required"),
       country: Yup.mixed().required("This field is required"),
     }),
     contactInformation: Yup.object().shape({
-      websiteUrl: Yup.string()
-        .matches(
-          /^(?:(?:https?|ftp):\/\/)?(?:www\.)?[A-Za-z0-9-]+\.[A-Za-z]{2,6}$/,
-          "Must be a valid website url",
-        ),
+      websiteUrl: Yup.string().matches(
+        /^(?:(?:https?|ftp):\/\/)?(?:www\.)?[A-Za-z0-9-]+\.[A-Za-z]{2,6}$/,
+        "Must be a valid website url"
+      ),
       county: Yup.array().min(1, "country is required"),
       city: Yup.string()
         .min(3, "Too short, minimum 3 characters")
         .max(25, "Must be at most 25 characters")
         .matches(
           /^(?=[a-zA-Z\s-]{3,25}$)(?!^[ -]*$)[a-zA-Z-]+$/,
-          "Only - sign is allowed and cannot be entirely signs. Digits are not allowed",
+          "Only - sign is allowed and cannot be entirely signs. Digits are not allowed"
         )
         .required("Required"),
       street: Yup.string()
@@ -208,7 +217,7 @@ function EditAd() {
         .max(27, "Must be at most 27 characters")
         .matches(
           /^(?!^[ ,./-]*$)[a-zA-Z0-9 ,./-]{3,27}$/,
-          "- . , / signs and letters, digits, spaces are allowed. Cann't be entirely sings.",
+          "- . , / signs and letters, digits, spaces are allowed. Cann't be entirely sings."
         )
         .required("Required"),
       contact_number: Yup.string()
@@ -216,7 +225,7 @@ function EditAd() {
         .max(40, "Must be at most 40 characters")
         .matches(
           /^(?!.*--)[a-zA-Z][a-zA-Z -]*[a-zA-Z]$/,
-          "Letters and - sign is allowed and cannot be entirely signs",
+          "Letters and - sign is allowed and cannot be entirely signs"
         )
         .required("Required"),
       fullAddress: Yup.string()
@@ -225,40 +234,34 @@ function EditAd() {
         .max(80, "Must be at most 80 characters")
         .matches(
           /^(?!^[ ,./-]*$)[a-zA-Z0-9 ,./-]{5,80}$/,
-          "- . , / signs and letters, digits, spaces are allowed. Can't be entirely signs.",
+          "- . , / signs and letters, digits, spaces are allowed. Can't be entirely signs."
         ),
     }),
     SocialMedia: Yup.object().shape({
-      facebookURL: Yup.string()
-        .matches(
-          /^(?:(?:https?|ftp):\/\/)?(?:www\.)?[A-Za-z0-9-]+\.[A-Za-z]{2,6}$/,
-          "Must be a valid website url",
-        ),
-      instagramURL: Yup.string()
-        .matches(
-          /^(?:(?:https?|ftp):\/\/)?(?:www\.)?[A-Za-z0-9-]+\.[A-Za-z]{2,6}$/,
-          "Must be a valid website url",
-        ),
-      youtubeURL: Yup.string()
-        .matches(
-          /^(?:(?:https?|ftp):\/\/)?(?:www\.)?[A-Za-z0-9-]+\.[A-Za-z]{2,6}$/,
-          "Must be a valid website url",
-        ),
-      tiktokURL: Yup.string()
-        .matches(
-          /^(?:(?:https?|ftp):\/\/)?(?:www\.)?[A-Za-z0-9-]+\.[A-Za-z]{2,6}$/,
-          "Must be a valid website url",
-        ),
-      twitterURL: Yup.string()
-        .matches(
-          /^(?:(?:https?|ftp):\/\/)?(?:www\.)?[A-Za-z0-9-]+\.[A-Za-z]{2,6}$/,
-          "Must be a valid website url",
-        ),
-      otherURL: Yup.string()
-        .matches(
-          /^(?:(?:https?|ftp):\/\/)?(?:www\.)?[A-Za-z0-9-]+\.[A-Za-z]{2,6}$/,
-          "Must be a valid website url",
-        ),
+      facebookURL: Yup.string().matches(
+        /^(?:(?:https?|ftp):\/\/)?(?:www\.)?[A-Za-z0-9-]+\.[A-Za-z]{2,6}$/,
+        "Must be a valid website url"
+      ),
+      instagramURL: Yup.string().matches(
+        /^(?:(?:https?|ftp):\/\/)?(?:www\.)?[A-Za-z0-9-]+\.[A-Za-z]{2,6}$/,
+        "Must be a valid website url"
+      ),
+      youtubeURL: Yup.string().matches(
+        /^(?:(?:https?|ftp):\/\/)?(?:www\.)?[A-Za-z0-9-]+\.[A-Za-z]{2,6}$/,
+        "Must be a valid website url"
+      ),
+      tiktokURL: Yup.string().matches(
+        /^(?:(?:https?|ftp):\/\/)?(?:www\.)?[A-Za-z0-9-]+\.[A-Za-z]{2,6}$/,
+        "Must be a valid website url"
+      ),
+      twitterURL: Yup.string().matches(
+        /^(?:(?:https?|ftp):\/\/)?(?:www\.)?[A-Za-z0-9-]+\.[A-Za-z]{2,6}$/,
+        "Must be a valid website url"
+      ),
+      otherURL: Yup.string().matches(
+        /^(?:(?:https?|ftp):\/\/)?(?:www\.)?[A-Za-z0-9-]+\.[A-Za-z]{2,6}$/,
+        "Must be a valid website url"
+      ),
     }),
     FAQ: Yup.object().shape({
       faqs: Yup.array().of(
@@ -271,7 +274,7 @@ function EditAd() {
             .max(500, "Must be at most 500 characters"), // You can add validation for answer here if needed
           type: Yup.string(), // You can add validation for type here if needed
           added: Yup.boolean().required("Please add the FAQ or remove it."),
-        }),
+        })
       ),
     }),
   });
@@ -279,13 +282,13 @@ function EditAd() {
   const validate = (values) => {
     const errors = {};
 
-    if ((imagesToUpload.length + media.images.length) === 0 && !imagesError) {
+    if (imagesToUpload.length + media.images.length === 0 && !imagesError) {
       dispatch(setImagesError(true));
     }
 
     if (
-      !values.companyInformation.country
-      || values.companyInformation.country.length === 0
+      !values.companyInformation.country ||
+      values.companyInformation.country.length === 0
     ) {
       errors.companyInformation = {
         ...errors.companyInformation,
@@ -294,8 +297,8 @@ function EditAd() {
     }
 
     if (
-      !values.contactInformation.country
-      || values.contactInformation.country.length === 0
+      !values.contactInformation.country ||
+      values.contactInformation.country.length === 0
     ) {
       errors.contactInformation = {
         ...errors.contactInformation,
@@ -367,7 +370,7 @@ function EditAd() {
   const handleRemoveService = (indexToRemove, values, setValues) => {
     const clonedServices = [...values.servicesOffered.services];
     const deletedService = clonedServices.filter(
-      (_, index) => index !== indexToRemove,
+      (_, index) => index !== indexToRemove
     );
     setValues({
       ...values,
@@ -407,8 +410,8 @@ function EditAd() {
       });
 
       if (
-        request.data.data[0] !== undefined
-        && Object.prototype.hasOwnProperty.call(request.data.data[0], "service")
+        request.data.data[0] !== undefined &&
+        Object.prototype.hasOwnProperty.call(request.data.data[0], "service")
       ) {
         setAdminServices(request.data.data[0].service || []);
       } else {
@@ -440,7 +443,7 @@ function EditAd() {
         method: "Get",
       });
       setSelectedCountries(
-        request.data.data.activation_countries.map((country) => country.id),
+        request.data.data.activation_countries.map((country) => country.id)
       );
 
       const faqsWithAddedProperty = request.data.data?.ad_faqs.map((item) => ({
@@ -452,25 +455,25 @@ function EditAd() {
 
       const serverFaqsMap = request.data.data?.ad_faq_ad
         ? request.data.data?.ad_faq_ad.map((serverFAQ) => ({
-          site_faq_questions: [
-            {
-              question: serverFAQ.site_question.question,
-              suggestion: serverFAQ.site_question.suggestion,
-              answer: serverFAQ.answer,
-              id: serverFAQ.site_question.id,
-            },
-          ],
-        }))
+            site_faq_questions: [
+              {
+                question: serverFAQ.site_question.question,
+                suggestion: serverFAQ.site_question.suggestion,
+                answer: serverFAQ.answer,
+                id: serverFAQ.site_question.id,
+              },
+            ],
+          }))
         : [];
 
       const initialSelectedValues = request.data.data?.ad_faq_ad
         ? request.data.data?.ad_faq_ad.map((item) => [
-          {
-            value: item.answer,
-            question: item.site_question.question,
-            id: item.site_question.id,
-          },
-        ])
+            {
+              value: item.answer,
+              question: item.site_question.question,
+              id: item.site_question.id,
+            },
+          ])
         : [];
 
       setSelectedValuesServerFAQ(initialSelectedValues);
@@ -495,7 +498,7 @@ function EditAd() {
           // country: request.data.data?.activation_countries[0].id, // Initialize without any selected countries
           ...(request.data.data?.activation_countries.length > 0 && {
             country: request.data.data?.activation_countries.map(
-              (country) => country.id,
+              (country) => country.id
             ),
           }),
         },
@@ -532,10 +535,11 @@ function EditAd() {
     }
   };
 
-  const hasUnsavedChanges = (values) => selectedCountries.length !== ""
-    || (imagesToUpload.length + media.images.length) > 0
-    || Object.keys(values).some(
-      (field) => values[field] !== localInitialValues[field],
+  const hasUnsavedChanges = (values) =>
+    selectedCountries.length !== "" ||
+    imagesToUpload.length + media.images.length > 0 ||
+    Object.keys(values).some(
+      (field) => values[field] !== localInitialValues[field]
     );
 
   useEffect(() => {
@@ -545,7 +549,15 @@ function EditAd() {
   useEffect(() => {
     if (submittedAdId !== null) {
       const files = [...media.images, ...media.video, ...media.pdf];
-      if (files.length > 0) dispatch(uploadMediaFiles({ id: submittedAdId, files, navigate }));
+      if (files.length > 0)
+        dispatch(
+          uploadMediaFiles({
+            id: submittedAdId,
+            files,
+            navigate,
+            isNewMainImage,
+          })
+        );
       else navigate("/my-ads");
       dispatch(resetSubmittedAdId());
     }
@@ -554,9 +566,27 @@ function EditAd() {
   useEffect(() => {
     if (currentAd) {
       if (currentAd.ad_media[0]) {
-        dispatch(setImagesToUpload(currentAd.ad_media[0].media_urls?.images?.length > 0 ? currentAd.ad_media[0].media_urls?.images : []));
-        dispatch(setVideosToUpload(currentAd.ad_media[0].media_urls?.video?.length > 0 ? currentAd.ad_media[0].media_urls?.video : []));
-        dispatch(setPDFsToUpload(currentAd.ad_media[0].media_urls?.pdf?.length > 0 ? currentAd.ad_media[0].media_urls?.pdf : []));
+        dispatch(
+          setImagesToUpload(
+            currentAd.ad_media[0].media_urls?.images?.length > 0
+              ? currentAd.ad_media[0].media_urls?.images
+              : []
+          )
+        );
+        dispatch(
+          setVideosToUpload(
+            currentAd.ad_media[0].media_urls?.video?.length > 0
+              ? currentAd.ad_media[0].media_urls?.video
+              : []
+          )
+        );
+        dispatch(
+          setPDFsToUpload(
+            currentAd.ad_media[0].media_urls?.pdf?.length > 0
+              ? currentAd.ad_media[0].media_urls?.pdf
+              : []
+          )
+        );
       }
       if (currentAd.related_sub_categories?.id) {
         setRelatedSubCategoryId(currentAd.related_sub_categories.id);
@@ -583,10 +613,12 @@ function EditAd() {
 
   useEffect(() => {
     if (
-      currentSubscription === null
-      || (currentSubscription && currentSubscription.status === "unpaid")
-      || !user.is_verified
-    ) { navigate("/my-ads"); }
+      currentSubscription === null ||
+      (currentSubscription && currentSubscription.status === "unpaid") ||
+      !user.is_verified
+    ) {
+      navigate("/my-ads");
+    }
   }, [currentSubscription]);
 
   return (
@@ -622,8 +654,8 @@ function EditAd() {
         {AdPostErrorAlert?.website?.length > 0
           ? AdPostErrorAlert?.website
           : mediaError !== null
-            ? mediaError
-            : "Something went wrong"}
+          ? mediaError
+          : "Something went wrong"}
       </Alert>
 
       <div className="ad-banner d-flex align-items-center justify-content-between">
@@ -736,17 +768,19 @@ function EditAd() {
                   <ServicesOffered
                     values={values}
                     handleChange={handleChange}
-                    handleAddServices={(currentService) => handleAddServices(currentService, values, setValues)}
-                    handleRemoveService={(index) => handleRemoveService(index, values, setValues)}
+                    handleAddServices={(currentService) =>
+                      handleAddServices(currentService, values, setValues)
+                    }
+                    handleRemoveService={(index) =>
+                      handleRemoveService(index, values, setValues)
+                    }
                     adminServices={adminServices}
                     adminServicesSelected={adminServicesSelected}
                     setAdminServicesSelected={setAdminServicesSelected}
                   />
 
-                  {currentSubscription
-                    && currentSubscription?.type?.pdf_upload && (
-                      <PdfUploader />
-                  )}
+                  {currentSubscription &&
+                    currentSubscription?.type?.pdf_upload && <PdfUploader />}
 
                   {currentSubscription && currentSubscription?.type?.faq && (
                     <FAQs
@@ -754,10 +788,18 @@ function EditAd() {
                       errors={errors.FAQ ?? errors}
                       touched={touched.FAQ ?? touched}
                       handleChange={handleChange}
-                      handleAddFieldsForFAQ={() => handleAddFAQsFields(values, setValues)}
-                      handleAddFAQ={(index) => handleAddFAQ(index, values, setValues)}
-                      handleRemoveFAQ={(index) => handleRemoveFAQ(index, values, setValues)}
-                      handleEditFAQ={(index) => handleEditFAQ(index, values, setValues)}
+                      handleAddFieldsForFAQ={() =>
+                        handleAddFAQsFields(values, setValues)
+                      }
+                      handleAddFAQ={(index) =>
+                        handleAddFAQ(index, values, setValues)
+                      }
+                      handleRemoveFAQ={(index) =>
+                        handleRemoveFAQ(index, values, setValues)
+                      }
+                      handleEditFAQ={(index) =>
+                        handleEditFAQ(index, values, setValues)
+                      }
                     />
                   )}
 

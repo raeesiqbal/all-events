@@ -4,9 +4,17 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCalendarCheck, faEnvelope, faHeart } from "@fortawesome/free-regular-svg-icons";
 import {
-  faChartLine, faCircleDollarToSlot, faGauge, faGear, faListUl,
+  faCalendarCheck,
+  faEnvelope,
+  faHeart,
+} from "@fortawesome/free-regular-svg-icons";
+import {
+  faChartLine,
+  faCircleDollarToSlot,
+  faGauge,
+  faGear,
+  faListUl,
 } from "@fortawesome/free-solid-svg-icons";
 import {
   handleClickTab,
@@ -68,7 +76,10 @@ const TabNavigation = ({ role }) => {
   const [tabs, setTabs] = useState(role === "client" ? clientTabs : vendorTabs);
 
   const isActive = (path) => window.location.pathname === path;
-  const currentSubscription = useSelector((state) => state.subscriptions.currentSubscriptionDetails);
+  const currentSubscription = useSelector(
+    (state) => state.subscriptions.currentSubscriptionDetails
+  );
+  const { unreadChatsCount } = useSelector((state) => state.chats);
 
   const handleClickTabNav = (index, path) => {
     if (path === "/post-ad") {
@@ -86,26 +97,29 @@ const TabNavigation = ({ role }) => {
     const hasCalendarsTab = tabs.filter((tab) => tab.label === "Calendars");
     if (currentSubscription && role === "vendor") {
       let temp = tabs;
-      if (currentSubscription?.type?.analytics && hasAnalyticsTab.length === 0) {
+      if (
+        currentSubscription?.type?.analytics &&
+        hasAnalyticsTab.length === 0
+      ) {
         temp = [
-          ...(temp.slice(0, -1)),
+          ...temp.slice(0, -1),
           {
             label: "Analytics",
             icon: faChartLine,
             path: "/analytics",
           },
-          ...(temp.slice(-1)),
+          ...temp.slice(-1),
         ];
       }
       if (currentSubscription?.type?.calender && hasCalendarsTab.length === 0) {
         temp = [
-          ...(temp.slice(0, -1)),
+          ...temp.slice(0, -1),
           {
             label: "Calendars",
             icon: faCalendarCheck,
             path: "/calendars",
           },
-          ...(temp.slice(-1)),
+          ...temp.slice(-1),
         ];
       }
       setTabs([...temp]);
@@ -131,7 +145,36 @@ const TabNavigation = ({ role }) => {
           >
             {" "}
             <FontAwesomeIcon icon={tab.icon} />
-            <span className="tab-label">{tab.label}</span>
+            <span
+              className="tab-label"
+              style={{
+                position: "relative",
+              }}
+            >
+              {tab.label}
+
+              {tab.label === "Messages" && unreadChatsCount > 0 && (
+                <span
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    width: "20px",
+                    height: "20px",
+                    fontSize: "10px",
+                    fontWeight: "bold",
+                    color: "white",
+                    backgroundColor: "red",
+                    borderRadius: "50%",
+                    position: "absolute",
+                    top: "-8px",
+                    right: "-8px",
+                  }}
+                >
+                  {unreadChatsCount}
+                </span>
+              )}
+            </span>
           </div>
         ))}
       </div>

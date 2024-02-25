@@ -1,15 +1,22 @@
 import React, { useEffect, useState } from "react";
-import {
-  Route, Routes, useLocation, useNavigate,
-} from "react-router-dom";
+import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { Button, Modal } from "react-bootstrap";
 import { Alert } from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { handleProfileSettingsCurrentView } from "./views/redux/TabNavigation/TabNavigationSlice";
-import { currentSubscriptionDetails, setShowModal } from "./views/redux/Subscriptions/SubscriptionsSlice";
-import { getAuthenticatedUser, handleUserAlerts, handleWelcomeUserAlert, sendVerifyAccountEmail, setValidModal } from "./views/redux/Auth/authSlice";
+import {
+  currentSubscriptionDetails,
+  setShowModal,
+} from "./views/redux/Subscriptions/SubscriptionsSlice";
+import {
+  getAuthenticatedUser,
+  handleUserAlerts,
+  handleWelcomeUserAlert,
+  sendVerifyAccountEmail,
+  setValidModal,
+} from "./views/redux/Auth/authSlice";
 import { listCountries } from "./views/redux/Posts/AdsSlice";
 import Header from "./components/Navbar/Navbar";
 import TabNavigation from "./components/TabNavigation/TabNavigation";
@@ -35,20 +42,28 @@ import TopBanner from "./components/TopBanner";
 import Calendars from "./views/Calendars/Calendars";
 import VerifyAccount from "./views/Login/VerifyAccount";
 import "./App.css";
+import { unreadChatCount } from "./views/redux/Chats/ChatsSlice";
 
 function App() {
   const location = useLocation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const {
-    user, screenLoading, UserSuccessAlert, UserErrorAlert, error, isWelcomeUserAlert, validModal,
+    user,
+    screenLoading,
+    UserSuccessAlert,
+    UserErrorAlert,
+    error,
+    isWelcomeUserAlert,
+    validModal,
   } = useSelector((state) => state.auth);
-  const currentSubscription = useSelector((state) => state.subscriptions.currentSubscriptionDetails);
-  const {
-    showModal, modalMessage, modalType, buttonText, modalTitle,
-  } = useSelector((state) => state.subscriptions.modalInfo);
+  const currentSubscription = useSelector(
+    (state) => state.subscriptions.currentSubscriptionDetails
+  );
+  const { showModal, modalMessage, modalType, buttonText, modalTitle } =
+    useSelector((state) => state.subscriptions.modalInfo);
   const profileSettingsCurrentView = useSelector(
-    (state) => state.tabNavigation.profileSettingsCurrentView,
+    (state) => state.tabNavigation.profileSettingsCurrentView
   );
 
   const routesWithTabNavigation = [
@@ -64,7 +79,9 @@ function App() {
     "/calendars",
   ];
 
-  const shouldRenderTabNavigation = routesWithTabNavigation.includes(location.pathname);
+  const shouldRenderTabNavigation = routesWithTabNavigation.includes(
+    location.pathname
+  );
 
   const handleSubscription = () => {
     dispatch(setShowModal(false));
@@ -81,25 +98,24 @@ function App() {
         navigate("/my-ads");
         break;
       default:
-        // nothing to do
+      // nothing to do
     }
   };
 
   useEffect(() => {
-    if (
-      user?.userId === null
-      && user?.accessToken !== null
-    ) {
+    if (user?.userId === null && user?.accessToken !== null) {
       dispatch(getAuthenticatedUser());
     }
   }, [user?.userId, user?.accessToken]);
 
   useEffect(() => {
     if (
-      ((currentSubscription === null && modalType !== null)
-          || (currentSubscription !== null && user?.role === "vendor" && currentSubscription.status === "unpaid"))
-        && !["/plans", "/checkout", "/subscriptions"].includes(location.pathname)
-        && profileSettingsCurrentView !== "PaymentMethod"
+      ((currentSubscription === null && modalType !== null) ||
+        (currentSubscription !== null &&
+          user?.role === "vendor" &&
+          currentSubscription.status === "unpaid")) &&
+      !["/plans", "/checkout", "/subscriptions"].includes(location.pathname) &&
+      profileSettingsCurrentView !== "PaymentMethod"
     ) {
       dispatch(setShowModal(true));
     }
@@ -107,6 +123,10 @@ function App() {
 
   useEffect(() => {
     dispatch(listCountries(user?.userId !== null));
+
+    if (user?.userId) {
+      dispatch(unreadChatCount());
+    }
   }, [user?.userId]);
 
   useEffect(() => {
@@ -125,29 +145,31 @@ function App() {
 
   useEffect(() => {
     dispatch(setValidModal(true));
-    if (isWelcomeUserAlert && !["", "/", "/dashboard"].includes(location.pathname)) dispatch(handleWelcomeUserAlert(false));
+    if (
+      isWelcomeUserAlert &&
+      !["", "/", "/dashboard"].includes(location.pathname)
+    )
+      dispatch(handleWelcomeUserAlert(false));
   }, [location]);
 
   return (
     <>
-      {
-        (UserSuccessAlert || UserErrorAlert) && (
-          <Alert
-            severity={UserSuccessAlert ? "success" : "error"}
-            variant="filled"
-            style={{
-              position: "fixed",
-              top: (UserSuccessAlert || UserErrorAlert) ? "80px" : "-80px",
-              left: "50%",
-              transform: "translateX(-50%)",
-              transition: "ease 200ms",
-              opacity: (UserSuccessAlert || UserErrorAlert) ? 1 : 0,
-            }}
-          >
-            {error || ""}
-          </Alert>
-        )
-      }
+      {(UserSuccessAlert || UserErrorAlert) && (
+        <Alert
+          severity={UserSuccessAlert ? "success" : "error"}
+          variant="filled"
+          style={{
+            position: "fixed",
+            top: UserSuccessAlert || UserErrorAlert ? "80px" : "-80px",
+            left: "50%",
+            transform: "translateX(-50%)",
+            transition: "ease 200ms",
+            opacity: UserSuccessAlert || UserErrorAlert ? 1 : 0,
+          }}
+        >
+          {error || ""}
+        </Alert>
+      )}
       <Modal
         show={showModal}
         onHide={() => {
@@ -157,7 +179,10 @@ function App() {
         aria-labelledby="example-custom-modal-styling-title"
         centered="true"
       >
-        <div className="box" style={{ position: "absolute", right: "3.5px", top: "3px" }} />
+        <div
+          className="box"
+          style={{ position: "absolute", right: "3.5px", top: "3px" }}
+        />
         <div
           style={{
             position: "absolute",
@@ -192,7 +217,10 @@ function App() {
         </div>
         <Modal.Body className="text-center">
           <h1 className="w-100 mb-5 mt-3 fw-bold">{modalTitle}</h1>
-          <h5 className="my-5 mx-5 px-5 text-secondary fw-normal" dangerouslySetInnerHTML={{ __html: modalMessage }} />
+          <h5
+            className="my-5 mx-5 px-5 text-secondary fw-normal"
+            dangerouslySetInnerHTML={{ __html: modalMessage }}
+          />
           <Button
             variant="success"
             className="mx-5 mb-3"
@@ -210,7 +238,10 @@ function App() {
         aria-labelledby="example-custom-modal-styling-title"
         centered="true"
       >
-        <div className="box" style={{ position: "absolute", right: "3.5px", top: "3px" }} />
+        <div
+          className="box"
+          style={{ position: "absolute", right: "3.5px", top: "3px" }}
+        />
         <div
           style={{
             position: "absolute",
@@ -242,7 +273,9 @@ function App() {
           </div>
         </div>
         <Modal.Body className="text-center">
-          <h1 className="w-100 mb-5 mt-3 fw-bold">Account Verification Reminder</h1>
+          <h1 className="w-100 mb-5 mt-3 fw-bold">
+            Account Verification Reminder
+          </h1>
           <h5 className="my-5 mx-5 px-5 text-secondary fw-normal">
             Please verify your account to perform actions.
           </h5>
@@ -258,136 +291,125 @@ function App() {
       </Modal>
 
       <Login />
-      {
-        user === null && (
-          <TopBanner />
-        )
-      }
+      {user === null && <TopBanner />}
       <Header />
-      {
-        shouldRenderTabNavigation && user?.role && (
-          <TabNavigation role={user.role} />
-        )
-      }
-      {
-        screenLoading && (
-          <div className="screen-loader">
-            <FontAwesomeIcon icon={faSpinner} spin color="#A0C49D" fontSize="70px" className="mx-auto my-auto" />
-          </div>
-        )
-      }
+      {shouldRenderTabNavigation && user?.role && (
+        <TabNavigation role={user.role} />
+      )}
+      {screenLoading && (
+        <div className="screen-loader">
+          <FontAwesomeIcon
+            icon={faSpinner}
+            spin
+            color="#A0C49D"
+            fontSize="70px"
+            className="mx-auto my-auto"
+          />
+        </div>
+      )}
       <Routes>
         <Route path="/" element={<Homepage />} />
-        <Route
-          path="/search"
-          element={<Search />}
-        />
-        <Route
-          path="/view-ad/:adId"
-          element={(<ViewAd />)}
-        />
-        <Route
-          path="/verify-account"
-          element={(<VerifyAccount />)}
-        />
+        <Route path="/search" element={<Search />} />
+        <Route path="/view-ad/:adId" element={<ViewAd />} />
+        <Route path="/verify-account" element={<VerifyAccount />} />
         <Route
           path="/calendars"
-          element={(
+          element={
             <ProtectedRoute role="vendor">
               <Calendars />
             </ProtectedRoute>
-          )}
+          }
         />
         <Route
           path="/plans"
-          element={(
+          element={
             <ProtectedRoute>
               <Plans />
             </ProtectedRoute>
-          )}
+          }
         />
         <Route
           path="/checkout"
-          element={(
+          element={
             <ProtectedRoute>
               <Checkout />
             </ProtectedRoute>
-          )}
+          }
         />
         <Route path="/reset-password" element={<ResetPassword />} />
 
         {/* Routes having TabNavigation component */}
         <Route
           path="/post-ad"
-          element={(
+          element={
             <ProtectedRoute role="vendor">
               <PostAd />
             </ProtectedRoute>
-          )}
+          }
         />
         <Route
           path="/edit-ad/:id"
-          element={(
+          element={
             <ProtectedRoute role="vendor">
               <EditAd />
             </ProtectedRoute>
-          )}
+          }
         />
         <Route
           path="/profile-settings"
-          element={(
+          element={
             <ProtectedRoute>
               <ProfileView />
             </ProtectedRoute>
-          )}
+          }
         />
         <Route
           path="/my-ads"
-          element={(
+          element={
             <ProtectedRoute role="vendor">
               <MyAds />
             </ProtectedRoute>
-          )}
+          }
         />
         <Route
           path="/messages"
-          element={(
+          element={
             <ProtectedRoute>
               <Chats />
             </ProtectedRoute>
-          )}
+          }
         />
         <Route
           path="/favorite-ads"
-          element={(
+          element={
             <ProtectedRoute>
               <FavoriteAds />
             </ProtectedRoute>
-          )}
+          }
         />
         <Route
           path="/analytics"
-          element={(
+          element={
             <ProtectedRoute>
               <Analytics />
             </ProtectedRoute>
-          )}
+          }
         />
         <Route
           path="/dashboard"
-          element={(
+          element={
             <ProtectedRoute>
               <Dashboard />
             </ProtectedRoute>
-          )}
+          }
         />
         <Route
           path="/subscriptions"
-          element={(
+          element={
             <ProtectedRoute role="vendor">
               <Subscriptions />
             </ProtectedRoute>
-          )}
+          }
         />
       </Routes>
       <Footer />
