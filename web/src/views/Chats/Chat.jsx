@@ -20,7 +20,12 @@ import archiveIcon from "../../assets/images/ph_archive-box-light.svg";
 import gotoIcon from "../../assets/images/post-ad/goto.svg";
 import phoneIcon from "../../assets/images/fluent_call.svg";
 import defaultProfilePhoto from "../../assets/images/profile-settings/person.svg";
-import { archiveChat, deleteChat, listChats } from "../redux/Chats/ChatsSlice";
+import {
+  archiveChat,
+  deleteChat,
+  listChats,
+  unreadChatCount,
+} from "../redux/Chats/ChatsSlice";
 import { listChatMessages, sendMessage } from "../redux/Messages/MessagesSlice";
 import "./Chats.css";
 import { secureInstance } from "../../axios/config";
@@ -31,7 +36,7 @@ const Chat = ({ chat, isOpenChat }) => {
   const messageBody = useRef(null);
 
   const { messages, additionalInfo, count } = useSelector(
-    (state) => state.messages,
+    (state) => state.messages
   );
   const currentUser = useSelector((state) => state.auth.user);
 
@@ -57,7 +62,10 @@ const Chat = ({ chat, isOpenChat }) => {
       setOffset(offset + limit);
       dispatch(listChatMessages({ id: chat.id, limit, offset }));
       setTimeout(() => {
-        if (messageBody.current) { messageBody.current.scrollTop = messageBody.current.scrollHeight - scrollHeight; }
+        if (messageBody.current) {
+          messageBody.current.scrollTop =
+            messageBody.current.scrollHeight - scrollHeight;
+        }
       }, 500);
     }
   };
@@ -68,7 +76,7 @@ const Chat = ({ chat, isOpenChat }) => {
         sendMessage({
           id: chat.id,
           data: { text: messageText, attachments: attachment },
-        }),
+        })
       );
     }
     setMessageText("");
@@ -161,19 +169,28 @@ const Chat = ({ chat, isOpenChat }) => {
   };
 
   // Get the formatted date with ordinal day
-  const formattedDate = (d) => `${`${date(d).getDate() + getOrdinalSuffix(date(d).getDate())} ${date(
-    d,
-  ).toLocaleString("en-US", { month: "long" })}, ${date(d).getFullYear()}`}`;
+  const formattedDate = (d) =>
+    `${`${date(d).getDate() + getOrdinalSuffix(date(d).getDate())} ${date(
+      d
+    ).toLocaleString("en-US", { month: "long" })}, ${date(d).getFullYear()}`}`;
 
   useEffect(() => {
     if (modalShow) {
       dispatch(listChatMessages({ id: chat.id, limit, offset }));
       setTimeout(() => {
-        if (messageBody.current) { messageBody.current.scrollTop = messageBody.current.scrollHeight; }
+        if (messageBody.current) {
+          messageBody.current.scrollTop = messageBody.current.scrollHeight;
+        }
       }, 500);
       setIsRead(true);
     }
   }, [modalShow]);
+
+  useEffect(() => {
+    if (!modalShow && isRead) {
+      dispatch(unreadChatCount());
+    }
+  }, [modalShow, isRead]);
 
   return (
     <>
@@ -198,7 +215,10 @@ const Chat = ({ chat, isOpenChat }) => {
                 style={{ width: "80px", height: "80px", borderRadius: "50%" }}
               />
               <h3 className="ms-2 ms-md-3 my-auto" style={{ color: "#797979" }}>
-                {(currentUser.role === "vendor" ? chat.person.name : chat.ad_name).toUpperCase()}
+                {(currentUser.role === "vendor"
+                  ? chat.person.name
+                  : chat.ad_name
+                ).toUpperCase()}
               </h3>
             </div>
             <div className="me-md-5 text-center">
@@ -234,7 +254,7 @@ const Chat = ({ chat, isOpenChat }) => {
               .reverse()
               .map((message) => {
                 const dateContent = !dates.includes(
-                  formattedDate(message.created_at),
+                  formattedDate(message.created_at)
                 ) ? (
                   <div
                     className="mx-auto text-white px-2 py-1 mb-4"
@@ -247,9 +267,9 @@ const Chat = ({ chat, isOpenChat }) => {
                   >
                     {formattedDate(message.created_at)}
                   </div>
-                  ) : (
-                    ""
-                  );
+                ) : (
+                  ""
+                );
 
                 dates.push(formattedDate(message.created_at));
 
@@ -417,8 +437,8 @@ const Chat = ({ chat, isOpenChat }) => {
               style={{ width: "14%" }}
             >
               <div className="upload-message-img">
-                {!loading
-                  && (attachment === null ? (
+                {!loading &&
+                  (attachment === null ? (
                     <>
                       <span>+</span>
                       <input
@@ -522,7 +542,9 @@ const Chat = ({ chat, isOpenChat }) => {
                   <Card.Title>
                     <div className="d-md-flex justify-content-between">
                       <div className="roboto-semi-bold-32px-h2 col-md-6">
-                        {currentUser.role === "vendor" ? chat.person.name : chat.ad_name}
+                        {currentUser.role === "vendor"
+                          ? chat.person.name
+                          : chat.ad_name}
                       </div>
                       <div className="roboto-regular-14px-information d-flex align-items-center mt-2 pe-4">
                         <img
@@ -531,7 +553,7 @@ const Chat = ({ chat, isOpenChat }) => {
                           className="me-2 my-auto"
                         />
                         {dayjs(chat.latest_message.created_at).format(
-                          "MMM D[th], YYYY",
+                          "MMM D[th], YYYY"
                         )}
                       </div>
                     </div>
@@ -612,7 +634,7 @@ const Chat = ({ chat, isOpenChat }) => {
                               archiveChat({
                                 id: chat.id,
                                 is_archived: !chat.archived,
-                              }),
+                              })
                             );
                             window.location.reload();
                           }}

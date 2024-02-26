@@ -1009,108 +1009,117 @@ function ViewAd() {
                     {user.userId === null ? "Contact" : "Message"} Vendor
                   </div>
 
-                  <Form.Control
-                    style={{ minHeight: "120px" }}
-                    className="lg-input-small-text"
-                    name="message.text"
-                    as="textarea"
-                    rows={3}
-                    type="text"
-                    size="lg"
-                    placeholder="Message"
-                    value={text || ""}
-                    onChange={(e) => {
-                      e.preventDefault();
-                      setText(e.target.value);
-                      checkValidity("text", e.target.value);
-                    }}
-                    isInvalid={!isValidForm.text}
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    Message is required
-                  </Form.Control.Feedback>
-
+                  <Form.Group>
+                    <Form.Control
+                      style={{ minHeight: "120px" }}
+                      className="lg-input-small-text"
+                      name="message.text"
+                      as="textarea"
+                      rows={3}
+                      type="text"
+                      size="lg"
+                      placeholder="Message"
+                      value={text || ""}
+                      onChange={(e) => {
+                        e.preventDefault();
+                        setText(e.target.value);
+                        checkValidity("text", e.target.value);
+                      }}
+                      isInvalid={!isValidForm.text}
+                    />
+                    <Form.Control.Feedback type="invalid">
+                      Message is required
+                    </Form.Control.Feedback>
+                  </Form.Group>
                   {user?.userId === null ? (
                     <>
-                      <Form.Control
-                        style={{ height: "56px" }}
-                        className="lg-input-small-text mt-4"
-                        type="text"
-                        name="message.full_name"
-                        size="sm"
-                        placeholder="First and Last Name"
-                        value={name || ""}
-                        onChange={(e) => {
-                          e.preventDefault();
-                          setName(e.target.value);
-                          checkValidity("name", e.target.value);
-                        }}
-                        isInvalid={!isValidForm.name}
-                      />
-                      <Form.Control.Feedback type="invalid">
-                        Name is required
-                      </Form.Control.Feedback>
+                      <Form.Group>
+                        <Form.Control
+                          style={{ height: "56px" }}
+                          className="lg-input-small-text mt-4"
+                          type="text"
+                          name="message.full_name"
+                          size="sm"
+                          placeholder="First and Last Name"
+                          value={name || ""}
+                          onChange={(e) => {
+                            e.preventDefault();
+                            setName(e.target.value);
+                            checkValidity("name", e.target.value);
+                          }}
+                          isInvalid={!isValidForm.name}
+                        />
+                        <Form.Control.Feedback type="invalid">
+                          Name is required
+                        </Form.Control.Feedback>
+                      </Form.Group>
 
-                      <Form.Control
-                        style={{ height: "56px" }}
-                        className="lg-input-small-text mt-4"
-                        type="email"
-                        name="message.email"
-                        size="sm"
-                        placeholder="Email"
-                        value={email || ""}
-                        onChange={(e) => {
-                          e.preventDefault();
-                          setEmail(e.target.value);
-                          checkValidity("email", e.target.value);
-                        }}
-                        isInvalid={!isValidForm.email}
-                      />
-                      <Form.Control.Feedback type="invalid">
-                        Email is required
-                      </Form.Control.Feedback>
+                      <Form.Group>
+                        <Form.Control
+                          style={{ height: "56px" }}
+                          className="lg-input-small-text mt-4"
+                          type="email"
+                          name="message.email"
+                          size="sm"
+                          placeholder="Email"
+                          value={email || ""}
+                          onChange={(e) => {
+                            e.preventDefault();
+                            setEmail(e.target.value);
+                            checkValidity("email", e.target.value);
+                          }}
+                          isInvalid={!isValidForm.email}
+                        />
+                        <Form.Control.Feedback type="invalid">
+                          Email is required
+                        </Form.Control.Feedback>
+                      </Form.Group>
 
-                      <Form.Control
-                        style={{ height: "56px" }}
-                        className="lg-input-small-text mt-4"
-                        type="text"
-                        name="message.phone"
-                        size="sm"
-                        placeholder="Phone"
-                        value={phone || ""}
-                        onChange={(e) => {
-                          e.preventDefault();
-                          setPhone(e.target.value);
-                          checkValidity("phone", e.target.value);
-                        }}
-                        isInvalid={!isValidForm.phone}
-                      />
-                      <Form.Control.Feedback type="invalid">
-                        Phone is required
-                      </Form.Control.Feedback>
+                      <Form.Group>
+                        <Form.Control
+                          style={{ height: "56px" }}
+                          className="lg-input-small-text mt-4"
+                          type="text"
+                          name="message.phone"
+                          size="sm"
+                          placeholder="Phone"
+                          value={phone || ""}
+                          onChange={(e) => {
+                            e.preventDefault();
+                            setPhone(e.target.value);
+                            checkValidity("phone", e.target.value);
+                          }}
+                          isInvalid={!isValidForm.phone}
+                        />
+                        <Form.Control.Feedback type="invalid">
+                          Phone is required
+                        </Form.Control.Feedback>
+                      </Form.Group>
                     </>
                   ) : (
                     ""
                   )}
 
-                  <Form.Control
-                    style={{ height: "56px" }}
-                    className="lg-input-small-text mt-4"
-                    type="date"
-                    name="message.event_date"
-                    size="sm"
-                    placeholder="Event date"
-                    value={eventDate || ""}
-                    onChange={(e) => {
-                      e.preventDefault();
-                      setEventDate(e.target.value);
-                      checkValidity("event_date", e.target.value);
-                    }}
-                    isInvalid={!isValidForm.event_date}
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    Select an event date
-                  </Form.Control.Feedback>
+                  <Form.Group>
+                    <Form.Control
+                      style={{ height: "56px" }}
+                      className="lg-input-small-text mt-4"
+                      type="date"
+                      name="message.event_date"
+                      size="sm"
+                      placeholder="Event date"
+                      value={eventDate || ""}
+                      onChange={(e) => {
+                        e.preventDefault();
+                        setEventDate(e.target.value);
+                        checkValidity("event_date", e.target.value);
+                      }}
+                      isInvalid={!isValidForm.event_date}
+                    />
+                    <Form.Control.Feedback type="invalid">
+                      Select an event date
+                    </Form.Control.Feedback>
+                  </Form.Group>
 
                   <p className="roboto-regular-14px-information mt-4">
                     By clicking ‘Send’, I agree to Allevents{" "}
