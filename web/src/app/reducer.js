@@ -14,6 +14,7 @@ import subscriptionReducer from "../views/redux/Subscriptions/SubscriptionsSlice
 import analyticsReducer from "../views/redux/Analytics/AnalyticsSlice";
 import calendarsReducer from "../views/redux/Calendars/CalendarsSlice";
 import utilsReducer from "../views/redux/Utils/UtilsSlice";
+import contactReducer from "../views/redux/Contacts/ContactsSlice";
 
 const rootReducer = combineReducers({
   Ads: AdsReducer,
@@ -21,6 +22,7 @@ const rootReducer = combineReducers({
   auth: authReducer,
   calendars: calendarsReducer,
   chats: chatsReducer,
+  contact: contactReducer,
   login: loginReducer,
   messages: messagesReducer,
   register: registerReducer,
