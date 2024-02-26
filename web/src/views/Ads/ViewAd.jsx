@@ -118,6 +118,14 @@ function ViewAd() {
     return chunks;
   };
 
+  const checkValidity = (key, value) => {
+    setIsValidForm({
+      ...isValidForm,
+      [key]: value !== "",
+    });
+    return;
+  };
+
   const imageChunks = imageLinks?.length > 0 ? chunkArray(imageLinks, 3) : [];
 
   // Create the slides array with dynamically generated keys
@@ -1011,7 +1019,11 @@ function ViewAd() {
                     size="lg"
                     placeholder="Message"
                     value={text || ""}
-                    onChange={(e) => setText(e.target.value)}
+                    onChange={(e) => {
+                      e.preventDefault();
+                      setText(e.target.value);
+                      checkValidity("text", e.target.value);
+                    }}
                     isInvalid={!isValidForm.text}
                   />
                   <Form.Control.Feedback type="invalid">
@@ -1028,7 +1040,11 @@ function ViewAd() {
                         size="sm"
                         placeholder="First and Last Name"
                         value={name || ""}
-                        onChange={(e) => setName(e.target.value)}
+                        onChange={(e) => {
+                          e.preventDefault();
+                          setName(e.target.value);
+                          checkValidity("name", e.target.value);
+                        }}
                         isInvalid={!isValidForm.name}
                       />
                       <Form.Control.Feedback type="invalid">
@@ -1043,7 +1059,11 @@ function ViewAd() {
                         size="sm"
                         placeholder="Email"
                         value={email || ""}
-                        onChange={(e) => setEmail(e.target.value)}
+                        onChange={(e) => {
+                          e.preventDefault();
+                          setEmail(e.target.value);
+                          checkValidity("email", e.target.value);
+                        }}
                         isInvalid={!isValidForm.email}
                       />
                       <Form.Control.Feedback type="invalid">
@@ -1058,7 +1078,11 @@ function ViewAd() {
                         size="sm"
                         placeholder="Phone"
                         value={phone || ""}
-                        onChange={(e) => setPhone(e.target.value)}
+                        onChange={(e) => {
+                          e.preventDefault();
+                          setPhone(e.target.value);
+                          checkValidity("phone", e.target.value);
+                        }}
                         isInvalid={!isValidForm.phone}
                       />
                       <Form.Control.Feedback type="invalid">
@@ -1077,7 +1101,11 @@ function ViewAd() {
                     size="sm"
                     placeholder="Event date"
                     value={eventDate || ""}
-                    onChange={(e) => setEventDate(e.target.value)}
+                    onChange={(e) => {
+                      e.preventDefault();
+                      setEventDate(e.target.value);
+                      checkValidity("event_date", e.target.value);
+                    }}
                     isInvalid={!isValidForm.event_date}
                   />
                   <Form.Control.Feedback type="invalid">
