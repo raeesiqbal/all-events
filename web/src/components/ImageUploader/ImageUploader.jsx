@@ -109,7 +109,7 @@ function ImageUploader({ imagesError }) {
         cloneMediaImages.splice(image.index, 1);
         dispatch(setMediaImages(cloneMediaImages));
       } else {
-        const urlToDelete = imagesToUpload[index];
+        const urlToDelete = imagesToUpload[image.index];
 
         dispatch(setDeletedUrls([...deletedUrls, urlToDelete]));
 
@@ -118,7 +118,7 @@ function ImageUploader({ imagesError }) {
         const cloneImagesToUpload = [...imagesToUpload];
 
         if (imageToUploadIndex !== -1) {
-          cloneImagesToUpload.splice(index, 1);
+          cloneImagesToUpload.splice(image.index, 1);
         }
         dispatch(setImagesToUpload(cloneImagesToUpload));
       }
@@ -334,12 +334,14 @@ function ImageUploader({ imagesError }) {
                                     }),
                                 ]);
                                 if (image.type === "old") {
-                                  dispatch(setImagesToUpload([
-                                    imagesToUpload[image.index],
-                                    ...imagesToUpload.filter(
-                                      (img, i) => i !== image.index
-                                    ),
-                                  ]));
+                                  dispatch(
+                                    setImagesToUpload([
+                                      imagesToUpload[image.index],
+                                      ...imagesToUpload.filter(
+                                        (img, i) => i !== image.index
+                                      ),
+                                    ])
+                                  );
                                   dispatch(setIsNewMainImage(false));
                                 } else {
                                   dispatch(
@@ -366,7 +368,7 @@ function ImageUploader({ imagesError }) {
                                 right: "0",
                               }}
                               className="upload-img-close-btn"
-                              onClick={() => removeImage(image, image.index)}
+                              onClick={() => removeImage(image, index)}
                             >
                               <FontAwesomeIcon
                                 icon={faClose}
