@@ -60,28 +60,37 @@ function ImageUploader({ imagesError }) {
     let mimgs = [...mediaImages];
 
     for (let i = 0; i < uploadedImages.length; i++) {
-      if (
-        uploadedImages[i] &&
-        uploadedImages[i].size / (1024 * 1024) <= IMG_SIZE
-      ) {
-        let reader = new FileReader();
+      if (uploadedImages[i] && uploadedImages[i].type.startsWith("image/")) {
+        if (
+          uploadedImages[i] &&
+          uploadedImages[i].size / (1024 * 1024) <= IMG_SIZE
+        ) {
+          let reader = new FileReader();
 
-        reader.onload = () => {
-          updatedImages.push({
-            previewURL: reader.result,
-            type: "new",
-            index: mediaImages.length,
-          });
-          setImages(updatedImages);
-        };
+          reader.onload = () => {
+            updatedImages.push({
+              previewURL: reader.result,
+              type: "new",
+              index: mediaImages.length,
+            });
+            setImages(updatedImages);
+          };
 
-        reader.readAsDataURL(uploadedImages[i]);
-        mimgs.push(uploadedImages[i]);
+          reader.readAsDataURL(uploadedImages[i]);
+          mimgs.push(uploadedImages[i]);
+        } else {
+          dispatch(
+            setMediaError(
+              `Image size should be less than or equal to ${IMG_SIZE}MB`
+            )
+          );
+          setTimeout(() => {
+            dispatch(setMediaError(null));
+          }, 4000);
+        }
       } else {
         dispatch(
-          setMediaError(
-            `Image size should be less than or equal to ${IMG_SIZE}MB`
-          )
+          setMediaError("It's not an image. You can only upload images.")
         );
         setTimeout(() => {
           dispatch(setMediaError(null));
