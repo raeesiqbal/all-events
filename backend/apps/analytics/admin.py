@@ -6,6 +6,7 @@ from .models import (
     AdReview,
     ContactRequest,
     Calender,
+    AdView,
 )
 
 
@@ -131,9 +132,26 @@ class CalenderAdmin(admin.ModelAdmin):
     raw_id_fields = ("ad", "company")
 
 
+class AdViewAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "visitor_ip",
+    )
+    search_fields = [
+        "id",
+        "visitor_ip",
+        "user__email",
+        "ad__name",
+        "hide",
+    ]
+
+    raw_id_fields = ("ad", "user")
+
+
 admin.site.register(FavouriteAd, FavouriteAdAdmin)
 admin.site.register(Chat, ChatAdmin)
 admin.site.register(Message, MessageAdmin)
 admin.site.register(AdReview, AdReviewAdmin)
 admin.site.register(ContactRequest, ContactRequestAdmin)
 admin.site.register(Calender, CalenderAdmin)
+admin.site.register(AdView, AdViewAdmin)

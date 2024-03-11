@@ -16,12 +16,6 @@ from apps.utils.tasks import (
 )
 from tempfile import NamedTemporaryFile
 
-
-import fitz  # PyMuPDF
-import os
-import tempfile
-
-
 # filters
 from rest_framework.filters import OrderingFilter, SearchFilter
 
@@ -253,8 +247,6 @@ class AdViewSet(BaseViewset):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         delete_url_list = serializer.validated_data.pop("delete_urls", [])
-        # self.s3_service.delete_s3_object_by_url(delete_urls)
-        # print("delete urls", delete_url_list)
         media_urls = serializer.validated_data.pop("media_urls", {})
         faqs = serializer.validated_data.pop("faqs", [])
         ad_faqs = serializer.validated_data.pop("ad_faq_ad", [])
@@ -502,9 +494,9 @@ class AdViewSet(BaseViewset):
             category_serializer = CategoryGetSerializer()
             for category, subcategories in grouped_data.items():
                 category_data = category_serializer.to_representation(category)
-                category_data[
-                    "subcategories"
-                ] = subcategory_serializer.to_representation(subcategories)
+                category_data["subcategories"] = (
+                    subcategory_serializer.to_representation(subcategories)
+                )
                 filter_data.append(category_data)
 
         page = self.paginate_queryset(queryset)

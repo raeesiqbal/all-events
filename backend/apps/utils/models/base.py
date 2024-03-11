@@ -24,7 +24,6 @@ class AbstractBaseModel(Model):
 
 class NewAbstractModel(Model):
     created_at = DateTimeField(default=timezone.now)
-
     updated_at = DateTimeField(auto_now=True)
 
     class Meta:
