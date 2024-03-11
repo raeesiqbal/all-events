@@ -12,7 +12,6 @@ from django.utils import timezone
 from django.db.models.functions import TruncDate
 from django.utils import timezone
 from django.db.models import Sum, F
-from ipware import get_client_ip
 
 
 # permissions
@@ -28,13 +27,9 @@ from apps.analytics.models import (
     AdReview,
     FavouriteAd,
     Message,
-    AdView,
 )
 from apps.ads.models import Ad
 from apps.subscriptions.models import Subscription
-
-# serializers
-from apps.analytics.serializers.create_serializer import AdViewCreateSerializer
 
 
 class AnalyticViewSet(BaseViewset):
@@ -44,7 +39,6 @@ class AnalyticViewSet(BaseViewset):
 
     action_serializers = {
         "default": [],
-        "ad_view_create": AdViewCreateSerializer,
     }
 
     action_permissions = {
@@ -54,7 +48,6 @@ class AnalyticViewSet(BaseViewset):
         "fetch_review_analytics": [IsAuthenticated, IsVerified, IsVendorUser],
         "fetch_messages_analytics": [IsAuthenticated, IsVerified, IsVendorUser],
         "vendor_dashboard": [IsAuthenticated, IsVerified, IsVendorUser],
-        "ad_view_create": [],
     }
 
     @action(detail=False, url_path="home", methods=["get"])
@@ -261,6 +254,7 @@ class AnalyticViewSet(BaseViewset):
         reviews_count = None
         vendor_ad_views = None
         fav_ads_count = None
+
         subscription = Subscription.objects.filter(
             company__user=request.user, status=SUBSCRIPTION_STATUS["ACTIVE"]
         ).first()
@@ -297,32 +291,5 @@ class AnalyticViewSet(BaseViewset):
                 data=data,
                 status_code=status.HTTP_200_OK,
                 message="Company Dashboard",
-            ),
-        )
-
-    @action(detail=False, url_path="ad-view-create", methods=["post"])
-    def ad_view_create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        ad = serializer.validated_data.get("ad", None)
-
-        ip, _ = get_client_ip(request)
-        print("ippppppppppp", get_client_ip(request))
-
-        if request.user.is_authenticated:
-            user = request.user
-            if AdView.objects.filter(visitor_ip=ip, ad=ad, user=None).exists():
-                AdView.objects.filter(visitor_ip=ip, ad=ad, user=None).update(user=user)
-        else:
-            user = None
-        if not AdView.objects.filter(visitor_ip=ip, ad=ad).exists():
-            AdView.objects.create(visitor_ip=ip, ad=ad, user=user)
-
-        return Response(
-            status=status.HTTP_200_OK,
-            data=ResponseInfo().format_response(
-                data=None,
-                status_code=status.HTTP_200_OK,
-                message="Success",
             ),
         )

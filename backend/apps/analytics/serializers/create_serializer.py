@@ -49,9 +49,3 @@ class AdMessageCreateSerializer(BaseSerializer):
     class Meta:
         model = Message
         fields = ["text", "attachments"]
-
-
-class AdViewCreateSerializer(BaseSerializer):
-    class Meta:
-        model = AdView
-        fields = ["ad"]

@@ -1,4 +1,9 @@
+# Imports
 from django.contrib import admin
+from django.urls import reverse
+from django.utils.html import format_html
+
+# Models
 from .models import (
     FavouriteAd,
     Chat,
@@ -135,6 +140,8 @@ class CalenderAdmin(admin.ModelAdmin):
 class AdViewAdmin(admin.ModelAdmin):
     list_display = (
         "id",
+        "get_ad_name",
+        "get_user_email",
         "visitor_ip",
     )
     search_fields = [
@@ -146,6 +153,34 @@ class AdViewAdmin(admin.ModelAdmin):
     ]
 
     raw_id_fields = ("ad", "user")
+
+    def get_ad_name(self, obj):
+        admin_ad_url = reverse(
+            "admin:%s_%s_change"
+            % (
+                obj.ad._meta.app_label,
+                obj.ad._meta.model_name,
+            ),
+            args=[obj.ad.pk],
+        )
+        return format_html('<a href="{}">{}</a>', admin_ad_url, obj.ad.name)
+
+    def get_user_email(self, obj):
+        if obj.user:
+            admin_user_url = reverse(
+                "admin:%s_%s_change"
+                % (
+                    obj.user._meta.app_label,
+                    obj.user._meta.model_name,
+                ),
+                args=[obj.user.pk],
+            )
+            return format_html('<a href="{}">{}</a>', admin_user_url, obj.user.email)
+        else:
+            return None
+
+    get_ad_name.short_description = "Ad"
+    get_user_email.short_description = "Email"
 
 
 admin.site.register(FavouriteAd, FavouriteAdAdmin)

@@ -329,4 +329,4 @@ CELERY_TASK_SERIALIZER = "pickle"
 CELERY_ACCEPT_CONTENT = ["json", "pickle", "application/text"]
 
 # IpWare
-IPWARE_META_PROXY_COUNT = 1
+# IPWARE_META_PROXY_COUNT = 1

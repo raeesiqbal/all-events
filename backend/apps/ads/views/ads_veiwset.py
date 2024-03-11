@@ -15,6 +15,7 @@ from apps.utils.tasks import (
     delete_s3_object_by_url_list,
 )
 from tempfile import NamedTemporaryFile
+from ipware import get_client_ip
 
 # filters
 from rest_framework.filters import OrderingFilter, SearchFilter
@@ -47,7 +48,7 @@ from apps.ads.models import (
 )
 from apps.subscriptions.models import Subscription
 from apps.companies.models import Company
-from apps.analytics.models import Calender
+from apps.analytics.models import Calender, AdView
 
 # serializers
 from apps.ads.serializers.update_serializer import AdUpdateSerializer
@@ -533,10 +534,25 @@ class AdViewSet(BaseViewset):
         if obj:
             data = serializer
 
+        # Ad view analytics
+        ip, _ = get_client_ip(request)
+        if request.user.is_authenticated:
+            user = request.user
+            if AdView.objects.filter(visitor_ip=ip, ad=obj, user=None).exists():
+                AdView.objects.filter(visitor_ip=ip, ad=obj, user=None).update(
+                    user=user
+                )
+        else:
+            user = None
+        if not AdView.objects.filter(visitor_ip=ip, ad=obj).exists():
+            AdView.objects.create(visitor_ip=ip, ad=obj, user=user)
+            obj.total_views += 1
+            obj.save()
+
         return Response(
             status=status.HTTP_200_OK,
             data=ResponseInfo().format_response(
-                data=data, status_code=status.HTTP_200_OK, message="Ads Get"
+                data=data, status_code=status.HTTP_200_OK, message="Ad public get"
             ),
         )
 
