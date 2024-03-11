@@ -261,23 +261,20 @@ class SubscriptionsViewSet(BaseViewset):
     @action(detail=False, url_path="webhook", methods=["post"])
     def webhook(self, request, *args, **kwargs):
         payload = request.body.decode("utf-8")
-        if self.webhook_secret:
-            # Retrieve the event by verifying the signature using the raw body and secret if webhook signing is configured.
-            signature = request.headers.get("stripe-signature")
-            try:
-                event = self.stripe.Webhook.construct_event(
-                    payload=payload,
-                    sig_header=signature,
-                    secret=self.webhook_secret,
-                )
-                data = event["data"]
-            except Exception as e:
-                return e
-            # Get the type of webhook event sent - used to check the status of PaymentIntents.
-            event_type = event["type"]
-        else:
-            data = payload["data"]
-            event_type = payload["type"]
+
+        # Retrieve the event by verifying the signature using the raw body and secret if webhook signing is configured.
+        signature = request.headers.get("stripe-signature")
+        try:
+            event = self.stripe.Webhook.construct_event(
+                payload=payload,
+                sig_header=signature,
+                secret=self.webhook_secret,
+            )
+            data = event["data"]
+        except Exception as e:
+            return e
+        # Get the type of webhook event sent - used to check the status of PaymentIntents.
+        event_type = event["type"]
 
         data_object = data["object"]
 

@@ -71,7 +71,7 @@
         }
 
         .inner p {
-            margin: 3rem 0 3.5rem 0;
+            margin: 0rem 0 0.5rem 0;
             font-size: 1.17rem;
             color: #5E5E5E;
         }
@@ -166,24 +166,31 @@
                 alt="Your Logo" />
             <h1>
                 Hi
-                <b>{{full_name}},</b>
+                <b>{{message.ad.company.name}},</b>
                 <br />
             </h1>
-            <p>One stop shop to make your events special</p>
+            <p>You have received a contact request. Below are the details:</p>
         </div>
 
         <div class="inner">
-            <h2>
-                Please confirm your
-                <span>Account Email</span>
-            </h2>
-            <h3>Verification link will expire after 7 days</h3>
             <p>
-                Confirm your account using the
-                <br />
-                verification link below
+                Full Name: {{message.full_name}}
             </p>
-            <a style="" class="button" href="{{verify_account_url}}">Confirm Email</a>
+            <p>
+                Email: {{message.email}}
+            </p>
+            <p>
+                Phone: {{message.phone}}
+            </p>
+            <p>
+                Ad: {{message.ad.name}}
+            </p>
+            <p>
+                Event Date: {{message.event_date}}
+            </p>
+            <p>
+                Message: {{message.message}}
+            </p>
         </div>
 
         <div class="footer">
@@ -215,6 +222,7 @@
             <h6>All Events</h6>
             <p>One stop shop to make your events special</p>
         </div>
+
     </div>
 </body>
 
