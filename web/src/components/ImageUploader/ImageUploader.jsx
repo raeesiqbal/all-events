@@ -137,14 +137,28 @@ function ImageUploader({ imagesError }) {
   };
 
   useEffect(() => {
-    if (imagesToUpload.length > 0 && images.length === 0)
-      setImages(
-        imagesToUpload.map((image, index) => ({
-          previewURL: image,
-          type: "old",
-          index,
-        }))
-      );
+    if (imagesToUpload.length > 0) {
+      if (images.length === 0) {
+        setImages(
+          imagesToUpload.map((image, index) => ({
+            previewURL: image,
+            type: "old",
+            index,
+          }))
+        );
+      } else {
+        setImages((prevState) => {
+          let index = 0;
+          for (let i = 0; i < prevState.length; i++) {
+            if (prevState[i].type === "old") {
+              prevState[i].index = index;
+              index++;
+            }
+          }
+          return prevState;
+        });
+      }
+    }
   }, [imagesToUpload]);
 
   useEffect(() => {
@@ -281,7 +295,9 @@ function ImageUploader({ imagesError }) {
                 <h5 className="w-100 mb-3">Other images</h5>
               )}
               {images?.map((image, index) =>
-                index === 0 ? null : (
+                index === 0 ? (
+                  <></>
+                ) : (
                   <Col md={3} lg={3} key={index}>
                     <div className="mb-5">
                       {image !== null && (

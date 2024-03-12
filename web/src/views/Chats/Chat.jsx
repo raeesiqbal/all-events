@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Button,
   Card,
@@ -40,13 +40,13 @@ const Chat = ({ chat, isOpenChat }) => {
   );
   const currentUser = useSelector((state) => state.auth.user);
 
-  const [modalShow, setModalShow] = React.useState(isOpenChat);
-  const [deleteModal, setDeleteModal] = React.useState(false);
-  const [isRead, setIsRead] = React.useState(false);
-  const [loading, setLoading] = React.useState(false);
-  const [messageText, setMessageText] = React.useState("");
-  const [attachment, setAttachment] = React.useState(null);
-  const [offset, setOffset] = React.useState(0);
+  const [modalShow, setModalShow] = useState(isOpenChat);
+  const [deleteModal, setDeleteModal] = useState(false);
+  const [isRead, setIsRead] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [messageText, setMessageText] = useState("");
+  const [attachment, setAttachment] = useState(null);
+  const [offset, setOffset] = useState(0);
   const limit = 20;
 
   let dates = [];
@@ -187,7 +187,7 @@ const Chat = ({ chat, isOpenChat }) => {
   }, [modalShow]);
 
   useEffect(() => {
-    if (!modalShow && isRead) {
+    if (!modalShow && isRead && !chat.read) {
       dispatch(unreadChatCount());
     }
   }, [modalShow, isRead]);
