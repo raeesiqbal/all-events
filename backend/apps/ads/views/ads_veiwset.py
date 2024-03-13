@@ -82,7 +82,7 @@ from apps.analytics.serializers.get_serializer import (
 
 class AdViewSet(BaseViewset):
     """
-    API endpoints that manages Company Ads.
+    API endpoints that manages company ads
     """
 
     queryset = Ad.objects.all()
@@ -291,7 +291,7 @@ class AdViewSet(BaseViewset):
                 data=ResponseInfo().format_response(
                     data=AdGetSerializer(ad.first()).data,
                     status_code=status.HTTP_200_OK,
-                    message="Ad has been modified successfully",
+                    message="Ad has been edited successfully",
                 ),
             )
         return Response(
@@ -321,6 +321,7 @@ class AdViewSet(BaseViewset):
 
     @action(detail=True, url_path="upload-media", methods=["post"])
     def upload_media(self, request, *args, **kwargs):
+        set_main_image = request.query_params.get("main", False)
         ad = Ad.objects.filter(id=kwargs["pk"]).first()
         ad_gallery = Gallery.objects.filter(ad=ad).first()
         if ad and ad_gallery:
@@ -341,7 +342,9 @@ class AdViewSet(BaseViewset):
                 elif file_obj.name.endswith(".mp4"):
                     upload_video.delay(temp_file_path, content_type, name, ad)
                 elif file_obj.name.endswith((".jpeg", ".jpg", ".png", ".gif")):
-                    upload_image.delay(temp_file_path, content_type, name, ad)
+                    upload_image.delay(
+                        temp_file_path, content_type, name, ad, set_main_image
+                    )
                 file_obj.close()
 
             return Response(

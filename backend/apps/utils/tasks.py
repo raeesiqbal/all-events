@@ -92,10 +92,10 @@ def resize_image(file_path, max_size):
 
 @shared_task()
 @transaction.atomic
-def upload_image(image_path, content_type, name, ad):
+def upload_image(image_path, content_type, name, ad, set_main_image):
     from apps.ads.models import Gallery
 
-    # s3 init
+    # S3 init
     s3 = boto3.client("s3")
     env = environ.Env()
     bucket_name = env.str("S3_BUCKET_NAME")
@@ -103,9 +103,10 @@ def upload_image(image_path, content_type, name, ad):
     timestamp = datetime.timestamp(datetime.now())
     upload_folder = f"vendors/{ad.company.user.email}/images"
 
-    # try:
+    # Try:
     max_size = float(env.str("IMAGE_SIZE", 2))
-    original_size = os.path.getsize(image_path) / (1024 * 1024)  # Size in MB
+    # Size in MB
+    original_size = os.path.getsize(image_path) / (1024 * 1024)
     if original_size > max_size:
         file = resize_image(image_path, max_size)
         content_type = "image/jpeg"
@@ -126,11 +127,13 @@ def upload_image(image_path, content_type, name, ad):
             "ContentType": content_type,
         },
     )
-
     uploaded_image_url = f"https://{bucket_name}.s3.amazonaws.com/{object_name}"
     ad_gallery = Gallery.objects.filter(ad=ad).first()
     media_urls = ad_gallery.media_urls
-    media_urls["images"].append(uploaded_image_url)
+    if set_main_image:
+        media_urls["images"].insert(0, uploaded_image_url)
+    else:
+        media_urls["images"].append(uploaded_image_url)
     ad_gallery.save()
     os.remove(image_path)
 
