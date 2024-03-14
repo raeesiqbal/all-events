@@ -64,13 +64,12 @@ class UserViewSet(BaseViewset):
         "newsletter": NewsLetterSerializer,
     }
     action_permissions = {
-        "default": [IsAuthenticated, IsVerified],
+        "default": [IsAuthenticated],
         "partial_update": [
             IsAuthenticated,
-            IsVerified,
             IsSuperAdmin | IsVendorUser | IsClient,
         ],
-        "retrieve": [IsAuthenticated, IsVerified, IsSuperAdmin | IsVendorUser],
+        "retrieve": [IsAuthenticated, IsSuperAdmin | IsVendorUser],
         "delete_user": [IsAuthenticated, IsVerified, IsSuperAdmin | IsVendorUser],
         "upload_user_image": [IsAuthenticated, IsVerified],
         "newsletter": [IsAuthenticated, IsVerified],

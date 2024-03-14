@@ -55,17 +55,17 @@ class MessageViewSet(BaseViewset):
     }
 
     action_permissions = {
-        "default": [IsAuthenticated, IsVerified, IsVendorUser | IsClient],
+        "default": [IsAuthenticated, IsVendorUser | IsClient],
         "start_chat": [IsAuthenticated, IsVerified, IsClient],
-        "list": [IsAuthenticated, IsVerified, IsVendorUser | IsClient],
+        "list": [IsAuthenticated, IsVendorUser | IsClient],
         "destroy": [IsAuthenticated, IsVerified, IsVendorUser | IsClient],
-        "chat_archived": [IsAuthenticated, IsVerified, IsClient | IsVendorUser],
-        "chat_read": [IsAuthenticated, IsVerified, IsClient | IsVendorUser],
-        "chat_exist": [IsAuthenticated, IsVerified, IsClient],
-        "chat_message": [IsAuthenticated, IsVerified, IsClient | IsVendorUser],
+        "chat_archived": [IsAuthenticated, IsClient | IsVendorUser],
+        "chat_read": [IsAuthenticated, IsClient | IsVendorUser],
+        "chat_exist": [IsAuthenticated, IsClient],
+        "chat_message": [IsAuthenticated, IsClient | IsVendorUser],
         "message_create": [IsAuthenticated, IsVerified, IsClient | IsVendorUser],
-        "chat_suggestion_list": [IsAuthenticated, IsVerified, IsClient | IsVendorUser],
-        "unread_count": [IsAuthenticated, IsVerified, IsClient | IsVendorUser],
+        "chat_suggestion_list": [IsAuthenticated, IsClient | IsVendorUser],
+        "unread_count": [IsAuthenticated, IsClient | IsVendorUser],
     }
 
     user_role_queryset = {

@@ -43,11 +43,11 @@ class AnalyticViewSet(BaseViewset):
 
     action_permissions = {
         "default": [],
-        "home": [IsAuthenticated, IsVerified, IsVendorUser],
-        "fetch_fav_analytics": [IsAuthenticated, IsVerified, IsVendorUser],
-        "fetch_review_analytics": [IsAuthenticated, IsVerified, IsVendorUser],
-        "fetch_messages_analytics": [IsAuthenticated, IsVerified, IsVendorUser],
-        "vendor_dashboard": [IsAuthenticated, IsVerified, IsVendorUser],
+        "home": [IsAuthenticated, IsVendorUser],
+        "fetch_fav_analytics": [IsAuthenticated, IsVendorUser],
+        "fetch_review_analytics": [IsAuthenticated, IsVendorUser],
+        "fetch_messages_analytics": [IsAuthenticated, IsVendorUser],
+        "vendor_dashboard": [IsAuthenticated, IsVendorUser],
     }
 
     @action(detail=False, url_path="home", methods=["get"])
