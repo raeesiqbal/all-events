@@ -1,3 +1,4 @@
+# Imports
 from django.conf import settings
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -5,15 +6,18 @@ from rest_framework.decorators import action
 from apps.subscriptions.stripe_service import StripeService, WebHookService
 from apps.utils.views.base import BaseViewset, ResponseInfo
 from rest_framework import status
+from apps.utils.tasks import (
+    delete_s3_object_by_url_list,
+)
 
-# permissions
+# Permissions
 from apps.users.permissions import IsVendorUser, IsVerified
 
-# constants
+# Constants
 from apps.subscriptions.constants import SUBSCRIPTION_STATUS, SUBSCRIPTION_TYPES
 from apps.ads.models import Gallery
 
-# models
+# Models
 from apps.subscriptions.models import (
     Subscription,
     SubscriptionType,
@@ -23,7 +27,7 @@ from apps.ads.models import Ad, FAQ
 from apps.companies.models import Company
 from apps.analytics.models import AdReview, Calender
 
-# serializers
+# Serializers
 from apps.subscriptions.serializers.create_serializer import (
     CreateCustomerSerializer,
     InputPriceIdSerializer,
@@ -464,7 +468,6 @@ class SubscriptionsViewSet(BaseViewset):
                 and updated_type.calender == False
             ):
                 consent_list.append("Ads calendars will be disabled")
-
             if old_subscription.type.faq == True and updated_type.faq == False:
                 consent_list.append("Ads FAQ'S will be deleted if any")
             if (
@@ -528,35 +531,30 @@ class SubscriptionsViewSet(BaseViewset):
                 if vendor_ads_count > 0:
                     if vendor_ads_count > updated_type.allowed_ads:
                         error_list.append(
-                            f"Your current active ads count is {vendor_ads_count}, while the plan you want to downgrade allows {allowed_ads} ads upload. Please delete your unwanted ads first <br/>"
+                            f"Please delete excess ads ({vendor_ads_count}) before downgrading. The new plan only allows ({allowed_ads})."
                         )
-                        for ad in vendor_ads:
-                            gallery = Gallery.objects.filter(ad=ad).first()
-                            if gallery:
-                                image_count = len(gallery.media_urls["images"])
-                                video_count = len(gallery.media_urls["video"])
-                                # pdf_count = len(gallery.media_urls["pdf"])
-                                if image_count > updated_type.allowed_ad_photos:
-                                    error_list.append(
-                                        f"Your ad {ad.name} image count is {image_count}, while the while the plan you want to downgrade supports {updated_type.allowed_ad_photos} images <br/>"
-                                    )
-                                if video_count > updated_type.allowed_ad_videos:
-                                    error_list.append(
-                                        f"Your ad {ad.name} video count is {video_count}, while the while the plan you want to downgrade supports {updated_type.allowed_ad_videos} videos <br/>"
-                                    )
-                                # if pdf_count > 0 and updated_type.pdf_upload == False:
-                                #     error_list.append(
-                                #         f"Your ad  {ad.name}  pdf count is {pdf_count}, while the while the plan you want to downgrade does not support uploading of pdfs <br/>"
-                                #     )
-                        if error_list:
-                            return Response(
-                                status=status.HTTP_400_BAD_REQUEST,
-                                data=ResponseInfo().format_response(
-                                    data={},
-                                    status_code=status.HTTP_400_BAD_REQUEST,
-                                    message=" ".join(error_list),
-                                ),
-                            )
+                    for ad in vendor_ads:
+                        gallery = Gallery.objects.filter(ad=ad).first()
+                        if gallery:
+                            image_count = len(gallery.media_urls["images"])
+                            video_count = len(gallery.media_urls["video"])
+                            if image_count > updated_type.allowed_ad_photos:
+                                error_list.append(
+                                    f"Your ad {ad.name} has ({image_count}) images, but the selected plan allows only ({updated_type.allowed_ad_photos}) images."
+                                )
+                            if video_count > updated_type.allowed_ad_videos:
+                                error_list.append(
+                                    f"Your ad {ad.name} has ({video_count}) videos, but the selected plan allows only ({updated_type.allowed_ad_videos})."
+                                )
+                    if error_list:
+                        return Response(
+                            status=status.HTTP_400_BAD_REQUEST,
+                            data=ResponseInfo().format_response(
+                                data=error_list,
+                                status_code=status.HTTP_400_BAD_REQUEST,
+                                message="Please remove below errors in order to downgrade.",
+                            ),
+                        )
             update_subscription = self.stripe_service.update_subscription(
                 old_subscription.subscription_id,
                 old_subscription.stripe_subscription["items"]["data"][0]["id"],
@@ -567,22 +565,28 @@ class SubscriptionsViewSet(BaseViewset):
 
         if update_subscription:
             for ad in vendor_ads:
-                if updated_type.reviews == False:
+                if not updated_type.reviews:
                     AdReview.objects.filter(ad=ad).delete()
-                if updated_type.offered_services == False:
+                if not updated_type.offered_services:
                     FAQ.objects.filter(ad=ad).delete()
-                if updated_type.offered_services == False:
+                if not updated_type.offered_services:
                     ad.offered_services = None
                     ad.save()
-                if updated_type.calender == False:
-                    Calender.objects.filter(ad=ad).update(hide=True)
+                if not updated_type.calender:
+                    Calender.objects.filter(ad=ad).delete()
+                gallery = Gallery.objects.filter(ad=ad).first()
+                if not updated_type.pdf_upload and gallery:
+                    pdfs = gallery.media_urls["pdf"]
+                    delete_s3_object_by_url_list.delay(pdfs)
+                    gallery.media_urls["pdf"] = []
+                    gallery.save()
             status_code = status.HTTP_200_OK
             message = "Your subscription will be updated after the invoice has been paid successfully"
 
         return Response(
             status=status_code,
             data=ResponseInfo().format_response(
-                data={},
+                data=None,
                 status_code=status_code,
                 message=message,
             ),
