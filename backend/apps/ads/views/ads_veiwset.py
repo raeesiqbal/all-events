@@ -672,43 +672,6 @@ class AdViewSet(BaseViewset):
     @action(detail=False, url_path="venue-countries", methods=["get"])
     def venue_countries(self, request, *args, **kwargs):
         category_name = "Venues"
-        # query = """
-        #     SELECT DISTINCT country_id
-        #     FROM ads_ad
-        #     LEFT JOIN ads_country ON ads_ad.country_id = ads_country.id
-        #     WHERE ads_ad.sub_category_id IN (
-        #         SELECT id
-        #         FROM ads_subcategory
-        #         WHERE category_id IN (
-        #             SELECT id
-        #             FROM ads_category
-        #             WHERE LOWER(name) = LOWER(%s)
-        #         )
-        #     )
-        #     UNION
-        #     SELECT DISTINCT country_id
-        #     FROM ads_ad_activation_countries
-        #     LEFT JOIN ads_country ON ads_ad_activation_countries.country_id = ads_country.id
-        #     WHERE ads_ad_activation_countries.ad_id IN (
-        #         SELECT id
-        #         FROM ads_ad
-        #         WHERE sub_category_id IN (
-        #             SELECT id
-        #             FROM ads_subcategory
-        #             WHERE category_id IN (
-        #                 SELECT id
-        #                 FROM ads_category
-        #                 WHERE LOWER(name) = LOWER(%s)
-        #             )
-        #         )
-        #     )
-        # """
-        # with connection.cursor() as cursor:
-        #     cursor.execute(query, [category_name, category_name])
-        #     country_ids = cursor.fetchall()
-        # countries = Country.objects.filter(
-        #     id__in=[country_id for country_id, in country_ids]
-        # )
         countries = (
             Ad.objects.filter(
                 sub_category__category__name__icontains=category_name,

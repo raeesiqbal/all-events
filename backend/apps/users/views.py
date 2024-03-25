@@ -11,7 +11,8 @@ from django.core.signing import TimestampSigner, BadSignature, SignatureExpired
 from rest_framework_simplejwt.tokens import RefreshToken
 from apps.utils.utils import user_verify_account
 from tempfile import NamedTemporaryFile
-from apps.utils.tasks import upload_profile_image
+from apps.utils.tasks import upload_profile_image, delete_s3_object, resize_image
+from apps.utils.services.s3_service import S3Service
 
 # Constants
 from apps.subscriptions.constants import SUBSCRIPTION_STATUS, SUBSCRIPTION_TYPES
@@ -82,6 +83,7 @@ class UserViewSet(BaseViewset):
         )
     }
     stripe_service = StripeService()
+    s3 = S3Service()
 
     @action(detail=False, url_path="validate-user", methods=["post"])
     def validate_user(self, request, *args, **kwargs):
@@ -284,38 +286,61 @@ class UserViewSet(BaseViewset):
             ),
         )
 
-    # @action(detail=False, url_path="upload-user-image", methods=["post"])
-    # def upload_user_image(self, request, *args, **kwargs):
-    #     serializer = self.get_serializer(data=request.data)
-    #     serializer.is_valid(raise_exception=True)
-    #     file = serializer.validated_data.get("file")
-    #     content_type = serializer.validated_data.get("content_type")
-    #     email = request.user.email
-    #     if request.user.role_type == USER_ROLE_TYPES["VENDOR"]:
-    #         upload_folder = f"vendors/{email}/profile"
-    #     elif request.user.role_type == USER_ROLE_TYPES["CLIENT"]:
-    #         upload_folder = f"clients/{email}/profile"
-    #     image_url = None
-    #     # # Uploading resume to S3.
-    #     s3_service = S3Service()
-    #     image_url = s3_service.upload_file(file, content_type, upload_folder)
-    #     user = request.user
-    #     if user.image:
-    #         s3_service.delete_s3_object_by_url(user.image)
-    #     user.image = image_url
-    #     user.save()
-    #     return Response(
-    #         status=status.HTTP_200_OK,
-    #         data=ResponseInfo().format_response(
-    #             data={"file_url": image_url},
-    #             status_code=status.HTTP_200_OK,
-    #             message="User image uploaded",
-    #         ),
-    #     )
-    #
-
     @action(detail=False, url_path="upload-user-image", methods=["post"])
     def upload_user_image(self, request, *args, **kwargs):
+        import os
+        import environ
+
+        env = environ.Env()
+
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        file = serializer.validated_data.get("file")
+        content_type = serializer.validated_data.get("content_type")
+        user = request.user
+        if request.user.role_type == USER_ROLE_TYPES["VENDOR"]:
+            upload_folder = f"vendors/{user.email}/profile"
+        elif request.user.role_type == USER_ROLE_TYPES["CLIENT"]:
+            upload_folder = f"clients/{user.email}/profile"
+        if user.image:
+            delete_s3_object.delay(user.image)
+            user.image = None
+            user.save()
+        # Uploading file
+        image_url = None
+        name = file.name
+        with NamedTemporaryFile(delete=False) as temp_file:
+            temp_file_path = temp_file.name
+            temp_file.write(file.read())
+            temp_file.seek(0)
+        max_size = float(env.str("IMAGE_SIZE", 2))
+        original_size = os.path.getsize(temp_file_path) / (1024 * 1024)
+        if original_size > max_size:
+            file = resize_image(temp_file_path, max_size)
+            content_type = "image/jpeg"
+            name = os.path.basename(file.name) + ".jpg"
+            file_content = file.read()
+            file.close()
+        else:
+            with open(temp_file_path, "rb") as file:
+                file_content = file.read()
+        file.close()
+        image_url = self.s3.upload_binary_file(
+            file_content, content_type, upload_folder, name
+        )
+        user.image = image_url
+        user.save()
+        return Response(
+            status=status.HTTP_200_OK,
+            data=ResponseInfo().format_response(
+                data={"file_url": image_url},
+                status_code=status.HTTP_200_OK,
+                message="User image uploaded",
+            ),
+        )
+
+    @action(detail=False, url_path="upload-user-image", methods=["post"])
+    def upload_user_images(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         file = serializer.validated_data.get("file")

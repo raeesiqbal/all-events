@@ -61,6 +61,8 @@ def delete_s3_object_by_urls(media):
     return True
 
 
+@shared_task()
+@transaction.atomic
 def delete_s3_object(url):
     s3_client = boto3.client("s3")
     env = environ.Env()
@@ -68,6 +70,11 @@ def delete_s3_object(url):
     object_key = url.replace(f"https://{bucket_name}.s3.amazonaws.com/", "")
     s3_client.delete_object(Bucket=bucket_name, Key=object_key)
     return True
+
+
+from PIL import Image
+import os
+import tempfile
 
 
 def resize_image(file_path, max_size):
@@ -78,6 +85,10 @@ def resize_image(file_path, max_size):
     new_width = int(image.width * resize_factor)
     new_height = int(image.height * resize_factor)
     image.thumbnail((new_width, new_height))
+
+    # Check if the image is in RGBA mode and convert it to RGB if necessary
+    if image.mode in ("RGBA", "P"):
+        image = image.convert("RGB")
 
     output_buffer = tempfile.NamedTemporaryFile(delete=True)
     image.save(output_buffer, format="JPEG", quality=85)
@@ -150,44 +161,45 @@ def upload_profile_image(image_path, content_type, name, upload_folder, user_id)
     bucket_name = env.str("S3_BUCKET_NAME")
 
     user = User.objects.filter(id=user_id).first()
-    deleted_image = delete_s3_object(user.image)
 
-    if deleted_image:
-        timestamp = datetime.timestamp(datetime.now())
-        # try:
-        max_size = float(env.str("IMAGE_SIZE", 2))
-        original_size = os.path.getsize(image_path) / (1024 * 1024)  # Size in MB
-        if original_size > max_size:
-            file = resize_image(image_path, max_size)
-            content_type = "image/jpeg"
-            name = os.path.basename(file.name) + ".jpg"
+    if user.image:
+        delete_s3_object(user.image)
+
+    timestamp = datetime.timestamp(datetime.now())
+    # try:
+    max_size = float(env.str("IMAGE_SIZE", 2))
+    original_size = os.path.getsize(image_path) / (1024 * 1024)  # Size in MB
+    if original_size > max_size:
+        file = resize_image(image_path, max_size)
+        content_type = "image/jpeg"
+        name = os.path.basename(file.name) + ".jpg"
+        file_content = file.read()
+        file.close()
+    else:
+        with open(image_path, "rb") as file:
             file_content = file.read()
-            file.close()
-        else:
-            with open(image_path, "rb") as file:
-                file_content = file.read()
 
-        object_name = f"uploads/{upload_folder}/{timestamp}_{name}"
+    object_name = f"uploads/{upload_folder}/{timestamp}_{name}"
 
-        s3.upload_fileobj(
-            io.BytesIO(file_content),
-            bucket_name,
-            object_name,
-            ExtraArgs={
-                "ACL": "public-read",
-                "ContentType": content_type,
-            },
-        )
+    s3.upload_fileobj(
+        io.BytesIO(file_content),
+        bucket_name,
+        object_name,
+        ExtraArgs={
+            "ACL": "public-read",
+            "ContentType": content_type,
+        },
+    )
 
-        uploaded_image_url = f"https://{bucket_name}.s3.amazonaws.com/{object_name}"
-        user.image = uploaded_image_url
-        user.save()
-        os.remove(image_path)
+    uploaded_image_url = f"https://{bucket_name}.s3.amazonaws.com/{object_name}"
+    user.image = uploaded_image_url
+    user.save()
+    os.remove(image_path)
 
-        # except ClientError as e:
-        #     logging.error(e)
-        #     return False
-        return True
+    # except ClientError as e:
+    #     logging.error(e)
+    #     return False
+    return True
 
 
 def resize_video(file_path, max_size):
