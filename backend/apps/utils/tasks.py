@@ -1,4 +1,4 @@
-# imports
+# Imports
 from celery import shared_task
 from django.utils.translation import gettext_lazy as _
 from django.core.mail import EmailMultiAlternatives
@@ -13,10 +13,7 @@ import os
 from django.db import transaction
 from PIL import Image
 from moviepy.editor import VideoFileClip
-from django.core.files.base import ContentFile
 import tempfile
-import shutil
-from moviepy.editor import VideoFileClip
 
 
 @shared_task()
@@ -38,12 +35,8 @@ def delete_s3_object_by_url_list(urls):
     bucket_name = env.str("S3_BUCKET_NAME")
     objects_to_delete = []
     for url in urls:
-        # https://test-bucket-all-events.s3.amazonaws.com/uploads/vendors/rayiszafar@gmail.com/images/1702555431.260493_tmpikw5alyc.jpg
-        # object_key = url.replace(f"https://s3.amazonaws.com/{bucket_name}/", "")
         object_key = url.replace(f"https://{bucket_name}.s3.amazonaws.com/", "")
-        print("key", object_key)
         objects_to_delete.append({"Key": object_key})
-
     s3_client.delete_objects(
         Bucket=bucket_name,
         Delete={"Objects": objects_to_delete},
@@ -61,12 +54,27 @@ def delete_s3_object_by_urls(media):
         for url in urls:
             object_key = url.replace(f"https://{bucket_name}.s3.amazonaws.com/", "")
             objects_to_delete.append({"Key": object_key})
-
     s3_client.delete_objects(
         Bucket=bucket_name,
         Delete={"Objects": objects_to_delete},
     )
     return True
+
+
+@shared_task()
+@transaction.atomic
+def delete_s3_object(url):
+    s3_client = boto3.client("s3")
+    env = environ.Env()
+    bucket_name = env.str("S3_BUCKET_NAME")
+    object_key = url.replace(f"https://{bucket_name}.s3.amazonaws.com/", "")
+    s3_client.delete_object(Bucket=bucket_name, Key=object_key)
+    return True
+
+
+from PIL import Image
+import os
+import tempfile
 
 
 def resize_image(file_path, max_size):
@@ -78,6 +86,10 @@ def resize_image(file_path, max_size):
     new_height = int(image.height * resize_factor)
     image.thumbnail((new_width, new_height))
 
+    # Check if the image is in RGBA mode and convert it to RGB if necessary
+    if image.mode in ("RGBA", "P"):
+        image = image.convert("RGB")
+
     output_buffer = tempfile.NamedTemporaryFile(delete=True)
     image.save(output_buffer, format="JPEG", quality=85)
     # Reset the file pointer to the beginning of the output_buffer
@@ -87,10 +99,10 @@ def resize_image(file_path, max_size):
 
 @shared_task()
 @transaction.atomic
-def upload_image(image_path, content_type, name, ad):
+def upload_image(image_path, content_type, name, ad, set_main_image):
     from apps.ads.models import Gallery
 
-    # s3 init
+    # S3 init
     s3 = boto3.client("s3")
     env = environ.Env()
     bucket_name = env.str("S3_BUCKET_NAME")
@@ -98,9 +110,10 @@ def upload_image(image_path, content_type, name, ad):
     timestamp = datetime.timestamp(datetime.now())
     upload_folder = f"vendors/{ad.company.user.email}/images"
 
-    # try:
+    # Try:
     max_size = float(env.str("IMAGE_SIZE", 2))
-    original_size = os.path.getsize(image_path) / (1024 * 1024)  # Size in MB
+    # Size in MB
+    original_size = os.path.getsize(image_path) / (1024 * 1024)
     if original_size > max_size:
         file = resize_image(image_path, max_size)
         content_type = "image/jpeg"
@@ -121,12 +134,66 @@ def upload_image(image_path, content_type, name, ad):
             "ContentType": content_type,
         },
     )
-
     uploaded_image_url = f"https://{bucket_name}.s3.amazonaws.com/{object_name}"
     ad_gallery = Gallery.objects.filter(ad=ad).first()
     media_urls = ad_gallery.media_urls
-    media_urls["images"].append(uploaded_image_url)
+    if set_main_image:
+        media_urls["images"].insert(0, uploaded_image_url)
+    else:
+        media_urls["images"].append(uploaded_image_url)
     ad_gallery.save()
+    os.remove(image_path)
+
+    # except ClientError as e:
+    #     logging.error(e)
+    #     return False
+    return True
+
+
+@shared_task()
+@transaction.atomic
+def upload_profile_image(image_path, content_type, name, upload_folder, user_id):
+    from apps.users.models import User
+
+    # s3 init
+    s3 = boto3.client("s3")
+    env = environ.Env()
+    bucket_name = env.str("S3_BUCKET_NAME")
+
+    user = User.objects.filter(id=user_id).first()
+
+    if user.image:
+        delete_s3_object(user.image)
+
+    timestamp = datetime.timestamp(datetime.now())
+    # try:
+    max_size = float(env.str("IMAGE_SIZE", 2))
+    original_size = os.path.getsize(image_path) / (1024 * 1024)  # Size in MB
+    if original_size > max_size:
+        file = resize_image(image_path, max_size)
+        content_type = "image/jpeg"
+        name = os.path.basename(file.name) + ".jpg"
+        file_content = file.read()
+        file.close()
+    else:
+        with open(image_path, "rb") as file:
+            file_content = file.read()
+
+    object_name = f"uploads/{upload_folder}/{timestamp}_{name}"
+
+    s3.upload_fileobj(
+        io.BytesIO(file_content),
+        bucket_name,
+        object_name,
+        ExtraArgs={
+            "ACL": "public-read",
+            "ContentType": content_type,
+        },
+    )
+
+    uploaded_image_url = f"https://{bucket_name}.s3.amazonaws.com/{object_name}"
+    user.image = uploaded_image_url
+    user.save()
     os.remove(image_path)
 
     # except ClientError as e:

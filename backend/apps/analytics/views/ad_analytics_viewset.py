@@ -1,4 +1,4 @@
-# imports
+# Imports
 from apps.ads.serializers.get_serializers import AdDashboardSerializer
 from apps.subscriptions.models import Subscription
 from apps.users.serializers import GetUserDashboardSerializer
@@ -9,7 +9,6 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.db.models import Count
 from django.utils import timezone
-from datetime import timedelta
 from django.db.models.functions import TruncDate
 from django.utils import timezone
 from django.db.models import Sum, F
@@ -32,8 +31,6 @@ from apps.analytics.models import (
 from apps.ads.models import Ad
 from apps.subscriptions.models import Subscription
 
-# serializers
-
 
 class AnalyticViewSet(BaseViewset):
     """
@@ -46,11 +43,11 @@ class AnalyticViewSet(BaseViewset):
 
     action_permissions = {
         "default": [],
-        "home": [IsAuthenticated, IsVerified, IsVendorUser],
-        "fetch_fav_analytics": [IsAuthenticated, IsVerified, IsVendorUser],
-        "fetch_review_analytics": [IsAuthenticated, IsVerified, IsVendorUser],
-        "fetch_messages_analytics": [IsAuthenticated, IsVerified, IsVendorUser],
-        "vendor_dashboard": [IsAuthenticated, IsVerified, IsVendorUser],
+        "home": [IsAuthenticated, IsVendorUser],
+        "fetch_fav_analytics": [IsAuthenticated, IsVendorUser],
+        "fetch_review_analytics": [IsAuthenticated, IsVendorUser],
+        "fetch_messages_analytics": [IsAuthenticated, IsVendorUser],
+        "vendor_dashboard": [IsAuthenticated, IsVendorUser],
     }
 
     @action(detail=False, url_path="home", methods=["get"])
@@ -257,6 +254,7 @@ class AnalyticViewSet(BaseViewset):
         reviews_count = None
         vendor_ad_views = None
         fav_ads_count = None
+
         subscription = Subscription.objects.filter(
             company__user=request.user, status=SUBSCRIPTION_STATUS["ACTIVE"]
         ).first()

@@ -32,6 +32,7 @@ const initialState = {
     video: [],
     pdf: [],
   },
+  isNewMainImage: false,
   publicAds: [],
   venueCountries: [],
 };
@@ -50,7 +51,7 @@ export const handleCreateNewAd = createAsyncThunk(
     } catch (err) {
       return rejectWithValue(err.response.data);
     }
-  },
+  }
 );
 
 export const handleEditAd = createAsyncThunk(
@@ -69,19 +70,21 @@ export const handleEditAd = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  },
+  }
 );
 
 export const uploadMediaFiles = createAsyncThunk(
   "Ads/uploadMediaFiles",
-  async ({ id, files, navigate }, { rejectWithValue }) => {
+  async ({ id, files, navigate, isNewMainImage }, { rejectWithValue }) => {
     const formData = new FormData();
 
-    files.forEach((file) => { formData.append("file", file); });
+    files.forEach((file) => {
+      formData.append("file", file);
+    });
 
     try {
       const response = await secureInstance.request({
-        url: `/api/ads/${id}/upload-media/`,
+        url: `/api/ads/${id}/upload-media/?main=${isNewMainImage}`,
         method: "POST",
         data: formData,
       });
@@ -90,7 +93,7 @@ export const uploadMediaFiles = createAsyncThunk(
     } catch (err) {
       return rejectWithValue(err.response.data);
     }
-  },
+  }
 );
 
 export const uploadImageToCloud = createAsyncThunk(
@@ -117,7 +120,7 @@ export const uploadImageToCloud = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  },
+  }
 );
 
 export const listVendorAds = createAsyncThunk(
@@ -134,7 +137,7 @@ export const listVendorAds = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  },
+  }
 );
 
 export const listCountries = createAsyncThunk(
@@ -152,7 +155,7 @@ export const listCountries = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  },
+  }
 );
 
 export const getVendorAdNames = createAsyncThunk(
@@ -169,7 +172,7 @@ export const getVendorAdNames = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  },
+  }
 );
 
 export const listPremiumVenues = createAsyncThunk(
@@ -187,7 +190,7 @@ export const listPremiumVenues = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  },
+  }
 );
 
 export const listPremiumVendors = createAsyncThunk(
@@ -205,7 +208,7 @@ export const listPremiumVendors = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  },
+  }
 );
 
 export const listFavoriteAds = createAsyncThunk(
@@ -222,7 +225,7 @@ export const listFavoriteAds = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  },
+  }
 );
 
 export const favoriteAd = createAsyncThunk(
@@ -239,7 +242,7 @@ export const favoriteAd = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  },
+  }
 );
 
 export const venueCountries = createAsyncThunk(
@@ -256,7 +259,7 @@ export const venueCountries = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  },
+  }
 );
 
 export const adCalendar = createAsyncThunk(
@@ -273,7 +276,7 @@ export const adCalendar = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  },
+  }
 );
 
 // Create the loginSlice
@@ -313,6 +316,9 @@ export const AdsSlice = createSlice({
     },
     setMediaPDF: (state, action) => {
       state.media.pdf = action.payload;
+    },
+    setIsNewMainImage: (state, action) => {
+      state.isNewMainImage = action.payload;
     },
     setImagesError: (state, action) => {
       state.imagesError = action.payload;
@@ -461,8 +467,8 @@ export const AdsSlice = createSlice({
       .addCase(listFavoriteAds.fulfilled, (state, action) => {
         state.loading = false;
         if (
-          action.payload.offset === 0
-          || state.isArchived !== action.payload.archive
+          action.payload.offset === 0 ||
+          state.isArchived !== action.payload.archive
         ) {
           state.favoriteAds = action.payload.data.results;
         } else {
@@ -494,7 +500,7 @@ export const AdsSlice = createSlice({
             return ad;
           });
           state.favoriteAds = state.favoriteAds.filter(
-            (ad) => ad.ad.id !== action.payload.id,
+            (ad) => ad.ad.id !== action.payload.id
           );
         }
       })
@@ -544,6 +550,7 @@ export const {
   setMediaError,
   setMediaImages,
   setMediaVideos,
+  setIsNewMainImage,
   setMediaPDF,
 } = AdsSlice.actions;
 

@@ -10,6 +10,7 @@ const initialState = {
   chats: [],
   inboxCount: 0,
   archivedCount: 0,
+  unreadChatsCount: 0,
   isArchived: "False",
   suggestionsList: [],
   ChatSuccessAlert: false,
@@ -37,13 +38,16 @@ export const handleStartChat = createAsyncThunk(
 
 export const listChats = createAsyncThunk(
   "Chats/list",
-  async ({
-    archive, limit, offset, adName, senderName,
-  }, { rejectWithValue }) => {
+  async (
+    { archive, limit, offset, adName, senderName },
+    { rejectWithValue }
+  ) => {
     try {
       let url = `/api/analytics/ad-chat?archived=${archive}&limit=${limit}&offset=${offset}`;
-      if (adName !== null && adName !== "" && adName !== undefined) url += `&ad__name=${adName}`;
-      if (senderName !== null && senderName !== "" && senderName !== undefined) url += `&sender_name=${senderName}`;
+      if (adName !== null && adName !== "" && adName !== undefined)
+        url += `&ad__name=${adName}`;
+      if (senderName !== null && senderName !== "" && senderName !== undefined)
+        url += `&sender_name=${senderName}`;
       const response = await secureInstance.request({
         url,
         method: "Get",
@@ -85,6 +89,23 @@ export const readChat = createAsyncThunk(
         data: { is_read: true },
       });
       return response.status_code;
+    } catch (err) {
+      // Use `err.response.data` as `action.payload` for a `rejected` action,
+      // by explicitly returning it using the `rejectWithValue()` utility
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
+
+export const unreadChatCount = createAsyncThunk(
+  "Chats/unreadChatCount",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await secureInstance.request({
+        url: "/api/analytics/ad-chat/unread-count",
+        method: "Get",
+      });
+      return response.data;
     } catch (err) {
       // Use `err.response.data` as `action.payload` for a `rejected` action,
       // by explicitly returning it using the `rejectWithValue()` utility
@@ -152,7 +173,10 @@ export const ChatsSlice = createSlice({
       })
       .addCase(listChats.fulfilled, (state, action) => {
         state.loading = false;
-        if (action.payload.offset === 0 || state.isArchived !== action.payload.archive) {
+        if (
+          action.payload.offset === 0 ||
+          state.isArchived !== action.payload.archive
+        ) {
           state.chats = action.payload.data.chats.results;
         } else {
           state.chats = [...state.chats, ...action.payload.data.chats.results];
@@ -198,6 +222,18 @@ export const ChatsSlice = createSlice({
         state.ChatSuccessAlert = true;
       })
       .addCase(readChat.rejected, (state, action) => {
+        state.loading = false;
+        state.ChatErrorAlert = action.payload;
+      })
+      .addCase(unreadChatCount.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(unreadChatCount.fulfilled, (state, action) => {
+        state.loading = false;
+        state.unreadChatsCount = action.payload.data ?? action.payload ?? 0;
+      })
+      .addCase(unreadChatCount.rejected, (state, action) => {
         state.loading = false;
         state.ChatErrorAlert = action.payload;
       })

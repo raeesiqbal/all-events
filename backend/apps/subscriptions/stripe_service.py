@@ -1,4 +1,3 @@
-from datetime import datetime
 from django.conf import settings
 import stripe
 from apps.subscriptions.models import Subscription

@@ -1,14 +1,13 @@
-# imports
+# Imports
 from django.contrib import admin
-from apps.utils.utils import unique_slugify
 from apps.utils.services.s3_service import S3Service
 from django.urls import reverse
 from django.utils.html import format_html
 
-# forms
+# Forms
 from .forms import CountryAdminForm
 
-# models
+# Models
 
 from .models import (
     FAQ,
@@ -112,6 +111,7 @@ class AdAdmin(admin.ModelAdmin):
                     "status",
                     "activation_countries",
                     "sort_order",
+                    "total_views",
                 )
             },
         ),

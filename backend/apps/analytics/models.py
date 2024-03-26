@@ -96,7 +96,7 @@ class Message(NewAbstractModel):
     )
     sender = models.ForeignKey(
         "users.User", on_delete=models.CASCADE, related_name="my_messages"
-    ) 
+    )
     text = models.TextField(null=True, blank=True)
     attachments = ArrayField(base_field=models.TextField(), null=True, blank=True)
 
@@ -153,3 +153,28 @@ class Calender(NewAbstractModel):
         ordering = ["-id"]
         verbose_name = "Calender"
         verbose_name_plural = "Calenders"
+
+
+class AdView(NewAbstractModel):
+    ad = models.ForeignKey(
+        "ads.Ad",
+        verbose_name=_("Ad"),
+        on_delete=models.CASCADE,
+    )
+    visitor_ip = models.GenericIPAddressField()
+    user = models.ForeignKey(
+        "users.User",
+        verbose_name=_("User"),
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
+
+    def __str__(self):
+        return f"{self.id}"
+
+    class Meta:
+        ordering = ["-id"]
+        unique_together = ("ad", "visitor_ip", "user")
+        verbose_name = "Ad View"
+        verbose_name_plural = "Ad Views"

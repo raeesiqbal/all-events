@@ -37,4 +37,4 @@ def user_verify_account(user):
         render_to_string("emails/reset_password/user_reset_password.txt", context),
         user.email,
     )
-    return True
+    return True 

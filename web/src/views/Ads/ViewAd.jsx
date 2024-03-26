@@ -3,14 +3,17 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import Calendar from "react-calendar";
 import useEmblaCarousel from "embla-carousel-react";
-import {
-  Button, Col, Container, Form, Modal, Row,
-} from "react-bootstrap";
+import { Button, Col, Container, Form, Modal, Row } from "react-bootstrap";
+import { Alert } from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart } from "@fortawesome/free-regular-svg-icons";
 import { faLink } from "@fortawesome/free-solid-svg-icons";
 import {
-  faFacebook, faInstagram, faTiktok, faTwitter, faYoutube,
+  faFacebook,
+  faInstagram,
+  faTiktok,
+  faTwitter,
+  faYoutube,
 } from "@fortawesome/free-brands-svg-icons";
 import useWindowDimensions from "../../utilities/hooks/useWindowDimension";
 import Reviews from "../Reviews/Reviews";
@@ -18,11 +21,15 @@ import StarRating from "../../components/Rating/StarRating";
 import MapIcon from "../../assets/images/post-ad/map-outlined.svg";
 import DiscountTag from "../../assets/images/discount-tag.svg";
 import { instance, secureInstance } from "../../axios/config";
-import { handleStartContact } from "../redux/Contacts/ContactsSlice";
+import {
+  handleStartContact,
+  resetContactSuccessAlert,
+} from "../redux/Contacts/ContactsSlice";
 import { handleStartChat } from "../redux/Chats/ChatsSlice";
 import { adCalendar, favoriteAd } from "../redux/Posts/AdsSlice";
 import "./Ads.css";
 import { setValidModal } from "../redux/Auth/authSlice";
+import { ScrollToError } from "../../utilities/ScrollToError";
 
 export function PrevButton(props) {
   const { enabled, onClick } = props;
@@ -76,12 +83,20 @@ function ViewAd() {
   const [openImage, setOpenImage] = useState(false);
   const [openVideoModal, setOpenVideoModal] = useState(false);
   const [imageSrc, setImageSrc] = useState("");
+  const [isValidForm, setIsValidForm] = useState({
+    name: true,
+    email: true,
+    phone: true,
+    text: true,
+    event_date: true,
+  });
 
   const params = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const { calendar } = useSelector((state) => state.Ads);
+  const { ContactSuccessAlert } = useSelector((state) => state.contact);
 
   const mediaQuery = useWindowDimensions();
   const options = { slidesToScroll: "auto", containScroll: "trimSnaps" };
@@ -101,6 +116,14 @@ function ViewAd() {
       chunks.push(array.slice(i, i + chunkSize));
     }
     return chunks;
+  };
+
+  const checkValidity = (key, value) => {
+    setIsValidForm({
+      ...isValidForm,
+      [key]: value !== "",
+    });
+    return;
   };
 
   const imageChunks = imageLinks?.length > 0 ? chunkArray(imageLinks, 3) : [];
@@ -125,11 +148,11 @@ function ViewAd() {
 
   const scrollPrev = useCallback(
     () => emblaApi && emblaApi.scrollPrev(),
-    [emblaApi],
+    [emblaApi]
   );
   const scrollNext = useCallback(
     () => emblaApi && emblaApi.scrollNext(),
-    [emblaApi],
+    [emblaApi]
   );
 
   const getAdInfo = async () => {
@@ -158,12 +181,18 @@ function ViewAd() {
 
   useEffect(() => {
     if (currentAd && offeredServices.length === 0) {
-      setOfferedServices((currentAd.offered_services || []).concat(currentAd.site_services).slice(0, 12));
+      setOfferedServices(
+        (currentAd.offered_services || [])
+          .concat(currentAd.site_services)
+          .slice(0, 12)
+      );
     }
   }, [currentAd]);
 
   const displayAllOfferedServices = () => {
-    setOfferedServices((currentAd.offered_services || []).concat(currentAd.site_services));
+    setOfferedServices(
+      (currentAd.offered_services || []).concat(currentAd.site_services)
+    );
   };
 
   const onSelect = useCallback((emblaApi) => {
@@ -190,39 +219,127 @@ function ViewAd() {
   }, [user?.role]);
 
   const getData = () => {
-    const data = user.userId === null
-      ? {
-        email,
-        phone,
-        full_name: name,
-        event_date: eventDate.toString(),
-        message: text,
-        ad: params.adId,
-      } : {
-        event_date: eventDate.toString(),
-        message: text,
-        ad: params.adId,
-      };
+    const data =
+      user.userId === null
+        ? {
+            email,
+            phone,
+            full_name: name,
+            event_date: eventDate.toString(),
+            message: text,
+            ad: params.adId,
+          }
+        : {
+            event_date: eventDate.toString(),
+            message: text,
+            ad: params.adId,
+          };
     return {
       data,
       navigate,
     };
   };
 
-  const submitVendorRequestForm = () => {
+  const submitVendorRequestForm = (e) => {
+    let validation = { ...isValidForm };
+
+    if (text === "") {
+      validation = {
+        ...validation,
+        text: false,
+      };
+    }
+
+    if (eventDate.toString() === "") {
+      validation = {
+        ...validation,
+        event_date: false,
+      };
+    }
+
+    if (user.userId === null) {
+      if (name === "") {
+        validation = {
+          ...validation,
+          name: false,
+        };
+      }
+
+      if (email === "") {
+        validation = {
+          ...validation,
+          email: false,
+        };
+      }
+
+      if (phone === "") {
+        validation = {
+          ...validation,
+          phone: false,
+        };
+      }
+    }
+
+    if (Object.values(validation).includes(false)) {
+      setIsValidForm(validation);
+      // e.stopPropagation();
+      return;
+    }
+
     dispatch(
       user.userId === null
         ? handleStartContact(getData())
-        : handleStartChat(getData()),
+        : handleStartChat(getData())
     );
+
+    setText("");
+    setEventDate("");
+    setName("");
+    setEmail("");
+    setPhone("");
   };
 
-  const isBusyDate = (dt) => Object.keys(calendar?.dates || {}).some((d) => new Date(d).toDateString() === dt.toDateString());
+  useEffect(() => {
+    if (Object.values(isValidForm).includes(false)) {
+      const el = document.querySelector(".form-control.is-invalid");
+      (el?.parentElement ?? el)?.scrollIntoView();
+    }
+  }, [isValidForm]);
+
+  useEffect(() => {
+    if (ContactSuccessAlert) {
+      setTimeout(() => {
+        dispatch(resetContactSuccessAlert());
+      }, 2000);
+    }
+  }, [ContactSuccessAlert]);
+
+  const isBusyDate = (dt) =>
+    Object.keys(calendar?.dates || {}).some(
+      (d) => new Date(d).toDateString() === dt.toDateString()
+    );
 
   const busyClassName = ({ date }) => (isBusyDate(date) ? "busy-tile" : "");
 
   return (
     <>
+      <Alert
+        severity="success"
+        variant="filled"
+        style={{
+          position: "fixed",
+          top: ContactSuccessAlert ? "80px" : "-80px",
+          left: "50%",
+          transform: "translateX(-50%)",
+          transition: "ease 200ms",
+          opacity: ContactSuccessAlert ? 1 : 0,
+          zIndex: "100",
+          // width: "150px",
+        }}
+      >
+        Message sent successfully
+      </Alert>
+
       <Modal
         show={openImage}
         onHide={() => {
@@ -232,7 +349,10 @@ function ViewAd() {
         aria-labelledby="example-custom-modal-styling-title"
         centered="true"
       >
-        <div className="box" style={{ position: "absolute", right: "3.5px", top: "3px" }} />
+        <div
+          className="box"
+          style={{ position: "absolute", right: "3.5px", top: "3px" }}
+        />
         <div
           style={{
             position: "absolute",
@@ -279,7 +399,10 @@ function ViewAd() {
         aria-labelledby="example-custom-modal-styling-title"
         centered="true"
       >
-        <div className="box" style={{ position: "absolute", right: "3.5px", top: "3px" }} />
+        <div
+          className="box"
+          style={{ position: "absolute", right: "3.5px", top: "3px" }}
+        />
         <div
           style={{
             position: "absolute",
@@ -314,15 +437,14 @@ function ViewAd() {
         </div>
         <Modal.Body className="p-4">
           <h1 className="text-center">All Videos</h1>
-          {
-            currentAd?.ad_media[0]?.media_urls?.video && currentAd?.ad_media[0]?.media_urls?.video.map((video_url) => (
+          {currentAd?.ad_media[0]?.media_urls?.video &&
+            currentAd?.ad_media[0]?.media_urls?.video.map((video_url) => (
               <video
                 style={{ width: "100%", maxHeight: "700px", marginTop: "30px" }}
                 src={video_url}
                 controls
               />
-            ))
-          }
+            ))}
         </Modal.Body>
       </Modal>
 
@@ -334,25 +456,23 @@ function ViewAd() {
         <Row>
           <div className="d-md-flex align-items-center justify-content-between">
             <div className="roboto-bold-36px-h1 ps-lg-4">
-              {
-                currentAd && currentAd.fav !== null && (
-                  <FontAwesomeIcon
-                    icon={currentAd.fav ? "fa-heart fa-solid" : faHeart}
-                    style={{ color: "#A0C49D", cursor: "pointer" }}
-                    className="me-2"
-                    onClick={() => {
-                      if (user.is_verified) {
-                        dispatch(favoriteAd(currentAd.id));
-                        setTimeout(() => {
-                          getAdInfo();
-                        }, 100);
-                      } else {
-                        dispatch(setValidModal(true));
-                      }
-                    }}
-                  />
-                )
-              }
+              {currentAd && currentAd.fav !== null && (
+                <FontAwesomeIcon
+                  icon={currentAd.fav ? "fa-heart fa-solid" : faHeart}
+                  style={{ color: "#A0C49D", cursor: "pointer" }}
+                  className="me-2"
+                  onClick={() => {
+                    if (user.is_verified) {
+                      dispatch(favoriteAd(currentAd.id));
+                      setTimeout(() => {
+                        getAdInfo();
+                      }, 100);
+                    } else {
+                      dispatch(setValidModal(true));
+                    }
+                  }}
+                />
+              )}
               {currentAd?.name}
             </div>
 
@@ -379,14 +499,14 @@ function ViewAd() {
                                 sm={12}
                                 md={12}
                                 lg={
-                                  slide[`image${index * 3 + 2}`]
-                                  || slide[`image${index * 3 + 3}`]
+                                  slide[`image${index * 3 + 2}`] ||
+                                  slide[`image${index * 3 + 3}`]
                                     ? 6
                                     : 12
                                 }
                                 xl={
-                                  slide[`image${index * 3 + 2}`]
-                                  || slide[`image${index * 3 + 3}`]
+                                  slide[`image${index * 3 + 2}`] ||
+                                  slide[`image${index * 3 + 3}`]
                                     ? 6
                                     : 12
                                 }
@@ -423,7 +543,9 @@ function ViewAd() {
                                       cursor: "pointer",
                                     }}
                                     onClick={() => {
-                                      setImageSrc(slide[`image${index * 3 + 2}`]);
+                                      setImageSrc(
+                                        slide[`image${index * 3 + 2}`]
+                                      );
                                       setOpenImage(true);
                                     }}
                                   />
@@ -435,7 +557,9 @@ function ViewAd() {
                                     className="stacked-image"
                                     style={{ cursor: "pointer" }}
                                     onClick={() => {
-                                      setImageSrc(slide[`image${index * 3 + 3}`]);
+                                      setImageSrc(
+                                        slide[`image${index * 3 + 3}`]
+                                      );
                                       setOpenImage(true);
                                     }}
                                   />
@@ -470,11 +594,15 @@ function ViewAd() {
                   </div>
                   <PrevButton onClick={scrollPrev} enabled={prevBtnEnabled} />
                   <NextButton onClick={scrollNext} enabled={nextBtnEnabled} />
-                  {
-                    currentAd?.ad_media[0]?.media_urls?.video?.length > 0 && (
-                      <Button variant="light" className="px-4 py-2 w-auto" onClick={() => setOpenVideoModal(true)}>View videos</Button>
-                    )
-                  }
+                  {currentAd?.ad_media[0]?.media_urls?.video?.length > 0 && (
+                    <Button
+                      variant="light"
+                      className="px-4 py-2 w-auto"
+                      onClick={() => setOpenVideoModal(true)}
+                    >
+                      View videos
+                    </Button>
+                  )}
                 </div>
               </div>
             </Row>
@@ -490,28 +618,28 @@ function ViewAd() {
                 <div className="d-flex w-100 align-items-center pt-3">
                   <StarRating
                     averageRating={currentAd?.average_rating?.toFixed(1) || 0}
-                    style={{ width: "fit-content", fontSize: "18px", marginRight: "7px" }}
+                    style={{
+                      width: "fit-content",
+                      fontSize: "18px",
+                      marginRight: "7px",
+                    }}
                   />
-                  <strong>{currentAd?.average_rating?.toFixed(1) || "0.0"}</strong>
+                  <strong>
+                    {currentAd?.average_rating?.toFixed(1) || "0.0"}
+                  </strong>
                   <div className="ms-2" style={{ color: "#797979" }}>
-                    {currentAd?.total_reviews || 0}
-                    {" "}
-                    Reviews
+                    {currentAd?.total_reviews || 0} Reviews
                   </div>
                 </div>
-                {(currentAd?.facebook !== ""
-                  || currentAd?.instagram !== ""
-                  || currentAd?.youtube !== ""
-                  || currentAd?.tiktok !== ""
-                  || currentAd?.twitter !== ""
-                  || currentAd?.others !== "") && (
+                {(currentAd?.facebook !== "" ||
+                  currentAd?.instagram !== "" ||
+                  currentAd?.youtube !== "" ||
+                  currentAd?.tiktok !== "" ||
+                  currentAd?.twitter !== "" ||
+                  currentAd?.others !== "") && (
                   <div className="d-grid align-items-center justify-content-between mt-3">
                     <div className="roboto-regular-16px-information mb-2">
-                      Follow
-                      {" "}
-                      <strong>{currentAd?.name}</strong>
-                      {" "}
-                      on
+                      Follow <strong>{currentAd?.name}</strong> on
                     </div>
 
                     <div className="d-flex">
@@ -694,14 +822,12 @@ function ViewAd() {
                   style={{ overflowWrap: "break-word" }}
                   // dangerouslySetInnerHTML={{ __html: currentAd?.description?.replace(/\n/g, "<br>") }}
                 >
-                  {
-                    currentAd?.description?.split("\n").map((content) => (
-                      <>
-                        {content}
-                        <br />
-                      </>
-                    ))
-                  }
+                  {currentAd?.description?.split("\n").map((content) => (
+                    <>
+                      {content}
+                      <br />
+                    </>
+                  ))}
                   {/* {currentAd?.description} */}
                 </div>
               </div>
@@ -723,27 +849,35 @@ function ViewAd() {
                   ))}
                 </Row>
 
-                {
-                  (currentAd.offered_services || []).concat(currentAd.site_services).length > 12 && offeredServices.length === 12 && (
+                {(currentAd.offered_services || []).concat(
+                  currentAd.site_services
+                ).length > 12 &&
+                  offeredServices.length === 12 && (
                     <Row className="mt-2">
                       <Col lg={4} />
                       <Col lg={4}>
-                        <Button variant="success" className="px-5 w-auto" onClick={displayAllOfferedServices}>View more</Button>
+                        <Button
+                          variant="success"
+                          className="px-5 w-auto"
+                          onClick={displayAllOfferedServices}
+                        >
+                          View more
+                        </Button>
                       </Col>
                       <Col lg={4} />
                     </Row>
-                  )
-                }
+                  )}
               </div>
             )}
 
-            {currentTab === 1 && currentAd && currentAd.ad_media[0].media_urls.pdf.length > 0 && (
-              <div className="d-flex flex-column ps-lg-4 my-4">
-                <div className="d-flex roboto-semi-bold-24px-h3">PDF's</div>
+            {currentTab === 1 &&
+              currentAd &&
+              currentAd.ad_media[0].media_urls.pdf.length > 0 && (
+                <div className="d-flex flex-column ps-lg-4 my-4">
+                  <div className="d-flex roboto-semi-bold-24px-h3">PDF's</div>
 
-                <Row>
-                  {
-                    currentAd.ad_media[0].media_urls.pdf.map((pdf) => (
+                  <Row>
+                    {currentAd.ad_media[0].media_urls.pdf.map((pdf) => (
                       <Col sm={1} md={2} lg={4} className="mt-4">
                         <a
                           className="w-100 h-100"
@@ -753,18 +887,28 @@ function ViewAd() {
                           rel="noreferrer"
                         >
                           <div className="discount p-4">
-                            <img src={DiscountTag} alt="discount-tag" className="me-2" />
-                            <span style={{ maxWidth: "180px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                            <img
+                              src={DiscountTag}
+                              alt="discount-tag"
+                              className="me-2"
+                            />
+                            <span
+                              style={{
+                                maxWidth: "180px",
+                                whiteSpace: "nowrap",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                              }}
+                            >
                               {pdf.split("/").slice(-1)}
                             </span>
                           </div>
                         </a>
                       </Col>
-                    ))
-                  }
-                </Row>
-              </div>
-            )}
+                    ))}
+                  </Row>
+                </div>
+              )}
 
             {currentTab === 2 && (
               <div className="d-flex flex-column ps-lg-4 my-4">
@@ -787,9 +931,7 @@ function ViewAd() {
                         {/* <ul className="custom-lists-tick-icon roboto-regular-16px-information">
                         <li>{faq.question}</li>
                       </ul> */}
-                        <div
-                          className="roboto-regular-18px-body3 mb-2"
-                        >
+                        <div className="roboto-regular-18px-body3 mb-2">
                           {faq.answer}
                         </div>
                       </Col>
@@ -820,9 +962,7 @@ function ViewAd() {
                         {/* <ul className="custom-lists-tick-icon roboto-regular-16px-information">
                         <li>{faq.question}</li>
                       </ul> */}
-                        <div
-                          className="roboto-regular-18px-body3 mb-2"
-                        >
+                        <div className="roboto-regular-18px-body3 mb-2">
                           {faq.answer}
                         </div>
                       </Col>
@@ -841,30 +981,38 @@ function ViewAd() {
             )}
 
             {currentTab === 3 && (
-              <Reviews adId={currentAd?.id} adName={currentAd?.name} reviewPosting={currentAd?.review_posting} />
+              <Reviews
+                adId={currentAd?.id}
+                adName={currentAd?.name}
+                reviewPosting={currentAd?.review_posting}
+              />
             )}
           </Col>
           <Col lg={4}>
-            {user?.userId === null
-            || (user?.userId !== null && user?.role === "client") ? (
-                chatId !== null ? (
-                  <Button variant="success" className="w-100" disabled={!user.is_verified} onClick={() => navigate(`/messages?chatId=${chatId}`)}>Go to Chat</Button>
-                ) : (
-                  <Form
-                    className="message-vendor-form"
+            {user?.userId === null ||
+            (user?.userId !== null && user?.role === "client") ? (
+              chatId !== null ? (
+                <Button
+                  variant="success"
+                  className="w-100"
+                  disabled={!user.is_verified}
+                  onClick={() => navigate(`/messages?chatId=${chatId}`)}
+                >
+                  Go to Chat
+                </Button>
+              ) : (
+                <Form className="message-vendor-form">
+                  <div
+                    className="d-flex justify-content-center align-items-center roboto-semi-bold-28px-h2"
+                    style={{ marginBottom: "26px" }}
                   >
-                    <div
-                      className="d-flex justify-content-center align-items-center roboto-semi-bold-28px-h2"
-                      style={{ marginBottom: "26px" }}
-                    >
-                      {user.userId === null ? "Contact" : "Message"}
-                      {" "}
-                      Vendor
-                    </div>
+                    {user.userId === null ? "Contact" : "Message"} Vendor
+                  </div>
 
+                  <Form.Group>
                     <Form.Control
                       style={{ minHeight: "120px" }}
-                      className="lg-input-small-text mb-4"
+                      className="lg-input-small-text"
                       name="message.text"
                       as="textarea"
                       rows={3}
@@ -872,84 +1020,131 @@ function ViewAd() {
                       size="lg"
                       placeholder="Message"
                       value={text || ""}
-                      onChange={(e) => setText(e.target.value)}
+                      onChange={(e) => {
+                        e.preventDefault();
+                        setText(e.target.value);
+                        checkValidity("text", e.target.value);
+                      }}
+                      isInvalid={!isValidForm.text}
                     />
-
-                    {user?.userId === null ? (
-                      <>
+                    <Form.Control.Feedback type="invalid">
+                      Message is required
+                    </Form.Control.Feedback>
+                  </Form.Group>
+                  {user?.userId === null ? (
+                    <>
+                      <Form.Group>
                         <Form.Control
                           style={{ height: "56px" }}
-                          className="lg-input-small-text mb-4"
+                          className="lg-input-small-text mt-4"
                           type="text"
                           name="message.full_name"
                           size="sm"
                           placeholder="First and Last Name"
                           value={name || ""}
-                          onChange={(e) => setName(e.target.value)}
+                          onChange={(e) => {
+                            e.preventDefault();
+                            setName(e.target.value);
+                            checkValidity("name", e.target.value);
+                          }}
+                          isInvalid={!isValidForm.name}
                         />
+                        <Form.Control.Feedback type="invalid">
+                          Name is required
+                        </Form.Control.Feedback>
+                      </Form.Group>
 
+                      <Form.Group>
                         <Form.Control
                           style={{ height: "56px" }}
-                          className="lg-input-small-text mb-4"
+                          className="lg-input-small-text mt-4"
                           type="email"
                           name="message.email"
                           size="sm"
                           placeholder="Email"
                           value={email || ""}
-                          onChange={(e) => setEmail(e.target.value)}
+                          onChange={(e) => {
+                            e.preventDefault();
+                            setEmail(e.target.value);
+                            checkValidity("email", e.target.value);
+                          }}
+                          isInvalid={!isValidForm.email}
                         />
+                        <Form.Control.Feedback type="invalid">
+                          Email is required
+                        </Form.Control.Feedback>
+                      </Form.Group>
 
+                      <Form.Group>
                         <Form.Control
                           style={{ height: "56px" }}
-                          className="lg-input-small-text mb-4"
+                          className="lg-input-small-text mt-4"
                           type="text"
                           name="message.phone"
                           size="sm"
                           placeholder="Phone"
                           value={phone || ""}
-                          onChange={(e) => setPhone(e.target.value)}
+                          onChange={(e) => {
+                            e.preventDefault();
+                            setPhone(e.target.value);
+                            checkValidity("phone", e.target.value);
+                          }}
+                          isInvalid={!isValidForm.phone}
                         />
-                      </>
-                    ) : (
-                      ""
-                    )}
+                        <Form.Control.Feedback type="invalid">
+                          Phone is required
+                        </Form.Control.Feedback>
+                      </Form.Group>
+                    </>
+                  ) : (
+                    ""
+                  )}
 
+                  <Form.Group>
                     <Form.Control
                       style={{ height: "56px" }}
-                      className="lg-input-small-text mb-4"
+                      className="lg-input-small-text mt-4"
                       type="date"
                       name="message.event_date"
                       size="sm"
                       placeholder="Event date"
                       value={eventDate || ""}
-                      onChange={(e) => setEventDate(e.target.value)}
+                      onChange={(e) => {
+                        e.preventDefault();
+                        setEventDate(e.target.value);
+                        checkValidity("event_date", e.target.value);
+                      }}
+                      isInvalid={!isValidForm.event_date}
                     />
+                    <Form.Control.Feedback type="invalid">
+                      Select an event date
+                    </Form.Control.Feedback>
+                  </Form.Group>
 
-                    <p className="roboto-regular-14px-information">
-                      By clicking ‘Send’, I agree to Allevents
-                      {" "}
-                      <a className="roboto-regular-14px-information" href="#">
-                        Privacy Policy
-                      </a>
-                      , and
-                      {" "}
-                      <a className="roboto-regular-14px-information" href="#">
-                        Terms of Use
-                      </a>
-                    </p>
+                  <p className="roboto-regular-14px-information mt-4">
+                    By clicking ‘Send’, I agree to Allevents{" "}
+                    <a className="roboto-regular-14px-information" href="#">
+                      Privacy Policy
+                    </a>
+                    , and{" "}
+                    <a className="roboto-regular-14px-information" href="#">
+                      Terms of Use
+                    </a>
+                  </p>
 
-                    <Button
-                      type="button"
-                      className="btn btn-success roboto-semi-bold-16px-information w-100"
-                      onClick={submitVendorRequestForm}
-                      disabled={!user.is_verified}
-                    >
-                      Send
-                    </Button>
-                  </Form>
-                )) : (
-                ""
-              )}
+                  <Button
+                    type="button"
+                    className="btn btn-success roboto-semi-bold-16px-information w-100"
+                    disabled={!user.is_verified}
+                    onClick={submitVendorRequestForm}
+                  >
+                    Send
+                  </Button>
+                </Form>
+              )
+            ) : (
+              ""
+            )}
           </Col>
         </Row>
       </Container>

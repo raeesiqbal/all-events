@@ -4,10 +4,12 @@ import { useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
+import { Button, Container, FormControl, Row } from "react-bootstrap";
 import {
-  Button, Container, FormControl, Row,
-} from "react-bootstrap";
-import { chatsSuggestionList, listChats } from "../redux/Chats/ChatsSlice";
+  chatsSuggestionList,
+  listChats,
+  unreadChatCount,
+} from "../redux/Chats/ChatsSlice";
 import { listChatMessages } from "../redux/Messages/MessagesSlice";
 import MesssageTabNavigation from "../../components/TabNavigation/MessageTabNavigation";
 import Chat from "./Chat";
@@ -17,9 +19,8 @@ import ProfilePic from "../../components/ProfilePic/ProfilePic";
 
 function Chats() {
   const dispatch = useDispatch();
-  const {
-    chats, inboxCount, archivedCount, suggestionsList, loading,
-  } = useSelector((state) => state.chats);
+  const { chats, inboxCount, archivedCount, suggestionsList, loading } =
+    useSelector((state) => state.chats);
   const currentUser = useSelector((state) => state.auth.user);
   const limit = 10;
   const [offset, setOffset] = React.useState(0);
@@ -76,7 +77,7 @@ function Chats() {
         offset: 0,
         adName,
         senderName,
-      }),
+      })
     );
   };
 
@@ -95,7 +96,7 @@ function Chats() {
             offset,
             adName,
             senderName,
-          }),
+          })
         );
       }
     }
@@ -110,7 +111,7 @@ function Chats() {
         offset,
         adName,
         senderName,
-      }),
+      })
     );
   }, [activeTab]);
 
@@ -122,14 +123,16 @@ function Chats() {
           archive: activeTab === "Archived" ? "True" : "False",
           limit,
           offset,
-        }),
+        })
       );
+      dispatch(unreadChatCount());
     }
   }, [chatId]);
 
   useEffect(() => {
     if (suggestionDropdown.current) {
-      suggestionDropdown.current.style.overflowY = suggestionDropdown.current.clientHeight > 400 ? "scroll" : "auto";
+      suggestionDropdown.current.style.overflowY =
+        suggestionDropdown.current.clientHeight > 400 ? "scroll" : "auto";
     }
   }, [suggestionsList]);
 
@@ -158,7 +161,9 @@ function Chats() {
                   {suggestionsList.map((suggestion) => (
                     <div
                       className="w-100 px-3 py-2"
-                      onClick={() => handleSuggestionClick(suggestion, "ad_name")}
+                      onClick={() =>
+                        handleSuggestionClick(suggestion, "ad_name")
+                      }
                     >
                       <span className="my-auto px-2">{suggestion}</span>
                     </div>
@@ -179,7 +184,9 @@ function Chats() {
                     {suggestionsList.map((suggestion) => (
                       <div
                         className="w-100 px-3 py-2"
-                        onClick={() => handleSuggestionClick(suggestion, "sender_name")}
+                        onClick={() =>
+                          handleSuggestionClick(suggestion, "sender_name")
+                        }
                       >
                         <span className="my-auto px-2">{suggestion}</span>
                       </div>
@@ -205,27 +212,23 @@ function Chats() {
           tabs={tabs}
         />
         <Row className="chats-body" onScroll={handleScroll}>
-          {
-            chats
-              && !loading
-              && chats.map((chat) => (
-                <Chat
-                  chat={chat}
-                  key={chat.id}
-                  isOpenChat={chat.id.toString() === chatId}
-                />
-              ))
-          }
+          {chats &&
+            !loading &&
+            chats.map((chat) => (
+              <Chat
+                chat={chat}
+                key={chat.id}
+                isOpenChat={chat.id.toString() === chatId}
+              />
+            ))}
           {loading && (
             <div className="loading-icon">
               <FontAwesomeIcon icon={faSpinner} spin />
             </div>
           )}
-          {
-            chats?.length === 0 && (
-              <h3 className="text-center mt-5">No message found</h3>
-            )
-          }
+          {chats?.length === 0 && (
+            <h3 className="text-center mt-5">No message found</h3>
+          )}
         </Row>
       </Container>
     </>

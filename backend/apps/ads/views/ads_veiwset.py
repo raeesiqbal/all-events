@@ -15,12 +15,7 @@ from apps.utils.tasks import (
     delete_s3_object_by_url_list,
 )
 from tempfile import NamedTemporaryFile
-
-
-import fitz  # PyMuPDF
-import os
-import tempfile
-
+from ipware import get_client_ip
 
 # filters
 from rest_framework.filters import OrderingFilter, SearchFilter
@@ -53,7 +48,7 @@ from apps.ads.models import (
 )
 from apps.subscriptions.models import Subscription
 from apps.companies.models import Company
-from apps.analytics.models import Calender
+from apps.analytics.models import Calender, AdView
 
 # serializers
 from apps.ads.serializers.update_serializer import AdUpdateSerializer
@@ -87,7 +82,7 @@ from apps.analytics.serializers.get_serializer import (
 
 class AdViewSet(BaseViewset):
     """
-    API endpoints that manages Company Ads.
+    API endpoints that manages company ads
     """
 
     queryset = Ad.objects.all()
@@ -253,8 +248,6 @@ class AdViewSet(BaseViewset):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         delete_url_list = serializer.validated_data.pop("delete_urls", [])
-        # self.s3_service.delete_s3_object_by_url(delete_urls)
-        # print("delete urls", delete_url_list)
         media_urls = serializer.validated_data.pop("media_urls", {})
         faqs = serializer.validated_data.pop("faqs", [])
         ad_faqs = serializer.validated_data.pop("ad_faq_ad", [])
@@ -298,7 +291,7 @@ class AdViewSet(BaseViewset):
                 data=ResponseInfo().format_response(
                     data=AdGetSerializer(ad.first()).data,
                     status_code=status.HTTP_200_OK,
-                    message="Ad has been modified successfully",
+                    message="Ad has been edited successfully",
                 ),
             )
         return Response(
@@ -328,6 +321,7 @@ class AdViewSet(BaseViewset):
 
     @action(detail=True, url_path="upload-media", methods=["post"])
     def upload_media(self, request, *args, **kwargs):
+        set_main_image = request.query_params.get("main", False)
         ad = Ad.objects.filter(id=kwargs["pk"]).first()
         ad_gallery = Gallery.objects.filter(ad=ad).first()
         if ad and ad_gallery:
@@ -348,7 +342,9 @@ class AdViewSet(BaseViewset):
                 elif file_obj.name.endswith(".mp4"):
                     upload_video.delay(temp_file_path, content_type, name, ad)
                 elif file_obj.name.endswith((".jpeg", ".jpg", ".png", ".gif")):
-                    upload_image.delay(temp_file_path, content_type, name, ad)
+                    upload_image.delay(
+                        temp_file_path, content_type, name, ad, set_main_image
+                    )
                 file_obj.close()
 
             return Response(
@@ -502,9 +498,9 @@ class AdViewSet(BaseViewset):
             category_serializer = CategoryGetSerializer()
             for category, subcategories in grouped_data.items():
                 category_data = category_serializer.to_representation(category)
-                category_data[
-                    "subcategories"
-                ] = subcategory_serializer.to_representation(subcategories)
+                category_data["subcategories"] = (
+                    subcategory_serializer.to_representation(subcategories)
+                )
                 filter_data.append(category_data)
 
         page = self.paginate_queryset(queryset)
@@ -541,10 +537,25 @@ class AdViewSet(BaseViewset):
         if obj:
             data = serializer
 
+        # Ad view analytics
+        ip, _ = get_client_ip(request)
+        if request.user.is_authenticated:
+            user = request.user
+            if AdView.objects.filter(visitor_ip=ip, ad=obj, user=None).exists():
+                AdView.objects.filter(visitor_ip=ip, ad=obj, user=None).update(
+                    user=user
+                )
+        else:
+            user = None
+        if not AdView.objects.filter(visitor_ip=ip, ad=obj).exists():
+            AdView.objects.create(visitor_ip=ip, ad=obj, user=user)
+            obj.total_views += 1
+            obj.save()
+
         return Response(
             status=status.HTTP_200_OK,
             data=ResponseInfo().format_response(
-                data=data, status_code=status.HTTP_200_OK, message="Ads Get"
+                data=data, status_code=status.HTTP_200_OK, message="Ad public get"
             ),
         )
 
@@ -661,43 +672,6 @@ class AdViewSet(BaseViewset):
     @action(detail=False, url_path="venue-countries", methods=["get"])
     def venue_countries(self, request, *args, **kwargs):
         category_name = "Venues"
-        # query = """
-        #     SELECT DISTINCT country_id
-        #     FROM ads_ad
-        #     LEFT JOIN ads_country ON ads_ad.country_id = ads_country.id
-        #     WHERE ads_ad.sub_category_id IN (
-        #         SELECT id
-        #         FROM ads_subcategory
-        #         WHERE category_id IN (
-        #             SELECT id
-        #             FROM ads_category
-        #             WHERE LOWER(name) = LOWER(%s)
-        #         )
-        #     )
-        #     UNION
-        #     SELECT DISTINCT country_id
-        #     FROM ads_ad_activation_countries
-        #     LEFT JOIN ads_country ON ads_ad_activation_countries.country_id = ads_country.id
-        #     WHERE ads_ad_activation_countries.ad_id IN (
-        #         SELECT id
-        #         FROM ads_ad
-        #         WHERE sub_category_id IN (
-        #             SELECT id
-        #             FROM ads_subcategory
-        #             WHERE category_id IN (
-        #                 SELECT id
-        #                 FROM ads_category
-        #                 WHERE LOWER(name) = LOWER(%s)
-        #             )
-        #         )
-        #     )
-        # """
-        # with connection.cursor() as cursor:
-        #     cursor.execute(query, [category_name, category_name])
-        #     country_ids = cursor.fetchall()
-        # countries = Country.objects.filter(
-        #     id__in=[country_id for country_id, in country_ids]
-        # )
         countries = (
             Ad.objects.filter(
                 sub_category__category__name__icontains=category_name,

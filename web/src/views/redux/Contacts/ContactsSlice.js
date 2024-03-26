@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 /* eslint-disable no-useless-catch */
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { secureInstance } from "../../../axios/config";
+import { instance, secureInstance } from "../../../axios/config";
 
 // Create an initial state for the auth slice
 const initialState = {
@@ -16,7 +16,7 @@ export const handleStartContact = createAsyncThunk(
   "Contacts/create",
   async ({ data }, { rejectWithValue }) => {
     try {
-      const response = await secureInstance.request({
+      const response = await instance.request({
         url: "/api/analytics/ad-contact/",
         method: "Post",
         data,
@@ -30,7 +30,7 @@ export const handleStartContact = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  },
+  }
 );
 
 export const listContacts = createAsyncThunk(
@@ -47,13 +47,18 @@ export const listContacts = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  },
+  }
 );
 
 // Create the ContactsSlice
 export const ContactsSlice = createSlice({
   name: "Contacts",
   initialState,
+  reducers: {
+    resetContactSuccessAlert: (state) => {
+      state.ContactSuccessAlert = false;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(handleStartContact.pending, (state) => {
@@ -66,8 +71,8 @@ export const ContactsSlice = createSlice({
       })
       .addCase(handleStartContact.rejected, (state, action) => {
         state.loading = false;
-        state.ContactErrorAlert = action.payload;
-        // state.error = action.payload;
+        state.ContactErrorAlert = true;
+        state.error = action.payload;
       })
       .addCase(listContacts.pending, (state) => {
         state.loading = true;
@@ -83,6 +88,8 @@ export const ContactsSlice = createSlice({
       });
   },
 });
+
+export const { resetContactSuccessAlert } = ContactsSlice.actions;
 
 // Export the reducer and actions
 export default ContactsSlice.reducer;

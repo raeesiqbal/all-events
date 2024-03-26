@@ -45,9 +45,9 @@ class AdCalenderViewSet(BaseViewset):
         "update_calender": CalenderUpdateSerializer,
     }
     action_permissions = {
-        "default": [IsAuthenticated, IsVerified, IsVendorUser],
+        "default": [IsAuthenticated, IsVendorUser],
         "create": [IsAuthenticated, IsVerified, IsVendorUser],
-        "vendor_calender_list": [IsAuthenticated, IsVerified, IsVendorUser],
+        "vendor_calender_list": [IsAuthenticated, IsVendorUser],
         "set_calender_availability": [IsAuthenticated, IsVerified, IsVendorUser],
         "update_calender": [IsAuthenticated, IsVerified, IsVendorUser],
     }

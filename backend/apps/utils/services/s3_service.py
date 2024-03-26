@@ -3,6 +3,7 @@ from datetime import datetime
 import environ
 from botocore.exceptions import ClientError
 import logging
+import io
 
 
 class S3Service:
@@ -11,6 +12,21 @@ class S3Service:
 
     def __init__(self):
         self.bucket_name = self.env.str("S3_BUCKET_NAME")
+
+    def upload_binary_file(self, file_content, content_type, upload_folder, name):
+        timestamp = datetime.timestamp(datetime.now())
+        object_name = f"uploads/{upload_folder}/{timestamp}_{name}"
+        self.s3_client.upload_fileobj(
+            io.BytesIO(file_content),
+            self.bucket_name,
+            object_name,
+            ExtraArgs={
+                "ACL": "public-read",
+                "ContentType": content_type,
+            },
+        )
+        file_url = f"https://{self.bucket_name}.s3.amazonaws.com/{object_name}"
+        return file_url
 
     def parse_s3_url(self, s3_object_url):
         s3_url = s3_object_url.replace("https://", "")

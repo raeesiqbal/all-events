@@ -32,6 +32,9 @@ const initialState = {
   freePlan: null,
   SubscriptionSuccessAlert: false,
   SubscriptionErrorAlert: false,
+  errorList: [],
+  invoiceList: [],
+  invoiceLoading: false,
 };
 
 export const createSubscription = createAsyncThunk(
@@ -50,7 +53,7 @@ export const createSubscription = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  },
+  }
 );
 
 export const currentSubscriptionDetails = createAsyncThunk(
@@ -67,7 +70,7 @@ export const currentSubscriptionDetails = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  },
+  }
 );
 
 export const updateSubscription = createAsyncThunk(
@@ -85,7 +88,7 @@ export const updateSubscription = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  },
+  }
 );
 
 export const cancelSubscription = createAsyncThunk(
@@ -103,7 +106,7 @@ export const cancelSubscription = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  },
+  }
 );
 
 export const resumeSubscription = createAsyncThunk(
@@ -121,7 +124,22 @@ export const resumeSubscription = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  },
+  }
+);
+
+export const getInvoiceList = createAsyncThunk(
+  "Invoice/list",
+  async (subscriptionId, { rejectWithValue }) => {
+    try {
+      const response = await secureInstance.request({
+        url: `/api/subscriptions/${subscriptionId}/list-invoice`,
+        method: "get",
+      });
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(err.response.data);
+    }
+  }
 );
 
 export const listPlans = createAsyncThunk(
@@ -139,7 +157,7 @@ export const listPlans = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  },
+  }
 );
 
 export const listSubscriptions = createAsyncThunk(
@@ -156,7 +174,7 @@ export const listSubscriptions = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  },
+  }
 );
 
 export const getPaymentMethod = createAsyncThunk(
@@ -173,7 +191,7 @@ export const getPaymentMethod = createAsyncThunk(
       // by explicitly returning it using the `rejectWithValue()` utility
       return rejectWithValue(err.response.data);
     }
-  },
+  }
 );
 
 // Create the SubscriptionsSlice
@@ -190,6 +208,9 @@ export const SubscriptionsSlice = createSlice({
     },
     setModalMessage: (state, action) => {
       state.modalInfo.modalMessage = action.payload;
+    },
+    resetErrorList: (state) => {
+      state.errorList = [];
     },
   },
   extraReducers: (builder) => {
@@ -232,7 +253,8 @@ export const SubscriptionsSlice = createSlice({
           state.modalInfo.buttonText = "See our plans";
           state.modalInfo.modalType = "no_subscription";
           state.modalInfo.modalTitle = "Subscribe to a Plan";
-          state.modalInfo.modalMessage = "You have no active subscription, please check our subscription plans.";
+          state.modalInfo.modalMessage =
+            "You have no active subscription, please check our subscription plans.";
         } else if (action.payload.data.status === "unpaid") {
           state.modalInfo.buttonText = "Update Payment Method";
           state.modalInfo.modalType = "unpaid";
@@ -257,6 +279,7 @@ export const SubscriptionsSlice = createSlice({
         state.SubscriptionSuccessAlert = false;
         state.SubscriptionErrorAlert = false;
         state.error = null;
+        state.errorList = [];
       })
       .addCase(updateSubscription.fulfilled, (state, action) => {
         state.loading = false;
@@ -268,6 +291,7 @@ export const SubscriptionsSlice = createSlice({
         state.loading = false;
         state.SubscriptionErrorAlert = true;
         state.error = action.payload.message;
+        state.errorList = action.payload.data || [];
       })
       .addCase(cancelSubscription.pending, (state) => {
         state.loading = true;
@@ -301,6 +325,23 @@ export const SubscriptionsSlice = createSlice({
         state.SubscriptionErrorAlert = true;
         state.error = action.payload;
       })
+      //Invoice list
+      .addCase(getInvoiceList.pending, (state) => {
+        state.SubscriptionSuccessAlert = false;
+        state.SubscriptionErrorAlert = false;
+        state.error = null;
+        state.invoiceLoading = true;
+      })
+      .addCase(getInvoiceList.fulfilled, (state, action) => {
+        state.invoiceLoading = false;
+        state.invoiceList = action.payload.data;
+      })
+      .addCase(getInvoiceList.rejected, (state, action) => {
+        state.invoiceLoading = false;
+        state.SubscriptionErrorAlert = true;
+        state.error = action.payload;
+      })
+      //Invoice list
       .addCase(listPlans.pending, (state) => {
         state.listPlansLoading = true;
         state.SubscriptionSuccessAlert = false;
@@ -311,10 +352,14 @@ export const SubscriptionsSlice = createSlice({
         state.listPlansLoading = false;
         state.plans = action.payload.data.products;
         if (action.payload.data.current_subscription !== null) {
-          state.currentSubscription.priceId = action.payload.data.current_subscription.price_id;
-          state.currentSubscription.interval = action.payload.data.current_subscription.interval;
-          state.currentSubscription.intervalCount = action.payload.data.current_subscription.interval_count;
-          state.currentSubscription.subscriptionId = action.payload.data.current_subscription.subscription_id;
+          state.currentSubscription.priceId =
+            action.payload.data.current_subscription.price_id;
+          state.currentSubscription.interval =
+            action.payload.data.current_subscription.interval;
+          state.currentSubscription.intervalCount =
+            action.payload.data.current_subscription.interval_count;
+          state.currentSubscription.subscriptionId =
+            action.payload.data.current_subscription.subscription_id;
         }
         state.freePlan = action.payload.data.free_plan;
       })
@@ -351,10 +396,8 @@ export const SubscriptionsSlice = createSlice({
   },
 });
 
-export const {
-  handleMessageAlerts,
-  setShowModal,
-} = SubscriptionsSlice.actions;
+export const { handleMessageAlerts, setShowModal, resetErrorList } =
+  SubscriptionsSlice.actions;
 
 // Export the reducer and actions
 export default SubscriptionsSlice.reducer;

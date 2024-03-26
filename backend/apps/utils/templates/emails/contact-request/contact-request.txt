@@ -1,0 +1,9 @@
+Hey {{message.ad.company.name}}\n
+You have received a contact request. Below are the details:\n\n
+
+Full Name: {{message.full_name}}\n
+Email: {{message.email}}\n
+Phone: {{message.phone}}\n
+Ad: {{message.ad.name}}\n
+Event Date: {{message.event_date}}\n
+message: {{message.message}}\n
