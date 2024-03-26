@@ -33,6 +33,8 @@ const initialState = {
   SubscriptionSuccessAlert: false,
   SubscriptionErrorAlert: false,
   errorList: [],
+  invoiceList: [],
+  invoiceLoading: false,
 };
 
 export const createSubscription = createAsyncThunk(
@@ -120,6 +122,21 @@ export const resumeSubscription = createAsyncThunk(
     } catch (err) {
       // Use `err.response.data` as `action.payload` for a `rejected` action,
       // by explicitly returning it using the `rejectWithValue()` utility
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
+
+export const getInvoiceList = createAsyncThunk(
+  "Invoice/list",
+  async (subscriptionId, { rejectWithValue }) => {
+    try {
+      const response = await secureInstance.request({
+        url: `/api/subscriptions/${subscriptionId}/list-invoice`,
+        method: "get",
+      });
+      return response.data;
+    } catch (err) {
       return rejectWithValue(err.response.data);
     }
   }
@@ -308,6 +325,23 @@ export const SubscriptionsSlice = createSlice({
         state.SubscriptionErrorAlert = true;
         state.error = action.payload;
       })
+      //Invoice list
+      .addCase(getInvoiceList.pending, (state) => {
+        state.SubscriptionSuccessAlert = false;
+        state.SubscriptionErrorAlert = false;
+        state.error = null;
+        state.invoiceLoading = true;
+      })
+      .addCase(getInvoiceList.fulfilled, (state, action) => {
+        state.invoiceLoading = false;
+        state.invoiceList = action.payload.data;
+      })
+      .addCase(getInvoiceList.rejected, (state, action) => {
+        state.invoiceLoading = false;
+        state.SubscriptionErrorAlert = true;
+        state.error = action.payload;
+      })
+      //Invoice list
       .addCase(listPlans.pending, (state) => {
         state.listPlansLoading = true;
         state.SubscriptionSuccessAlert = false;

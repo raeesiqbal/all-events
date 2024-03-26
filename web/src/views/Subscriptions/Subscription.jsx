@@ -3,12 +3,18 @@ import { Button, Modal, Row } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBan, faDownload, faInfo } from "@fortawesome/free-solid-svg-icons";
+import {
+  faBan,
+  faDownload,
+  faInfo,
+  faSpinner,
+} from "@fortawesome/free-solid-svg-icons";
 import { Alert, Tooltip } from "@mui/material";
 import {
   cancelSubscription,
   resumeSubscription,
   listSubscriptions,
+  getInvoiceList,
 } from "../redux/Subscriptions/SubscriptionsSlice";
 import timeIcon from "../../assets/images/post-ad/carbon_time.svg";
 import { handleProfileSettingsCurrentView } from "../redux/TabNavigation/TabNavigationSlice";
@@ -23,7 +29,10 @@ const Subscription = ({ subscription }) => {
   const navigate = useNavigate();
 
   const { user } = useSelector((state) => state.auth);
-
+  const { invoiceList, invoiceLoading } = useSelector(
+    (state) => state.subscriptions
+  );
+  const [invoiceModal, setInvoiceModal] = React.useState(false);
   const [deleteModal, setDeleteModal] = React.useState(false);
   const [message, setMessage] = React.useState({
     type: null,
@@ -82,23 +91,16 @@ const Subscription = ({ subscription }) => {
     }, 2000);
   };
 
-  const handleDownloadInvoice = async () => {
+  const handleDownloadInvoice = (url) => {
     if (subscription.name.toLowerCase() === "free") return;
-
     dispatch(setScreenLoading(true));
     try {
-      const response = await secureInstance.request({
-        url: "/api/subscriptions/download-invoice/",
-        method: "Get",
-      });
-
       const a = document.createElement("a");
-      a.href = response.data.data;
+      a.href = url;
       a.click();
-
-      window.URL.revokeObjectURL(response.data.data);
+      window.URL.revokeObjectURL(url);
       setMessage({
-        text: response.data.message,
+        text: "downloaded",
         type: "success",
       });
     } catch (err) {
@@ -121,6 +123,12 @@ const Subscription = ({ subscription }) => {
     }
   }, [message]);
 
+  useEffect(() => {
+    if (invoiceModal) {
+      dispatch(getInvoiceList(subscription.id));
+    }
+  }, [invoiceModal]);
+
   return (
     <>
       <Alert
@@ -133,11 +141,121 @@ const Subscription = ({ subscription }) => {
           transform: "translateX(-50%)",
           transition: "ease 200ms",
           opacity: message.text ? 1 : 0,
-          zIndex: 2,
+          zIndex: 2000,
         }}
       >
         {message.text || ""}
       </Alert>
+
+      {/* Invoice modal */}
+      <Modal
+        show={invoiceModal}
+        onHide={() => {
+          setInvoiceModal(false);
+        }}
+        size="md"
+        aria-labelledby="example-custom-modal-styling-title"
+        centered="true"
+      >
+        <div
+          className="box"
+          style={{ position: "absolute", right: "3.5px", top: "3px" }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            right: "11px",
+            top: "6px",
+            zIndex: "20",
+          }}
+        >
+          <div
+            role="presentation"
+            onClick={() => {
+              setInvoiceModal(false);
+            }}
+            className="close-icon"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 18 18"
+              fill="none"
+              style={{ cursor: "pointer" }}
+            >
+              <path
+                d="M17 1L1 17M1 1L17 17"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
+        </div>
+        <Modal.Body>
+          {invoiceLoading ? (
+            <div className="loading-icon" style={{ height: "100px" }}>
+              <FontAwesomeIcon icon={faSpinner} spin />
+            </div>
+          ) : (
+            <div class="table-responsive">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th scope="col">Amount Paid</th>
+                    <th scope="col">Amount Due</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Created At</th>
+                    <th scope="col"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {invoiceList.map((inv) => (
+                    <tr>
+                      <td>{inv.amount_paid}</td>
+                      <td>{inv.amount_due}</td>
+                      <td>{inv.status}</td>
+                      <td>{inv.created}</td>
+                      <td>
+                        <Tooltip
+                          className="ms-3"
+                          title="download"
+                          placement="top"
+                        >
+                          <div
+                            className="d-flex"
+                            style={{
+                              borderRadius: "50%",
+                              height: "32px",
+                              width: "32px",
+                              backgroundColor: "rgba(217, 217, 217, 1)",
+                              cursor: "pointer",
+                            }}
+                            onClick={() => {
+                              handleDownloadInvoice(inv.invoice_pdf);
+                            }}
+                          >
+                            <FontAwesomeIcon
+                              className="mx-auto my-auto"
+                              icon={faDownload}
+                            />
+                          </div>
+                        </Tooltip>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {invoiceList.length === 0 && (
+                <div>There are no invoices to download</div>
+              )}
+            </div>
+          )}
+        </Modal.Body>
+      </Modal>
+
+      {/* Invoice modal */}
 
       <Modal
         show={deleteModal}
@@ -282,7 +400,6 @@ const Subscription = ({ subscription }) => {
                           ? null
                           : () => setDeleteModal(true)
                       }
-                      // onClick={() => setDeleteModal(true)}
                     >
                       <FontAwesomeIcon
                         className="mx-auto my-auto"
@@ -309,7 +426,12 @@ const Subscription = ({ subscription }) => {
                         backgroundColor: "rgba(217, 217, 217, 1)",
                         cursor: "pointer",
                       }}
-                      onClick={handleDownloadInvoice}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (subscription.name.toLowerCase() !== "free") {
+                          setInvoiceModal(true);
+                        }
+                      }}
                     >
                       <FontAwesomeIcon
                         className="mx-auto my-auto"

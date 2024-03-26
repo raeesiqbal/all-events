@@ -6,6 +6,7 @@ from rest_framework.decorators import action
 from apps.subscriptions.stripe_service import StripeService, WebHookService
 from apps.utils.views.base import BaseViewset, ResponseInfo
 from rest_framework import status
+import datetime
 from apps.utils.tasks import (
     delete_s3_object_by_url_list,
 )
@@ -46,7 +47,7 @@ from apps.subscriptions.serializers.update_serializer import (
 
 class SubscriptionsViewSet(BaseViewset):
     """
-    API endpoints that manages Ad Saved.
+    API endpoints that manages user subscriptions
     """
 
     queryset = Subscription.objects.all()
@@ -703,46 +704,39 @@ class SubscriptionsViewSet(BaseViewset):
             ),
         )
 
-    @action(detail=False, url_path="download-invoice", methods=["get"])
-    def download_invoice(self, request, *args, **kwargs):
-        company = request.user.user_company
-        free_type = SubscriptionType.objects.filter(
-            type=SUBSCRIPTION_TYPES["FREE"]
-        ).first()
-
-        subscription = (
-            Subscription.objects.filter(
-                company=company,
-                status__in=[
-                    SUBSCRIPTION_STATUS["ACTIVE"],
-                    SUBSCRIPTION_STATUS["UNPAID"],
-                ],
+    @action(detail=True, url_path="list-invoice", methods=["get"])
+    def list_invoice(self, request, *args, **kwargs):
+        subscription = Subscription.objects.filter(id=kwargs["pk"]).first()
+        if subscription.company.user == request.user:
+            invoices = self.stripe.Invoice.list(
+                subscription=subscription.subscription_id
             )
-            .exclude(type=free_type)
-            .first()
-        )
-
-        if subscription:
-            latest_invoice_id = subscription.stripe_subscription.get(
-                "latest_invoice", None
+            invoices_data = [
+                {
+                    "id": invoice.id,
+                    "status": invoice.status,
+                    "amount_due": invoice.amount_due,
+                    "amount_paid": invoice.amount_paid,
+                    "invoice_pdf": invoice.invoice_pdf,
+                    "created": datetime.datetime.fromtimestamp(
+                        invoice.created
+                    ).strftime("%d/%m/%Y"),
+                }
+                for invoice in invoices.auto_paging_iter()
+            ]
+            return Response(
+                status=status.HTTP_200_OK,
+                data=ResponseInfo().format_response(
+                    data=invoices_data,
+                    status_code=status.HTTP_200_OK,
+                    message="Subscription invoices",
+                ),
             )
-            if latest_invoice_id:
-                latest_invoice = self.stripe.Invoice.retrieve(latest_invoice_id)
-                pdf_link = latest_invoice.invoice_pdf
-                if pdf_link:
-                    return Response(
-                        status=status.HTTP_200_OK,
-                        data=ResponseInfo().format_response(
-                            data=pdf_link,
-                            status_code=status.HTTP_200_OK,
-                            message="Invoice downloaded successfully.",
-                        ),
-                    )
         return Response(
-            status=status.HTTP_400_BAD_REQUEST,
+            status=status.HTTP_403_FORBIDDEN,
             data=ResponseInfo().format_response(
-                data=[],
-                status_code=status.HTTP_400_BAD_REQUEST,
-                message="There is no invoice to download",
+                data=None,
+                status_code=status.HTTP_403_FORBIDDEN,
+                message="Forbidden action",
             ),
         )
